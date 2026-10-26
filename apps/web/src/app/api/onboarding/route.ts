@@ -30,7 +30,7 @@ export const GET = route(async () => {
     { key: "team", title: "Invite your team", why: "Managers and staff get their own sign-in with only the parts you allow.", done: members > 1 || invites > 0, href: "/app/settings/team", minutes: 3 },
     { key: "employees", title: "Add employees", why: "Needed for scheduling, time, payroll and the employee app.", done: employees > 0, href: "/app/people", minutes: 5 },
     { key: "schedule", title: "Publish your first schedule", why: "Staff see shifts on their phones and get reminders.", done: shifts > 0, href: "/app/scheduling", minutes: 5 },
-    { key: "payroll", title: "Set up payroll", why: "Hours from time and attendance flow straight into pay runs.", done: payRuns > 0, href: "/app/payroll", minutes: 10 },
+    { key: "payroll", title: "Set up payroll", why: "Hours from time and attendance flow straight into pay runs.", done: payRuns > 0, href: "/payroll", minutes: 10 },
     { key: "catalog", title: "Add products or services", why: "Used by POS, quotes, invoices and your online booking.", done: products > 0, href: "/app/inventory", minutes: 5 },
     { key: "customers", title: "Import your customers", why: "The AI follows up on leads and overdue invoices for you.", done: contacts > 0, href: "/app/crm", minutes: 3 },
     { key: "connect", title: "Connect your apps", why: "Bring in Google, Microsoft, accounting, payments and more.", done: integrations > 0, href: "/app/integrations", minutes: 3 },

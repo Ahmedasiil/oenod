@@ -33,8 +33,8 @@ export const POST = route(async (req: Request, { params }: { params: Promise<{ i
   const m = await db.supportMessage.create({ data: { caseId: id, from: "AGENT", authorId: ctx.user.id, body: d.message, internal: d.internal } });
   if (!d.internal) {
     await db.supportCase.update({ where: { id }, data: { status: "WAITING_CUSTOMER", assigneeId: c.assigneeId ?? ctx.user.id } });
-    if (c.userId) await sendPush(c.userId, "oenodpay support replied", d.message.slice(0, 120), { link: `/app/pay/support/${id}` }).catch(() => {});
-    if (c.email) await sendEmail({ to: c.email, scope: "PLATFORM", subject: `Re: ${c.subject}`, html: emailLayout({ title: "Our support team replied", body: d.message, ctaLabel: "Open the conversation", ctaUrl: `${APP_URL}/app/pay/support/${id}` }) }).catch(() => {});
+    if (c.userId) await sendPush(c.userId, "oenodpay support replied", d.message.slice(0, 120), { link: `/pay/support/${id}` }).catch(() => {});
+    if (c.email) await sendEmail({ to: c.email, scope: "PLATFORM", subject: `Re: ${c.subject}`, html: emailLayout({ title: "Our support team replied", body: d.message, ctaLabel: "Open the conversation", ctaUrl: `${APP_URL}/pay/support/${id}` }) }).catch(() => {});
   }
   await adminAudit(ctx.user.id, d.internal ? "support.note" : "support.reply", "SupportCase", id);
   return ok(m, 201);

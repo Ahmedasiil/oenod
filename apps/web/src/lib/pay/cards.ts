@@ -57,7 +57,7 @@ export async function decideAuthorization(a: Stripe.Issuing.Authorization): Prom
   if (card.familyId) {
     const f = await db.payFamilyMember.findUnique({ where: { id: card.familyId } });
     const parent = f && (await db.user.findUnique({ where: { id: f.parentUserId } }));
-    if (parent && f) await import("../push").then((p) => p.sendPush(parent.id, `${f.name} spent ${(amount / 100).toFixed(2)}`, m.name ?? undefined, { link: "/app/pay/family" })).catch(() => {});
+    if (parent && f) await import("../push").then((p) => p.sendPush(parent.id, `${f.name} spent ${(amount / 100).toFixed(2)}`, m.name ?? undefined, { link: "/pay/family" })).catch(() => {});
   }
   return r;
 }

@@ -22,6 +22,7 @@ const Schema = z.object({
   partner: z.string().max(40).optional(),
   plan: z.string().optional(),
   learnerOnly: z.boolean().optional(), // Academy / Jobs accounts without a company
+  personal: z.boolean().optional(), // oenodpay personal accounts, also without a company
 });
 
 export const POST = route(async (req: Request) => {
@@ -39,11 +40,11 @@ export const POST = route(async (req: Request) => {
   });
   await db.lead.updateMany({ where: { email: d.email }, data: { convertedUserId: user.id } });
   let orgId: string | null = null;
-  if (!d.learnerOnly) {
+  if (!d.learnerOnly && !d.personal) {
     const org = await createWorkspace(user, { company: d.company || `${d.name.split(" ")[0]}'s business`, industry: d.industry, country: d.country, region: d.region, phone: d.phone, partnerCode: d.partner, planKey: d.plan });
     orgId = org.id;
   }
   await audit({ user, orgId, actor: "user" }, "auth.signup");
   const { token: t } = await startSession(user, req);
-  return ok({ token: t, mustEnable2fa: isSuper, user: { id: user.id, name: user.name, email: user.email }, orgId, redirect: d.learnerOnly ? "/academy" : "/app/welcome" }, 201);
+  return ok({ token: t, mustEnable2fa: isSuper, user: { id: user.id, name: user.name, email: user.email }, orgId, redirect: d.personal ? "/pay" : d.learnerOnly ? "/academy" : "/app/welcome" }, 201);
 });

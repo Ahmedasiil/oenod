@@ -41,6 +41,6 @@ export const POST = route(async (req: Request) => {
 
   const s = await startSession(user, req);
   await audit({ user, orgId: user.memberships[0]?.orgId, actor: "user" }, "auth.signin", "session", s.sessionId, { ip });
-  const redirect = needs2fa ? (user.memberships.length ? "/app/account/security?setup=2fa" : "/admin/security?setup=2fa") : user.memberships.length ? (user.memberships.every((m) => m.role === "EMPLOYEE") ? "/me" : "/app") : user.isSuperAdmin ? "/admin" : "/academy";
+  const redirect = needs2fa ? (user.memberships.length ? "/app/account/security?setup=2fa" : "/admin/security?setup=2fa") : user.memberships.length ? (user.memberships.every((m) => m.role === "EMPLOYEE") ? "/me" : "/app") : user.isSuperAdmin ? "/admin" : (await db.payProfile.count({ where: { userId: user.id } })) ? "/pay" : "/academy";
   return ok({ token: s.token, user: { id: user.id, name: user.name, email: user.email, isSuperAdmin: user.isSuperAdmin }, mustEnable2fa: needs2fa, redirect });
 });

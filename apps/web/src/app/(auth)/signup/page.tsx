@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Building2, GraduationCap } from "lucide-react";
+import { Building2, GraduationCap, Wallet } from "lucide-react";
 import { api } from "@/lib/client/api";
 import { INDUSTRIES } from "@/lib/modules";
 import { safeNext } from "@/lib/public";
@@ -21,7 +21,7 @@ export default function SignUp() {
   const sp = useSearchParams();
   const next = safeNext(sp.get("next"));
   const plan = sp.get("plan") ?? undefined;
-  const [kind, setKind] = useState<"business" | "learner">(sp.get("for") === "learner" ? "learner" : "business");
+  const [kind, setKind] = useState<"business" | "learner" | "personal">(sp.get("for") === "learner" ? "learner" : sp.get("for") === "pay" || next?.startsWith("/pay") ? "personal" : "business");
   const [v, setV] = useState({ name: "", email: "", password: "", company: "", industry: "", country: "CA", phone: "", marketingConsent: false });
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -37,15 +37,15 @@ export default function SignUp() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault(); setBusy(true); setErr(null);
     try {
-      const r = await api("/api/auth/signup", { body: { name: v.name, email: v.email, password: v.password, marketingConsent: v.marketingConsent, plan, learnerOnly: kind === "learner", ...(kind === "business" ? { company: v.company, industry: v.industry || undefined, country: v.country, phone: v.phone || undefined } : {}), partner: sp.get("partner") ?? undefined } });
+      const r = await api("/api/auth/signup", { body: { name: v.name, email: v.email, password: v.password, marketingConsent: v.marketingConsent, plan, learnerOnly: kind === "learner", personal: kind === "personal", ...(kind === "business" ? { company: v.company, industry: v.industry || undefined, country: v.country, phone: v.phone || undefined } : {}), partner: sp.get("partner") ?? undefined } });
       location.href = r.mustEnable2fa ? "/app/account/security?setup=2fa" : next ?? r.redirect;
     } catch (er: any) { setErr(er.message); setBusy(false); }
   };
   return (
     <form onSubmit={submit} className="space-y-5">
-      <div><h1 className="font-display text-[32px] font-semibold tracking-tight">Create your account</h1><p className="mt-1 text-[14px] text-muted">{kind === "business" ? "14 days free. No credit card." : "Free. Take courses and apply to jobs faster."}</p></div>
-      <div className="grid grid-cols-2 gap-2">
-        {([["business", Building2, "For my business"], ["learner", GraduationCap, "To learn or find a job"]] as const).map(([k, I, l]) => (
+      <div><h1 className="font-display text-[32px] font-semibold tracking-tight">Create your account</h1><p className="mt-1 text-[14px] text-muted">{kind === "business" ? "14 days free. No credit card." : kind === "personal" ? "oenodpay: send money worldwide, cards, family and travel. Free to open." : "Free. Take courses and apply to jobs faster."}</p></div>
+      <div className="grid grid-cols-3 gap-2">
+        {([["personal", Wallet, "oenodpay, for me"], ["business", Building2, "For my business"], ["learner", GraduationCap, "To learn or find a job"]] as const).map(([k, I, l]) => (
           <button type="button" key={k} onClick={() => setKind(k)} className={cx("flex items-center gap-2 rounded-xl border px-3 py-3 text-start text-[13px] font-bold transition", kind === k ? "border-navy bg-navy text-white" : "border-line hover:border-[#C9D4FF]")}><I className="h-4 w-4 shrink-0" />{l}</button>
         ))}
       </div>
@@ -64,7 +64,7 @@ export default function SignUp() {
       </>}
       <label className="flex items-start gap-2 text-[12.5px] leading-5 text-muted"><input type="checkbox" className="mt-0.5" checked={v.marketingConsent} onChange={(e) => set("marketingConsent", e.target.checked)} />Send me product news, tips and offers from OENOD. I can unsubscribe at any time.</label>
       {err && <p className="rounded-xl bg-[#FFF5F7] px-3 py-2 text-[13px] text-crit">{err}{/already exists/.test(err) && <> <Link href="/signin" className="font-bold underline">Sign in</Link></>}</p>}
-      <Button variant="pri" type="submit" loading={busy} className="h-12 w-full text-[14.5px]">{kind === "business" ? "Start free trial" : "Create free account"}</Button>
+      <Button variant="pri" type="submit" loading={busy} className="h-12 w-full text-[14.5px]">{kind === "business" ? "Start free trial" : kind === "personal" ? "Open my oenodpay account" : "Create free account"}</Button>
       <p className="text-center text-[11.5px] leading-5 text-muted">By continuing you agree to the <a href="/legal/terms" className="underline">Terms</a> and <a href="/legal/privacy" className="underline">Privacy Policy</a>.</p>
       <p className="text-center text-[13.5px] text-muted">Already have an account? <Link href={`/signin${next ? `?next=${encodeURIComponent(next)}` : ""}`} className="font-bold text-blue">Sign in</Link></p>
     </form>

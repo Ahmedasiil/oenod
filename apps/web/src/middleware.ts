@@ -7,4 +7,4 @@ export function middleware(req: NextRequest) {
   return NextResponse.next({ request: { headers: h } });
 }
 
-export const config = { matcher: ["/app/:path*", "/admin/:path*", "/me/:path*"] };
+export const config = { matcher: ["/app/:path*", "/admin/:path*", "/me/:path*", "/pay/:path*", "/pay"] };

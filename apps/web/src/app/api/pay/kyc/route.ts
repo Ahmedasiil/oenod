@@ -8,7 +8,7 @@ import { audit } from "@/lib/audit";
 // Start identity verification: ID document plus a live selfie on Stripe's secure page.
 export const POST = route(async (req: Request) => {
   const ctx = await requirePay(req, { action: "kyc" });
-  const d = await body(req, z.object({ returnPath: z.string().regex(/^\/[a-z0-9/_-]*$/i).default("/app/pay/verify") }));
+  const d = await body(req, z.object({ returnPath: z.string().regex(/^\/[a-z0-9/_-]*$/i).default("/pay/verify") }));
   if (ctx.profile.kycStatus === "VERIFIED") throw new HttpError(409, "You're already verified.");
   const recent = await db.auditLog.count({ where: { userId: ctx.user.id, action: "pay.kyc_started", createdAt: { gte: new Date(Date.now() - 86400_000) } } });
   if (recent >= 5) throw new HttpError(429, "Too many attempts today. Contact support if you're stuck.");

@@ -32,7 +32,7 @@ export async function priceAlerts() {
     if (p == null) continue;
     const hit = (w.alertAbove && p >= w.alertAbove) ? `is above ${w.alertAbove}` : (w.alertBelow && p <= w.alertBelow) ? `is below ${w.alertBelow}` : null;
     if (!hit) continue;
-    await sendPush(w.userId, `${w.symbol} ${hit}`, `Now ${p.toLocaleString("en-CA", { maximumFractionDigits: 4 })}`, { link: "/app/pay/markets" }).catch(() => {});
+    await sendPush(w.userId, `${w.symbol} ${hit}`, `Now ${p.toLocaleString("en-CA", { maximumFractionDigits: 4 })}`, { link: "/pay/markets" }).catch(() => {});
     await db.payWatch.update({ where: { id: w.id }, data: { alertedAt: new Date() } });
     n++;
   }

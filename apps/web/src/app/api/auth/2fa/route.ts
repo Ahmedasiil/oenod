@@ -27,5 +27,5 @@ export const POST = route(async (req: Request) => {
   const s = await startSession(user, req, { mfa: true });
   await audit({ user, orgId: user.memberships[0]?.orgId, actor: "user" }, "auth.signin", "session", s.sessionId, { ip: clientIp(req), mfa: true });
   const fresh = await db.user.findUnique({ where: { id: user.id }, select: { recoveryCodes: true } });
-  return ok({ token: s.token, user: { id: user.id, name: user.name, email: user.email, isSuperAdmin: user.isSuperAdmin }, recoveryCodesLeft: fresh?.recoveryCodes.length ?? 0, redirect: user.memberships.length ? (user.memberships.every((m) => m.role === "EMPLOYEE") ? "/me" : "/app") : user.isSuperAdmin ? "/admin" : "/academy" });
+  return ok({ token: s.token, user: { id: user.id, name: user.name, email: user.email, isSuperAdmin: user.isSuperAdmin }, recoveryCodesLeft: fresh?.recoveryCodes.length ?? 0, redirect: user.memberships.length ? (user.memberships.every((m) => m.role === "EMPLOYEE") ? "/me" : "/app") : user.isSuperAdmin ? "/admin" : (await db.payProfile.count({ where: { userId: user.id } })) ? "/pay" : "/academy" });
 });

@@ -57,6 +57,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             {s.employee && (
               <NavLink href="/me" on={path.startsWith("/me")} icon={<UserRound className="h-[17px] w-[17px]" strokeWidth={1.8} />}>{t("modules.me")}</NavLink>
             )}
+            <NavLink href="/pay" on={false} icon={<img src="/brand/oenodpay-icon.svg" alt="" className="h-[17px] w-[17px] rounded-[5px]" />}>oenodpay</NavLink>
             {nav.map((g) => (
               <div key={g.group} className="flex flex-col gap-px">
                 <h6 className="mx-2.5 mb-1.5 font-mono text-[10px] font-medium uppercase tracking-[.12em] text-muted">{g.group}</h6>
