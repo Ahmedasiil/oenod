@@ -4,7 +4,7 @@ import { Plus, Pause, Play, Moon, Globe2, ShoppingBag, CreditCard, Ban, Store, B
 import { api, useApi } from "@/lib/client/api";
 import { ago } from "@/lib/format";
 import { Badge, Button, Empty, ErrorNote, Field, Input, Loading, Modal, Toggle, cx, useToast } from "@/components/ui";
-import { CodePrompt, money, PageTitle, readiness, SetupBanner, type Overview } from "../bits";
+import { CodePrompt, money, PageTitle, readiness, SetupBanner, type Overview, Status } from "../bits";
 import { CardFace } from "../card-face";
 
 type Member = { id: string; name: string; birthYear: number; status: string; weeklyLimitCents: number; perPurchaseLimitCents: number | null; approvalOverCents: number | null; blockedCategories: string[]; allowedMerchants: string[]; nightLock: boolean; onlineAllowed: boolean; countries: string[]; spentThisWeekCents: number; cards: { id: string; last4: string; brand: string; type: string; status: string; expMonth: number; expYear: number }[]; activity: { id: string; merchant: string; amountCents: number; currency: string; decision: string; reason: string | null; createdAt: string }[] };
@@ -25,7 +25,7 @@ function Rules({ m, groups, currency, onSave }: { m: Partial<Member>; groups: Gr
         <Field label="Ask me above"><Input inputMode="decimal" placeholder="Never" value={v.approve} onChange={(e) => setV({ ...v, approve: e.target.value })} /></Field>
       </div>
       <div><b className="mb-2 flex items-center gap-1.5 text-[13.5px]"><Ban className="h-4 w-4 text-crit" />Blocked places</b>
-        <div className="flex flex-wrap gap-2">{groups.map((g) => <button key={g.key} type="button" onClick={() => setV({ ...v, blocked: v.blocked.includes(g.key) ? v.blocked.filter((x) => x !== g.key) : [...v.blocked, g.key] })} className={cx("rounded-full border px-3 py-1.5 text-[13px] font-semibold", v.blocked.includes(g.key) ? "border-crit bg-[#FFF5F7] text-crit" : "border-line text-muted")}>{g.label}</button>)}</div>
+        <div className="flex flex-wrap gap-2">{groups.map((g) => <button key={g.key} type="button" onClick={() => setV({ ...v, blocked: v.blocked.includes(g.key) ? v.blocked.filter((x) => x !== g.key) : [...v.blocked, g.key] })} className={cx("rounded-full border px-3 py-1.5 text-[13px] font-semibold", v.blocked.includes(g.key) ? "border-crit bg-[#FFF5F7] text-crit" : "border-[#E7E9EF] text-[#667085]")}>{g.label}</button>)}</div>
       </div>
       <Field label="Only allow these shops (optional)" help="Comma separated, for example: Walmart, Tim Hortons, Indigo. Leave empty to allow everywhere not blocked."><Input value={v.merchants} onChange={(e) => setV({ ...v, merchants: e.target.value })} /></Field>
       <Field label="Only in these countries (optional)" help="Two-letter codes, for example: CA, US"><Input value={v.countries} onChange={(e) => setV({ ...v, countries: e.target.value.toUpperCase() })} /></Field>
@@ -60,28 +60,28 @@ export default function Family() {
       {!data.members.length ? <Empty icon={<ShoppingBag className="h-6 w-6" />} title="No family members yet" body="Add a teen to give them a card you control." /> : (
         <div className="space-y-5">{data.members.map((m) => (
           <section key={m.id} className="card overflow-hidden">
-            <header className="flex flex-wrap items-center gap-3 border-b border-line p-5">
-              <span className="grid h-11 w-11 place-items-center rounded-full bg-navy font-display text-white">{m.name[0]}</span>
-              <div className="min-w-0 flex-1"><b className="block font-display text-[18px] text-navy">{m.name}</b><small className="text-muted">Age {new Date().getFullYear() - m.birthYear} · spent {money(m.spentThisWeekCents, o.currency)} of {money(m.weeklyLimitCents, o.currency)} this week</small>
-                <div className="mt-2 h-2 w-full max-w-xs overflow-hidden rounded-full bg-bg"><div className="h-full rounded-full bg-blue" style={{ width: `${Math.min(100, (m.spentThisWeekCents / Math.max(1, m.weeklyLimitCents)) * 100)}%` }} /></div></div>
-              <Badge status={m.status} />
+            <header className="flex flex-wrap items-center gap-3 border-b border-[#E7E9EF] p-5">
+              <span className="grid h-11 w-11 place-items-center rounded-full bg-[#0B1020] font-display text-white">{m.name[0]}</span>
+              <div className="min-w-0 flex-1"><b className="block font-display text-[18px] text-[#0B1020]">{m.name}</b><small className="text-[#667085]">Age {new Date().getFullYear() - m.birthYear} · spent {money(m.spentThisWeekCents, o.currency)} of {money(m.weeklyLimitCents, o.currency)} this week</small>
+                <div className="mt-2 h-2 w-full max-w-xs overflow-hidden rounded-full bg-[#F7F8FA]"><div className="h-full rounded-full bg-blue" style={{ width: `${Math.min(100, (m.spentThisWeekCents / Math.max(1, m.weeklyLimitCents)) * 100)}%` }} /></div></div>
+              <Status status={m.status} />
               <Button size="sm" onClick={() => setEdit(edit === m.id ? null : m.id)}>Rules</Button>
               <Button size="sm" onClick={() => save(m.id)({ status: m.status === "ACTIVE" ? "PAUSED" : "ACTIVE" })}>{m.status === "ACTIVE" ? <><Pause className="h-4 w-4" />Pause card</> : <><Play className="h-4 w-4" />Resume</>}</Button>
             </header>
             <div className="grid gap-5 p-5 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)]">
               <div className="space-y-3">
-                {m.cards[0] ? <CardFace c={m.cards[0]} name={m.name} /> : <button onClick={() => setCardFor(m)} className="grid aspect-[1.586] w-full max-w-[380px] place-items-center rounded-[22px] border-2 border-dashed border-line text-muted hover:border-blue hover:text-blue"><span className="flex items-center gap-2 font-semibold"><CreditCard className="h-5 w-5" />Give {m.name} a card</span></button>}
+                {m.cards[0] ? <CardFace c={m.cards[0]} name={m.name} teen /> : <button onClick={() => setCardFor(m)} className="grid aspect-[1.586] w-full max-w-[380px] place-items-center rounded-[18px] border-2 border-dashed border-[#E7E9EF] text-[#667085] hover:border-[#0B1020] hover:text-[#2E5BFF]"><span className="flex items-center gap-2 font-semibold"><CreditCard className="h-5 w-5" />Give {m.name} a card</span></button>}
                 <div className="flex flex-wrap gap-1.5 text-[12px]">
-                  {m.nightLock && <span className="flex items-center gap-1 rounded-full bg-bg px-2 py-1"><Moon className="h-3.5 w-3.5" />Night lock</span>}
-                  {!m.onlineAllowed && <span className="flex items-center gap-1 rounded-full bg-bg px-2 py-1"><Globe2 className="h-3.5 w-3.5" />No online</span>}
-                  {m.allowedMerchants.length > 0 && <span className="flex items-center gap-1 rounded-full bg-bg px-2 py-1"><Store className="h-3.5 w-3.5" />{m.allowedMerchants.length} allowed shops</span>}
+                  {m.nightLock && <span className="flex items-center gap-1 rounded-full bg-[#F7F8FA] px-2 py-1"><Moon className="h-3.5 w-3.5" />Night lock</span>}
+                  {!m.onlineAllowed && <span className="flex items-center gap-1 rounded-full bg-[#F7F8FA] px-2 py-1"><Globe2 className="h-3.5 w-3.5" />No online</span>}
+                  {m.allowedMerchants.length > 0 && <span className="flex items-center gap-1 rounded-full bg-[#F7F8FA] px-2 py-1"><Store className="h-3.5 w-3.5" />{m.allowedMerchants.length} allowed shops</span>}
                   {groupsOn(m, data.groups).map((g) => <span key={g} className="rounded-full bg-[#FFF5F7] px-2 py-1 font-semibold text-crit">{data.groups.find((x) => x.key === g)?.label}</span>)}
                 </div>
               </div>
               {edit === m.id ? <Rules m={m} groups={data.groups} currency={o.currency} onSave={save(m.id)} /> : (
                 <div><b className="mb-2 flex items-center gap-1.5 text-[13.5px]"><Bell className="h-4 w-4" />Recent purchases</b>
-                  {!m.activity.length ? <p className="text-[13.5px] text-muted">Every purchase and every blocked try will show here, and on your phone.</p> : (
-                    <ul className="divide-y divide-line">{m.activity.map((a) => <li key={a.id} className="flex items-center gap-3 py-2.5 text-[13.5px]"><span className="min-w-0 flex-1"><b className="block truncate">{a.merchant}</b><small className={a.decision === "DECLINED" ? "text-crit" : "text-muted"}>{a.decision === "DECLINED" ? `Blocked: ${a.reason}` : ago(a.createdAt)}</small></span><b className={a.decision === "DECLINED" ? "text-muted line-through" : ""}>{money(a.amountCents, a.currency)}</b></li>)}</ul>
+                  {!m.activity.length ? <p className="text-[13.5px] text-[#667085]">Every purchase and every blocked try will show here, and on your phone.</p> : (
+                    <ul className="divide-y divide-[#EEF0F4]">{m.activity.map((a) => <li key={a.id} className="flex items-center gap-3 py-2.5 text-[13.5px]"><span className="min-w-0 flex-1"><b className="block truncate">{a.merchant}</b><small className={a.decision === "DECLINED" ? "text-crit" : "text-[#667085]"}>{a.decision === "DECLINED" ? `Blocked: ${a.reason}` : ago(a.createdAt)}</small></span><b className={a.decision === "DECLINED" ? "text-[#667085] line-through" : ""}>{money(a.amountCents, a.currency)}</b></li>)}</ul>
                   )}
                 </div>
               )}

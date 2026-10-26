@@ -12,6 +12,7 @@ type R = Who & { id: string; userId: string; kind: string; severity: string; ent
 type K = { id: string; userId: string; legalName: string | null; country: string | null; tier: number; kycStatus: string; riskLevel: string; sanctionsHit: boolean; pepHit: boolean; frozenAt: string | null; frozenReason: string | null; kycReport: any; user: Who["user"] };
 type D = { transfers: T[]; risks: R[]; kyc: K[] };
 
+const FLAG: Record<string, string> = { LARGE_TRANSFER: "Large amount", NEW_RECIPIENT_LARGE: "Large first payment to a new recipient", VELOCITY: "Many transfers in a short time", STRUCTURING: "Possible structuring under the report limit", REPORTABLE: "Over the FINTRAC report threshold", HIGH_RISK_COUNTRY: "Higher-risk country", NEW_RECIPIENT_BURST: "Several new recipients at once", NEW_ACCOUNT_LARGE: "Large amount from a new account", PEP_MATCH: "Possible politically exposed person", RECIPIENT_PEP: "Recipient may be a PEP" };
 const SEV: Record<string, string> = { CRITICAL: "bg-crit text-white", HIGH: "bg-[#FFE2E6] text-crit", MEDIUM: "bg-[#FFF3D6] text-[#7A4B00]", LOW: "bg-bg text-muted" };
 
 function Person({ w }: { w: Who }) {
@@ -34,7 +35,7 @@ function NoteActions({ actions }: { actions: { label: string; tone?: "pri" | "da
   const [busy, setBusy] = useState<string | null>(null);
   return (
     <div className="space-y-2">
-      <Textarea rows={2} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Reason for your decision (kept in the audit log)" />
+      <Textarea rows={2} className="min-h-[60px]" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Reason for your decision (kept in the audit log)" />
       <div className="flex flex-wrap justify-end gap-2">
         {actions.map((a) => <Button key={a.label} variant={a.tone === "pri" ? "pri" : a.tone === "danger" ? "danger" : "default"} size="sm" loading={busy === a.label} onClick={async () => { setBusy(a.label); try { await a.run(note); setNote(""); } finally { setBusy(null); } }}>{a.label}</Button>)}
       </div>
@@ -59,13 +60,13 @@ export default function Compliance() {
         !data.transfers.length ? <Empty icon={<ShieldCheck className="h-6 w-6" />} title="No transfers waiting" body="Held transfers show up here." /> : (
           <div className="grid gap-4">{data.transfers.map((t) => (
             <article key={t.id} className="card overflow-hidden">
-              <header className="flex flex-wrap items-start gap-4 border-b border-line p-5">
+              <header className="flex flex-wrap items-start gap-4 border-b border-line bg-[#FAFBFC] p-5">
                 <div className="min-w-0 flex-1"><Person w={t} /></div>
-                <div className="text-end"><div className="font-display text-2xl font-semibold">{cents(t.sendCents, t.sendCurrency)}</div><small className="text-muted">{ago(t.createdAt)} · they get {cents(t.receiveCents, t.receiveCurrency)}</small></div>
+                <div className="text-end"><div className="mb-1 inline-flex items-center gap-1 rounded-full bg-[#FFFAEB] px-2 py-0.5 text-[11px] font-semibold text-[#B54708]">Money held</div><div className="font-display text-[28px] font-semibold tabular-nums tracking-[-.02em]">{cents(t.sendCents, t.sendCurrency)}</div><small className="text-muted">{ago(t.createdAt)} · they get {cents(t.receiveCents, t.receiveCurrency)}</small></div>
               </header>
-              <div className="grid gap-4 p-5 md:grid-cols-2">
-                <div className="text-[13.5px]"><div className="text-muted">To</div><b>{t.recipient.name}</b> <span className="text-muted">· {t.recipient.country} · {t.recipient.label ?? t.recipient.method}</span>{t.recipient.sanctionsHit && <Badge tone="red" className="ms-2">Recipient on a list</Badge>}</div>
-                <div className="flex flex-wrap gap-1.5">{t.riskFlags.map((f) => <span key={f} className="rounded-full bg-[#FFF3D6] px-2 py-0.5 text-[11px] font-bold text-[#7A4B00]">{f.replace(/_/g, " ").toLowerCase()}</span>)}</div>
+              <div className="grid items-start gap-4 p-5 md:grid-cols-2">
+                <div className="text-[13.5px]"><div className="mb-1 text-[11px] font-semibold uppercase tracking-[.1em] text-muted">Recipient</div><b>{t.recipient.name}</b> <span className="text-muted">· {t.recipient.country} · {t.recipient.label ?? t.recipient.method}</span>{t.recipient.sanctionsHit && <Badge tone="red" className="ms-2">Recipient on a list</Badge>}</div>
+                <div><div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[.1em] text-muted">Why it was held</div><div className="flex flex-wrap gap-1.5">{t.riskFlags.map((f) => <span key={f} className="inline-flex items-center gap-1 rounded-[6px] bg-[#FFFAEB] px-2 py-1 text-[12px] font-semibold text-[#B54708] ring-1 ring-[#FEDF89]"><AlertTriangle className="h-3 w-3" />{FLAG[f] ?? f.replace(/_/g, " ").toLowerCase()}</span>)}</div></div>
               </div>
               <footer className="border-t border-line bg-bg/50 p-5">
                 <NoteActions actions={[

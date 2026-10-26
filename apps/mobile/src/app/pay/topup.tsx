@@ -1,3 +1,4 @@
+import { P } from '@/components/pay-ui';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -34,6 +35,6 @@ export default function TopUp() {
 const st = StyleSheet.create({
   row: { flexDirection: 'row', gap: 8 },
   chip: { flex: 1, height: 44, borderRadius: 14, borderWidth: 1, borderColor: C.line, alignItems: 'center', justifyContent: 'center', backgroundColor: C.paper },
-  chipOn: { backgroundColor: C.navy, borderColor: C.navy },
+  chipOn: { backgroundColor: P.ink, borderColor: P.ink },
   chipText: { fontFamily: F.semi, fontSize: 15, color: C.ink },
 });

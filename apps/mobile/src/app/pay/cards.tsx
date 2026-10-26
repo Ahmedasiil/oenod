@@ -1,3 +1,4 @@
+import { Status } from '@/components/pay-ui';
 import { useState } from 'react';
 import { Alert, View } from 'react-native';
 import { Snowflake, Play } from 'lucide-react-native';
@@ -27,7 +28,7 @@ export default function Cards() {
           <View key={c.id} style={{ gap: 12 }}>
             <CardFace c={c} name={o.profile.name ?? ''} />
             <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
-              <Badge text={human(c.status)} tone={statusTone(c.status)} />
+              <Status status={c.status} />
               <View style={{ flex: 1 }} />
               {c.status === 'ACTIVE' && <Button small title="Freeze" icon={<Snowflake color={C.ink} size={16} />} onPress={() => patch(c, 'FROZEN')().catch((e) => Alert.alert('Not frozen', e.message))} />}
               {c.status === 'FROZEN' && <Button small variant="primary" title="Unfreeze" icon={<Play color="#fff" size={16} />} onPress={() => setSheet({ title: 'Unfreeze card', run: patch(c, 'ACTIVE') })} />}

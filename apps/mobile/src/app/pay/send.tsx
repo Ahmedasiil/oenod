@@ -1,3 +1,4 @@
+import { P, PayHero } from '@/components/pay-ui';
 import { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -6,7 +7,7 @@ import { api } from '@/lib/api';
 import { useApi } from '@/lib/use-api';
 import { errCode, money, newKey, nextStep, type Overview } from '@/lib/pay';
 import { C, F } from '@/lib/theme';
-import { Button, Card, Chips, ErrorText, HeroCard, Input, List, Loading, Row, Screen, Section, T } from '@/components/ui';
+import { Button, Card, Chips, ErrorText, Input, List, Loading, Row, Screen, Section, T } from '@/components/ui';
 import { PinSheet } from '@/components/pin-sheet';
 
 type Opt = { method: string; label: string; networks?: string[]; eta: string; fields: string[] };
@@ -78,7 +79,7 @@ export default function Send() {
           <List>{mine.map((r) => <Row key={r.id} title={r.name} sub={r.label ?? ''} icon={<UserRound color={C.muted} size={18} />} right={recipient === r.id ? <Check color={C.blue} size={20} /> : undefined} onPress={() => setRecipient(r.id)} />)}</List>
         )}
       </Section>}
-      <HeroCard>
+      <PayHero>
         <Text style={st.eyebrow}>YOU SEND</Text>
         <Input value={amount} onChangeText={(v) => setAmount(v.replace(/[^\d.]/g, ''))} keyboardType="decimal-pad" style={{ fontFamily: F.displayBold, fontSize: 30 }} right={<T v="heading">{cs.from}</T>} />
         {qErr ? <Text style={st.onNavy}>{qErr}</Text> : quote ? <View style={{ gap: 4 }}>
@@ -87,7 +88,7 @@ export default function Send() {
           <Text style={st.receive}>They get {money(quote.receiveCents, quote.receiveCurrency)}</Text>
         </View> : <Text style={st.onNavy}>Enter at least 5.00</Text>}
         <Button title="Review and send" variant="light" big disabled={!quote || !recipient || !!blocked} onPress={() => setSheet('send')} />
-      </HeroCard>
+      </PayHero>
       <PinSheet visible={sheet === 'recipient'} title="Confirm new recipient" codeOnly onClose={() => setSheet(null)} onConfirm={async (_p, code) => {
         const details = Object.fromEntries(opt!.fields.map((f) => [f, form[f] ?? '']));
         const r = await api<{ id: string }>('/api/pay/recipients', { body: { name: form.name, country, method: opt!.method, network: network || null, details, code } });
@@ -105,7 +106,7 @@ export default function Send() {
 
 const st = StyleSheet.create({
   country: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14, height: 44, borderRadius: 14, borderWidth: 1, borderColor: C.line, backgroundColor: C.paper },
-  countryOn: { backgroundColor: C.navy, borderColor: C.navy },
+  countryOn: { backgroundColor: P.ink, borderColor: P.ink },
   countryText: { fontFamily: F.semi, fontSize: 14, color: C.ink },
   eyebrow: { fontFamily: F.semi, fontSize: 11, letterSpacing: 1.6, color: C.onNavyMuted },
   onNavy: { fontFamily: F.medium, fontSize: 13.5, color: C.onNavy },

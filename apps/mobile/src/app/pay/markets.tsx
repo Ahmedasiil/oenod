@@ -1,3 +1,4 @@
+import { P } from '@/components/pay-ui';
 import { useState } from 'react';
 import { Alert, Switch, View } from 'react-native';
 import { Star, TrendingDown, TrendingUp } from 'lucide-react-native';
@@ -21,7 +22,7 @@ export default function Markets() {
   return (
     <Screen edges={[]} refreshing={refreshing} onRefresh={reload}>
       <Chips options={[['ALL', 'All'], ['WATCH', 'Watchlist'], ['STOCK', 'Stocks'], ['CRYPTO', 'Crypto'], ['METAL', 'Gold'], ['FX', 'Currencies']] as const} value={tab} onChange={setTab} />
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}><T v="bodyStrong">Halal only</T><Switch value={halal} onValueChange={setHalal} trackColor={{ true: C.navy, false: C.line }} thumbColor="#fff" /></View>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}><T v="bodyStrong">Halal only</T><Switch value={halal} onValueChange={setHalal} trackColor={{ true: P.ink, false: C.line }} thumbColor="#fff" /></View>
       <List>{list.map((q) => (
         <Row key={q.symbol} title={q.name} sub={`${q.symbol}${watched.has(q.symbol) ? ' · watching' : ''}`} onPress={() => toggleWatch(q)}
           icon={<IconTile tone={watched.has(q.symbol) ? 'amber' : 'blue'}>{watched.has(q.symbol) ? <Star color={C.amber} size={16} /> : q.changePct != null && q.changePct < 0 ? <TrendingDown color={C.red} size={16} /> : <TrendingUp color={C.blue} size={16} />}</IconTile>}

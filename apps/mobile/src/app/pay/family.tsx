@@ -19,7 +19,7 @@ export default function Family() {
       {!data.members.length ? <EmptyState icon={<Users color={C.blue} size={26} />} title="No family members yet" text="Add a teen on the web app (Pay, Family) to give them a card with your rules. You can manage them here." /> :
         data.members.map((m) => (
           <Section key={m.id} title={m.name} action={m.status === 'ACTIVE' ? 'Pause' : 'Resume'} onAction={() => toggle(m)}>
-            {m.cards[0] && <CardFace c={m.cards[0]} name={m.name} />}
+            {m.cards[0] && <CardFace c={m.cards[0]} name={m.name} teen />}
             <Card style={{ gap: 8 }}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}><T v="bodyStrong">{money(m.spentThisWeekCents, o.currency)} of {money(m.weeklyLimitCents, o.currency)}</T><Badge text={m.status === 'ACTIVE' ? 'Active' : 'Paused'} tone={m.status === 'ACTIVE' ? 'green' : 'amber'} /></View>
               <Progress value={Math.min(1, m.spentThisWeekCents / Math.max(1, m.weeklyLimitCents))} color={C.blue} />

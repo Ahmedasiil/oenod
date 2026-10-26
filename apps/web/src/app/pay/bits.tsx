@@ -44,7 +44,7 @@ export function ConfirmMoney({ open, onClose, title, summary, needCode, onConfir
   return (
     <Modal open={open} onClose={onClose} title={title} footer={<><Button onClick={onClose}>Cancel</Button><Button variant="pri" loading={busy} disabled={pin.length !== 6 || (needCode && code.length < 6)} onClick={go}><Lock className="h-4 w-4" />Confirm</Button></>}>
       <div className="space-y-4">
-        <div className="rounded-2xl bg-bg p-4 text-[14px]">{summary}</div>
+        <div className="rounded-[14px] bg-[#F7F8FA] p-4 text-[14px]">{summary}</div>
         <label className="block"><span className="mb-1.5 flex items-center gap-1.5 text-[13px] font-semibold"><KeyRound className="h-4 w-4" />Your 6-digit oenodpay PIN</span>
           <Input type="password" inputMode="numeric" autoComplete="off" maxLength={6} value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))} className="h-12 text-center font-mono text-xl tracking-[.5em]" autoFocus />
         </label>
@@ -52,7 +52,7 @@ export function ConfirmMoney({ open, onClose, title, summary, needCode, onConfir
           <Input inputMode="numeric" autoComplete="one-time-code" maxLength={11} value={code} onChange={(e) => setCode(e.target.value.trim())} className="h-12 text-center font-mono text-xl tracking-[.3em]" />
         </label>}
         {err && <p className="rounded-xl bg-[#FFF5F7] px-3 py-2 text-[13px] text-crit">{err}</p>}
-        <p className="flex items-center gap-1.5 text-[12px] text-muted"><Lock className="h-3.5 w-3.5" />oenodpay staff will never ask for your PIN or codes.</p>
+        <p className="flex items-center gap-1.5 text-[12px] text-[#667085]"><Lock className="h-3.5 w-3.5" />oenodpay staff will never ask for your PIN or codes.</p>
       </div>
     </Modal>
   );
@@ -65,7 +65,7 @@ export function CodePrompt({ open, onClose, title, onConfirm }: { open: boolean;
   const [err, setErr] = useState<string | null>(null);
   return (
     <Modal open={open} onClose={onClose} title={title} footer={<><Button onClick={onClose}>Cancel</Button><Button variant="pri" loading={busy} disabled={code.length < 6} onClick={async () => { setBusy(true); setErr(null); try { await onConfirm(code); setCode(""); } catch (e: any) { setErr(e.message); } finally { setBusy(false); } }}>Confirm</Button></>}>
-      <p className="mb-3 text-[14px] text-muted">For your security, enter the 6-digit code from your authenticator app.</p>
+      <p className="mb-3 text-[14px] text-[#667085]">For your security, enter the 6-digit code from your authenticator app.</p>
       <Input inputMode="numeric" autoComplete="one-time-code" maxLength={11} value={code} onChange={(e) => setCode(e.target.value.trim())} className="h-12 text-center font-mono text-xl tracking-[.3em]" autoFocus />
       {err && <p className="mt-3 rounded-xl bg-[#FFF5F7] px-3 py-2 text-[13px] text-crit">{err}</p>}
     </Modal>
@@ -76,19 +76,42 @@ export function SetupBanner({ o }: { o: Overview }) {
   const r = readiness(o);
   if (!r) return null;
   return (
-    <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-blue/20 bg-gradient-to-r from-sky to-white p-4">
-      <span className="grid h-10 w-10 place-items-center rounded-full bg-blue text-white"><ShieldCheck className="h-5 w-5" /></span>
-      <div className="min-w-0 flex-1"><b className="block text-[14.5px]">{r.title}</b><small className="text-muted">{r.body}</small></div>
+    <div className="flex flex-wrap items-center gap-4 rounded-[18px] border border-[#E7E9EF] bg-white p-4 ps-5 shadow-[0_1px_2px_rgba(16,24,40,.04)]">
+      <span className="grid h-10 w-10 place-items-center rounded-[12px] bg-[#0B1020] text-white"><ShieldCheck className="h-5 w-5" /></span>
+      <div className="min-w-0 flex-1"><b className="block text-[14px] font-semibold">{r.title}</b><small className="text-[13px] text-[#667085]">{r.body}</small></div>
       <Link href={r.href} className="btn-pri">{r.cta}</Link>
     </div>
   );
 }
 
-export function PageTitle({ title, sub, action }: { title: string; sub?: string; action?: React.ReactNode }) {
+export function PageTitle({ title, sub, action, eyebrow }: { title: string; sub?: string; action?: React.ReactNode; eyebrow?: string }) {
   return (
-    <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-      <div><h1 className="font-display text-[28px] font-semibold tracking-tight text-navy">{title}</h1>{sub && <p className="mt-1 max-w-2xl text-[14px] text-muted">{sub}</p>}</div>
-      {action}
+    <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
+      <div>
+        {eyebrow && <div className="pay-label mb-2">{eyebrow}</div>}
+        <h1 className="font-display text-[26px] font-semibold tracking-[-.025em] text-[#0B1020] sm:text-[30px]">{title}</h1>
+        {sub && <p className="mt-1.5 max-w-2xl text-[14px] leading-relaxed text-[#667085]">{sub}</p>}
+      </div>
+      {action && <div className="flex flex-wrap gap-2">{action}</div>}
     </div>
   );
+}
+
+const STATUS: Record<string, [string, string]> = {
+  DELIVERED: ["Delivered", "#12B76A"], COMPLETED: ["Completed", "#12B76A"], ACTIVE: ["Active", "#12B76A"], VERIFIED: ["Verified", "#12B76A"], RESOLVED: ["Resolved", "#12B76A"], APPROVED: ["Approved", "#12B76A"],
+  SENT: ["Sent", "#2E5BFF"], PROCESSING: ["Processing", "#2E5BFF"], OPEN: ["Open", "#2E5BFF"], WAITING_CUSTOMER: ["Waiting on you", "#F79009"],
+  REVIEW: ["In review", "#F79009"], PENDING: ["Pending", "#F79009"], INVITED: ["Invited", "#F79009"], PAUSED: ["Paused", "#98A2B3"], INACTIVE: ["Frozen", "#98A2B3"],
+  FAILED: ["Failed", "#F04438"], REJECTED: ["Rejected", "#F04438"], DECLINED: ["Declined", "#F04438"], CANCELLED: ["Cancelled", "#98A2B3"], CANCELED: ["Cancelled", "#98A2B3"], REFUNDED: ["Refunded", "#98A2B3"],
+};
+/** A quiet status label: a coloured dot and a word. */
+export function Status({ status, className }: { status: string; className?: string }) {
+  const [label, color] = STATUS[status] ?? [status.charAt(0) + status.slice(1).toLowerCase().replace(/_/g, " "), "#98A2B3"];
+  return <span className={"inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-[#E7E9EF] bg-white px-2 py-[3px] text-[11.5px] font-medium text-[#344054] " + (className ?? "")}><i className="h-1.5 w-1.5 rounded-full" style={{ background: color }} />{label}</span>;
+}
+
+/** Money with smaller cents, for headline figures. */
+export function BigMoney({ cents, currency, className }: { cents: number; currency: string; className?: string }) {
+  const s = money(cents, currency);
+  const m = s.match(/^(.*?)([.,]\d{2})(\D*)$/);
+  return <span className={"pay-num " + (className ?? "")}>{m ? <>{m[1]}<span className="text-[.55em] font-medium text-current/60 align-[.55em] opacity-50">{m[2]}</span>{m[3]}</> : s}</span>;
 }

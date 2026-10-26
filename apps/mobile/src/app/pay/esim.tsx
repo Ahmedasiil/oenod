@@ -1,3 +1,4 @@
+import { P } from '@/components/pay-ui';
 import { useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import * as Linking from 'expo-linking';
@@ -41,6 +42,6 @@ export default function Esim() {
 
 const st = StyleSheet.create({
   chip: { paddingHorizontal: 14, height: 42, borderRadius: 14, borderWidth: 1, borderColor: C.line, backgroundColor: C.paper, justifyContent: 'center' },
-  on: { backgroundColor: C.navy, borderColor: C.navy },
+  on: { backgroundColor: P.ink, borderColor: P.ink },
   chipText: { fontFamily: F.semi, fontSize: 14, color: C.ink },
 });

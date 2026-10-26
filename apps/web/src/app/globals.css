@@ -54,3 +54,23 @@ html[dir="rtl"] body { font-family: var(--font-arabic), var(--font-body), system
 .leaflet-container { font-family: var(--font-body), system-ui, sans-serif; }
 .leaflet-tooltip { border-radius: 10px; border: 1px solid #E4E8F2; box-shadow: 0 8px 24px -12px rgba(0,15,85,.35); padding: 6px 10px; font-size: 12px; }
 @keyframes pulseRing { 0% { transform: scale(.7); opacity: .35 } 100% { transform: scale(1.6); opacity: 0 } }
+
+/* oenodpay: private-banking look, scoped to the Pay app */
+@layer components {
+  .pay-ui { --pay-ink: #0B1020; --pay-line: #E7E9EF; --pay-muted: #667085; font-feature-settings: "ss01", "cv11"; }
+  .pay-ui .card { @apply rounded-[18px] border-[#E7E9EF] shadow-[0_1px_2px_rgba(16,24,40,.04)]; }
+  .pay-ui .btn { @apply h-10 rounded-[11px] border-[#E2E5EC] text-[13px] font-semibold shadow-[0_1px_2px_rgba(16,24,40,.05)] hover:translate-y-0 hover:border-[#CDD2DC] hover:bg-[#FAFBFC] hover:shadow-[0_1px_2px_rgba(16,24,40,.05)]; }
+  .pay-ui .btn-pri { @apply border-transparent bg-[#0B1020] text-white hover:border-transparent hover:bg-[#1C2235]; }
+  .pay-ui .btn-blue { @apply border-transparent bg-blue text-white hover:border-transparent hover:bg-blue-600; }
+  .pay-ui .btn-ghost { @apply border-transparent shadow-none hover:border-transparent hover:bg-[#F2F4F7]; }
+  .pay-ui .btn-danger { @apply border-[#F4D3D9] bg-white text-crit hover:bg-[#FFF5F7]; }
+  .pay-ui .btn-sm { @apply h-8 rounded-[9px] px-3 text-[12px]; }
+  .pay-ui .input { @apply h-11 rounded-[11px] border-[#E2E5EC] focus:border-[#0B1020] focus:ring-[#0B1020]/[.06]; }
+  .pay-ui textarea.input { @apply h-auto; }
+  .pay-label { @apply text-[11px] font-semibold uppercase tracking-[.08em] text-[#667085]; }
+  .pay-h { @apply font-display text-[15px] font-semibold tracking-[-.01em] text-[#0B1020]; }
+  .pay-num { @apply font-display tabular-nums tracking-[-.02em]; }
+  .pay-tile { @apply flex items-center gap-3 rounded-[14px] border border-[#E7E9EF] bg-white px-4 py-3 text-start transition hover:border-[#CDD2DC] hover:bg-[#FAFBFC]; }
+  .pay-ico { @apply grid h-10 w-10 shrink-0 place-items-center rounded-[12px] bg-[#F2F4F7] text-[#0B1020]; }
+  .pay-row { @apply flex items-center gap-3 px-5 py-3.5 transition hover:bg-[#FAFBFC]; }
+}

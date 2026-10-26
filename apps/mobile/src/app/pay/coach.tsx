@@ -1,3 +1,4 @@
+import { P } from '@/components/pay-ui';
 import { useEffect, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View, type ScrollViewInstance } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -49,10 +50,10 @@ const st = StyleSheet.create({
   starter: { borderWidth: 1, borderColor: C.line, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 7, backgroundColor: C.paper },
   starterText: { fontFamily: F.semi, fontSize: 13, color: C.ink },
   bubble: { maxWidth: '88%', borderRadius: 18, padding: 12 },
-  me: { alignSelf: 'flex-end', backgroundColor: C.navy },
+  me: { alignSelf: 'flex-end', backgroundColor: P.ink },
   bot: { alignSelf: 'flex-start', backgroundColor: C.paper },
   meText: { fontFamily: F.medium, fontSize: 14.5, color: '#fff' },
   bar: { flexDirection: 'row', gap: 8, padding: 12, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: C.line, backgroundColor: C.paper },
   input: { flex: 1, minHeight: 44, maxHeight: 120, borderRadius: 14, backgroundColor: C.bg, paddingHorizontal: 14, paddingVertical: 10, fontFamily: F.medium, fontSize: 15, color: C.ink },
-  send: { width: 44, height: 44, borderRadius: 14, backgroundColor: C.navy, alignItems: 'center', justifyContent: 'center' },
+  send: { width: 44, height: 44, borderRadius: 14, backgroundColor: P.ink, alignItems: 'center', justifyContent: 'center' },
 });
