@@ -3,6 +3,7 @@ import type Stripe from "stripe";
 import { db } from "@/lib/db";
 import { applySubscription, stripe } from "@/lib/billing";
 import { fulfillAcademy } from "@/lib/academy";
+import { handleStripePay } from "@/lib/pay/webhooks";
 
 export async function POST(req: Request) {
   await loadPlatformSettings();
@@ -15,6 +16,9 @@ export async function POST(req: Request) {
   } catch {
     return new Response("Bad signature", { status: 400 });
   }
+  // oenodpay: top-ups, identity checks and real-time card decisions.
+  const pay = await handleStripePay(event);
+  if (pay) return pay;
   switch (event.type) {
     case "customer.subscription.created":
     case "customer.subscription.updated":

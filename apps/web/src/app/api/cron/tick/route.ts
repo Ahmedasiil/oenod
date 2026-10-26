@@ -5,6 +5,7 @@ import { markOffline } from "@/lib/fleet";
 import { retryDue } from "@/lib/webhooks";
 import { runLifecycle, sendGrowthCampaign } from "@/lib/growth";
 import { safeEqual } from "@/lib/crypto";
+import { expireTopUps, priceAlerts, rescreen, syncTransfers } from "@/lib/pay/cron";
 
 export const maxDuration = 300;
 
@@ -32,6 +33,11 @@ export async function GET(req: Request) {
     return due.length;
   });
   await step("lifecycle", async () => (new Date().getMinutes() < 5 ? runLifecycle() : "hourly"));
+  // oenodpay
+  await step("payTransferSync", syncTransfers);
+  await step("payPriceAlerts", priceAlerts);
+  await step("payRescreen", async () => (new Date().getMinutes() < 5 ? rescreen() : "hourly"));
+  await step("payTopUpExpiry", expireTopUps);
   await step("cleanup", async () => (await db.vehiclePosition.deleteMany({ where: { at: { lt: new Date(Date.now() - 180 * 864e5) } } })).count);
   return Response.json({ ok: true, at: new Date().toISOString(), ...out });
 }

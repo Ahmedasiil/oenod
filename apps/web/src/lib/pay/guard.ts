@@ -113,7 +113,7 @@ export async function limitsFor(ctx: PayCtx) {
 /** Push and email for anything security-related. Never includes amounts' full details or account numbers. */
 export async function alert(user: Pick<User, "id" | "email" | "name">, title: string, body: string) {
   await sendPush(user.id, title, body, { link: "/app/pay" }).catch(() => {});
-  await sendEmail({ to: user.email, subject: title, html: emailLayout({ title, body: `<p>Hi ${escapeHtml(user.name.split(" ")[0])},</p><p>${escapeHtml(body)}</p>`, ctaLabel: "Open oenodpay", ctaUrl: `${APP_URL}/app/pay` }) }).catch(() => {});
+  await sendEmail({ to: user.email, scope: "PLATFORM", subject: title, html: emailLayout({ title, body: `<p>Hi ${escapeHtml(user.name.split(" ")[0])},</p><p>${escapeHtml(body)}</p>`, ctaLabel: "Open oenodpay", ctaUrl: `${APP_URL}/app/pay` }) }).catch(() => {});
 }
 
 const escapeHtml = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);

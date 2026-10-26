@@ -46,12 +46,15 @@ export async function send(o: { quoteId: number; externalId: string; creditParty
     body: JSON.stringify({
       external_id: o.externalId, credit_party_identifier: o.creditParty,
       sender: party(o.sender), beneficiary: party(o.beneficiary),
-      purpose_of_remittance: "FAMILY_SUPPORT", callback_url: `${APP_URL}/api/webhooks/thunes`,
+      purpose_of_remittance: "FAMILY_SUPPORT", callback_url: `${APP_URL}/api/webhooks/thunes${process.env.THUNES_CALLBACK_SECRET ? `?k=${process.env.THUNES_CALLBACK_SECRET}` : ""}`,
     }),
   });
   const confirmed = await api<{ id: number; status: string; status_message: string }>(`/v2/money-transfer/transactions/${tx.id}/confirm`, { method: "POST", body: "{}" });
   return { providerRef: String(confirmed.id), status: confirmed.status_message || confirmed.status };
 }
+
+/** Current status straight from Thunes (callbacks are only a hint: we always re-read). */
+export const transaction = (id: string) => api<{ id: number; status: string; status_message: string; external_id: string }>(`/v2/money-transfer/transactions/${id}`);
 
 export async function test() {
   await api("/v2/money-transfer/ping");
