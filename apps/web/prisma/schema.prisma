@@ -59,20 +59,20 @@ model Partner {
 }
 
 model Organization {
-  id                   String             @id @default(cuid())
+  id                   String              @id @default(cuid())
   name                 String
-  slug                 String             @unique
-  industry             String             @default("general")
-  country              String             @default("CA")
+  slug                 String              @unique
+  industry             String              @default("general")
+  country              String              @default("CA")
   region               String?
-  currency             String             @default("CAD")
-  timezone             String             @default("America/Toronto")
-  locale               String             @default("en")
+  currency             String              @default("CAD")
+  timezone             String              @default("America/Toronto")
+  locale               String              @default("en")
   logoUrl              String?
   // { require2fa, ipAllowlist: [cidr], sessionDays, passwordMinLength, alertOnNewDevice }
   security             Json?
   certificates         IssuedCertificate[]
-  brandColor           String             @default("#000F55")
+  brandColor           String              @default("#000F55")
   website              String?
   phone                String?
   address              Json?
@@ -91,28 +91,28 @@ model Organization {
   social               Json? // { facebook, instagram, linkedin, x, tiktok, youtube }
   foundedYear          Int?
   teamSize             String?
-  publicProfile        Boolean            @default(true)
+  publicProfile        Boolean             @default(true)
   // Verification (blue badge)
-  verificationStatus   String             @default("UNVERIFIED") // UNVERIFIED, PENDING, VERIFIED, REJECTED, REVOKED
+  verificationStatus   String              @default("UNVERIFIED") // UNVERIFIED, PENDING, VERIFIED, REJECTED, REVOKED
   verifiedAt           DateTime?
-  adBalanceCents       Int                @default(0)
-  planKey              String             @default("GROWTH")
-  plan                 Plan               @relation(fields: [planKey], references: [key])
-  subscriptionStatus   SubscriptionStatus @default(TRIALING)
+  adBalanceCents       Int                 @default(0)
+  planKey              String              @default("GROWTH")
+  plan                 Plan                @relation(fields: [planKey], references: [key])
+  subscriptionStatus   SubscriptionStatus  @default(TRIALING)
   trialEndsAt          DateTime?
-  billingInterval      String             @default("month")
-  stripeCustomerId     String?            @unique
-  stripeSubscriptionId String?            @unique
+  billingInterval      String              @default("month")
+  stripeCustomerId     String?             @unique
+  stripeSubscriptionId String?             @unique
   partnerId            String?
-  partner              Partner?           @relation(fields: [partnerId], references: [id])
+  partner              Partner?            @relation(fields: [partnerId], references: [id])
   modules              String[]
-  aiPaused             Boolean            @default(false) // emergency stop for automated execution
-  aiSimulation         Boolean            @default(false) // review intended actions before enabling
-  aiDefaultAutonomy    String             @default("APPROVE")
-  onboardingDone       Boolean            @default(false)
+  aiPaused             Boolean             @default(false) // emergency stop for automated execution
+  aiSimulation         Boolean             @default(false) // review intended actions before enabling
+  aiDefaultAutonomy    String              @default("APPROVE")
+  onboardingDone       Boolean             @default(false)
   lastActiveAt         DateTime?
-  createdAt            DateTime           @default(now())
-  updatedAt            DateTime           @updatedAt
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
 
   memberships      Membership[]
   locations        Location[]
@@ -2240,4 +2240,299 @@ model CourseSeat {
   createdAt DateTime @default(now())
 
   @@unique([orgId, courseId])
+}
+
+// ───────────────────────── oenodpay: personal money, inside OENOD ─────────────────────────
+// Records belong to a person (userId), not a company. They are never deleted with the user:
+// money records and identity checks must be kept for anti-money-laundering rules (5+ years).
+
+// One per person: identity check, risk level and the transaction PIN.
+model PayProfile {
+  id                 String    @id @default(cuid())
+  userId             String    @unique
+  // 0 = not verified (can't move money), 1 = ID verified, 2 = ID + address / enhanced checks
+  tier               Int       @default(0)
+  kycStatus          String    @default("NONE") // NONE, PENDING, VERIFIED, REVIEW, REJECTED
+  kycProvider        String?
+  kycSessionId       String?   @unique
+  kycReport          Json? // provider result: document type, country, checks (no images stored here)
+  legalName          String?
+  dob                DateTime?
+  country            String?
+  nationality        String?
+  idNumberLast4      String?
+  riskLevel          String    @default("LOW") // LOW, MEDIUM, HIGH
+  sanctionsHit       Boolean   @default(false)
+  pepHit             Boolean   @default(false)
+  screenedAt         DateTime?
+  frozenAt           DateTime?
+  frozenReason       String?
+  pinHash            String? // bcrypt of the 6-digit transaction PIN
+  pinFailed          Int       @default(0)
+  pinLockedUntil     DateTime?
+  stripeCustomerId   String?   @unique
+  stripeCardholderId String?   @unique
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+}
+
+// A balance in one currency. balanceCents is a cache of the ledger, updated in the same transaction.
+model PayWallet {
+  id           String          @id @default(cuid())
+  userId       String
+  currency     String
+  balanceCents Int             @default(0)
+  heldCents    Int             @default(0) // reserved for transfers in review
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  lines        PayLedgerLine[]
+
+  @@unique([userId, currency])
+}
+
+// Double-entry journal: every movement has lines that sum to zero per currency.
+model PayJournal {
+  id        String          @id @default(cuid())
+  userId    String
+  kind      String // TOPUP, TRANSFER, FEE, REVERSAL, ESIM, CARD, ADJUSTMENT
+  reference String          @unique // idempotency: the same reference can never post twice
+  memo      String?
+  createdAt DateTime        @default(now())
+  lines     PayLedgerLine[]
+
+  @@index([userId, createdAt])
+}
+
+model PayLedgerLine {
+  id          String     @id @default(cuid())
+  journalId   String
+  walletId    String?
+  account     String // "wallet", "clearing:stripe", "payout:airwallex", "payout:thunes", "revenue:fees", "esim:airalo"...
+  amountCents Int // + credit to the account, - debit
+  currency    String
+  journal     PayJournal @relation(fields: [journalId], references: [id], onDelete: Restrict)
+  wallet      PayWallet? @relation(fields: [walletId], references: [id], onDelete: Restrict)
+
+  @@index([walletId])
+}
+
+model PayTopUp {
+  id              String   @id @default(cuid())
+  userId          String
+  amountCents     Int
+  currency        String
+  stripeSessionId String   @unique
+  status          String   @default("PENDING") // PENDING, PAID, FAILED
+  createdAt       DateTime @default(now())
+}
+
+// Someone a person sends money to. Account numbers are encrypted at rest.
+model PayRecipient {
+  id           String        @id @default(cuid())
+  userId       String
+  name         String
+  country      String
+  currency     String
+  method       String // BANK, INSTAPAY, MOBILE_WALLET, CASH_PICKUP, CARD, COMPANY_WALLET, OENOD
+  network      String? // e.g. "Vodafone Cash", "InstaPay", "GCash", bank name
+  detailsEnc   String // encrypted JSON: account number / IBAN / phone / IPA address
+  label        String? // what the sender sees: "Vodafone Cash ···· 4321"
+  providerRef  String?
+  sanctionsHit Boolean       @default(false)
+  screenedAt   DateTime?
+  createdAt    DateTime      @default(now())
+  transfers    PayTransfer[]
+
+  @@index([userId])
+}
+
+model PayTransfer {
+  id              String       @id @default(cuid())
+  userId          String
+  recipientId     String
+  sendCents       Int
+  sendCurrency    String
+  receiveCents    Int
+  receiveCurrency String
+  rate            Decimal      @db.Decimal(20, 8)
+  feeCents        Int
+  provider        String // airwallex, thunes, internal
+  providerRef     String?
+  status          String       @default("PROCESSING") // REVIEW, PROCESSING, SENT, DELIVERED, FAILED, CANCELLED, REFUNDED
+  failureReason   String?
+  idempotencyKey  String       @unique
+  riskFlags       String[]
+  reviewedBy      String?
+  reviewedAt      DateTime?
+  ip              String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  recipient       PayRecipient @relation(fields: [recipientId], references: [id], onDelete: Restrict)
+
+  @@index([userId, createdAt])
+  @@index([status])
+}
+
+// Cards are issued by Stripe Issuing. holderUserId is the person using it (a teen on a family card).
+model PayCard {
+  id           String   @id @default(cuid())
+  userId       String // the account owner who pays
+  familyId     String?
+  stripeCardId String   @unique
+  type         String   @default("VIRTUAL") // VIRTUAL, PHYSICAL
+  last4        String
+  brand        String
+  expMonth     Int
+  expYear      Int
+  status       String   @default("ACTIVE") // ACTIVE, INACTIVE, CANCELED
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
+}
+
+// A teen (or other family member) on a parent's account, with the parent's spending rules.
+model PayFamilyMember {
+  id                    String    @id @default(cuid())
+  parentUserId          String
+  childUserId           String?
+  name                  String
+  birthYear             Int
+  inviteEmail           String?
+  status                String    @default("ACTIVE") // INVITED, ACTIVE, PAUSED
+  weeklyLimitCents      Int       @default(5000)
+  perPurchaseLimitCents Int?
+  approvalOverCents     Int?
+  blockedCategories     String[] // Stripe merchant categories, e.g. gambling, liquor_stores
+  allowedMerchants      String[]
+  nightLock             Boolean   @default(false) // no card payments from 22:00 to 06:00
+  onlineAllowed         Boolean   @default(true)
+  countries             String[] // empty = anywhere
+  allowanceCents        Int       @default(0)
+  allowanceWeekday      Int       @default(0) // 0 = Sunday
+  lastAllowanceAt       DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([parentUserId])
+}
+
+// Card payments a parent must approve, and every teen card decision (approved, declined and why).
+model PayCardEvent {
+  id           String   @id @default(cuid())
+  userId       String
+  familyId     String?
+  cardId       String?
+  stripeAuthId String?  @unique
+  merchant     String
+  category     String?
+  city         String?
+  country      String?
+  amountCents  Int
+  currency     String
+  decision     String // APPROVED, DECLINED
+  reason       String?
+  createdAt    DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+
+model PayWatch {
+  id         String    @id @default(cuid())
+  userId     String
+  symbol     String
+  kind       String // STOCK, CRYPTO, METAL, FX
+  alertAbove Float?
+  alertBelow Float?
+  alertedAt  DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@unique([userId, symbol])
+}
+
+model PayCoachThread {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  messages  Json
+  updatedAt DateTime @updatedAt
+}
+
+model PayEsimOrder {
+  id              String   @id @default(cuid())
+  userId          String
+  provider        String   @default("airalo")
+  packageId       String
+  country         String
+  title           String
+  dataLabel       String
+  days            Int
+  priceCents      Int
+  currency        String
+  status          String   @default("PROCESSING") // PROCESSING, READY, FAILED, REFUNDED
+  providerOrderId String?
+  iccid           String?
+  qrcodeUrl       String?
+  lpa             String? // activation code for manual install
+  journalRef      String?
+  createdAt       DateTime @default(now())
+
+  @@index([userId])
+}
+
+// Anti-money-laundering alerts for the compliance team.
+model PayRiskEvent {
+  id         String    @id @default(cuid())
+  userId     String
+  kind       String // SANCTIONS_MATCH, PEP_MATCH, LARGE_TRANSFER, VELOCITY, STRUCTURING, NEW_RECIPIENT_BURST, HIGH_RISK_COUNTRY, KYC_FAILED, PIN_LOCKED
+  severity   String    @default("MEDIUM") // LOW, MEDIUM, HIGH, CRITICAL
+  entity     String?
+  entityId   String?
+  details    Json?
+  status     String    @default("OPEN") // OPEN, CLEARED, ESCALATED, REPORTED
+  reviewedBy String?
+  note       String?
+  createdAt  DateTime  @default(now())
+  decidedAt  DateTime?
+
+  @@index([status, createdAt])
+  @@index([userId])
+}
+
+// ───────────────────────── Customer support desk and AI call center (super admin) ─────────────────────────
+
+model SupportCase {
+  id         String           @id @default(cuid())
+  userId     String?
+  name       String?
+  email      String?
+  phone      String?
+  channel    String           @default("CHAT") // CHAT, VOICE, EMAIL, APP
+  subject    String
+  status     String           @default("AI_HANDLING") // AI_HANDLING, WAITING_AGENT, WAITING_CUSTOMER, RESOLVED
+  priority   String           @default("NORMAL") // LOW, NORMAL, HIGH, URGENT
+  category   String? // TRANSFER, CARD, KYC, ACCOUNT, ESIM, FRAUD, OTHER
+  assigneeId String?
+  aiSummary  String?
+  sentiment  String? // POSITIVE, NEUTRAL, NEGATIVE
+  callSid    String?          @unique
+  csat       Int?
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  resolvedAt DateTime?
+  messages   SupportMessage[]
+
+  @@index([status, updatedAt])
+  @@index([userId])
+}
+
+model SupportMessage {
+  id        String      @id @default(cuid())
+  caseId    String
+  from      String // CUSTOMER, AI, AGENT, SYSTEM
+  authorId  String?
+  body      String
+  internal  Boolean     @default(false) // agent-only note
+  createdAt DateTime    @default(now())
+  case      SupportCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@index([caseId, createdAt])
 }
