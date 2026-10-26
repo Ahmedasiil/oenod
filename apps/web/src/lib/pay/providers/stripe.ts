@@ -41,7 +41,7 @@ export async function identityResult(id: string) {
     lastError: v.last_error?.reason ?? v.last_error?.code ?? null,
     name: out ? [out.first_name, out.last_name].filter(Boolean).join(" ") : null,
     dob: out?.dob?.year ? new Date(Date.UTC(out.dob.year, (out.dob.month ?? 1) - 1, out.dob.day ?? 1)) : null,
-    country: out?.address?.country ?? rep?.document?.issuing_country ?? null,
+    country: out?.address?.country ?? null, // where they live (only when an address was collected)
     document: rep?.document ? { type: rep.document.type, country: rep.document.issuing_country, expires: rep.document.expiration_date, status: rep.document.status } : null,
     selfie: rep?.selfie ? { status: rep.selfie.status } : null,
     address: out?.address ?? null,

@@ -109,3 +109,62 @@ pnpm build && pnpm start
 ```
 
 Use **Super admin, Controls** to show a maintenance screen during the update, with the time you expect to be back.
+
+## oenodpay (personal money app)
+
+oenodpay lives at `/pay` on the website and in the **Pay** tab of the mobile app. People can open a
+personal account at `/signup?for=pay` without a company. Super admins get **Call center & support**,
+**Pay overview** and **Compliance (AML)** in the admin menu.
+
+### 1. Licences come first
+
+Holding customer money and sending it abroad is regulated. Before real customers:
+
+- **Canada:** register as a Money Services Business with FINTRAC, appoint a compliance officer and write
+  your AML programme (oenodpay's reports, screening and record-keeping are built to support it).
+- **United States:** register with FinCEN as an MSB and hold state money transmitter licences, or launch
+  through a licensed partner (banking-as-a-service) whose licence covers you.
+- **Cards:** Stripe Issuing is available to US businesses (and UK/EU). For Canadian cards, use a Canadian
+  issuing partner; the card rules engine stays the same.
+- **Markets:** prices are information only. Buying stocks or crypto needs a registered broker partner.
+
+### 2. Sign up for the providers and paste the keys in Super admin, Plugin centre (group "oenodpay")
+
+| Provider | What it does | Where to sign up | Keys |
+| --- | --- | --- | --- |
+| Stripe | Card top-ups, ID + selfie checks, cards | dashboard.stripe.com (turn on Identity and Issuing) | already under Stripe |
+| Airwallex | Bank payouts in 150+ countries, live FX | airwallex.com, Developer, API keys | Client ID, API key, webhook secret |
+| Thunes | Mobile wallets, InstaPay, cash pickup | thunes.com (sales contact) | API key, secret, callback secret |
+| OpenSanctions | Sanctions and PEP screening | opensanctions.org/api | API key |
+| Twelve Data | Live stocks, gold, currencies | twelvedata.com | API key |
+| Airalo | Travel eSIMs | partners.airalo.com | Client ID, client secret |
+| Twilio Voice | AI phone line | twilio.com (buy a phone number) | already under Twilio, plus Support phone |
+| Anthropic | Money coach and support AI | console.anthropic.com | already under Claude AI |
+
+Press **Test** on each one. Start with sandbox/demo environments, then switch `*_ENV` to `live`.
+
+### 3. Webhooks
+
+- **Stripe:** add these events to the existing webhook: `checkout.session.async_payment_succeeded`,
+  `charge.dispute.created`, `identity.verification_session.verified`,
+  `identity.verification_session.requires_input`, `identity.verification_session.canceled`,
+  `issuing_authorization.request`, `issuing_authorization.updated`, `issuing_transaction.created`,
+  `issuing_card.updated`. In Issuing settings, turn on real-time authorizations to the same URL.
+- **Airwallex:** `https://YOUR-DOMAIN/api/webhooks/airwallex`, events `payout.transfer.*`.
+- **Thunes:** callbacks are set automatically on each transfer.
+- **Twilio:** set your support number's voice webhook to `https://YOUR-DOMAIN/api/voice/inbound` (POST).
+
+### 4. Background jobs
+
+`/api/cron/tick` must run every 5 minutes for transfer status, price alerts and weekly sanctions re-screening.
+On Vercel this needs a Pro plan (change the schedule in `vercel.json` to `*/5 * * * *`); anywhere else use any
+scheduler with `Authorization: Bearer $CRON_SECRET`.
+
+### 5. Security defaults
+
+- Money can't move without two-step sign-in, a verified identity and a 6-digit PIN (5 tries, then a 30-minute lock).
+- New recipients, cards, and transfers over `PAY_STEP_UP_OVER_CENTS` need a fresh authenticator code.
+- New devices are capped at `PAY_NEW_DEVICE_CAP_CENTS` per transfer for 24 hours.
+- Every transfer is screened (sanctions, PEP, FATF countries, velocity, structuring). Risky ones wait in
+  **Compliance** with the money held; approve sends it, reject refunds it.
+- Account details are encrypted (AES-256-GCM with `ENCRYPTION_KEY`), and every action is in the audit log.

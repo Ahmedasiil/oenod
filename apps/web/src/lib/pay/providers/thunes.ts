@@ -56,6 +56,9 @@ export async function send(o: { quoteId: number; externalId: string; creditParty
 /** Current status straight from Thunes (callbacks are only a hint: we always re-read). */
 export const transaction = (id: string) => api<{ id: number; status: string; status_message: string; external_id: string }>(`/v2/money-transfer/transactions/${id}`);
 
+/** Find a transaction by our own id (to recover after a timeout without paying twice). */
+export const byExternalId = (externalId: string) => api<{ id: number; status: string; status_message: string }>(`/v2/money-transfer/transactions/ext-${encodeURIComponent(externalId)}`);
+
 export async function test() {
   await api("/v2/money-transfer/ping");
   return "Thunes keys work.";

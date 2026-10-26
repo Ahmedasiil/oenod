@@ -47,7 +47,7 @@ export async function handleStripePay(event: Stripe.Event): Promise<Response | n
       if (event.type === "identity.verification_session.verified") {
         const r = await identityResult(v.id);
         const adult = r.dob ? Date.now() - r.dob.getTime() >= 18 * 365.25 * 86400_000 : false;
-        await db.payProfile.update({ where: { id: p.id }, data: { kycStatus: adult ? "VERIFIED" : "REVIEW", tier: adult ? Math.max(p.tier, 1) : p.tier, kycProvider: "stripe_identity", legalName: r.name, dob: r.dob, country: r.country, kycReport: JSON.parse(JSON.stringify({ document: r.document, selfie: r.selfie, at: new Date() })) } });
+        await db.payProfile.update({ where: { id: p.id }, data: { kycStatus: adult ? "VERIFIED" : "REVIEW", tier: adult ? Math.max(p.tier, 1) : p.tier, kycProvider: "stripe_identity", legalName: r.name, dob: r.dob, country: r.address?.country ?? p.country, nationality: r.document?.country ?? p.nationality, kycReport: JSON.parse(JSON.stringify({ document: r.document, selfie: r.selfie, at: new Date() })) } });
         if (!adult) await riskEvent(p.userId, "KYC_UNDERAGE", "MEDIUM", "PayProfile", p.id, { dob: r.dob });
         await screenProfile(p.userId).catch((e) => console.error("screening failed", e));
         const u = await db.user.findUnique({ where: { id: p.userId } });

@@ -57,6 +57,12 @@ export async function payout(o: { requestId: string; sourceCurrency: string; sou
 
 export const transfer = (id: string) => api<{ id: string; status: string; failure_reason?: string }>(`/api/v1/transfers/${id}`);
 
+/** Find a payout by our request id (to recover after a timeout without paying twice). */
+export async function byRequestId(requestId: string) {
+  const r = await api<{ items: { id: string; status: string; request_id: string; failure_reason?: string }[] }>(`/api/v1/transfers?request_id=${encodeURIComponent(requestId)}&page_size=1`);
+  return r.items?.[0] ?? null;
+}
+
 export async function test() {
   await auth();
   return "Airwallex keys work.";

@@ -49,10 +49,11 @@ export async function decideAuthorization(a: Stripe.Issuing.Authorization): Prom
   if (availableCents < amount) return record(false, "Not enough money in the wallet");
   // Take the money now; reversals and refunds give it back.
   const w = await walletFor(card.userId);
-  await post(card.userId, "CARD", `auth:${a.id}`, [
+  const taken = await post(card.userId, "CARD", `auth:${a.id}`, [
     { walletId: w.id, account: `wallet:${card.userId}`, amountCents: -amount },
     { account: "clearing:cards", amountCents: amount },
-  ], m.name ?? "Card payment").catch(() => null);
+  ], m.name ?? "Card payment").then(() => true, () => false);
+  if (!taken) return record(false, "Not enough money in the wallet");
   const r = await record(true);
   if (card.familyId) {
     const f = await db.payFamilyMember.findUnique({ where: { id: card.familyId } });

@@ -129,7 +129,7 @@ export async function dispatch(transferId: string) {
       const service = r.method === "BANK" ? "bank" : r.method === "CASH_PICKUP" ? "cash" : "mobile";
       const payer = await thunes.findPayer(r.country, r.method === "INSTAPAY" ? "InstaPay" : r.network, service);
       if (!payer) throw new HttpError(502, "No payout partner is available for that method right now.");
-      const q = await thunes.quote({ externalId: `q-${t.id}`, payerId: payer.id, sourceCurrency: t.sendCurrency, sourceAmount: t.sendCents / 100, country: r.country, destCurrency: r.currency });
+      const q = await thunes.quote({ externalId: `q-${t.id}-${Date.now().toString(36)}`, payerId: payer.id, sourceCurrency: t.sendCurrency, sourceAmount: t.sendCents / 100, country: r.country, destCurrency: r.currency });
       res = await thunes.send({
         quoteId: q.id, externalId: t.id,
         creditParty: { msisdn: d.phone, bank_account_number: d.accountNumber ?? d.ipa ?? d.walletId, iban: d.iban, card_number: d.cardNumber },
@@ -139,9 +139,37 @@ export async function dispatch(transferId: string) {
     }
     return db.payTransfer.update({ where: { id: t.id }, data: { providerRef: res.providerRef, status: res.status === "DELIVERED" ? "DELIVERED" : "SENT" } });
   } catch (e) {
-    await fail(t.id, e instanceof Error ? e.message : "Payout failed");
-    throw e;
+    // Only a clear "no" from the provider is final. A timeout may still have paid out, so the money stays
+    // in clearing and the cron retries (providers dedupe on our id) until we know for sure.
+    const status = e instanceof HttpError ? (e.details as { status?: number } | undefined)?.status : undefined;
+    if (e instanceof HttpError && (e.status === 422 || (status && status >= 400 && status < 500 && status !== 409 && status !== 429))) {
+      await fail(t.id, e.message);
+      throw e;
+    }
+    await db.payTransfer.update({ where: { id: t.id }, data: { status: "PROCESSING", failureReason: "Waiting for the payout partner to confirm" } });
+    await riskEvent(t.userId, "PAYOUT_UNCONFIRMED", "LOW", "PayTransfer", t.id, { error: e instanceof Error ? e.message : String(e) });
+    return db.payTransfer.findUniqueOrThrow({ where: { id: t.id } });
   }
+}
+
+/** Transfers stuck in PROCESSING with no provider reference: look them up or send again (idempotent). */
+export async function retryStuck() {
+  const stuck = await db.payTransfer.findMany({ where: { status: "PROCESSING", providerRef: null, updatedAt: { lt: new Date(Date.now() - 10 * 60_000) } }, take: 20 });
+  for (const t of stuck) {
+    if (t.provider === "airwallex") {
+      const found = await airwallex.byRequestId(t.id).catch(() => undefined);
+      if (found === undefined) continue; // couldn't check: try again next run, never risk a second payout
+      if (found) { await db.payTransfer.update({ where: { id: t.id }, data: { providerRef: found.id, status: "SENT", failureReason: null } }); await settle("airwallex", found.id, found.status, found.failure_reason); continue; }
+    }
+    if (t.provider === "thunes") {
+      const found = await thunes.byExternalId(t.id).catch((e) => (e instanceof HttpError && (e.details as { status?: number } | undefined)?.status === 404 ? null : undefined));
+      if (found === undefined) continue;
+      if (found) { await db.payTransfer.update({ where: { id: t.id }, data: { providerRef: String(found.id), status: "SENT", failureReason: null } }); await settle("thunes", String(found.id), found.status_message || found.status); continue; }
+    }
+    await db.payTransfer.update({ where: { id: t.id }, data: { updatedAt: new Date() } });
+    await dispatch(t.id).catch((e) => console.error("retry dispatch", t.id, e));
+  }
+  return stuck.length;
 }
 
 /** The payout failed or was rejected: give the money and the fee back. */

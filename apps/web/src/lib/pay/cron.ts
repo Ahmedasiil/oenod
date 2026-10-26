@@ -1,6 +1,6 @@
 import { db } from "../db";
 import { sendPush } from "../push";
-import { settle } from "./transfers";
+import { retryStuck, settle } from "./transfers";
 import { screenProfile } from "./risk";
 import { quotes } from "./providers/market";
 import * as airwallex from "./providers/airwallex";
@@ -8,6 +8,7 @@ import * as thunes from "./providers/thunes";
 
 /** Re-read transfers that have been on their way for over 10 minutes, in case a webhook was missed. */
 export async function syncTransfers() {
+  await retryStuck().catch((e) => console.error("retryStuck", e));
   const list = await db.payTransfer.findMany({ where: { status: "SENT", providerRef: { not: null }, updatedAt: { lt: new Date(Date.now() - 600_000) } }, take: 50, orderBy: { updatedAt: "asc" } });
   let n = 0;
   for (const t of list) {

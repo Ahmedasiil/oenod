@@ -19,6 +19,6 @@ export const GET = route(async (req: Request) => {
   return ok({
     currency: BASE, balanceCents: bal.wallet.balanceCents, availableCents: bal.availableCents,
     profile: { tier: p.tier, kycStatus: p.kycStatus, name: p.legalName, country: p.country, frozen: !!p.frozenAt, pinSet: !!p.pinHash, twoStep: !!ctx.user.totpEnabledAt },
-    limits, health, recent, cards, familyCount: family, transfers,
+    limits, health, recent, cards, familyCount: family, transfers: transfers.map(({ riskFlags: _r, ip: _i, reviewedBy: _b, idempotencyKey: _k, ...t }) => t),
   });
 });
