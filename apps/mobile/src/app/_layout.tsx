@@ -47,6 +47,16 @@ function Gate() {
         <Stack.Screen name="leave" options={{ title: 'Time off', presentation: 'modal' }} />
         <Stack.Screen name="payslips" options={{ title: 'Payslips' }} />
         <Stack.Screen name="notifications" options={{ title: 'Notifications' }} />
+        <Stack.Screen name="pay/send" options={{ title: 'Send money' }} />
+        <Stack.Screen name="pay/topup" options={{ title: 'Add money', presentation: 'modal' }} />
+        <Stack.Screen name="pay/cards" options={{ title: 'Cards' }} />
+        <Stack.Screen name="pay/family" options={{ title: 'Family' }} />
+        <Stack.Screen name="pay/markets" options={{ title: 'Markets' }} />
+        <Stack.Screen name="pay/coach" options={{ title: 'Oeno, money coach' }} />
+        <Stack.Screen name="pay/esim" options={{ title: 'Travel eSIM' }} />
+        <Stack.Screen name="pay/security" options={{ title: 'Security' }} />
+        <Stack.Screen name="pay/verify" options={{ title: 'Verify identity' }} />
+        <Stack.Screen name="pay/help" options={{ title: 'Help' }} />
       </Stack.Protected>
       <Stack.Protected guard={!session}>
         <Stack.Screen name="signin" options={{ headerShown: false }} />

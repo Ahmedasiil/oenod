@@ -21,7 +21,7 @@ export async function api<T = any>(path: string, opts: { method?: string; body?:
     if (res.status === 401 && typeof window !== "undefined" && !location.pathname.startsWith("/signin")) {
       location.href = `/signin?next=${encodeURIComponent(location.pathname + location.search)}`;
     }
-    throw new ApiError(res.status, data?.error ?? "Something went wrong. Please try again.", data?.code, data);
+    throw new ApiError(res.status, data?.error ?? "Something went wrong. Please try again.", data?.code ?? data?.details?.code, data);
   }
   return data as T;
 }

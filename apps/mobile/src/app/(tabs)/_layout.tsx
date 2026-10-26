@@ -1,7 +1,7 @@
 import { StyleSheet, View, type ColorValue } from 'react-native';
 import { Tabs } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { CalendarDays, Clock, House, LayoutGrid, Sparkles, type LucideIcon } from 'lucide-react-native';
+import { CalendarDays, Clock, House, LayoutGrid, Sparkles, Wallet, type LucideIcon } from 'lucide-react-native';
 import { useAuth } from '@/lib/auth';
 import { t } from '@/lib/i18n';
 import { C, F } from '@/lib/theme';
@@ -29,6 +29,7 @@ export default function TabsLayout() {
         tabBarBadgeStyle: { backgroundColor: C.red, fontFamily: F.bold, fontSize: 10 },
       }}>
       <Tabs.Screen name="index" options={{ title: t('nav.home'), tabBarIcon: icon(House) }} />
+      <Tabs.Screen name="pay" options={{ title: 'Pay', tabBarIcon: icon(Wallet) }} />
       <Tabs.Screen name="clock" options={{ title: t('me.clock'), href: hide('time'), tabBarIcon: icon(Clock) }} />
       <Tabs.Screen name="shifts" options={{ title: t('me.shifts'), href: hide('me'), tabBarIcon: icon(CalendarDays) }} />
       <Tabs.Screen name="ai" options={{ title: t('me.assistant'), href: hide('ai'), tabBarIcon: icon(Sparkles) }} />
