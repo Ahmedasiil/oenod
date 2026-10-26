@@ -16,6 +16,13 @@ const nextConfig: NextConfig = {
       { source: "/c/:slug", destination: "/companies/:slug", permanent: true },
     ];
   },
+  // The employee app's web preview (built from apps/mobile into public/mobile) is a single-page app.
+  async rewrites() {
+    return [
+      { source: "/mobile", destination: "/mobile/index.html" },
+      { source: "/mobile/:path((?!_expo/|assets/).*)", destination: "/mobile/index.html" },
+    ];
+  },
   async headers() {
     return [
       {
