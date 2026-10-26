@@ -14,6 +14,7 @@ const icon = (I: LucideIcon) => ({ focused, color }: { focused: boolean; color: 
 );
 
 // Each tab shows only when the person's role or grants include that module.
+// oenodpay-only accounts (no company) open straight on Pay.
 export default function TabsLayout() {
   const { can, session } = useAuth();
   const insets = useSafeAreaInsets();
@@ -28,7 +29,7 @@ export default function TabsLayout() {
         tabBarLabelStyle: { fontFamily: F.semi, fontSize: 11, marginTop: 2 },
         tabBarBadgeStyle: { backgroundColor: C.red, fontFamily: F.bold, fontSize: 10 },
       }}>
-      <Tabs.Screen name="index" options={{ title: t('nav.home'), tabBarIcon: icon(House) }} />
+      <Tabs.Screen name="index" options={{ title: t('nav.home'), href: session?.org ? undefined : null, tabBarIcon: icon(House) }} />
       <Tabs.Screen name="pay" options={{ title: 'Pay', tabBarIcon: icon(Wallet) }} />
       <Tabs.Screen name="clock" options={{ title: t('me.clock'), href: hide('time'), tabBarIcon: icon(Clock) }} />
       <Tabs.Screen name="shifts" options={{ title: t('me.shifts'), href: hide('me'), tabBarIcon: icon(CalendarDays) }} />

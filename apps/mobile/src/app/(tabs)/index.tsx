@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { useFocusEffect, useRouter } from 'expo-router';
+import { Redirect, useFocusEffect, useRouter } from 'expo-router';
 import { formatDate, greeting } from '@oenod/i18n';
 import { Bell, Briefcase, CalendarDays, CircleCheck, Clock, GraduationCap, Hourglass, MapPin, Megaphone, Palmtree, Receipt, Sparkles } from 'lucide-react-native';
 import { useAuth } from '@/lib/auth';
@@ -18,7 +18,14 @@ const elapsed = (from: string, breakMin = 0) => {
   return `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, '0')}m`;
 };
 
+// oenodpay-only accounts (no company) land on Pay.
 export default function Home() {
+  const { session } = useAuth();
+  if (!session?.org) return <Redirect href="/pay" />;
+  return <BusinessHome />;
+}
+
+function BusinessHome() {
   const router = useRouter();
   const { session, can } = useAuth();
   const me = useApi<Me>(can('me') ? '/api/me' : null);
