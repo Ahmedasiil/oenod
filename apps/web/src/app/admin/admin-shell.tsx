@@ -2,14 +2,15 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Sparkles, CheckSquare, Building2, Users, Power, Plug, Rocket, BadgeCheck, Megaphone, Puzzle, GraduationCap, CreditCard, ScrollText, Menu, X, ArrowLeft } from "lucide-react";
+import { LayoutDashboard, Sparkles, CheckSquare, Building2, Users, Power, Plug, Rocket, BadgeCheck, Megaphone, Puzzle, GraduationCap, CreditCard, ScrollText, Menu, X, ArrowLeft, Wallet, Headphones, ShieldAlert } from "lucide-react";
 import { useApi } from "@/lib/client/api";
 import { Logo } from "@/components/logo";
 import { Avatar, cx } from "@/components/ui";
 
 const NAV = [
   { group: "Run", items: [["/admin", "Overview", LayoutDashboard], ["/admin/ai", "AI operator", Sparkles], ["/admin/approvals", "Approvals", CheckSquare]] },
-  { group: "Customers", items: [["/admin/companies", "Companies", Building2], ["/admin/users", "Users", Users], ["/admin/verifications", "Verifications", BadgeCheck]] },
+  { group: "Customers", items: [["/admin/companies", "Companies", Building2], ["/admin/users", "Users", Users], ["/admin/verifications", "Verifications", BadgeCheck], ["/admin/support", "Call center & support", Headphones]] },
+  { group: "oenodpay", items: [["/admin/pay", "Pay overview", Wallet], ["/admin/compliance", "Compliance (AML)", ShieldAlert]] },
   { group: "Platform", items: [["/admin/controls", "Controls & status", Power], ["/admin/plugins", "Plugin centre", Plug], ["/admin/plans", "Plans & pricing", CreditCard]] },
   { group: "Grow", items: [["/admin/growth", "Growth & marketing", Rocket], ["/admin/ads", "Ads review", Megaphone], ["/admin/marketplace", "Plugin marketplace", Puzzle], ["/admin/academy", "Academy", GraduationCap]] },
   { group: "Trust", items: [["/admin/audit", "Audit log", ScrollText]] },
