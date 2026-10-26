@@ -88,6 +88,11 @@ async function demo() {
     emps.push(await db.employee.create({ data: { orgId, firstName: p[0], lastName: p[1], jobTitle: p[2], payType: p[3], payRate: p[4], email: `${p[0].toLowerCase()}@demo.oenod.local`, phone: `+1 416 555 01${10 + i}`, locationId: i % 3 === 2 ? second.id : main.id, region: "ON", startDate: new Date(Date.now() - (60 + i * 90) * day), createdAt: new Date(Date.now() - (60 + i * 90) * day), kioskPin: String(1000 + i * 111), employmentType: i > 6 ? "PART_TIME" : "FULL_TIME" } }));
   }
   for (const e of emps) await db.leaveBalance.createMany({ data: [{ employeeId: e.id, type: "VACATION", hours: 80 }, { employeeId: e.id, type: "SICK", hours: 24 }] });
+  // Lucas gets a sign-in so the employee mobile app can be tried with the demo company.
+  const lucas = emps[2];
+  const lucasUser = await db.user.create({ data: { email: "lucas@demo.oenod.local", name: "Lucas Martin", passwordHash: await bcrypt.hash(password, 12), emailVerifiedAt: new Date() } });
+  const lucasMember = await db.membership.create({ data: { userId: lucasUser.id, orgId, role: "EMPLOYEE", title: "Barista" } });
+  await db.employee.update({ where: { id: lucas.id }, data: { membershipId: lucasMember.id } });
 
   // This week's schedule, last two weeks of time entries
   const roles = ["Barista", "Cashier", "Baker", "Barista"];
@@ -171,7 +176,7 @@ async function demo() {
   const jobs: [string, string, number, number, string][] = [["Barista (Full-time)", "Hospitality", 18, 21, "HOUR"], ["Pastry Chef", "Culinary", 52000, 60000, "YEAR"], ["Café Supervisor, Liberty Village", "Hospitality", 48000, 54000, "YEAR"]];
   for (const [title, category, min, max, period] of jobs) await db.jobPosting.create({ data: { orgId, title, slug: `${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${randomBytes(2).toString("hex")}`, category, city: "Toronto", salaryMin: min, salaryMax: max, salaryPeriod: period, description: `Join Maple & Co. Café, a busy neighbourhood café and bakery in downtown Toronto. We're hiring a ${title.split(" (")[0].toLowerCase()} who loves people and great food.\n\nWhat you'll do:\n- Deliver warm, fast service\n- Keep quality and food-safety standards high\n- Work as part of a supportive team`, requirements: "Food Handler certificate (or willing to get one)\nWeekend availability", benefits: "Staff meals and coffee\nTips shared fairly\nPaid training through OENOD Academy", featured: title.includes("Supervisor") } });
 
-  console.log(`✓ Demo company "Maple & Co. Café": sign in as ${email}  password: ${password}`);
+  console.log(`✓ Demo company "Maple & Co. Café": sign in as ${email} (employee app: lucas@demo.oenod.local)  password: ${password}`);
 }
 
 async function main() {
