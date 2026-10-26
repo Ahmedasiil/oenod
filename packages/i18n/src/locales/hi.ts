@@ -1,0 +1,61 @@
+import type { Dict } from "./en";
+import type { DeepPartial } from "../types";
+
+// Hindi.
+const hi: DeepPartial<Dict> = {
+  common: {
+    save: "सहेजें", cancel: "रद्द करें", delete: "हटाएँ", edit: "संपादित करें", add: "जोड़ें", create: "बनाएँ", close: "बंद करें", back: "वापस", next: "आगे", done: "हो गया",
+    search: "खोजें", filter: "फ़िल्टर", export: "निर्यात", import: "आयात", download: "डाउनलोड", upload: "अपलोड", share: "साझा करें", copy: "कॉपी करें", copied: "कॉपी हो गया",
+    loading: "लोड हो रहा है…", saving: "सहेजा जा रहा है…", saved: "सहेजा गया", retry: "फिर से कोशिश करें", yes: "हाँ", no: "नहीं", all: "सभी", none: "कोई नहीं", more: "और", seeAll: "सभी देखें",
+    today: "आज", yesterday: "कल", tomorrow: "कल", thisWeek: "इस सप्ताह", thisMonth: "इस महीने", date: "तारीख", time: "समय", status: "स्थिति",
+    name: "नाम", email: "ईमेल", phone: "फ़ोन", address: "पता", notes: "नोट्स", total: "कुल", amount: "राशि", actions: "कार्य",
+    approve: "स्वीकृत करें", reject: "अस्वीकार करें", submit: "जमा करें", send: "भेजें", open: "खोलें", view: "देखें", details: "विवरण", settings: "सेटिंग्स",
+    required: "ज़रूरी", optional: "वैकल्पिक", noResults: "अभी यहाँ कुछ नहीं है", language: "भाषा", signOut: "साइन आउट", help: "मदद",
+    verified: "सत्यापित", sponsored: "प्रायोजित", free: "मुफ़्त", new: "नया", poweredBy: "OENOD द्वारा संचालित",
+  },
+  nav: { home: "होम", features: "सुविधाएँ", pricing: "कीमतें", jobs: "नौकरियाँ", academy: "अकादमी", directory: "व्यवसाय", developers: "डेवलपर", status: "सेवा स्थिति", download: "डाउनलोड", signIn: "साइन इन", startFree: "मुफ़्त शुरू करें", dashboard: "डैशबोर्ड", admin: "सुपर एडमिन", myAccount: "मेरा खाता", notifications: "सूचनाएँ", security: "सुरक्षा" },
+  modules: {
+    overview: "सारांश", ai: "AI बिज़नेस मैनेजर", live: "लाइव मैप", people: "कर्मचारी और HR", recruiting: "भर्ती और नौकरियाँ", time: "समय और उपस्थिति",
+    scheduling: "शेड्यूल", leave: "छुट्टी और लाभ", payroll: "पेरोल", crm: "CRM", sales: "कोटेशन और इनवॉइस", support: "हेल्प डेस्क", bookings: "बुकिंग",
+    accounting: "लेखा", expenses: "खर्च", pos: "पॉइंट ऑफ़ सेल", inventory: "इन्वेंटरी", purchasing: "ख़रीद", projects: "प्रोजेक्ट",
+    fieldservice: "फ़ील्ड सर्विस", fleet: "फ़्लीट GPS", assets: "संपत्ति और रखरखाव", safety: "गुणवत्ता और सुरक्षा", compliance: "दस्तावेज़ और अनुपालन",
+    marketing: "मार्केटिंग", reviews: "रिव्यू और प्रतिष्ठा", loyalty: "लॉयल्टी और रिवॉर्ड", academy: "अकादमी", chat: "टीम चैट", reports: "रिपोर्ट",
+    monitors: "निगरानी और अलर्ट", integrations: "इंटीग्रेशन", developers: "डेवलपर और API", settings: "सेटिंग्स", me: "मेरा काम",
+  },
+  auth: {
+    signInTitle: "फिर से स्वागत है", signInSub: "अपने OENOD खाते में साइन इन करें", signUpTitle: "अपना मुफ़्त ट्रायल शुरू करें", signUpSub: "14 दिन मुफ़्त। कार्ड की ज़रूरत नहीं।",
+    email: "कार्य ईमेल", password: "पासवर्ड", newPassword: "नया पासवर्ड", fullName: "पूरा नाम", company: "कंपनी का नाम",
+    forgot: "पासवर्ड भूल गए?", noAccount: "OENOD पर नए हैं?", haveAccount: "पहले से खाता है?", createAccount: "खाता बनाएँ",
+    resetTitle: "पासवर्ड रीसेट करें", resetSent: "अगर इस ईमेल का खाता है, तो रीसेट लिंक भेज दिया गया है।",
+    twoFactorTitle: "दो-चरणीय साइन इन", twoFactorSub: "अपने ऑथेंटिकेटर ऐप से 6 अंकों का कोड डालें।", useRecovery: "रिकवरी कोड इस्तेमाल करें",
+    passwordHint: "कम से कम 10 अक्षर। एक छोटा वाक्य अच्छा रहता है।", consentMarketing: "मुझे OENOD से सुझाव और ख़बरें भेजें। मैं कभी भी सदस्यता छोड़ सकता हूँ।",
+    terms: "जारी रखकर आप शर्तों और गोपनीयता नीति से सहमत होते हैं।", locked: "आपकी सुरक्षा के लिए साइन इन कुछ मिनटों के लिए रोका गया है।",
+  },
+  security: {
+    title: "सुरक्षा", twoFactor: "दो-चरणीय साइन इन", twoFactorOn: "चालू", twoFactorOff: "बंद", turnOn: "चालू करें", turnOff: "बंद करें",
+    scanQr: "इस QR कोड को Google Authenticator, Microsoft Authenticator या 1Password से स्कैन करें, फिर 6 अंकों का कोड डालें।",
+    recoveryCodes: "रिकवरी कोड", recoveryHelp: "इन्हें सुरक्षित जगह रखें। फ़ोन खोने पर हर कोड एक बार काम करता है।",
+    devices: "साइन इन किए डिवाइस", thisDevice: "यह डिवाइस", signOutDevice: "साइन आउट", signOutOthers: "बाकी सभी डिवाइस से साइन आउट करें",
+    changePassword: "पासवर्ड बदलें", activity: "हाल की गतिविधि", score: "सुरक्षा स्कोर", recommendations: "सुझाव",
+    require2fa: "सभी के लिए दो-चरणीय साइन इन ज़रूरी करें", ipAllowlist: "अनुमत नेटवर्क", sessionLength: "साइन इन रहें (दिन)",
+  },
+  me: { shifts: "शिफ्ट", clock: "हाज़िरी", assistant: "सहायक", upcoming: "आगामी", swap: "बदलें या छोड़ें", keepShift: "यह शिफ्ट रखें", swapAsked: "बदलाव का अनुरोध भेजा", hoursWorked: "काम के घंटे", scheduled: "निर्धारित", onTheClock: "ड्यूटी पर",
+    greetingMorning: "सुप्रभात", greetingAfternoon: "नमस्कार", greetingEvening: "शुभ संध्या",
+    clockIn: "क्लॉक इन", clockOut: "क्लॉक आउट", startBreak: "ब्रेक शुरू करें", endBreak: "ब्रेक ख़त्म करें", onBreak: "ब्रेक पर", clockedIn: "काम पर", clockedOut: "क्लॉक इन नहीं",
+    outsideZone: "आप कार्य क्षेत्र से बाहर हैं। क्लॉक इन करने के लिए पास आएँ।", nextShift: "अगली शिफ़्ट", noShift: "कोई आने वाली शिफ़्ट नहीं",
+    mySchedule: "मेरा शेड्यूल", myPay: "मेरा वेतन", payslips: "वेतन पर्ची", hours: "घंटे", timesheet: "टाइमशीट", leave: "छुट्टी", requestLeave: "छुट्टी माँगें",
+    training: "प्रशिक्षण", certificates: "प्रमाणपत्र", myTasks: "मेरे काम", openShifts: "खाली शिफ़्ट", pickUp: "लें", announcements: "घोषणाएँ",
+    documents: "मेरे दस्तावेज़", profile: "मेरी प्रोफ़ाइल", jobs: "नौकरियाँ", inventory: "इन्वेंटरी", marketing: "मार्केटिंग",
+  },
+  welcome: { title: "आपका आज का दिन", tip: "सुझाव", quickActions: "त्वरित कार्य", aiSuggests: "AI का सुझाव", weather: "मौसम", nearYou: "आपके पास", setupTitle: "चलिए आपका व्यवसाय सेट करें", setupSub: "कुछ कदम और OENOD आपकी टीम के लिए तैयार।" },
+  status: { active: "सक्रिय", inactive: "निष्क्रिय", draft: "ड्राफ़्ट", pending: "लंबित", approved: "स्वीकृत", rejected: "अस्वीकृत", paid: "भुगतान हुआ", overdue: "बकाया", open: "खुला", closed: "बंद", inProgress: "जारी", done: "पूरा", cancelled: "रद्द", scheduled: "निर्धारित", live: "लाइव", paused: "रुका हुआ", onTrack: "सही दिशा में", atRisk: "जोखिम में", offTrack: "पीछे" },
+  maintenance: { title: "हम जल्द लौटेंगे", message: "OENOD अपडेट हो रहा है। सब कुछ थोड़ी देर में वापस आ जाएगा।", backAround: "लगभग {time} तक वापसी", readOnly: "छोटे अपडेट के दौरान OENOD केवल देखने के मोड में है। आप देख सकते हैं, पर बदलाव रुके हैं।", updateTitle: "अपडेट ज़रूरी है", updateMessage: "OENOD का नया संस्करण तैयार है। जारी रखने के लिए अपडेट करें।", updateNow: "अभी अपडेट करें", moduleMaintenance: "यह हिस्सा रखरखाव में है। कृपया बाद में आएँ।" },
+  errors: { generic: "कुछ गड़बड़ हुई। फिर से कोशिश करें।", network: "आप ऑफ़लाइन हैं। कनेक्शन लौटने पर हम फिर कोशिश करेंगे।", notFound: "यह पेज नहीं मिला।", forbidden: "इस हिस्से तक आपकी पहुँच नहीं है। अपने मैनेजर से पहुँच माँगें।", signInAgain: "कृपया फिर से साइन इन करें।", tooMany: "बहुत ज़्यादा प्रयास। थोड़ा रुकें।" },
+  jobs: { title: "अपनी अगली नौकरी खोजें", search: "पद, कौशल या कंपनी", location: "शहर या पोस्टल कोड", remote: "रिमोट", apply: "आवेदन करें", applied: "आवेदन भेजा गया", noAccount: "आवेदन के लिए खाते की ज़रूरत नहीं", saveJob: "नौकरी सहेजें", alert: "ऐसी नौकरियों की ईमेल भेजें", posted: "{when} पोस्ट की गई", salary: "वेतन" },
+  academy: { title: "OENOD अकादमी", sub: "व्यवसाय मालिकों और टीमों के लिए व्यावहारिक कोर्स", enroll: "कोर्स शुरू करें", continue: "जारी रखें", buy: "कोर्स ख़रीदें", pass: "अकादमी पास", passSub: "सभी पेड कोर्स, एक कीमत", lessons: "{count} पाठ", hours: "{count} घंटे", certificate: "प्रमाणपत्र शामिल", preview: "मुफ़्त झलक", completed: "पूरा हुआ", verifyCertificate: "प्रमाणपत्र सत्यापित करें", certificateId: "प्रमाणपत्र आईडी" },
+  directory: { title: "स्थानीय व्यवसाय खोजें", follow: "फ़ॉलो करें", following: "फ़ॉलो कर रहे हैं", contact: "संपर्क करें", website: "वेबसाइट", directions: "रास्ता", hours: "समय", services: "सेवाएँ", reviews: "रिव्यू", about: "परिचय", verifiedBusiness: "सत्यापित व्यवसाय" },
+  ads: { sponsored: "प्रायोजित", whyThisAd: "मुझे यह विज्ञापन क्यों दिख रहा है?", hide: "विज्ञापन छिपाएँ", manager: "विज्ञापन मैनेजर", newCampaign: "नया विज्ञापन", budget: "बजट", wallet: "विज्ञापन वॉलेट" },
+  email: { footer: "आपको यह इसलिए मिला क्योंकि आपका खाता है या आपने {brand} से ख़बरें पाने की सहमति दी है।", unsubscribe: "सदस्यता छोड़ें", sentWith: "OENOD से भेजा गया" },
+  ai: { hello: "मैं कैसे मदद करूँ, {name}?", sub: "अपनी शिफ्ट, घंटे, वेतन या छुट्टी के बारे में पूछें।", approvalNote: "वेतन, लोगों या पैसे से जुड़े बदलाव हमेशा मैनेजर की मंज़ूरी का इंतज़ार करते हैं।", placeholder: "अपने व्यवसाय के बारे में कुछ भी पूछें…", thinking: "सोच रहा है…", waitingApproval: "आपकी स्वीकृति का इंतज़ार", done: "हो गया", blocked: "आपके नियमों के अनुसार अनुमति नहीं", emergencyStop: "आपातकालीन रोक", simulation: "सिमुलेशन मोड" },
+};
+export default hi;

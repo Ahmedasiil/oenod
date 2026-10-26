@@ -1,0 +1,61 @@
+import type { Dict } from "./en";
+import type { DeepPartial } from "../types";
+
+// Portuguese (Brazil and Portugal readers both understand this neutral wording).
+const pt: DeepPartial<Dict> = {
+  common: {
+    save: "Salvar", cancel: "Cancelar", delete: "Excluir", edit: "Editar", add: "Adicionar", create: "Criar", close: "Fechar", back: "Voltar", next: "Próximo", done: "Concluído",
+    search: "Pesquisar", filter: "Filtrar", export: "Exportar", import: "Importar", download: "Baixar", upload: "Enviar", share: "Compartilhar", copy: "Copiar", copied: "Copiado",
+    loading: "Carregando…", saving: "Salvando…", saved: "Salvo", retry: "Tentar novamente", yes: "Sim", no: "Não", all: "Todos", none: "Nenhum", more: "Mais", seeAll: "Ver tudo",
+    today: "Hoje", yesterday: "Ontem", tomorrow: "Amanhã", thisWeek: "Esta semana", thisMonth: "Este mês", date: "Data", time: "Hora", status: "Status",
+    name: "Nome", email: "E-mail", phone: "Telefone", address: "Endereço", notes: "Observações", total: "Total", amount: "Valor", actions: "Ações",
+    approve: "Aprovar", reject: "Recusar", submit: "Enviar", send: "Enviar", open: "Abrir", view: "Ver", details: "Detalhes", settings: "Configurações",
+    required: "Obrigatório", optional: "Opcional", noResults: "Nada aqui ainda", language: "Idioma", signOut: "Sair", help: "Ajuda",
+    verified: "Verificado", sponsored: "Patrocinado", free: "Grátis", new: "Novo", poweredBy: "Com tecnologia OENOD",
+  },
+  nav: { home: "Início", features: "Recursos", pricing: "Preços", jobs: "Vagas", academy: "Academia", directory: "Empresas", developers: "Desenvolvedores", status: "Status", download: "Baixar", signIn: "Entrar", startFree: "Teste grátis", dashboard: "Painel", admin: "Super admin", myAccount: "Minha conta", notifications: "Notificações", security: "Segurança" },
+  modules: {
+    overview: "Visão geral", ai: "Gerente de negócios com IA", live: "Mapa ao vivo", people: "Pessoas e RH", recruiting: "Recrutamento e vagas", time: "Ponto e presença",
+    scheduling: "Escalas", leave: "Férias e benefícios", payroll: "Folha de pagamento", crm: "CRM", sales: "Orçamentos e faturas", support: "Central de suporte", bookings: "Agendamentos",
+    accounting: "Contabilidade", expenses: "Despesas", pos: "Ponto de venda", inventory: "Estoque", purchasing: "Compras", projects: "Projetos",
+    fieldservice: "Serviço de campo", fleet: "GPS da frota", assets: "Ativos e manutenção", safety: "Qualidade e segurança", compliance: "Documentos e conformidade",
+    marketing: "Marketing", reviews: "Avaliações e reputação", loyalty: "Fidelidade e recompensas", academy: "Academia", chat: "Chat da equipe", reports: "Relatórios",
+    monitors: "Monitoramento e alertas", integrations: "Integrações", developers: "Desenvolvedores e API", settings: "Configurações", me: "Meu trabalho",
+  },
+  auth: {
+    signInTitle: "Bem-vindo de volta", signInSub: "Entre na sua conta OENOD", signUpTitle: "Comece seu teste grátis", signUpSub: "14 dias grátis. Sem cartão.",
+    email: "E-mail profissional", password: "Senha", newPassword: "Nova senha", fullName: "Nome completo", company: "Nome da empresa",
+    forgot: "Esqueceu a senha?", noAccount: "Novo no OENOD?", haveAccount: "Já tem uma conta?", createAccount: "Criar conta",
+    resetTitle: "Redefinir sua senha", resetSent: "Se esse e-mail tiver uma conta, o link de redefinição está a caminho.",
+    twoFactorTitle: "Login em duas etapas", twoFactorSub: "Digite o código de 6 dígitos do seu app autenticador.", useRecovery: "Usar um código de recuperação",
+    passwordHint: "Pelo menos 10 caracteres. Uma frase curta funciona bem.", consentMarketing: "Quero receber dicas e novidades do OENOD. Posso cancelar quando quiser.",
+    terms: "Ao continuar, você concorda com os Termos e a Política de Privacidade.", locked: "Para sua segurança, o login foi pausado por alguns minutos.",
+  },
+  security: {
+    title: "Segurança", twoFactor: "Login em duas etapas", twoFactorOn: "Ativado", twoFactorOff: "Desativado", turnOn: "Ativar", turnOff: "Desativar",
+    scanQr: "Escaneie este QR code com Google Authenticator, Microsoft Authenticator ou 1Password e digite o código de 6 dígitos.",
+    recoveryCodes: "Códigos de recuperação", recoveryHelp: "Guarde em um lugar seguro. Cada um funciona uma vez se você perder o celular.",
+    devices: "Dispositivos conectados", thisDevice: "Este dispositivo", signOutDevice: "Sair", signOutOthers: "Sair de todos os outros dispositivos",
+    changePassword: "Alterar senha", activity: "Atividade recente", score: "Pontuação de segurança", recommendations: "Recomendações",
+    require2fa: "Exigir duas etapas para todos", ipAllowlist: "Redes permitidas", sessionLength: "Manter conectado por (dias)",
+  },
+  me: { shifts: "Turnos", clock: "Ponto", assistant: "Assistente", upcoming: "Próximos", swap: "Trocar ou ceder", keepShift: "Manter este turno", swapAsked: "Troca solicitada", hoursWorked: "Horas trabalhadas", scheduled: "Agendado", onTheClock: "Em serviço",
+    greetingMorning: "Bom dia", greetingAfternoon: "Boa tarde", greetingEvening: "Boa noite",
+    clockIn: "Registrar entrada", clockOut: "Registrar saída", startBreak: "Iniciar intervalo", endBreak: "Encerrar intervalo", onBreak: "Em intervalo", clockedIn: "Trabalhando", clockedOut: "Sem registro",
+    outsideZone: "Você está fora da área de trabalho. Aproxime-se para registrar.", nextShift: "Próximo turno", noShift: "Nenhum turno agendado",
+    mySchedule: "Minha escala", myPay: "Meu pagamento", payslips: "Holerites", hours: "Horas", timesheet: "Folha de ponto", leave: "Folgas", requestLeave: "Pedir folga",
+    training: "Treinamento", certificates: "Certificados", myTasks: "Minhas tarefas", openShifts: "Turnos disponíveis", pickUp: "Assumir", announcements: "Comunicados",
+    documents: "Meus documentos", profile: "Meu perfil", jobs: "Vagas", inventory: "Estoque", marketing: "Marketing",
+  },
+  welcome: { title: "Seu dia hoje", tip: "Dica", quickActions: "Ações rápidas", aiSuggests: "A IA sugere", weather: "Clima", nearYou: "Perto de você", setupTitle: "Vamos configurar seu negócio", setupSub: "Alguns passos e o OENOD estará pronto para sua equipe." },
+  status: { active: "Ativo", inactive: "Inativo", draft: "Rascunho", pending: "Pendente", approved: "Aprovado", rejected: "Recusado", paid: "Pago", overdue: "Vencido", open: "Aberto", closed: "Fechado", inProgress: "Em andamento", done: "Concluído", cancelled: "Cancelado", scheduled: "Agendado", live: "No ar", paused: "Pausado", onTrack: "No prazo", atRisk: "Em risco", offTrack: "Atrasado" },
+  maintenance: { title: "Voltamos já", message: "O OENOD está sendo atualizado. Tudo volta em instantes.", backAround: "Retorno previsto por volta de {time}", readOnly: "O OENOD está em modo somente leitura durante uma atualização rápida. Você pode navegar, mas as alterações estão pausadas.", updateTitle: "Atualização necessária", updateMessage: "Uma nova versão do OENOD está disponível. Atualize para continuar.", updateNow: "Atualizar agora", moduleMaintenance: "Esta área está em manutenção. Volte em breve." },
+  errors: { generic: "Algo deu errado. Tente novamente.", network: "Você está offline. Tentaremos de novo quando voltar a conexão.", notFound: "Não encontramos essa página.", forbidden: "Você não tem acesso a esta área. Peça acesso ao seu gestor.", signInAgain: "Entre novamente.", tooMany: "Muitas tentativas. Aguarde um momento." },
+  jobs: { title: "Encontre seu próximo emprego", search: "Cargo, habilidade ou empresa", location: "Cidade ou CEP", remote: "Remoto", apply: "Candidatar-se", applied: "Candidatura enviada", noAccount: "Não precisa de conta para se candidatar", saveJob: "Salvar vaga", alert: "Avise-me sobre vagas parecidas", posted: "Publicada {when}", salary: "Salário" },
+  academy: { title: "Academia OENOD", sub: "Cursos práticos para empreendedores e equipes", enroll: "Começar curso", continue: "Continuar", buy: "Comprar curso", pass: "Passe Academia", passSub: "Todos os cursos pagos por um só preço", lessons: "{count} aulas", hours: "{count} horas", certificate: "Certificado incluso", preview: "Prévia grátis", completed: "Concluído", verifyCertificate: "Verificar certificado", certificateId: "ID do certificado" },
+  directory: { title: "Descubra empresas locais", follow: "Seguir", following: "Seguindo", contact: "Contato", website: "Site", directions: "Como chegar", hours: "Horário", services: "Serviços", reviews: "Avaliações", about: "Sobre", verifiedBusiness: "Empresa verificada" },
+  ads: { sponsored: "Patrocinado", whyThisAd: "Por que estou vendo isto?", hide: "Ocultar anúncio", manager: "Gerenciador de anúncios", newCampaign: "Novo anúncio", budget: "Orçamento", wallet: "Saldo de anúncios" },
+  email: { footer: "Você está recebendo isto porque tem uma conta ou concordou em receber novidades de {brand}.", unsubscribe: "Cancelar inscrição", sentWith: "Enviado com OENOD" },
+  ai: { hello: "Como posso ajudar, {name}?", sub: "Pergunte sobre turnos, horas, pagamento ou folgas.", approvalNote: "Mudanças de pagamento, pessoas ou dinheiro sempre aguardam um gestor.", placeholder: "Pergunte qualquer coisa sobre seu negócio…", thinking: "Pensando…", waitingApproval: "Aguardando sua aprovação", done: "Concluído", blocked: "Não permitido pelas suas regras", emergencyStop: "Parada de emergência", simulation: "Modo simulação" },
+};
+export default pt;

@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #F5F7FC; --paper: #FFFFFF; --ink: #0A0C17; --navy: #000F55; --blue: #2342E0; --sky: #EAEFFF; --line: #E4E8F2; --muted: #5E6785;
+  color-scheme: light;
+}
+html { -webkit-text-size-adjust: 100%; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body), "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 14px; }
+html[dir="rtl"] body { font-family: var(--font-arabic), var(--font-body), system-ui, sans-serif; }
+::selection { background: #C9D4FF; }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+@layer components {
+  .blueprint { background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px); background-size: 40px 40px; background-position: -1px -1px; }
+  .card { @apply rounded-2xl border border-line bg-paper shadow-card; }
+  .card-pad { @apply card p-5; }
+  .btn { @apply inline-flex h-10 select-none items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-line bg-paper px-4 text-[13px] font-bold text-ink transition hover:-translate-y-px hover:shadow-card disabled:pointer-events-none disabled:opacity-50; }
+  .btn-pri { @apply btn border-transparent bg-navy text-white hover:bg-navy-600; }
+  .btn-blue { @apply btn border-transparent bg-blue text-white hover:bg-blue-600; }
+  .btn-ghost { @apply btn border-transparent bg-transparent shadow-none hover:bg-bg hover:shadow-none; }
+  .btn-danger { @apply btn border-[#F3C5CD] bg-[#FFF5F7] text-crit; }
+  .btn-sm { @apply h-8 rounded-lg px-3 text-xs; }
+  .input { @apply h-10 w-full rounded-xl border border-line bg-paper px-3 text-sm text-ink outline-none transition placeholder:text-muted/70 focus:border-blue focus:ring-4 focus:ring-blue/10 disabled:bg-bg; }
+  textarea.input { @apply h-auto min-h-[96px] py-2.5; }
+  .label { @apply mb-1.5 block text-xs font-bold text-[#353C57]; }
+  .eyebrow { @apply font-mono text-[10.5px] font-medium uppercase tracking-[.14em] text-muted; }
+  .h1 { @apply font-display text-[26px] font-semibold tracking-tight; }
+  .h2 { @apply font-display text-lg font-semibold tracking-tight; }
+  .h3 { @apply font-display text-sm font-semibold; }
+  .chip { @apply inline-flex items-center gap-1.5 rounded-full border border-line px-2.5 py-1 text-[11px] font-semibold text-[#353C57]; }
+  .table { @apply w-full border-separate border-spacing-0 text-[13px]; }
+  .table th { @apply sticky top-0 z-[1] border-b border-line bg-paper px-3 py-2.5 text-start text-[11px] font-bold uppercase tracking-wide text-muted; }
+  .table td { @apply border-b border-line px-3 py-3 align-middle; }
+  .table tbody tr { @apply transition hover:bg-bg/70; }
+  .navy-panel { background: linear-gradient(135deg, #000F55 0%, #0A1E8C 60%, #2342E0 130%); @apply relative overflow-hidden rounded-[20px] text-white shadow-lift; }
+  .navy-panel::before { content: ""; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px); background-size: 28px 28px; mask-image: radial-gradient(70% 90% at 90% 20%, #000, transparent); pointer-events: none; }
+  .navy-panel > * { position: relative; }
+  .skeleton { @apply animate-shimmer rounded-lg bg-[linear-gradient(90deg,#EEF1F8,#F8F9FD,#EEF1F8)] bg-[length:200%_100%]; }
+  .prose-oenod h2 { @apply mb-2 mt-6 font-display text-lg font-semibold; }
+  .prose-oenod h3 { @apply mb-1 mt-4 font-display font-semibold; }
+  .prose-oenod p { @apply my-2 leading-7 text-[#2B3150]; }
+  .prose-oenod ul { @apply my-2 list-disc ps-5 leading-7; }
+  .prose-oenod ol { @apply my-2 list-decimal ps-5 leading-7; }
+  .prose-oenod strong { @apply font-bold text-ink; }
+  .prose-oenod code { @apply rounded bg-bg px-1 font-mono text-[12px]; }
+}
+
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+
+/* Map: soften OSM tiles to sit with the white-and-navy UI */
+.oenod-tiles { filter: grayscale(0.85) contrast(0.92) brightness(1.04); }
+.leaflet-container { font-family: var(--font-body), system-ui, sans-serif; }
+.leaflet-tooltip { border-radius: 10px; border: 1px solid #E4E8F2; box-shadow: 0 8px 24px -12px rgba(0,15,85,.35); padding: 6px 10px; font-size: 12px; }
+@keyframes pulseRing { 0% { transform: scale(.7); opacity: .35 } 100% { transform: scale(1.6); opacity: 0 } }

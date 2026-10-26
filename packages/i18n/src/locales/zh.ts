@@ -1,0 +1,61 @@
+import type { Dict } from "./en";
+import type { DeepPartial } from "../types";
+
+// Simplified Chinese.
+const zh: DeepPartial<Dict> = {
+  common: {
+    save: "保存", cancel: "取消", delete: "删除", edit: "编辑", add: "添加", create: "创建", close: "关闭", back: "返回", next: "下一步", done: "完成",
+    search: "搜索", filter: "筛选", export: "导出", import: "导入", download: "下载", upload: "上传", share: "分享", copy: "复制", copied: "已复制",
+    loading: "加载中…", saving: "保存中…", saved: "已保存", retry: "重试", yes: "是", no: "否", all: "全部", none: "无", more: "更多", seeAll: "查看全部",
+    today: "今天", yesterday: "昨天", tomorrow: "明天", thisWeek: "本周", thisMonth: "本月", date: "日期", time: "时间", status: "状态",
+    name: "姓名", email: "电子邮箱", phone: "电话", address: "地址", notes: "备注", total: "合计", amount: "金额", actions: "操作",
+    approve: "批准", reject: "拒绝", submit: "提交", send: "发送", open: "打开", view: "查看", details: "详情", settings: "设置",
+    required: "必填", optional: "选填", noResults: "暂无内容", language: "语言", signOut: "退出登录", help: "帮助",
+    verified: "已认证", sponsored: "赞助", free: "免费", new: "新", poweredBy: "由 OENOD 提供支持",
+  },
+  nav: { home: "首页", features: "功能", pricing: "价格", jobs: "招聘", academy: "学院", directory: "商家", developers: "开发者", status: "服务状态", download: "下载", signIn: "登录", startFree: "免费试用", dashboard: "控制台", admin: "超级管理员", myAccount: "我的账户", notifications: "通知", security: "安全" },
+  modules: {
+    overview: "概览", ai: "AI 业务经理", live: "实时地图", people: "员工与人事", recruiting: "招聘与职位", time: "考勤与工时",
+    scheduling: "排班", leave: "休假与福利", payroll: "工资", crm: "客户管理", sales: "报价与发票", support: "客服中心", bookings: "预约",
+    accounting: "会计", expenses: "费用", pos: "收银系统", inventory: "库存", purchasing: "采购", projects: "项目",
+    fieldservice: "外勤服务", fleet: "车队定位", assets: "资产与维护", safety: "质量与安全", compliance: "文件与合规",
+    marketing: "营销", reviews: "评价与口碑", loyalty: "会员与奖励", academy: "学院", chat: "团队聊天", reports: "报表",
+    monitors: "监控与提醒", integrations: "集成", developers: "开发者与 API", settings: "设置", me: "我的工作",
+  },
+  auth: {
+    signInTitle: "欢迎回来", signInSub: "登录您的 OENOD 账户", signUpTitle: "开始免费试用", signUpSub: "免费 14 天，无需绑卡。",
+    email: "工作邮箱", password: "密码", newPassword: "新密码", fullName: "姓名", company: "公司名称",
+    forgot: "忘记密码？", noAccount: "第一次使用 OENOD？", haveAccount: "已有账户？", createAccount: "创建账户",
+    resetTitle: "重置密码", resetSent: "如果该邮箱已注册，重置链接已发送。",
+    twoFactorTitle: "两步登录", twoFactorSub: "请输入身份验证器应用中的 6 位验证码。", useRecovery: "改用恢复码",
+    passwordHint: "至少 10 个字符，用一句短句效果很好。", consentMarketing: "给我发送 OENOD 的使用技巧和产品资讯，可随时退订。",
+    terms: "继续即表示您同意服务条款和隐私政策。", locked: "为了您的安全，登录已暂停几分钟。",
+  },
+  security: {
+    title: "安全", twoFactor: "两步登录", twoFactorOn: "已开启", twoFactorOff: "未开启", turnOn: "开启", turnOff: "关闭",
+    scanQr: "使用 Google Authenticator、Microsoft Authenticator 或 1Password 扫描此二维码，然后输入 6 位验证码。",
+    recoveryCodes: "恢复码", recoveryHelp: "请妥善保存。如果手机丢失，每个恢复码可使用一次。",
+    devices: "已登录的设备", thisDevice: "本设备", signOutDevice: "退出", signOutOthers: "退出所有其他设备",
+    changePassword: "修改密码", activity: "最近活动", score: "安全评分", recommendations: "建议",
+    require2fa: "要求所有人使用两步登录", ipAllowlist: "允许的网络", sessionLength: "保持登录（天）",
+  },
+  me: { shifts: "班次", clock: "打卡", assistant: "助手", upcoming: "即将到来", swap: "换班或让出", keepShift: "保留此班次", swapAsked: "已申请换班", hoursWorked: "已工作时长", scheduled: "已排班", onTheClock: "上班中",
+    greetingMorning: "早上好", greetingAfternoon: "下午好", greetingEvening: "晚上好",
+    clockIn: "上班打卡", clockOut: "下班打卡", startBreak: "开始休息", endBreak: "结束休息", onBreak: "休息中", clockedIn: "已打卡", clockedOut: "未打卡",
+    outsideZone: "您不在工作区域内，请靠近后再打卡。", nextShift: "下一个班次", noShift: "暂无班次",
+    mySchedule: "我的排班", myPay: "我的工资", payslips: "工资单", hours: "工时", timesheet: "工时表", leave: "休假", requestLeave: "申请休假",
+    training: "培训", certificates: "证书", myTasks: "我的任务", openShifts: "空缺班次", pickUp: "认领", announcements: "公告",
+    documents: "我的文件", profile: "个人资料", jobs: "招聘", inventory: "库存", marketing: "营销",
+  },
+  welcome: { title: "今天的安排", tip: "小贴士", quickActions: "快捷操作", aiSuggests: "AI 建议", weather: "天气", nearYou: "您附近", setupTitle: "一起设置您的业务", setupSub: "只需几步，OENOD 就能为您的团队准备就绪。" },
+  status: { active: "启用", inactive: "停用", draft: "草稿", pending: "待处理", approved: "已批准", rejected: "已拒绝", paid: "已付款", overdue: "已逾期", open: "进行中", closed: "已关闭", inProgress: "处理中", done: "已完成", cancelled: "已取消", scheduled: "已安排", live: "上线", paused: "已暂停", onTrack: "进展正常", atRisk: "有风险", offTrack: "已偏离" },
+  maintenance: { title: "马上回来", message: "OENOD 正在升级，很快就会恢复。", backAround: "预计 {time} 左右恢复", readOnly: "OENOD 正在短暂升级，目前为只读模式。您可以浏览，但暂时无法修改。", updateTitle: "需要更新", updateMessage: "OENOD 有新版本，请更新后继续使用。", updateNow: "立即更新", moduleMaintenance: "该模块正在维护，请稍后再来。" },
+  errors: { generic: "出了点问题，请重试。", network: "您已离线，恢复网络后会自动重试。", notFound: "找不到该页面。", forbidden: "您没有访问此区域的权限，请联系主管开通。", signInAgain: "请重新登录。", tooMany: "尝试次数过多，请稍候。" },
+  jobs: { title: "寻找下一份工作", search: "职位、技能或公司", location: "城市或邮编", remote: "远程", apply: "立即申请", applied: "申请已提交", noAccount: "无需注册即可申请", saveJob: "收藏职位", alert: "有类似职位时通知我", posted: "发布于 {when}", salary: "薪资" },
+  academy: { title: "OENOD 学院", sub: "面向企业主和团队的实用课程", enroll: "开始学习", continue: "继续", buy: "购买课程", pass: "学院通行证", passSub: "一个价格，畅学所有付费课程", lessons: "{count} 节课", hours: "{count} 小时", certificate: "含证书", preview: "免费试看", completed: "已完成", verifyCertificate: "验证证书", certificateId: "证书编号" },
+  directory: { title: "发现本地商家", follow: "关注", following: "已关注", contact: "联系", website: "网站", directions: "路线", hours: "营业时间", services: "服务", reviews: "评价", about: "简介", verifiedBusiness: "认证商家" },
+  ads: { sponsored: "赞助", whyThisAd: "为什么看到此广告？", hide: "隐藏广告", manager: "广告管理", newCampaign: "新建广告", budget: "预算", wallet: "广告余额" },
+  email: { footer: "您收到此邮件，是因为您拥有账户或同意接收 {brand} 的消息。", unsubscribe: "退订", sentWith: "通过 OENOD 发送" },
+  ai: { hello: "{name}，有什么可以帮您？", sub: "可询问班次、工时、工资或休假。", approvalNote: "涉及工资、人员或资金的更改始终需要经理批准。", placeholder: "问问关于您业务的任何问题…", thinking: "思考中…", waitingApproval: "等待您的批准", done: "完成", blocked: "您的规则不允许此操作", emergencyStop: "紧急停止", simulation: "模拟模式" },
+};
+export default zh;

@@ -1,0 +1,61 @@
+import type { Dict } from "./en";
+import type { DeepPartial } from "../types";
+
+// German.
+const de: DeepPartial<Dict> = {
+  common: {
+    save: "Speichern", cancel: "Abbrechen", delete: "Löschen", edit: "Bearbeiten", add: "Hinzufügen", create: "Erstellen", close: "Schließen", back: "Zurück", next: "Weiter", done: "Fertig",
+    search: "Suchen", filter: "Filtern", export: "Exportieren", import: "Importieren", download: "Herunterladen", upload: "Hochladen", share: "Teilen", copy: "Kopieren", copied: "Kopiert",
+    loading: "Wird geladen…", saving: "Wird gespeichert…", saved: "Gespeichert", retry: "Erneut versuchen", yes: "Ja", no: "Nein", all: "Alle", none: "Keine", more: "Mehr", seeAll: "Alle ansehen",
+    today: "Heute", yesterday: "Gestern", tomorrow: "Morgen", thisWeek: "Diese Woche", thisMonth: "Dieser Monat", date: "Datum", time: "Uhrzeit", status: "Status",
+    name: "Name", email: "E-Mail", phone: "Telefon", address: "Adresse", notes: "Notizen", total: "Gesamt", amount: "Betrag", actions: "Aktionen",
+    approve: "Genehmigen", reject: "Ablehnen", submit: "Absenden", send: "Senden", open: "Öffnen", view: "Ansehen", details: "Details", settings: "Einstellungen",
+    required: "Pflichtfeld", optional: "Optional", noResults: "Noch nichts hier", language: "Sprache", signOut: "Abmelden", help: "Hilfe",
+    verified: "Verifiziert", sponsored: "Gesponsert", free: "Kostenlos", new: "Neu", poweredBy: "Bereitgestellt von OENOD",
+  },
+  nav: { home: "Start", features: "Funktionen", pricing: "Preise", jobs: "Jobs", academy: "Akademie", directory: "Unternehmen", developers: "Entwickler", status: "Status", download: "Download", signIn: "Anmelden", startFree: "Kostenlos starten", dashboard: "Dashboard", admin: "Super-Admin", myAccount: "Mein Konto", notifications: "Benachrichtigungen", security: "Sicherheit" },
+  modules: {
+    overview: "Übersicht", ai: "KI-Geschäftsmanager", live: "Live-Karte", people: "Personal & HR", recruiting: "Recruiting & Jobs", time: "Zeiterfassung",
+    scheduling: "Dienstplanung", leave: "Urlaub & Leistungen", payroll: "Lohnabrechnung", crm: "CRM", sales: "Angebote & Rechnungen", support: "Helpdesk", bookings: "Buchungen",
+    accounting: "Buchhaltung", expenses: "Ausgaben", pos: "Kasse", inventory: "Lager", purchasing: "Einkauf", projects: "Projekte",
+    fieldservice: "Außendienst", fleet: "Flotten-GPS", assets: "Anlagen & Wartung", safety: "Qualität & Arbeitssicherheit", compliance: "Dokumente & Compliance",
+    marketing: "Marketing", reviews: "Bewertungen & Ruf", loyalty: "Treue & Prämien", academy: "Akademie", chat: "Team-Chat", reports: "Berichte",
+    monitors: "Überwachung & Warnungen", integrations: "Integrationen", developers: "Entwickler & API", settings: "Einstellungen", me: "Meine Arbeit",
+  },
+  auth: {
+    signInTitle: "Willkommen zurück", signInSub: "Melden Sie sich bei Ihrem OENOD-Konto an", signUpTitle: "Kostenlose Testphase starten", signUpSub: "14 Tage kostenlos. Keine Kreditkarte nötig.",
+    email: "Geschäftliche E-Mail", password: "Passwort", newPassword: "Neues Passwort", fullName: "Vollständiger Name", company: "Firmenname",
+    forgot: "Passwort vergessen?", noAccount: "Neu bei OENOD?", haveAccount: "Schon ein Konto?", createAccount: "Konto erstellen",
+    resetTitle: "Passwort zurücksetzen", resetSent: "Falls zu dieser E-Mail ein Konto existiert, ist ein Link unterwegs.",
+    twoFactorTitle: "Zwei-Schritt-Anmeldung", twoFactorSub: "Geben Sie den 6-stelligen Code aus Ihrer Authenticator-App ein.", useRecovery: "Stattdessen Wiederherstellungscode verwenden",
+    passwordHint: "Mindestens 10 Zeichen. Ein kurzer Satz eignet sich gut.", consentMarketing: "Senden Sie mir Tipps und Neuigkeiten von OENOD. Ich kann mich jederzeit abmelden.",
+    terms: "Mit dem Fortfahren akzeptieren Sie die Nutzungsbedingungen und die Datenschutzerklärung.", locked: "Zu Ihrer Sicherheit ist die Anmeldung für einige Minuten pausiert.",
+  },
+  security: {
+    title: "Sicherheit", twoFactor: "Zwei-Schritt-Anmeldung", twoFactorOn: "Aktiv", twoFactorOff: "Inaktiv", turnOn: "Aktivieren", turnOff: "Deaktivieren",
+    scanQr: "Scannen Sie diesen QR-Code mit Google Authenticator, Microsoft Authenticator oder 1Password und geben Sie den 6-stelligen Code ein.",
+    recoveryCodes: "Wiederherstellungscodes", recoveryHelp: "Bewahren Sie sie sicher auf. Jeder Code funktioniert einmal, falls Sie Ihr Handy verlieren.",
+    devices: "Angemeldete Geräte", thisDevice: "Dieses Gerät", signOutDevice: "Abmelden", signOutOthers: "Alle anderen Geräte abmelden",
+    changePassword: "Passwort ändern", activity: "Letzte Aktivität", score: "Sicherheitswert", recommendations: "Empfehlungen",
+    require2fa: "Zwei-Schritt-Anmeldung für alle vorschreiben", ipAllowlist: "Erlaubte Netzwerke", sessionLength: "Angemeldet bleiben (Tage)",
+  },
+  me: { shifts: "Schichten", clock: "Stempeln", assistant: "Assistent", upcoming: "Anstehend", swap: "Tauschen oder abgeben", keepShift: "Schicht behalten", swapAsked: "Tausch angefragt", hoursWorked: "Gearbeitete Stunden", scheduled: "Geplant", onTheClock: "Im Dienst",
+    greetingMorning: "Guten Morgen", greetingAfternoon: "Guten Tag", greetingEvening: "Guten Abend",
+    clockIn: "Einstempeln", clockOut: "Ausstempeln", startBreak: "Pause beginnen", endBreak: "Pause beenden", onBreak: "In Pause", clockedIn: "Eingestempelt", clockedOut: "Nicht eingestempelt",
+    outsideZone: "Sie sind außerhalb des Arbeitsbereichs. Kommen Sie näher, um einzustempeln.", nextShift: "Nächste Schicht", noShift: "Keine anstehenden Schichten",
+    mySchedule: "Mein Dienstplan", myPay: "Mein Lohn", payslips: "Lohnabrechnungen", hours: "Stunden", timesheet: "Stundenzettel", leave: "Abwesenheit", requestLeave: "Urlaub beantragen",
+    training: "Schulungen", certificates: "Zertifikate", myTasks: "Meine Aufgaben", openShifts: "Offene Schichten", pickUp: "Übernehmen", announcements: "Ankündigungen",
+    documents: "Meine Dokumente", profile: "Mein Profil", jobs: "Jobs", inventory: "Lager", marketing: "Marketing",
+  },
+  welcome: { title: "Ihr Tag", tip: "Tipp", quickActions: "Schnellaktionen", aiSuggests: "Die KI schlägt vor", weather: "Wetter", nearYou: "In Ihrer Nähe", setupTitle: "Lassen Sie uns Ihr Unternehmen einrichten", setupSub: "Ein paar Schritte und OENOD ist bereit für Ihr Team." },
+  status: { active: "Aktiv", inactive: "Inaktiv", draft: "Entwurf", pending: "Ausstehend", approved: "Genehmigt", rejected: "Abgelehnt", paid: "Bezahlt", overdue: "Überfällig", open: "Offen", closed: "Geschlossen", inProgress: "In Bearbeitung", done: "Erledigt", cancelled: "Storniert", scheduled: "Geplant", live: "Live", paused: "Pausiert", onTrack: "Im Plan", atRisk: "Gefährdet", offTrack: "Verzögert" },
+  maintenance: { title: "Wir sind gleich zurück", message: "OENOD wird gerade aktualisiert. Alles ist in Kürze wieder da.", backAround: "Voraussichtlich zurück gegen {time}", readOnly: "OENOD ist während eines kurzen Updates im Nur-Lese-Modus. Sie können sich umsehen, Änderungen sind pausiert.", updateTitle: "Update erforderlich", updateMessage: "Eine neue Version von OENOD ist verfügbar. Bitte aktualisieren Sie, um fortzufahren.", updateNow: "Jetzt aktualisieren", moduleMaintenance: "Dieser Bereich wird gewartet. Bitte schauen Sie bald wieder vorbei." },
+  errors: { generic: "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.", network: "Sie sind offline. Wir versuchen es erneut, sobald Sie wieder online sind.", notFound: "Diese Seite wurde nicht gefunden.", forbidden: "Sie haben keinen Zugriff auf diesen Bereich. Bitten Sie Ihre Führungskraft um Zugriff.", signInAgain: "Bitte melden Sie sich erneut an.", tooMany: "Zu viele Versuche. Bitte warten Sie einen Moment." },
+  jobs: { title: "Finden Sie Ihren nächsten Job", search: "Jobtitel, Fähigkeit oder Firma", location: "Stadt oder PLZ", remote: "Remote", apply: "Jetzt bewerben", applied: "Bewerbung gesendet", noAccount: "Kein Konto zum Bewerben nötig", saveJob: "Job merken", alert: "Ähnliche Jobs per E-Mail", posted: "Veröffentlicht {when}", salary: "Gehalt" },
+  academy: { title: "OENOD Akademie", sub: "Praxisnahe Kurse für Unternehmer und Teams", enroll: "Kurs starten", continue: "Fortsetzen", buy: "Kurs kaufen", pass: "Akademie-Pass", passSub: "Alle kostenpflichtigen Kurse zu einem Preis", lessons: "{count} Lektionen", hours: "{count} Stunden", certificate: "Mit Zertifikat", preview: "Kostenlose Vorschau", completed: "Abgeschlossen", verifyCertificate: "Zertifikat prüfen", certificateId: "Zertifikat-ID" },
+  directory: { title: "Lokale Unternehmen entdecken", follow: "Folgen", following: "Gefolgt", contact: "Kontakt", website: "Website", directions: "Route", hours: "Öffnungszeiten", services: "Leistungen", reviews: "Bewertungen", about: "Über uns", verifiedBusiness: "Verifiziertes Unternehmen" },
+  ads: { sponsored: "Gesponsert", whyThisAd: "Warum sehe ich diese Anzeige?", hide: "Anzeige ausblenden", manager: "Anzeigenmanager", newCampaign: "Neue Anzeige", budget: "Budget", wallet: "Werbeguthaben" },
+  email: { footer: "Sie erhalten diese Nachricht, weil Sie ein Konto haben oder Nachrichten von {brand} zugestimmt haben.", unsubscribe: "Abmelden", sentWith: "Gesendet mit OENOD" },
+  ai: { hello: "Wie kann ich helfen, {name}?", sub: "Fragen Sie zu Schichten, Stunden, Lohn oder Urlaub.", approvalNote: "Änderungen an Lohn, Personal oder Geld warten immer auf eine Führungskraft.", placeholder: "Fragen Sie alles über Ihr Unternehmen…", thinking: "Denkt nach…", waitingApproval: "Wartet auf Ihre Freigabe", done: "Erledigt", blocked: "Durch Ihre Regeln nicht erlaubt", emergencyStop: "Not-Aus", simulation: "Simulationsmodus" },
+};
+export default de;

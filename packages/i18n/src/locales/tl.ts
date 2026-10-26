@@ -1,0 +1,61 @@
+import type { Dict } from "./en";
+import type { DeepPartial } from "../types";
+
+// Tagalog / Filipino.
+const tl: DeepPartial<Dict> = {
+  common: {
+    save: "I-save", cancel: "Kanselahin", delete: "Burahin", edit: "I-edit", add: "Magdagdag", create: "Gumawa", close: "Isara", back: "Bumalik", next: "Susunod", done: "Tapos na",
+    search: "Maghanap", filter: "I-filter", export: "I-export", import: "I-import", download: "I-download", upload: "I-upload", share: "Ibahagi", copy: "Kopyahin", copied: "Nakopya",
+    loading: "Naglo-load…", saving: "Sine-save…", saved: "Na-save", retry: "Subukan ulit", yes: "Oo", no: "Hindi", all: "Lahat", none: "Wala", more: "Higit pa", seeAll: "Tingnan lahat",
+    today: "Ngayon", yesterday: "Kahapon", tomorrow: "Bukas", thisWeek: "Ngayong linggo", thisMonth: "Ngayong buwan", date: "Petsa", time: "Oras", status: "Katayuan",
+    name: "Pangalan", email: "Email", phone: "Telepono", address: "Address", notes: "Mga tala", total: "Kabuuan", amount: "Halaga", actions: "Mga aksyon",
+    approve: "Aprubahan", reject: "Tanggihan", submit: "Isumite", send: "Ipadala", open: "Buksan", view: "Tingnan", details: "Mga detalye", settings: "Mga setting",
+    required: "Kailangan", optional: "Opsyonal", noResults: "Wala pang laman dito", language: "Wika", signOut: "Mag-sign out", help: "Tulong",
+    verified: "Beripikado", sponsored: "Sponsored", free: "Libre", new: "Bago", poweredBy: "Pinapagana ng OENOD",
+  },
+  nav: { home: "Home", features: "Mga feature", pricing: "Presyo", jobs: "Trabaho", academy: "Akademya", directory: "Mga negosyo", developers: "Mga developer", status: "Katayuan ng serbisyo", download: "I-download", signIn: "Mag-sign in", startFree: "Magsimula nang libre", dashboard: "Dashboard", admin: "Super admin", myAccount: "Aking account", notifications: "Mga abiso", security: "Seguridad" },
+  modules: {
+    overview: "Pangkalahatang-tanaw", ai: "AI Business Manager", live: "Live na mapa", people: "Mga tao at HR", recruiting: "Recruitment at trabaho", time: "Oras at attendance",
+    scheduling: "Iskedyul", leave: "Leave at benepisyo", payroll: "Payroll", crm: "CRM", sales: "Quote at invoice", support: "Help desk", bookings: "Mga booking",
+    accounting: "Accounting", expenses: "Mga gastos", pos: "Point of sale", inventory: "Imbentaryo", purchasing: "Pagbili", projects: "Mga proyekto",
+    fieldservice: "Field service", fleet: "Fleet GPS", assets: "Mga asset at maintenance", safety: "Kalidad at kaligtasan", compliance: "Dokumento at compliance",
+    marketing: "Marketing", reviews: "Review at reputasyon", loyalty: "Loyalty at rewards", academy: "Akademya", chat: "Team chat", reports: "Mga ulat",
+    monitors: "Monitoring at alerto", integrations: "Mga integration", developers: "Developer at API", settings: "Mga setting", me: "Aking trabaho",
+  },
+  auth: {
+    signInTitle: "Maligayang pagbabalik", signInSub: "Mag-sign in sa iyong OENOD account", signUpTitle: "Simulan ang libreng trial", signUpSub: "14 na araw na libre. Walang card.",
+    email: "Work email", password: "Password", newPassword: "Bagong password", fullName: "Buong pangalan", company: "Pangalan ng kumpanya",
+    forgot: "Nakalimutan ang password?", noAccount: "Bago sa OENOD?", haveAccount: "May account na?", createAccount: "Gumawa ng account",
+    resetTitle: "I-reset ang password", resetSent: "Kung may account ang email na iyon, papunta na ang reset link.",
+    twoFactorTitle: "Two-step sign-in", twoFactorSub: "Ilagay ang 6-digit code mula sa iyong authenticator app.", useRecovery: "Gumamit ng recovery code",
+    passwordHint: "Hindi bababa sa 10 character. Maganda ang maikling pangungusap.", consentMarketing: "Padalhan ako ng tips at balita mula sa OENOD. Puwede akong mag-unsubscribe anumang oras.",
+    terms: "Sa pagpapatuloy, sumasang-ayon ka sa Mga Tuntunin at Patakaran sa Privacy.", locked: "Para sa iyong seguridad, naka-pause ang sign-in nang ilang minuto.",
+  },
+  security: {
+    title: "Seguridad", twoFactor: "Two-step sign-in", twoFactorOn: "Naka-on", twoFactorOff: "Naka-off", turnOn: "I-on", turnOff: "I-off",
+    scanQr: "I-scan ang QR code na ito gamit ang Google Authenticator, Microsoft Authenticator o 1Password, saka ilagay ang 6-digit code.",
+    recoveryCodes: "Mga recovery code", recoveryHelp: "Itago sa ligtas na lugar. Isang beses gumagana ang bawat isa kung mawala ang phone mo.",
+    devices: "Mga naka-sign in na device", thisDevice: "Itong device", signOutDevice: "I-sign out", signOutOthers: "I-sign out ang lahat ng ibang device",
+    changePassword: "Palitan ang password", activity: "Kamakailang aktibidad", score: "Security score", recommendations: "Mga rekomendasyon",
+    require2fa: "Gawing kailangan ang two-step sign-in sa lahat", ipAllowlist: "Mga pinapayagang network", sessionLength: "Manatiling naka-sign in (araw)",
+  },
+  me: { shifts: "Mga shift", clock: "Orasan", assistant: "Assistant", upcoming: "Paparating", swap: "Ipagpalit o ibigay", keepShift: "Panatilihin ang shift", swapAsked: "Humiling ng palitan", hoursWorked: "Oras na nagtrabaho", scheduled: "Naka-iskedyul", onTheClock: "Nasa trabaho",
+    greetingMorning: "Magandang umaga", greetingAfternoon: "Magandang hapon", greetingEvening: "Magandang gabi",
+    clockIn: "Mag-clock in", clockOut: "Mag-clock out", startBreak: "Simulan ang break", endBreak: "Tapusin ang break", onBreak: "Naka-break", clockedIn: "Naka-clock in", clockedOut: "Hindi naka-clock in",
+    outsideZone: "Nasa labas ka ng work area. Lumapit para mag-clock in.", nextShift: "Susunod na shift", noShift: "Walang paparating na shift",
+    mySchedule: "Aking iskedyul", myPay: "Aking sahod", payslips: "Mga payslip", hours: "Oras", timesheet: "Timesheet", leave: "Leave", requestLeave: "Humingi ng leave",
+    training: "Training", certificates: "Mga sertipiko", myTasks: "Aking mga gawain", openShifts: "Bakanteng shift", pickUp: "Kunin", announcements: "Mga anunsyo",
+    documents: "Aking mga dokumento", profile: "Aking profile", jobs: "Trabaho", inventory: "Imbentaryo", marketing: "Marketing",
+  },
+  welcome: { title: "Ang iyong araw", tip: "Tip", quickActions: "Mabilisang aksyon", aiSuggests: "Mungkahi ng AI", weather: "Panahon", nearYou: "Malapit sa iyo", setupTitle: "I-set up natin ang negosyo mo", setupSub: "Ilang hakbang lang at handa na ang OENOD para sa team mo." },
+  status: { active: "Aktibo", inactive: "Hindi aktibo", draft: "Draft", pending: "Nakabinbin", approved: "Aprubado", rejected: "Tinanggihan", paid: "Bayad na", overdue: "Lampas sa takdang araw", open: "Bukas", closed: "Sarado", inProgress: "Ginagawa", done: "Tapos", cancelled: "Kinansela", scheduled: "Naka-iskedyul", live: "Live", paused: "Naka-pause", onTrack: "Nasa tamang takbo", atRisk: "Nanganganib", offTrack: "Naantala" },
+  maintenance: { title: "Babalik kami agad", message: "Ina-upgrade ang OENOD. Babalik ang lahat sa ilang sandali.", backAround: "Inaasahang babalik bandang {time}", readOnly: "View-only ang OENOD habang may maikling upgrade. Puwede kang tumingin pero naka-pause ang mga pagbabago.", updateTitle: "Kailangang mag-update", updateMessage: "Handa na ang bagong bersyon ng OENOD. Mag-update para makapagpatuloy.", updateNow: "Mag-update ngayon", moduleMaintenance: "Naka-maintenance ang bahaging ito. Bumalik mamaya." },
+  errors: { generic: "May nangyaring mali. Subukan ulit.", network: "Offline ka. Susubukan ulit pagbalik ng koneksyon.", notFound: "Hindi namin mahanap ang page na iyon.", forbidden: "Wala kang access dito. Humingi ng access sa manager mo.", signInAgain: "Mag-sign in ulit.", tooMany: "Masyadong maraming subok. Maghintay sandali." },
+  jobs: { title: "Hanapin ang susunod mong trabaho", search: "Posisyon, kasanayan o kumpanya", location: "Lungsod o postal code", remote: "Remote", apply: "Mag-apply", applied: "Naipadala ang application", noAccount: "Walang account na kailangan para mag-apply", saveJob: "I-save ang trabaho", alert: "I-email ako ng katulad na trabaho", posted: "Na-post {when}", salary: "Sahod" },
+  academy: { title: "OENOD Academy", sub: "Praktikal na kurso para sa mga may-ari ng negosyo at kanilang team", enroll: "Simulan ang kurso", continue: "Ituloy", buy: "Bilhin ang kurso", pass: "Academy Pass", passSub: "Lahat ng bayad na kurso, iisang presyo", lessons: "{count} aralin", hours: "{count} oras", certificate: "May kasamang sertipiko", preview: "Libreng preview", completed: "Tapos na", verifyCertificate: "I-verify ang sertipiko", certificateId: "ID ng sertipiko" },
+  directory: { title: "Tuklasin ang mga lokal na negosyo", follow: "I-follow", following: "Naka-follow", contact: "Makipag-ugnayan", website: "Website", directions: "Direksyon", hours: "Oras", services: "Mga serbisyo", reviews: "Mga review", about: "Tungkol", verifiedBusiness: "Beripikadong negosyo" },
+  ads: { sponsored: "Sponsored", whyThisAd: "Bakit ko ito nakikita?", hide: "Itago ang ad", manager: "Ads manager", newCampaign: "Bagong ad", budget: "Budget", wallet: "Ad wallet" },
+  email: { footer: "Natanggap mo ito dahil may account ka o pumayag kang makatanggap ng balita mula sa {brand}.", unsubscribe: "Mag-unsubscribe", sentWith: "Ipinadala gamit ang OENOD" },
+  ai: { hello: "Paano kita matutulungan, {name}?", sub: "Magtanong tungkol sa shift, oras, sahod o leave mo.", approvalNote: "Ang pagbabago sa sahod, tao o pera ay laging naghihintay ng manager.", placeholder: "Itanong ang kahit ano tungkol sa negosyo mo…", thinking: "Nag-iisip…", waitingApproval: "Naghihintay ng iyong pag-apruba", done: "Tapos na", blocked: "Hindi pinapayagan ng iyong mga patakaran", emergencyStop: "Emergency stop", simulation: "Simulation mode" },
+};
+export default tl;

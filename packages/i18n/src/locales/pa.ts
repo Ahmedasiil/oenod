@@ -1,0 +1,61 @@
+import type { Dict } from "./en";
+import type { DeepPartial } from "../types";
+
+// Punjabi (Gurmukhi). Widely spoken across Canada.
+const pa: DeepPartial<Dict> = {
+  common: {
+    save: "ਸੰਭਾਲੋ", cancel: "ਰੱਦ ਕਰੋ", delete: "ਮਿਟਾਓ", edit: "ਸੋਧੋ", add: "ਜੋੜੋ", create: "ਬਣਾਓ", close: "ਬੰਦ ਕਰੋ", back: "ਪਿੱਛੇ", next: "ਅੱਗੇ", done: "ਹੋ ਗਿਆ",
+    search: "ਖੋਜੋ", filter: "ਫਿਲਟਰ", export: "ਨਿਰਯਾਤ", import: "ਆਯਾਤ", download: "ਡਾਊਨਲੋਡ", upload: "ਅੱਪਲੋਡ", share: "ਸਾਂਝਾ ਕਰੋ", copy: "ਕਾਪੀ ਕਰੋ", copied: "ਕਾਪੀ ਹੋ ਗਿਆ",
+    loading: "ਲੋਡ ਹੋ ਰਿਹਾ ਹੈ…", saving: "ਸੰਭਾਲਿਆ ਜਾ ਰਿਹਾ ਹੈ…", saved: "ਸੰਭਾਲਿਆ ਗਿਆ", retry: "ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ", yes: "ਹਾਂ", no: "ਨਹੀਂ", all: "ਸਾਰੇ", none: "ਕੋਈ ਨਹੀਂ", more: "ਹੋਰ", seeAll: "ਸਾਰੇ ਵੇਖੋ",
+    today: "ਅੱਜ", yesterday: "ਕੱਲ੍ਹ", tomorrow: "ਭਲਕੇ", thisWeek: "ਇਸ ਹਫ਼ਤੇ", thisMonth: "ਇਸ ਮਹੀਨੇ", date: "ਤਾਰੀਖ", time: "ਸਮਾਂ", status: "ਸਥਿਤੀ",
+    name: "ਨਾਮ", email: "ਈਮੇਲ", phone: "ਫ਼ੋਨ", address: "ਪਤਾ", notes: "ਨੋਟ", total: "ਕੁੱਲ", amount: "ਰਕਮ", actions: "ਕਾਰਵਾਈਆਂ",
+    approve: "ਮਨਜ਼ੂਰ ਕਰੋ", reject: "ਨਾਮਨਜ਼ੂਰ ਕਰੋ", submit: "ਜਮ੍ਹਾਂ ਕਰੋ", send: "ਭੇਜੋ", open: "ਖੋਲ੍ਹੋ", view: "ਵੇਖੋ", details: "ਵੇਰਵੇ", settings: "ਸੈਟਿੰਗਾਂ",
+    required: "ਲਾਜ਼ਮੀ", optional: "ਵਿਕਲਪਿਕ", noResults: "ਹਾਲੇ ਇੱਥੇ ਕੁਝ ਨਹੀਂ", language: "ਭਾਸ਼ਾ", signOut: "ਸਾਈਨ ਆਊਟ", help: "ਮਦਦ",
+    verified: "ਪ੍ਰਮਾਣਿਤ", sponsored: "ਸਪਾਂਸਰਡ", free: "ਮੁਫ਼ਤ", new: "ਨਵਾਂ", poweredBy: "OENOD ਵੱਲੋਂ ਸੰਚਾਲਿਤ",
+  },
+  nav: { home: "ਮੁੱਖ ਪੰਨਾ", features: "ਸਹੂਲਤਾਂ", pricing: "ਕੀਮਤਾਂ", jobs: "ਨੌਕਰੀਆਂ", academy: "ਅਕੈਡਮੀ", directory: "ਕਾਰੋਬਾਰ", developers: "ਡਿਵੈਲਪਰ", status: "ਸੇਵਾ ਸਥਿਤੀ", download: "ਡਾਊਨਲੋਡ", signIn: "ਸਾਈਨ ਇਨ", startFree: "ਮੁਫ਼ਤ ਸ਼ੁਰੂ ਕਰੋ", dashboard: "ਡੈਸ਼ਬੋਰਡ", admin: "ਸੁਪਰ ਐਡਮਿਨ", myAccount: "ਮੇਰਾ ਖਾਤਾ", notifications: "ਸੂਚਨਾਵਾਂ", security: "ਸੁਰੱਖਿਆ" },
+  modules: {
+    overview: "ਝਲਕ", ai: "AI ਕਾਰੋਬਾਰ ਮੈਨੇਜਰ", live: "ਲਾਈਵ ਨਕਸ਼ਾ", people: "ਕਰਮਚਾਰੀ ਅਤੇ HR", recruiting: "ਭਰਤੀ ਅਤੇ ਨੌਕਰੀਆਂ", time: "ਸਮਾਂ ਅਤੇ ਹਾਜ਼ਰੀ",
+    scheduling: "ਸ਼ਡਿਊਲ", leave: "ਛੁੱਟੀ ਅਤੇ ਲਾਭ", payroll: "ਤਨਖਾਹ", crm: "CRM", sales: "ਕੋਟੇਸ਼ਨ ਅਤੇ ਬਿੱਲ", support: "ਹੈਲਪ ਡੈਸਕ", bookings: "ਬੁਕਿੰਗ",
+    accounting: "ਲੇਖਾ", expenses: "ਖਰਚੇ", pos: "ਪੁਆਇੰਟ ਆਫ਼ ਸੇਲ", inventory: "ਸਟਾਕ", purchasing: "ਖਰੀਦ", projects: "ਪ੍ਰੋਜੈਕਟ",
+    fieldservice: "ਫੀਲਡ ਸੇਵਾ", fleet: "ਫਲੀਟ GPS", assets: "ਸੰਪਤੀ ਅਤੇ ਸਾਂਭ-ਸੰਭਾਲ", safety: "ਗੁਣਵੱਤਾ ਅਤੇ ਸੁਰੱਖਿਆ", compliance: "ਦਸਤਾਵੇਜ਼ ਅਤੇ ਪਾਲਣਾ",
+    marketing: "ਮਾਰਕੀਟਿੰਗ", reviews: "ਰਿਵਿਊ ਅਤੇ ਸਾਖ", loyalty: "ਲਾਇਲਟੀ ਅਤੇ ਇਨਾਮ", academy: "ਅਕੈਡਮੀ", chat: "ਟੀਮ ਚੈਟ", reports: "ਰਿਪੋਰਟਾਂ",
+    monitors: "ਨਿਗਰਾਨੀ ਅਤੇ ਅਲਰਟ", integrations: "ਇੰਟੀਗ੍ਰੇਸ਼ਨ", developers: "ਡਿਵੈਲਪਰ ਅਤੇ API", settings: "ਸੈਟਿੰਗਾਂ", me: "ਮੇਰਾ ਕੰਮ",
+  },
+  auth: {
+    signInTitle: "ਜੀ ਆਇਆਂ ਨੂੰ", signInSub: "ਆਪਣੇ OENOD ਖਾਤੇ ਵਿੱਚ ਸਾਈਨ ਇਨ ਕਰੋ", signUpTitle: "ਆਪਣਾ ਮੁਫ਼ਤ ਟ੍ਰਾਇਲ ਸ਼ੁਰੂ ਕਰੋ", signUpSub: "14 ਦਿਨ ਮੁਫ਼ਤ। ਕਾਰਡ ਦੀ ਲੋੜ ਨਹੀਂ।",
+    email: "ਕੰਮ ਵਾਲੀ ਈਮੇਲ", password: "ਪਾਸਵਰਡ", newPassword: "ਨਵਾਂ ਪਾਸਵਰਡ", fullName: "ਪੂਰਾ ਨਾਮ", company: "ਕੰਪਨੀ ਦਾ ਨਾਮ",
+    forgot: "ਪਾਸਵਰਡ ਭੁੱਲ ਗਏ?", noAccount: "OENOD 'ਤੇ ਨਵੇਂ ਹੋ?", haveAccount: "ਪਹਿਲਾਂ ਹੀ ਖਾਤਾ ਹੈ?", createAccount: "ਖਾਤਾ ਬਣਾਓ",
+    resetTitle: "ਪਾਸਵਰਡ ਰੀਸੈੱਟ ਕਰੋ", resetSent: "ਜੇ ਇਸ ਈਮੇਲ ਦਾ ਖਾਤਾ ਹੈ, ਤਾਂ ਰੀਸੈੱਟ ਲਿੰਕ ਭੇਜ ਦਿੱਤਾ ਗਿਆ ਹੈ।",
+    twoFactorTitle: "ਦੋ-ਪੜਾਅ ਸਾਈਨ ਇਨ", twoFactorSub: "ਆਪਣੀ ਔਥੈਂਟੀਕੇਟਰ ਐਪ ਤੋਂ 6 ਅੰਕਾਂ ਦਾ ਕੋਡ ਪਾਓ।", useRecovery: "ਰਿਕਵਰੀ ਕੋਡ ਵਰਤੋ",
+    passwordHint: "ਘੱਟੋ-ਘੱਟ 10 ਅੱਖਰ। ਇੱਕ ਛੋਟਾ ਵਾਕ ਵਧੀਆ ਰਹਿੰਦਾ ਹੈ।", consentMarketing: "ਮੈਨੂੰ OENOD ਤੋਂ ਸੁਝਾਅ ਅਤੇ ਖ਼ਬਰਾਂ ਭੇਜੋ। ਮੈਂ ਕਦੇ ਵੀ ਗਾਹਕੀ ਛੱਡ ਸਕਦਾ ਹਾਂ।",
+    terms: "ਜਾਰੀ ਰੱਖ ਕੇ ਤੁਸੀਂ ਸ਼ਰਤਾਂ ਅਤੇ ਪਰਦੇਦਾਰੀ ਨੀਤੀ ਨਾਲ ਸਹਿਮਤ ਹੁੰਦੇ ਹੋ।", locked: "ਤੁਹਾਡੀ ਸੁਰੱਖਿਆ ਲਈ ਸਾਈਨ ਇਨ ਕੁਝ ਮਿੰਟਾਂ ਲਈ ਰੋਕਿਆ ਗਿਆ ਹੈ।",
+  },
+  security: {
+    title: "ਸੁਰੱਖਿਆ", twoFactor: "ਦੋ-ਪੜਾਅ ਸਾਈਨ ਇਨ", twoFactorOn: "ਚਾਲੂ", twoFactorOff: "ਬੰਦ", turnOn: "ਚਾਲੂ ਕਰੋ", turnOff: "ਬੰਦ ਕਰੋ",
+    scanQr: "ਇਸ QR ਕੋਡ ਨੂੰ Google Authenticator, Microsoft Authenticator ਜਾਂ 1Password ਨਾਲ ਸਕੈਨ ਕਰੋ, ਫਿਰ 6 ਅੰਕਾਂ ਦਾ ਕੋਡ ਪਾਓ।",
+    recoveryCodes: "ਰਿਕਵਰੀ ਕੋਡ", recoveryHelp: "ਇਨ੍ਹਾਂ ਨੂੰ ਸੁਰੱਖਿਅਤ ਥਾਂ ਰੱਖੋ। ਫ਼ੋਨ ਗੁਆਚਣ 'ਤੇ ਹਰ ਕੋਡ ਇੱਕ ਵਾਰ ਕੰਮ ਕਰਦਾ ਹੈ।",
+    devices: "ਸਾਈਨ ਇਨ ਡਿਵਾਈਸ", thisDevice: "ਇਹ ਡਿਵਾਈਸ", signOutDevice: "ਸਾਈਨ ਆਊਟ", signOutOthers: "ਬਾਕੀ ਸਾਰੀਆਂ ਡਿਵਾਈਸਾਂ ਤੋਂ ਸਾਈਨ ਆਊਟ ਕਰੋ",
+    changePassword: "ਪਾਸਵਰਡ ਬਦਲੋ", activity: "ਹਾਲੀਆ ਗਤੀਵਿਧੀ", score: "ਸੁਰੱਖਿਆ ਸਕੋਰ", recommendations: "ਸੁਝਾਅ",
+    require2fa: "ਸਭ ਲਈ ਦੋ-ਪੜਾਅ ਸਾਈਨ ਇਨ ਲਾਜ਼ਮੀ ਕਰੋ", ipAllowlist: "ਮਨਜ਼ੂਰ ਨੈੱਟਵਰਕ", sessionLength: "ਸਾਈਨ ਇਨ ਰਹੋ (ਦਿਨ)",
+  },
+  me: { shifts: "ਸ਼ਿਫਟਾਂ", clock: "ਹਾਜ਼ਰੀ", assistant: "ਸਹਾਇਕ", upcoming: "ਆਉਣ ਵਾਲੀਆਂ", swap: "ਬਦਲੋ ਜਾਂ ਛੱਡੋ", keepShift: "ਇਹ ਸ਼ਿਫਟ ਰੱਖੋ", swapAsked: "ਬਦਲਣ ਦੀ ਬੇਨਤੀ ਭੇਜੀ", hoursWorked: "ਕੰਮ ਦੇ ਘੰਟੇ", scheduled: "ਨਿਰਧਾਰਤ", onTheClock: "ਡਿਊਟੀ 'ਤੇ",
+    greetingMorning: "ਸ਼ੁਭ ਸਵੇਰ", greetingAfternoon: "ਸਤ ਸ੍ਰੀ ਅਕਾਲ", greetingEvening: "ਸ਼ੁਭ ਸ਼ਾਮ",
+    clockIn: "ਕਲੌਕ ਇਨ", clockOut: "ਕਲੌਕ ਆਊਟ", startBreak: "ਬ੍ਰੇਕ ਸ਼ੁਰੂ ਕਰੋ", endBreak: "ਬ੍ਰੇਕ ਖਤਮ ਕਰੋ", onBreak: "ਬ੍ਰੇਕ 'ਤੇ", clockedIn: "ਕੰਮ 'ਤੇ", clockedOut: "ਕਲੌਕ ਇਨ ਨਹੀਂ",
+    outsideZone: "ਤੁਸੀਂ ਕੰਮ ਵਾਲੇ ਖੇਤਰ ਤੋਂ ਬਾਹਰ ਹੋ। ਕਲੌਕ ਇਨ ਲਈ ਨੇੜੇ ਆਓ।", nextShift: "ਅਗਲੀ ਸ਼ਿਫਟ", noShift: "ਕੋਈ ਆਉਣ ਵਾਲੀ ਸ਼ਿਫਟ ਨਹੀਂ",
+    mySchedule: "ਮੇਰਾ ਸ਼ਡਿਊਲ", myPay: "ਮੇਰੀ ਤਨਖਾਹ", payslips: "ਤਨਖਾਹ ਪਰਚੀਆਂ", hours: "ਘੰਟੇ", timesheet: "ਟਾਈਮਸ਼ੀਟ", leave: "ਛੁੱਟੀ", requestLeave: "ਛੁੱਟੀ ਮੰਗੋ",
+    training: "ਸਿਖਲਾਈ", certificates: "ਸਰਟੀਫਿਕੇਟ", myTasks: "ਮੇਰੇ ਕੰਮ", openShifts: "ਖਾਲੀ ਸ਼ਿਫਟਾਂ", pickUp: "ਲਓ", announcements: "ਐਲਾਨ",
+    documents: "ਮੇਰੇ ਦਸਤਾਵੇਜ਼", profile: "ਮੇਰੀ ਪ੍ਰੋਫਾਈਲ", jobs: "ਨੌਕਰੀਆਂ", inventory: "ਸਟਾਕ", marketing: "ਮਾਰਕੀਟਿੰਗ",
+  },
+  welcome: { title: "ਤੁਹਾਡਾ ਅੱਜ ਦਾ ਦਿਨ", tip: "ਸੁਝਾਅ", quickActions: "ਤੇਜ਼ ਕਾਰਵਾਈਆਂ", aiSuggests: "AI ਦਾ ਸੁਝਾਅ", weather: "ਮੌਸਮ", nearYou: "ਤੁਹਾਡੇ ਨੇੜੇ", setupTitle: "ਆਓ ਤੁਹਾਡਾ ਕਾਰੋਬਾਰ ਸੈੱਟ ਕਰੀਏ", setupSub: "ਕੁਝ ਕਦਮ ਅਤੇ OENOD ਤੁਹਾਡੀ ਟੀਮ ਲਈ ਤਿਆਰ।" },
+  status: { active: "ਸਰਗਰਮ", inactive: "ਗੈਰ-ਸਰਗਰਮ", draft: "ਖਰੜਾ", pending: "ਬਕਾਇਆ", approved: "ਮਨਜ਼ੂਰ", rejected: "ਨਾਮਨਜ਼ੂਰ", paid: "ਭੁਗਤਾਨ ਹੋਇਆ", overdue: "ਮਿਆਦ ਲੰਘੀ", open: "ਖੁੱਲ੍ਹਾ", closed: "ਬੰਦ", inProgress: "ਜਾਰੀ", done: "ਪੂਰਾ", cancelled: "ਰੱਦ", scheduled: "ਤੈਅ", live: "ਲਾਈਵ", paused: "ਰੁਕਿਆ", onTrack: "ਸਹੀ ਰਾਹ 'ਤੇ", atRisk: "ਖਤਰੇ ਵਿੱਚ", offTrack: "ਪਿੱਛੇ" },
+  maintenance: { title: "ਅਸੀਂ ਜਲਦੀ ਵਾਪਸ ਆਵਾਂਗੇ", message: "OENOD ਅੱਪਡੇਟ ਹੋ ਰਿਹਾ ਹੈ। ਸਭ ਕੁਝ ਜਲਦੀ ਵਾਪਸ ਆ ਜਾਵੇਗਾ।", backAround: "ਲਗਭਗ {time} ਤੱਕ ਵਾਪਸੀ", readOnly: "ਛੋਟੇ ਅੱਪਡੇਟ ਦੌਰਾਨ OENOD ਸਿਰਫ਼ ਵੇਖਣ ਵਾਲੇ ਮੋਡ ਵਿੱਚ ਹੈ। ਤੁਸੀਂ ਵੇਖ ਸਕਦੇ ਹੋ, ਪਰ ਬਦਲਾਅ ਰੁਕੇ ਹਨ।", updateTitle: "ਅੱਪਡੇਟ ਲੋੜੀਂਦਾ", updateMessage: "OENOD ਦਾ ਨਵਾਂ ਵਰਜ਼ਨ ਤਿਆਰ ਹੈ। ਜਾਰੀ ਰੱਖਣ ਲਈ ਅੱਪਡੇਟ ਕਰੋ।", updateNow: "ਹੁਣੇ ਅੱਪਡੇਟ ਕਰੋ", moduleMaintenance: "ਇਹ ਹਿੱਸਾ ਸਾਂਭ-ਸੰਭਾਲ ਅਧੀਨ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ ਬਾਅਦ ਵਿੱਚ ਆਓ।" },
+  errors: { generic: "ਕੁਝ ਗਲਤ ਹੋ ਗਿਆ। ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।", network: "ਤੁਸੀਂ ਔਫਲਾਈਨ ਹੋ। ਕਨੈਕਸ਼ਨ ਆਉਣ 'ਤੇ ਅਸੀਂ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰਾਂਗੇ।", notFound: "ਇਹ ਪੰਨਾ ਨਹੀਂ ਮਿਲਿਆ।", forbidden: "ਇਸ ਹਿੱਸੇ ਤੱਕ ਤੁਹਾਡੀ ਪਹੁੰਚ ਨਹੀਂ। ਆਪਣੇ ਮੈਨੇਜਰ ਤੋਂ ਪਹੁੰਚ ਮੰਗੋ।", signInAgain: "ਕਿਰਪਾ ਕਰਕੇ ਦੁਬਾਰਾ ਸਾਈਨ ਇਨ ਕਰੋ।", tooMany: "ਬਹੁਤ ਸਾਰੀਆਂ ਕੋਸ਼ਿਸ਼ਾਂ। ਥੋੜ੍ਹਾ ਰੁਕੋ।" },
+  jobs: { title: "ਆਪਣੀ ਅਗਲੀ ਨੌਕਰੀ ਲੱਭੋ", search: "ਅਹੁਦਾ, ਹੁਨਰ ਜਾਂ ਕੰਪਨੀ", location: "ਸ਼ਹਿਰ ਜਾਂ ਪੋਸਟਲ ਕੋਡ", remote: "ਰਿਮੋਟ", apply: "ਅਰਜ਼ੀ ਦਿਓ", applied: "ਅਰਜ਼ੀ ਭੇਜੀ ਗਈ", noAccount: "ਅਰਜ਼ੀ ਲਈ ਖਾਤੇ ਦੀ ਲੋੜ ਨਹੀਂ", saveJob: "ਨੌਕਰੀ ਸੰਭਾਲੋ", alert: "ਅਜਿਹੀਆਂ ਨੌਕਰੀਆਂ ਦੀ ਈਮੇਲ ਭੇਜੋ", posted: "{when} ਪੋਸਟ ਕੀਤੀ", salary: "ਤਨਖਾਹ" },
+  academy: { title: "OENOD ਅਕੈਡਮੀ", sub: "ਕਾਰੋਬਾਰ ਮਾਲਕਾਂ ਅਤੇ ਟੀਮਾਂ ਲਈ ਵਿਹਾਰਕ ਕੋਰਸ", enroll: "ਕੋਰਸ ਸ਼ੁਰੂ ਕਰੋ", continue: "ਜਾਰੀ ਰੱਖੋ", buy: "ਕੋਰਸ ਖਰੀਦੋ", pass: "ਅਕੈਡਮੀ ਪਾਸ", passSub: "ਸਾਰੇ ਪੇਡ ਕੋਰਸ, ਇੱਕ ਕੀਮਤ", lessons: "{count} ਪਾਠ", hours: "{count} ਘੰਟੇ", certificate: "ਸਰਟੀਫਿਕੇਟ ਸ਼ਾਮਲ", preview: "ਮੁਫ਼ਤ ਝਲਕ", completed: "ਪੂਰਾ ਹੋਇਆ", verifyCertificate: "ਸਰਟੀਫਿਕੇਟ ਦੀ ਪੁਸ਼ਟੀ ਕਰੋ", certificateId: "ਸਰਟੀਫਿਕੇਟ ID" },
+  directory: { title: "ਸਥਾਨਕ ਕਾਰੋਬਾਰ ਲੱਭੋ", follow: "ਫਾਲੋ ਕਰੋ", following: "ਫਾਲੋ ਕਰ ਰਹੇ ਹੋ", contact: "ਸੰਪਰਕ", website: "ਵੈੱਬਸਾਈਟ", directions: "ਰਸਤਾ", hours: "ਸਮਾਂ", services: "ਸੇਵਾਵਾਂ", reviews: "ਰਿਵਿਊ", about: "ਬਾਰੇ", verifiedBusiness: "ਪ੍ਰਮਾਣਿਤ ਕਾਰੋਬਾਰ" },
+  ads: { sponsored: "ਸਪਾਂਸਰਡ", whyThisAd: "ਮੈਨੂੰ ਇਹ ਇਸ਼ਤਿਹਾਰ ਕਿਉਂ ਦਿਸ ਰਿਹਾ ਹੈ?", hide: "ਇਸ਼ਤਿਹਾਰ ਲੁਕਾਓ", manager: "ਇਸ਼ਤਿਹਾਰ ਮੈਨੇਜਰ", newCampaign: "ਨਵਾਂ ਇਸ਼ਤਿਹਾਰ", budget: "ਬਜਟ", wallet: "ਇਸ਼ਤਿਹਾਰ ਵਾਲਿਟ" },
+  email: { footer: "ਤੁਹਾਨੂੰ ਇਹ ਇਸ ਲਈ ਮਿਲਿਆ ਕਿਉਂਕਿ ਤੁਹਾਡਾ ਖਾਤਾ ਹੈ ਜਾਂ ਤੁਸੀਂ {brand} ਤੋਂ ਖ਼ਬਰਾਂ ਲੈਣ ਲਈ ਸਹਿਮਤੀ ਦਿੱਤੀ।", unsubscribe: "ਗਾਹਕੀ ਛੱਡੋ", sentWith: "OENOD ਰਾਹੀਂ ਭੇਜਿਆ" },
+  ai: { hello: "ਮੈਂ ਕਿਵੇਂ ਮਦਦ ਕਰਾਂ, {name}?", sub: "ਆਪਣੀਆਂ ਸ਼ਿਫਟਾਂ, ਘੰਟਿਆਂ, ਤਨਖਾਹ ਜਾਂ ਛੁੱਟੀ ਬਾਰੇ ਪੁੱਛੋ।", approvalNote: "ਤਨਖਾਹ, ਲੋਕਾਂ ਜਾਂ ਪੈਸੇ ਦੀਆਂ ਤਬਦੀਲੀਆਂ ਹਮੇਸ਼ਾ ਮੈਨੇਜਰ ਦੀ ਮਨਜ਼ੂਰੀ ਦੀ ਉਡੀਕ ਕਰਦੀਆਂ ਹਨ।", placeholder: "ਆਪਣੇ ਕਾਰੋਬਾਰ ਬਾਰੇ ਕੁਝ ਵੀ ਪੁੱਛੋ…", thinking: "ਸੋਚ ਰਿਹਾ ਹੈ…", waitingApproval: "ਤੁਹਾਡੀ ਮਨਜ਼ੂਰੀ ਦੀ ਉਡੀਕ", done: "ਹੋ ਗਿਆ", blocked: "ਤੁਹਾਡੇ ਨਿਯਮਾਂ ਅਨੁਸਾਰ ਇਜਾਜ਼ਤ ਨਹੀਂ", emergencyStop: "ਐਮਰਜੈਂਸੀ ਰੋਕ", simulation: "ਸਿਮੂਲੇਸ਼ਨ ਮੋਡ" },
+};
+export default pa;

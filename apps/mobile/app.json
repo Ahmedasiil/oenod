@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "OENOD",
+    "slug": "oenod",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "oenod",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "bundleIdentifier": "com.oenod.app",
+      "supportsTablet": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "com.oenod.app",
+      "adaptiveIcon": { "backgroundColor": "#000F55", "foregroundImage": "./assets/adaptive-icon.png" },
+      "predictiveBackGestureEnabled": false
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      ["expo-splash-screen", { "backgroundColor": "#000F55", "image": "./assets/splash.png", "imageWidth": 220 }],
+      ["expo-location", { "locationWhenInUsePermission": "OENOD uses your location when you clock in, so your employer can confirm you're at work. It's only shared while you're on the clock, if you choose." }],
+      ["expo-notifications", { "color": "#000F55" }]
+    ],
+    "experiments": { "typedRoutes": true, "reactCompiler": true },
+    "extra": {
+      "apiUrl": "https://app.oenod.com",
+      "eas": { "projectId": "REPLACE_WITH_YOUR_EAS_PROJECT_ID" }
+    }
+  }
+}

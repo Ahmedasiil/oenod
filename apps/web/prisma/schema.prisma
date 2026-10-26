@@ -1,0 +1,2243 @@
+// OENOD - one database shared by the website, dashboard, super admin, public API,
+// mobile apps and desktop apps. Every business record carries orgId so each
+// company's data stays isolated.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ───────────────────────── Platform, tenants and identity ─────────────────────────
+
+enum Role {
+  OWNER
+  ADMIN
+  MANAGER
+  FINANCE
+  ACCOUNTANT
+  EMPLOYEE
+}
+
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  PAUSED
+}
+
+model Plan {
+  key                String         @id // STARTER, GROWTH, SCALE, ENTERPRISE
+  name               String
+  tagline            String?
+  priceMonthly       Int // cents
+  priceYearly        Int // cents per year
+  stripePriceMonthly String?
+  stripePriceYearly  String?
+  seats              Int            @default(5)
+  aiCredits          Int            @default(1000)
+  modules            String[]
+  features           String[]
+  sortOrder          Int            @default(0)
+  active             Boolean        @default(true)
+  orgs               Organization[]
+}
+
+model Partner {
+  id            String         @id @default(cuid())
+  name          String
+  email         String         @unique
+  code          String         @unique
+  commissionPct Int            @default(20)
+  active        Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  orgs          Organization[]
+}
+
+model Organization {
+  id                   String             @id @default(cuid())
+  name                 String
+  slug                 String             @unique
+  industry             String             @default("general")
+  country              String             @default("CA")
+  region               String?
+  currency             String             @default("CAD")
+  timezone             String             @default("America/Toronto")
+  locale               String             @default("en")
+  logoUrl              String?
+  // { require2fa, ipAllowlist: [cidr], sessionDays, passwordMinLength, alertOnNewDevice }
+  security             Json?
+  certificates         IssuedCertificate[]
+  brandColor           String             @default("#000F55")
+  website              String?
+  phone                String?
+  address              Json?
+  // Public business profile (directory, ads, jobs)
+  legalName            String?
+  businessNumber       String? // e.g. Canada BN / state registration / VAT
+  tagline              String?
+  about                String?
+  email                String?
+  coverUrl             String?
+  lat                  Float?
+  lng                  Float?
+  hours                Json? // { mon: "9:00-17:00", ... }
+  services             String[]
+  gallery              String[]
+  social               Json? // { facebook, instagram, linkedin, x, tiktok, youtube }
+  foundedYear          Int?
+  teamSize             String?
+  publicProfile        Boolean            @default(true)
+  // Verification (blue badge)
+  verificationStatus   String             @default("UNVERIFIED") // UNVERIFIED, PENDING, VERIFIED, REJECTED, REVOKED
+  verifiedAt           DateTime?
+  adBalanceCents       Int                @default(0)
+  planKey              String             @default("GROWTH")
+  plan                 Plan               @relation(fields: [planKey], references: [key])
+  subscriptionStatus   SubscriptionStatus @default(TRIALING)
+  trialEndsAt          DateTime?
+  billingInterval      String             @default("month")
+  stripeCustomerId     String?            @unique
+  stripeSubscriptionId String?            @unique
+  partnerId            String?
+  partner              Partner?           @relation(fields: [partnerId], references: [id])
+  modules              String[]
+  aiPaused             Boolean            @default(false) // emergency stop for automated execution
+  aiSimulation         Boolean            @default(false) // review intended actions before enabling
+  aiDefaultAutonomy    String             @default("APPROVE")
+  onboardingDone       Boolean            @default(false)
+  lastActiveAt         DateTime?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  memberships      Membership[]
+  locations        Location[]
+  departments      Department[]
+  employees        Employee[]
+  jobs             JobPosting[]
+  applications     JobApplication[]
+  shifts           Shift[]
+  timeEntries      TimeEntry[]
+  locationPings    LocationPing[]
+  leaveRequests    LeaveRequest[]
+  payRuns          PayRun[]
+  payRules         PayrollRule[]
+  accounts         Account[]
+  journals         JournalEntry[]
+  expenses         Expense[]
+  bankTxns         BankTransaction[]
+  bills            Bill[]
+  taxRates         TaxRate[]
+  contacts         Contact[]
+  deals            Deal[]
+  activities       Activity[]
+  quotes           Quote[]
+  invoices         Invoice[]
+  payments         Payment[]
+  segments         Segment[]
+  campaigns        Campaign[]
+  socialPosts      SocialPost[]
+  reviews          Review[]
+  coupons          Coupon[]
+  giftCards        GiftCard[]
+  products         Product[]
+  suppliers        Supplier[]
+  purchaseOrders   PurchaseOrder[]
+  orders           Order[]
+  cashSessions     CashSession[]
+  projects         Project[]
+  tasks            Task[]
+  workOrders       WorkOrder[]
+  bookings         Booking[]
+  assets           Asset[]
+  incidents        Incident[]
+  tickets          Ticket[]
+  chatChannels     ChatChannel[]
+  announcements    Announcement[]
+  documents        Document[]
+  compliance       ComplianceItem[]
+  courses          Course[]
+  trainings        TrainingAssignment[]
+  aiConversations  AiConversation[]
+  aiActions        AiAction[]
+  automations      AutomationRule[]
+  integrations     Integration[]
+  connectors       CustomConnector[]
+  pluginInstalls   PluginInstall[]
+  pluginsPublished Plugin[]
+  webhooks         Webhook[]
+  apiKeys          ApiKey[]
+  monitors         Monitor[]
+  alerts           Alert[]
+  notifications    Notification[]
+  auditLogs        AuditLog[]
+  usage            UsageRecord[]
+  invites          Invite[]
+  vehicles         Vehicle[]
+  verifications    VerificationRequest[]
+  adCampaigns      AdCampaign[]
+  adLedger         AdLedger[]
+  followers        CompanyFollow[]
+  geofences        Geofence[]
+  fleetEvents      FleetEvent[]
+}
+
+model User {
+  id                    String           @id @default(cuid())
+  email                 String           @unique
+  name                  String
+  passwordHash          String?
+  phone                 String?
+  avatarUrl             String?
+  locale                String           @default("en")
+  isSuperAdmin          Boolean          @default(false)
+  emailVerifiedAt       DateTime?
+  tokenVersion          Int              @default(0)
+  // Consent for OENOD's own marketing (CASL): only send when true, keep proof.
+  marketingEmailConsent Boolean          @default(false)
+  marketingSmsConsent   Boolean          @default(false)
+  consentAt             DateTime?
+  consentSource         String?
+  unsubscribedAt        DateTime?
+  pushToken             String?
+  academyPassUntil      DateTime? // OENOD Academy Pass: every paid course included
+  lastSeenAt            DateTime?
+  // Security
+  totpSecret            String? // encrypted
+  totpEnabledAt         DateTime?
+  totpLastStep          Int?
+  recoveryCodes         String[] // sha256 of unused one-time codes
+  failedLogins          Int              @default(0)
+  lockedUntil           DateTime?
+  disabledAt            DateTime? // blocked by a super admin
+  passwordChangedAt     DateTime?
+  createdAt             DateTime         @default(now())
+  sessions              Session[]
+  memberships           Membership[]
+  enrollments           Enrollment[]
+  applications          JobApplication[]
+  aiConversations       AiConversation[]
+  notifications         Notification[]
+  savedJobs             SavedJob[]
+}
+
+model Membership {
+  id        String       @id @default(cuid())
+  userId    String
+  orgId     String
+  role      Role         @default(EMPLOYEE)
+  title     String?
+  // Per-person access set by the owner/manager on top of the role: { inventory: "edit", marketing: "view", payroll: "none" }
+  grants    Json?
+  createdAt DateTime     @default(now())
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  employee  Employee?
+
+  @@unique([userId, orgId])
+}
+
+model Invite {
+  id         String       @id @default(cuid())
+  orgId      String
+  email      String
+  role       Role         @default(EMPLOYEE)
+  token      String       @unique
+  acceptedAt DateTime?
+  expiresAt  DateTime
+  createdAt  DateTime     @default(now())
+  org        Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+}
+
+/// One signed-in device. The session id is inside the token, so revoking a row signs that device out.
+model Session {
+  id         String    @id @default(cuid())
+  userId     String
+  device     String? // "Chrome on macOS", "OENOD iPhone app"
+  client     String    @default("web") // web, mobile, desktop
+  ip         String?
+  userAgent  String?
+  mfa        Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  lastSeenAt DateTime  @default(now())
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, revokedAt])
+}
+
+/// AI translations of user content (job posts, courses, reviews, announcements), so each text is translated once per language.
+model TranslationCache {
+  hash      String   @id // sha256(locale + text)
+  locale    String
+  text      String
+  createdAt DateTime @default(now())
+}
+
+model PasswordReset {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+}
+
+model ApiKey {
+  id         String       @id @default(cuid())
+  orgId      String
+  name       String
+  prefix     String
+  hash       String       @unique
+  scopes     String[]
+  lastUsedAt DateTime?
+  revokedAt  DateTime?
+  createdAt  DateTime     @default(now())
+  org        Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id        String        @id @default(cuid())
+  orgId     String?
+  userId    String?
+  actor     String? // "user", "ai", "api", "system", "super-admin"
+  action    String
+  entity    String?
+  entityId  String?
+  data      Json?
+  ip        String?
+  createdAt DateTime      @default(now())
+  org       Organization? @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId, createdAt])
+}
+
+model Notification {
+  id        String       @id @default(cuid())
+  orgId     String
+  userId    String?
+  title     String
+  body      String?
+  link      String?
+  level     String       @default("info")
+  readAt    DateTime?
+  createdAt DateTime     @default(now())
+  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  user      User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([orgId, userId, readAt])
+}
+
+model UsageRecord {
+  id        String       @id @default(cuid())
+  orgId     String
+  metric    String // AI_TOKENS, SMS, EMAIL, API_CALLS
+  quantity  Int
+  period    String // YYYY-MM
+  createdAt DateTime     @default(now())
+  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId, period, metric])
+}
+
+// ───────────────────────── Business structure and people ─────────────────────────
+
+model Location {
+  id        String       @id @default(cuid())
+  orgId     String
+  name      String
+  address   String?
+  lat       Float?
+  lng       Float?
+  radiusM   Int          @default(150) // clock-in geofence
+  timezone  String?
+  phone     String?
+  active    Boolean      @default(true)
+  createdAt DateTime     @default(now())
+  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  employees Employee[]
+  shifts    Shift[]
+  stock     StockLevel[]
+  orders    Order[]
+}
+
+model Department {
+  id        String       @id @default(cuid())
+  orgId     String
+  name      String
+  costCode  String?
+  createdAt DateTime     @default(now())
+  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  employees Employee[]
+}
+
+model Employee {
+  id                String               @id @default(cuid())
+  orgId             String
+  membershipId      String?              @unique
+  firstName         String
+  lastName          String
+  photoUrl          String?
+  email             String?
+  phone             String?
+  jobTitle          String?
+  departmentId      String?
+  locationId        String?
+  managerId         String?
+  employmentType    String               @default("FULL_TIME") // FULL_TIME, PART_TIME, CONTRACTOR, SEASONAL
+  status            String               @default("ACTIVE") // ONBOARDING, ACTIVE, LEAVE, TERMINATED
+  startDate         DateTime?
+  endDate           DateTime?
+  payType           String               @default("HOURLY") // HOURLY, SALARY
+  payRate           Decimal              @default(0) @db.Decimal(12, 2)
+  payFrequency      String               @default("BIWEEKLY")
+  region            String? // province/state for payroll rules
+  skills            String[]
+  kioskPin          String?
+  emergencyContact  Json?
+  shareLiveLocation Boolean              @default(false) // only while clocked in, employee opt-in
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  org               Organization         @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  membership        Membership?          @relation(fields: [membershipId], references: [id])
+  department        Department?          @relation(fields: [departmentId], references: [id])
+  location          Location?            @relation(fields: [locationId], references: [id])
+  certifications    Certification[]
+  shifts            Shift[]
+  timeEntries       TimeEntry[]
+  pings             LocationPing[]
+  leaveRequests     LeaveRequest[]
+  leaveBalances     LeaveBalance[]
+  payStubs          PayStub[]
+  lifecycleTasks    LifecycleTask[]
+  goals             Goal[]
+  availability      Availability[]
+  trainings         TrainingAssignment[]
+
+  @@index([orgId, status])
+}
+
+model Certification {
+  id         String    @id @default(cuid())
+  employeeId String
+  name       String
+  issuer     String?
+  issuedAt   DateTime?
+  expiresAt  DateTime?
+  employee   Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+}
+
+model LifecycleTask {
+  id         String    @id @default(cuid())
+  employeeId String
+  kind       String    @default("ONBOARDING") // ONBOARDING, OFFBOARDING
+  title      String
+  dueDate    DateTime?
+  doneAt     DateTime?
+  employee   Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+}
+
+model Goal {
+  id         String    @id @default(cuid())
+  employeeId String
+  title      String
+  progress   Int       @default(0)
+  dueDate    DateTime?
+  review     String?
+  rating     Int?
+  employee   Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+}
+
+model LeaveRequest {
+  id         String       @id @default(cuid())
+  orgId      String
+  employeeId String
+  type       String       @default("VACATION") // VACATION, SICK, PERSONAL, UNPAID, PARENTAL
+  startDate  DateTime
+  endDate    DateTime
+  hours      Decimal      @default(0) @db.Decimal(8, 2)
+  reason     String?
+  status     String       @default("PENDING") // PENDING, APPROVED, REJECTED, CANCELLED
+  decidedBy  String?
+  createdAt  DateTime     @default(now())
+  org        Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  employee   Employee     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+}
+
+model LeaveBalance {
+  id         String   @id @default(cuid())
+  employeeId String
+  type       String
+  hours      Decimal  @default(0) @db.Decimal(8, 2)
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([employeeId, type])
+}
+
+// ───────────────────────── Jobs marketplace and recruitment ─────────────────────────
+
+model JobPosting {
+  id             String           @id @default(cuid())
+  orgId          String
+  title          String
+  slug           String           @unique
+  description    String
+  requirements   String?
+  benefits       String?
+  city           String?
+  country        String?          @default("CA")
+  workplace      String           @default("ONSITE") // ONSITE, HYBRID, REMOTE
+  employmentType String           @default("FULL_TIME")
+  category       String           @default("General")
+  salaryMin      Int?
+  salaryMax      Int?
+  salaryPeriod   String           @default("YEAR")
+  currency       String           @default("CAD")
+  skills         String[]
+  questions      Json?
+  status         String           @default("OPEN") // DRAFT, OPEN, CLOSED
+  isPublic       Boolean          @default(true)
+  featured       Boolean          @default(false)
+  views          Int              @default(0)
+  publishedAt    DateTime?        @default(now())
+  closesAt       DateTime?
+  createdAt      DateTime         @default(now())
+  org            Organization     @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  applications   JobApplication[]
+  saved          SavedJob[]
+
+  @@index([status, isPublic, publishedAt])
+}
+
+model JobApplication {
+  id               String       @id @default(cuid())
+  orgId            String
+  jobId            String
+  userId           String?
+  name             String
+  email            String
+  phone            String?
+  city             String?
+  linkedinUrl      String?
+  portfolioUrl     String?
+  coverLetter      String?
+  resumeText       String?
+  resumeName       String?
+  resumeMime       String?
+  resumeData       Bytes?
+  answers          Json?
+  stage            String       @default("APPLIED") // APPLIED, SCREEN, INTERVIEW, OFFER, HIRED, REJECTED
+  rating           Int?
+  aiSummary        String?
+  aiMatch          Int?
+  notes            String?
+  interviewAt      DateTime?
+  marketingConsent Boolean      @default(false)
+  createdAt        DateTime     @default(now())
+  org              Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  job              JobPosting   @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  user             User?        @relation(fields: [userId], references: [id])
+
+  @@index([orgId, stage])
+}
+
+model SavedJob {
+  userId    String
+  jobId     String
+  createdAt DateTime   @default(now())
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job       JobPosting @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@id([userId, jobId])
+}
+
+model JobAlert {
+  id             String    @id @default(cuid())
+  email          String
+  keywords       String?
+  city           String?
+  consentAt      DateTime  @default(now())
+  unsubscribedAt DateTime?
+  lastSentAt     DateTime?
+  createdAt      DateTime  @default(now())
+}
+
+// ───────────────────────── Time, scheduling and payroll ─────────────────────────
+
+model Availability {
+  id         String   @id @default(cuid())
+  employeeId String
+  weekday    Int // 0 = Sunday
+  startMin   Int
+  endMin     Int
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+}
+
+model Shift {
+  id           String       @id @default(cuid())
+  orgId        String
+  locationId   String?
+  employeeId   String?
+  role         String?
+  start        DateTime
+  end          DateTime
+  breakMinutes Int          @default(0)
+  status       String       @default("DRAFT") // DRAFT, PUBLISHED, OPEN, SWAP_REQUESTED
+  notes        String?
+  createdAt    DateTime     @default(now())
+  org          Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  location     Location?    @relation(fields: [locationId], references: [id])
+  employee     Employee?    @relation(fields: [employeeId], references: [id])
+  timeEntries  TimeEntry[]
+
+  @@index([orgId, start])
+}
+
+model TimeEntry {
+  id           String       @id @default(cuid())
+  orgId        String
+  employeeId   String
+  shiftId      String?
+  clockIn      DateTime
+  clockOut     DateTime?
+  breakMinutes Int          @default(0)
+  source       String       @default("WEB") // WEB, MOBILE, KIOSK, DESKTOP
+  inLat        Float?
+  inLng        Float?
+  outLat       Float?
+  outLng       Float?
+  onSite       Boolean?
+  status       String       @default("OPEN") // OPEN, SUBMITTED, APPROVED, REJECTED
+  editReason   String?
+  notes        String?
+  createdAt    DateTime     @default(now())
+  org          Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  employee     Employee     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  shift        Shift?       @relation(fields: [shiftId], references: [id])
+
+  @@index([orgId, clockIn])
+}
+
+// Live location: only recorded while an employee is clocked in and has opted in.
+model LocationPing {
+  id         String       @id @default(cuid())
+  orgId      String
+  employeeId String
+  lat        Float
+  lng        Float
+  accuracy   Float?
+  at         DateTime     @default(now())
+  org        Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  employee   Employee     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([orgId, at])
+}
+
+model PayrollRule {
+  id           String       @id @default(cuid())
+  orgId        String
+  name         String
+  kind         String       @default("PERCENT") // PERCENT, FIXED
+  rate         Decimal      @db.Decimal(8, 4)
+  employerRate Decimal      @default(0) @db.Decimal(8, 4)
+  annualCap    Decimal?     @db.Decimal(12, 2)
+  region       String?
+  active       Boolean      @default(true)
+  org          Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+}
+
+model PayRun {
+  id           String       @id @default(cuid())
+  orgId        String
+  periodStart  DateTime
+  periodEnd    DateTime
+  payDate      DateTime
+  status       String       @default("DRAFT") // DRAFT, APPROVED, PAID, CANCELLED
+  gross        Decimal      @default(0) @db.Decimal(14, 2)
+  deductions   Decimal      @default(0) @db.Decimal(14, 2)
+  net          Decimal      @default(0) @db.Decimal(14, 2)
+  employerCost Decimal      @default(0) @db.Decimal(14, 2)
+  exceptions   Json?
+  approvedBy   String?
+  approvedAt   DateTime?
+  createdAt    DateTime     @default(now())
+  org          Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  stubs        PayStub[]
+}
+
+model PayStub {
+  id              String   @id @default(cuid())
+  payRunId        String
+  employeeId      String
+  regularHours    Decimal  @default(0) @db.Decimal(8, 2)
+  overtimeHours   Decimal  @default(0) @db.Decimal(8, 2)
+  gross           Decimal  @db.Decimal(12, 2)
+  deductions      Json
+  totalDeductions Decimal  @db.Decimal(12, 2)
+  employerContrib Decimal  @default(0) @db.Decimal(12, 2)
+  net             Decimal  @db.Decimal(12, 2)
+  payRun          PayRun   @relation(fields: [payRunId], references: [id], onDelete: Cascade)
+  employee        Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+}
+
+// ───────────────────────── Accounting ─────────────────────────
+
+model Account {
+  id    String        @id @default(cuid())
+  orgId String
+  code  String
+  name  String
+  type  String // ASSET, LIABILITY, EQUITY, INCOME, EXPENSE
+  org   Organization  @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  lines JournalLine[]
+
+  @@unique([orgId, code])
+}
+
+model JournalEntry {
+  id        String        @id @default(cuid())
+  orgId     String
+  date      DateTime      @default(now())
+  memo      String?
+  source    String? // INVOICE, PAYMENT, PAYROLL, EXPENSE, BILL, MANUAL, ORDER
+  sourceId  String?
+  createdAt DateTime      @default(now())
+  org       Organization  @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  lines     JournalLine[]
+
+  @@unique([orgId, source, sourceId])
+}
+
+model JournalLine {
+  id        String       @id @default(cuid())
+  entryId   String
+  accountId String
+  debit     Decimal      @default(0) @db.Decimal(14, 2)
+  credit    Decimal      @default(0) @db.Decimal(14, 2)
+  entry     JournalEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  account   Account      @relation(fields: [accountId], references: [id])
+}
+
+model TaxRate {
+  id    String       @id @default(cuid())
+  orgId String
+  name  String
+  rate  Decimal      @db.Decimal(6, 4)
+  org   Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+}
+
+model Expense {
+  id         String       @id @default(cuid())
+  orgId      String
+  employeeId String?
+  projectId  String?
+  vendor     String
+  category   String       @default("General")
+  amount     Decimal      @db.Decimal(12, 2)
+  tax        Decimal      @default(0) @db.Decimal(12, 2)
+  date       DateTime     @default(now())
+  receiptUrl String?
+  notes      String?
+  status     String       @default("SUBMITTED") // SUBMITTED, APPROVED, REIMBURSED, REJECTED
+  createdAt  DateTime     @default(now())
+  org        Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+}
+
+model BankTransaction {
+  id          String       @id @default(cuid())
+  orgId       String
+  date        DateTime
+  description String
+  amount      Decimal      @db.Decimal(14, 2)
+  matchedType String?
+  matchedId   String?
+  status      String       @default("UNMATCHED") // UNMATCHED, MATCHED, IGNORED
+  org         Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+}
+
+model Bill {
+  id         String       @id @default(cuid())
+  orgId      String
+  supplierId String?
+  number     String
+  issueDate  DateTime     @default(now())
+  dueDate    DateTime
+  amount     Decimal      @db.Decimal(12, 2)
+  status     String       @default("AWAITING_APPROVAL") // AWAITING_APPROVAL, APPROVED, PAID, VOID
+  notes      String?
+  createdAt  DateTime     @default(now())
+  org        Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  supplier   Supplier?    @relation(fields: [supplierId], references: [id])
+}
+
+// ───────────────────────── CRM, sales and marketing ─────────────────────────
+
+model Contact {
+  id             String       @id @default(cuid())
+  orgId          String
+  type           String       @default("LEAD") // LEAD, CUSTOMER, PARTNER
+  locale         String       @default("en")
+  firstName      String
+  lastName       String?
+  company        String?
+  email          String?
+  phone          String?
+  source         String?
+  ownerId        String?
+  tags           String[]
+  score          Int          @default(0)
+  loyaltyPoints  Int          @default(0)
+  lifetimeValue  Decimal      @default(0) @db.Decimal(14, 2)
+  birthday       DateTime?
+  address        String?
+  notes          String?
+  emailConsent   Boolean      @default(false)
+  smsConsent     Boolean      @default(false)
+  consentAt      DateTime?
+  consentSource  String?
+  unsubscribedAt DateTime?
+  portalToken    String?      @unique
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  org            Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  deals          Deal[]
+  activities     Activity[]
+  quotes         Quote[]
+  invoices       Invoice[]
+  orders         Order[]
+  tickets        Ticket[]
+  bookings       Booking[]
+  workOrders     WorkOrder[]
+
+  @@index([orgId, type])
+}
+
+model Deal {
+  id            String       @id @default(cuid())
+  orgId         String
+  contactId     String?
+  title         String
+  value         Decimal      @default(0) @db.Decimal(14, 2)
+  stage         String       @default("NEW") // NEW, QUALIFIED, PROPOSAL, NEGOTIATION, WON, LOST
+  probability   Int          @default(10)
+  expectedClose DateTime?
+  ownerId       String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  org           Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  contact       Contact?     @relation(fields: [contactId], references: [id])
+}
+
+model Activity {
+  id        String       @id @default(cuid())
+  orgId     String
+  contactId String?
+  dealId    String?
+  type      String       @default("NOTE") // NOTE, CALL, EMAIL, MEETING, TASK, SMS
+  subject   String
+  body      String?
+  dueAt     DateTime?
+  doneAt    DateTime?
+  userId    String?
+  createdAt DateTime     @default(now())
+  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  contact   Contact?     @relation(fields: [contactId], references: [id], onDelete: Cascade)
+}
+
+model Quote {
+  id          String       @id @default(cuid())
+  orgId       String
+  contactId   String?
+  number      String
+  status      String       @default("DRAFT") // DRAFT, SENT, ACCEPTED, DECLINED, EXPIRED
+  items       Json
+  subtotal    Decimal      @db.Decimal(14, 2)
+  tax         Decimal      @default(0) @db.Decimal(14, 2)
+  total       Decimal      @db.Decimal(14, 2)
+  validUntil  DateTime?
+  acceptedAt  DateTime?
+  publicToken String       @unique @default(cuid())
+  createdAt   DateTime     @default(now())
+  org         Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  contact     Contact?     @relation(fields: [contactId], references: [id])
+}
+
+model Invoice {
+  id             String       @id @default(cuid())
+  orgId          String
+  contactId      String?
+  number         String
+  status         String       @default("DRAFT") // DRAFT, SENT, PARTIAL, PAID, OVERDUE, VOID, DISPUTED
+  issueDate      DateTime     @default(now())
+  dueDate        DateTime
+  items          Json
+  subtotal       Decimal      @db.Decimal(14, 2)
+  tax            Decimal      @default(0) @db.Decimal(14, 2)
+  total          Decimal      @db.Decimal(14, 2)
+  amountPaid     Decimal      @default(0) @db.Decimal(14, 2)
+  currency       String       @default("CAD")
+  notes          String?
+  publicToken    String       @unique @default(cuid())
+  remindersSent  Int          @default(0)
+  lastReminderAt DateTime?
+  createdAt      DateTime     @default(now())
+  org            Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  contact        Contact?     @relation(fields: [contactId], references: [id])
+  payments       Payment[]
+
+  @@unique([orgId, number])
+  @@index([orgId, status, dueDate])
+}
+
+model Payment {
+  id         String       @id @default(cuid())
+  orgId      String
+  invoiceId  String?
+  amount     Decimal      @db.Decimal(14, 2)
+  method     String       @default("CARD")
+  reference  String?
+  receivedAt DateTime     @default(now())
+  org        Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  invoice    Invoice?     @relation(fields: [invoiceId], references: [id])
+}
+
+model Segment {
+  id        String       @id @default(cuid())
+  orgId     String
+  name      String
+  filter    Json // { type, tags, minScore, consent }
+  createdAt DateTime     @default(now())
+  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  campaigns Campaign[]
+}
+
+model Campaign {
+  id          String       @id @default(cuid())
+  orgId       String
+  name        String
+  channel     String       @default("EMAIL") // EMAIL, SMS, WHATSAPP
+  subject     String?
+  content     String
+  segmentId   String?
+  status      String       @default("DRAFT") // DRAFT, SCHEDULED, SENDING, SENT, FAILED
+  scheduledAt DateTime?
+  sentAt      DateTime?
+  sent        Int          @default(0)
+  opened      Int          @default(0)
+  clicked     Int          @default(0)
+  revenue     Decimal      @default(0) @db.Decimal(14, 2)
+  createdAt   DateTime     @default(now())
+  org         Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  segment     Segment?     @relation(fields: [segmentId], references: [id])
+}
+
+model SocialPost {
+  id          String       @id @default(cuid())
+  orgId       String
+  platforms   String[] // GOOGLE_BUSINESS, FACEBOOK, INSTAGRAM, LINKEDIN, TIKTOK, X
+  content     String
+  mediaUrls   String[]
+  scheduledAt DateTime?
+  publishedAt DateTime?
+  status      String       @default("DRAFT") // DRAFT, SCHEDULED, PUBLISHED, FAILED
+  externalIds Json?
+  error       String?
+  createdAt   DateTime     @default(now())
+  org         Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+}
+
+model Review {
+  id         String       @id @default(cuid())
+  orgId      String
+  source     String       @default("GOOGLE")
+  externalId String?
+  author     String
+  rating     Int
+  text       String?
+  reply      String?
+  repliedAt  DateTime?
+  postedAt   DateTime     @default(now())
+  org        Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@unique([orgId, source, externalId])
+}
+
+model Coupon {
+  id        String       @id @default(cuid())
+  orgId     String
+  code      String
+  kind      String       @default("PERCENT") // PERCENT, FIXED
+  value     Decimal      @db.Decimal(10, 2)
+  maxUses   Int?
+  uses      Int          @default(0)
+  expiresAt DateTime?
+  active    Boolean      @default(true)
+  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@unique([orgId, code])
+}
+
+model GiftCard {
+  id        String       @id @default(cuid())
+  orgId     String
+  code      String
+  balance   Decimal      @db.Decimal(10, 2)
+  issuedTo  String?
+  createdAt DateTime     @default(now())
+  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@unique([orgId, code])
+}
+
+// ───────────────────────── POS, commerce, inventory, purchasing ─────────────────────────
+
+model Product {
+  id           String          @id @default(cuid())
+  orgId        String
+  name         String
+  sku          String?
+  barcode      String?
+  category     String          @default("General")
+  type         String          @default("PRODUCT") // PRODUCT, SERVICE, INGREDIENT
+  price        Decimal         @db.Decimal(12, 2)
+  cost         Decimal         @default(0) @db.Decimal(12, 2)
+  taxable      Boolean         @default(true)
+  trackStock   Boolean         @default(true)
+  reorderPoint Int             @default(0)
+  reorderQty   Int             @default(0)
+  supplierId   String?
+  imageUrl     String?
+  color        String?
+  modifiers    Json?
+  active       Boolean         @default(true)
+  createdAt    DateTime        @default(now())
+  org          Organization    @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  supplier     Supplier?       @relation(fields: [supplierId], references: [id])
+  stock        StockLevel[]
+  movements    StockMovement[]
+  orderItems   OrderItem[]
+}
+
+model StockLevel {
+  id         String   @id @default(cuid())
+  productId  String
+  locationId String
+  quantity   Decimal  @default(0) @db.Decimal(12, 2)
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  location   Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, locationId])
+}
+
+model StockMovement {
+  id         String   @id @default(cuid())
+  productId  String
+  locationId String?
+  quantity   Decimal  @db.Decimal(12, 2)
+  reason     String // SALE, RECEIPT, ADJUSTMENT, TRANSFER, WASTE, RETURN
+  refId      String?
+  createdAt  DateTime @default(now())
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Supplier {
+  id             String          @id @default(cuid())
+  orgId          String
+  name           String
+  email          String?
+  phone          String?
+  leadTimeDays   Int             @default(3)
+  approved       Boolean         @default(true)
+  createdAt      DateTime        @default(now())
+  org            Organization    @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  products       Product[]
+  purchaseOrders PurchaseOrder[]
+  bills          Bill[]
+}
+
+model PurchaseOrder {
+  id         String       @id @default(cuid())
+  orgId      String
+  supplierId String?
+  locationId String?
+  number     String
+  status     String       @default("DRAFT") // DRAFT, AWAITING_APPROVAL, ORDERED, RECEIVED, CANCELLED
+  items      Json // [{productId, name, qty, cost}]
+  total      Decimal      @db.Decimal(12, 2)
+  expectedAt DateTime?
+  receivedAt DateTime?
+  createdBy  String?
+  createdAt  DateTime     @default(now())
+  org        Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  supplier   Supplier?    @relation(fields: [supplierId], references: [id])
+}
+
+model Order {
+  id             String       @id @default(cuid())
+  orgId          String
+  locationId     String?
+  contactId      String?
+  employeeId     String?
+  number         String
+  channel        String       @default("POS") // POS, ONLINE, PHONE, DELIVERY
+  status         String       @default("PAID") // OPEN, PAID, REFUNDED, VOID
+  subtotal       Decimal      @db.Decimal(12, 2)
+  discount       Decimal      @default(0) @db.Decimal(12, 2)
+  tax            Decimal      @default(0) @db.Decimal(12, 2)
+  tip            Decimal      @default(0) @db.Decimal(12, 2)
+  total          Decimal      @db.Decimal(12, 2)
+  paymentMethod  String       @default("CARD")
+  idempotencyKey String?      @unique
+  createdAt      DateTime     @default(now())
+  org            Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  location       Location?    @relation(fields: [locationId], references: [id])
+  contact        Contact?     @relation(fields: [contactId], references: [id])
+  items          OrderItem[]
+
+  @@index([orgId, createdAt])
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  productId String?
+  name      String
+  quantity  Decimal  @db.Decimal(10, 2)
+  price     Decimal  @db.Decimal(12, 2)
+  modifiers Json?
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product? @relation(fields: [productId], references: [id])
+}
+
+model CashSession {
+  id           String       @id @default(cuid())
+  orgId        String
+  locationId   String?
+  openedBy     String
+  openingFloat Decimal      @db.Decimal(10, 2)
+  expected     Decimal?     @db.Decimal(10, 2)
+  counted      Decimal?     @db.Decimal(10, 2)
+  openedAt     DateTime     @default(now())
+  closedAt     DateTime?
+  org          Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+}
+
+// ───────────────────────── Projects, field service, operations ─────────────────────────
+
+model Project {
+  id            String            @id @default(cuid())
+  orgId         String
+  code          String // PRJ-01001
+  contactId     String?
+  managerId     String? // Employee leading the project
+  name          String
+  description   String?
+  color         String            @default("#2342E0")
+  icon          String?
+  status        String            @default("ACTIVE") // PLANNED, ACTIVE, ON_HOLD, DONE, CANCELLED
+  priority      String            @default("NORMAL") // LOW, NORMAL, HIGH, URGENT
+  health        String            @default("ON_TRACK") // ON_TRACK, AT_RISK, OFF_TRACK (recomputed)
+  progress      Int               @default(0) // 0-100, from tasks
+  visibility    String            @default("TEAM") // TEAM (members only), ORG (everyone), PRIVATE
+  billingType   String            @default("FIXED") // FIXED, HOURLY, NON_BILLABLE, MILESTONES
+  hourlyRate    Decimal           @default(0) @db.Decimal(10, 2)
+  budget        Decimal           @default(0) @db.Decimal(14, 2)
+  spent         Decimal           @default(0) @db.Decimal(14, 2)
+  estimateHours Float             @default(0)
+  tags          String[]
+  isTemplate    Boolean           @default(false)
+  clientPortal  Boolean           @default(false)
+  portalToken   String?           @unique
+  startDate     DateTime?
+  dueDate       DateTime?
+  completedAt   DateTime?
+  archivedAt    DateTime?
+  createdById   String?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  org           Organization      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  tasks         Task[]
+  members       ProjectMember[]
+  stages        ProjectStage[]
+  milestones    Milestone[]
+  timeLogs      ProjectTimeLog[]
+  activity      ProjectActivity[]
+  files         ProjectFile[]
+
+  @@index([orgId, status])
+}
+
+model ProjectMember {
+  id            String   @id @default(cuid())
+  projectId     String
+  employeeId    String
+  role          String   @default("MEMBER") // LEAD, MEMBER, VIEWER
+  hourlyRate    Decimal? @db.Decimal(10, 2) // cost rate override
+  allocationPct Int      @default(100)
+  createdAt     DateTime @default(now())
+  project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, employeeId])
+}
+
+model ProjectStage {
+  id        String  @id @default(cuid())
+  projectId String
+  name      String
+  color     String  @default("#94A3B8")
+  order     Int
+  isDone    Boolean @default(false)
+  wipLimit  Int?
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks     Task[]
+}
+
+model Milestone {
+  id          String    @id @default(cuid())
+  projectId   String
+  name        String
+  description String?
+  dueDate     DateTime?
+  status      String    @default("OPEN") // OPEN, DONE, MISSED
+  amount      Decimal   @default(0) @db.Decimal(14, 2) // billing milestone
+  invoiceId   String?
+  completedAt DateTime?
+  order       Int       @default(0)
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks       Task[]
+}
+
+model Task {
+  id            String        @id @default(cuid())
+  orgId         String
+  projectId     String?
+  stageId       String?
+  milestoneId   String?
+  parentId      String?
+  number        Int           @default(0) // per project: #12
+  title         String
+  description   String?
+  status        String        @default("TODO") // TODO, DOING, REVIEW, BLOCKED, DONE
+  priority      String        @default("NORMAL")
+  assigneeId    String? // primary Employee
+  assigneeIds   String[] // extra assignees
+  watcherIds    String[]
+  order         Float         @default(0)
+  startDate     DateTime?
+  dueDate       DateTime?
+  estimateHours Float?
+  loggedHours   Float         @default(0)
+  tags          String[]
+  checklist     Json? // [{ id, text, done }]
+  dependsOn     String[] // task ids that must finish first
+  recurrence    String? // DAILY, WEEKLY, MONTHLY
+  completedAt   DateTime?
+  createdById   String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  org           Organization  @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  project       Project?      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  stage         ProjectStage? @relation(fields: [stageId], references: [id], onDelete: SetNull)
+  milestone     Milestone?    @relation(fields: [milestoneId], references: [id], onDelete: SetNull)
+  parent        Task?         @relation("Subtasks", fields: [parentId], references: [id], onDelete: Cascade)
+  subtasks      Task[]        @relation("Subtasks")
+  comments      TaskComment[]
+
+  @@index([orgId, assigneeId])
+  @@index([projectId, stageId])
+}
+
+model TaskComment {
+  id         String    @id @default(cuid())
+  taskId     String
+  authorId   String? // User
+  authorName String
+  body       String
+  mentions   String[] // Employee ids
+  createdAt  DateTime  @default(now())
+  editedAt   DateTime?
+  task       Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+}
+
+model ProjectTimeLog {
+  id             String    @id @default(cuid())
+  projectId      String
+  taskId         String?
+  employeeId     String
+  date           DateTime  @default(now())
+  hours          Float
+  billable       Boolean   @default(true)
+  note           String?
+  status         String    @default("SUBMITTED") // SUBMITTED, APPROVED, INVOICED
+  invoiceId      String?
+  timerStartedAt DateTime? // running timer
+  createdAt      DateTime  @default(now())
+  project        Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, employeeId])
+}
+
+model ProjectActivity {
+  id        String   @id @default(cuid())
+  projectId String
+  actor     String
+  action    String // created, moved, assigned, commented, completed, logged_time, ...
+  detail    String?
+  taskId    String?
+  createdAt DateTime @default(now())
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, createdAt])
+}
+
+model ProjectFile {
+  id         String   @id @default(cuid())
+  projectId  String
+  taskId     String?
+  name       String
+  mime       String?
+  size       Int?
+  data       Bytes?
+  url        String?
+  uploadedBy String?
+  createdAt  DateTime @default(now())
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model WorkOrder {
+  id          String       @id @default(cuid())
+  orgId       String
+  contactId   String?
+  number      String
+  title       String
+  address     String?
+  lat         Float?
+  lng         Float?
+  scheduledAt DateTime?
+  assigneeId  String?
+  status      String       @default("NEW") // NEW, SCHEDULED, IN_PROGRESS, COMPLETED, CANCELLED
+  checklist   Json?
+  photos      String[]
+  signature   String?
+  recurrence  String? // WEEKLY, MONTHLY
+  completedAt DateTime?
+  createdAt   DateTime     @default(now())
+  org         Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  contact     Contact?     @relation(fields: [contactId], references: [id])
+}
+
+model Booking {
+  id        String       @id @default(cuid())
+  orgId     String
+  contactId String?
+  service   String
+  staffId   String?
+  resource  String?
+  start     DateTime
+  end       DateTime
+  status    String       @default("CONFIRMED") // PENDING, CONFIRMED, CANCELLED, NO_SHOW, DONE
+  deposit   Decimal      @default(0) @db.Decimal(10, 2)
+  notes     String?
+  createdAt DateTime     @default(now())
+  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  contact   Contact?     @relation(fields: [contactId], references: [id])
+}
+
+model Asset {
+  id            String       @id @default(cuid())
+  orgId         String
+  name          String
+  kind          String       @default("EQUIPMENT") // EQUIPMENT, VEHICLE, IT, SOFTWARE
+  serial        String?
+  assignedTo    String?
+  purchaseDate  DateTime?
+  cost          Decimal      @default(0) @db.Decimal(12, 2)
+  warrantyUntil DateTime?
+  nextServiceAt DateTime?
+  mileage       Int?
+  status        String       @default("ACTIVE") // ACTIVE, REPAIR, RETIRED
+  createdAt     DateTime     @default(now())
+  org           Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+}
+
+model Incident {
+  id               String       @id @default(cuid())
+  orgId            String
+  title            String
+  description      String?
+  severity         String       @default("LOW") // LOW, MEDIUM, HIGH, CRITICAL
+  status           String       @default("OPEN") // OPEN, INVESTIGATING, RESOLVED
+  location         String?
+  reportedBy       String?
+  correctiveAction String?
+  createdAt        DateTime     @default(now())
+  org              Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+}
+
+// ───────────────────────── Support, communication, documents ─────────────────────────
+
+model Ticket {
+  id         String          @id @default(cuid())
+  orgId      String
+  contactId  String?
+  kind       String          @default("CUSTOMER") // CUSTOMER, INTERNAL, HR
+  subject    String
+  status     String          @default("OPEN") // OPEN, PENDING, RESOLVED, CLOSED
+  priority   String          @default("NORMAL")
+  channel    String          @default("WEB")
+  assigneeId String?
+  slaDueAt   DateTime?
+  csat       Int?
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  org        Organization    @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  contact    Contact?        @relation(fields: [contactId], references: [id])
+  messages   TicketMessage[]
+}
+
+model TicketMessage {
+  id         String   @id @default(cuid())
+  ticketId   String
+  authorType String   @default("AGENT") // AGENT, CUSTOMER, AI
+  authorName String
+  body       String
+  createdAt  DateTime @default(now())
+  ticket     Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+}
+
+model ChatChannel {
+  id        String        @id @default(cuid())
+  orgId     String
+  name      String
+  createdAt DateTime      @default(now())
+  org       Organization  @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  messages  ChatMessage[]
+}
+
+model ChatMessage {
+  id        String      @id @default(cuid())
+  channelId String
+  userId    String
+  userName  String
+  body      String
+  createdAt DateTime    @default(now())
+  channel   ChatChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+}
+
+model Announcement {
+  id         String       @id @default(cuid())
+  orgId      String
+  title      String
+  body       String
+  requireAck Boolean      @default(false)
+  acks       String[] // user ids
+  createdAt  DateTime     @default(now())
+  org        Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+}
+
+model Document {
+  id         String       @id @default(cuid())
+  orgId      String
+  name       String
+  kind       String       @default("OTHER") // CONTRACT, POLICY, RECEIPT, CERTIFICATE, PERMIT, INSURANCE, OTHER
+  entityType String?
+  entityId   String?
+  mime       String?
+  size       Int?
+  data       Bytes?
+  url        String?
+  version    Int          @default(1)
+  expiresAt  DateTime?
+  signedAt   DateTime?
+  createdAt  DateTime     @default(now())
+  org        Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+}
+
+model ComplianceItem {
+  id         String       @id @default(cuid())
+  orgId      String
+  title      String
+  category   String       @default("General")
+  dueDate    DateTime
+  owner      String?
+  status     String       @default("OPEN") // OPEN, DONE, OVERDUE
+  recurrence String?
+  evidence   String?
+  createdAt  DateTime     @default(now())
+  org        Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+}
+
+// ───────────────────────── Academy (learning marketplace + company training) ─────────────────────────
+
+model Course {
+  id             String               @id @default(cuid())
+  orgId          String? // null = published by OENOD
+  slug           String               @unique
+  title          String
+  summary        String
+  description    String?
+  category       String               @default("Business")
+  level          String               @default("Beginner")
+  instructorName String
+  priceCents     Int                  @default(0)
+  compareAtCents Int? // original price when on sale
+  currency       String               @default("CAD")
+  coverColor     String               @default("#2342E0")
+  outcomes       String[] // "What you'll learn"
+  audience       String? // who it's for
+  tags           String[]
+  featured       Boolean              @default(false)
+  language       String               @default("en")
+  updatedAt      DateTime             @default(now()) @updatedAt
+  durationMin    Int                  @default(60)
+  certificate    Boolean              @default(true)
+  isPublic       Boolean              @default(true) // false = internal company training
+  published      Boolean              @default(true)
+  rating         Float                @default(4.8)
+  enrollCount    Int                  @default(0)
+  createdAt      DateTime             @default(now())
+  org            Organization?        @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  lessons        Lesson[]
+  enrollments    Enrollment[]
+  assignments    TrainingAssignment[]
+}
+
+model Lesson {
+  id          String  @id @default(cuid())
+  courseId    String
+  title       String
+  order       Int
+  content     String
+  videoUrl    String?
+  durationMin Int     @default(10)
+  quiz        Json?
+  isPreview   Boolean @default(false) // free to read before buying
+  course      Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+}
+
+model Enrollment {
+  id               String    @id @default(cuid())
+  courseId         String
+  userId           String
+  completedLessons String[]
+  progress         Int       @default(0)
+  completedAt      DateTime?
+  certificateCode  String?   @unique
+  source           String    @default("FREE") // FREE, PURCHASE, PASS, COMPANY, ASSIGNED
+  paidCents        Int       @default(0)
+  lastLessonId     String?
+  sponsorOrgId     String? // the company that provided this training, shown on the certificate
+  createdAt        DateTime  @default(now())
+  course           Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([courseId, userId])
+}
+
+/// A certificate a company issues itself: outside training, safety tickets, awards, recognition.
+model IssuedCertificate {
+  id             String       @id @default(cuid())
+  orgId          String
+  code           String       @unique
+  kind           String       @default("COMPLETION") // COMPLETION, ACHIEVEMENT, APPRECIATION, SAFETY, PARTICIPATION, EXCELLENCE
+  title          String
+  description    String?
+  recipientName  String
+  recipientEmail String?
+  employeeId     String?
+  hours          Float?
+  signerName     String?
+  signerTitle    String?
+  issuedAt       DateTime     @default(now())
+  expiresAt      DateTime?
+  revokedAt      DateTime?
+  revokeReason   String?
+  createdById    String?
+  createdAt      DateTime     @default(now())
+  org            Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId, issuedAt])
+  @@index([employeeId])
+}
+
+model TrainingAssignment {
+  id         String       @id @default(cuid())
+  orgId      String
+  courseId   String
+  employeeId String
+  dueDate    DateTime?
+  createdAt  DateTime     @default(now())
+  org        Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  course     Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  employee   Employee     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+}
+
+// ───────────────────────── AI Business Manager ─────────────────────────
+
+model AiConversation {
+  id        String       @id @default(cuid())
+  orgId     String
+  userId    String
+  title     String       @default("New conversation")
+  messages  Json         @default("[]") // Anthropic MessageParam[] (kept append-only)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AiAction {
+  id             String       @id @default(cuid())
+  orgId          String
+  worker         String // COORDINATOR, HR, SCHEDULING, PAYROLL, FINANCE, SALES, MARKETING, INVENTORY, SERVICE, OPERATIONS, COMPLIANCE, REPORTING
+  title          String
+  reason         String?
+  tool           String?
+  input          Json?
+  result         Json?
+  status         String       @default("NEEDS_APPROVAL") // COMPLETED, IN_PROGRESS, NEEDS_APPROVAL, BLOCKED, UPCOMING, REJECTED, FAILED, SIMULATED
+  autonomy       String       @default("APPROVE") // ASSIST, APPROVE, AUTO
+  sources        Json?
+  requestedBy    String?
+  decidedBy      String?
+  decidedAt      DateTime?
+  executedAt     DateTime?
+  scheduledFor   DateTime?
+  idempotencyKey String?      @unique
+  error          String?
+  createdAt      DateTime     @default(now())
+  org            Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId, status])
+}
+
+model AutomationRule {
+  id         String       @id @default(cuid())
+  orgId      String
+  name       String
+  trigger    String // INVOICE_OVERDUE, STOCK_LOW, SHIFT_MISSED, OFFER_ACCEPTED, QUOTE_ACCEPTED, CONTRACT_EXPIRING, EMPLOYEE_LEAVING, NEW_REVIEW, NEW_LEAD
+  conditions Json?
+  action     String // SEND_REMINDER, CREATE_PO, NOTIFY_MANAGER, CREATE_TASK, ONBOARD, REPLY_REVIEW, FOLLOW_UP
+  autonomy   String       @default("APPROVE")
+  spendLimit Decimal?     @db.Decimal(12, 2)
+  enabled    Boolean      @default(true)
+  runCount   Int          @default(0)
+  lastRunAt  DateTime?
+  createdAt  DateTime     @default(now())
+  org        Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+}
+
+// ───────────────────────── Integrations, public API, webhooks ─────────────────────────
+
+model Integration {
+  id           String       @id @default(cuid())
+  orgId        String
+  provider     String // google_business, google_calendar, gmail, meta, instagram, tiktok, linkedin, stripe, square, shopify, woocommerce, quickbooks, xero, slack, zoom, mailchimp, ...
+  status       String       @default("CONNECTED") // CONNECTED, ERROR, DISCONNECTED
+  accountName  String?
+  externalId   String?
+  accessToken  String? // encrypted at rest (AES-256-GCM)
+  refreshToken String? // encrypted at rest
+  expiresAt    DateTime?
+  scopes       String[]
+  config       Json?
+  lastSyncAt   DateTime?
+  lastError    String?
+  createdAt    DateTime     @default(now())
+  org          Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@unique([orgId, provider])
+}
+
+model Webhook {
+  id         String            @id @default(cuid())
+  orgId      String
+  url        String
+  events     String[]
+  secret     String
+  active     Boolean           @default(true)
+  lastStatus Int?
+  createdAt  DateTime          @default(now())
+  org        Organization      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  deliveries WebhookDelivery[]
+}
+
+model WebhookDelivery {
+  id            String    @id @default(cuid())
+  webhookId     String
+  event         String
+  payload       Json
+  status        String    @default("PENDING") // PENDING, DELIVERED, FAILED
+  responseCode  Int?
+  attempts      Int       @default(0)
+  nextAttemptAt DateTime?
+  createdAt     DateTime  @default(now())
+  webhook       Webhook   @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+}
+
+// ───────────────────────── Monitoring and alerts ─────────────────────────
+
+model Monitor {
+  id            String         @id @default(cuid())
+  orgId         String
+  name          String
+  kind          String // LOW_STOCK, OVERDUE_INVOICES, UNCOVERED_SHIFTS, LATE_WORK_ORDERS, EXPIRING_CERTS, UPTIME, SALES_DROP, REVIEW_RATING, INTEGRATION_HEALTH, OPEN_TICKETS, CASH_BALANCE, OVERTIME
+  config        Json?
+  threshold     Float?
+  severity      String         @default("WARN") // INFO, WARN, CRIT
+  channels      String[]       @default(["IN_APP"]) // IN_APP, EMAIL, SMS, WEBHOOK, PUSH
+  recipients    String[]
+  intervalMin   Int            @default(15)
+  enabled       Boolean        @default(true)
+  lastCheckedAt DateTime?
+  lastStatus    String         @default("OK") // OK, WARN, CRIT, ERROR
+  lastValue     Float?
+  createdAt     DateTime       @default(now())
+  org           Organization   @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  checks        MonitorCheck[]
+  alerts        Alert[]
+}
+
+model MonitorCheck {
+  id        String   @id @default(cuid())
+  monitorId String
+  status    String
+  value     Float?
+  message   String?
+  createdAt DateTime @default(now())
+  monitor   Monitor  @relation(fields: [monitorId], references: [id], onDelete: Cascade)
+
+  @@index([monitorId, createdAt])
+}
+
+model Alert {
+  id         String       @id @default(cuid())
+  orgId      String
+  monitorId  String?
+  title      String
+  message    String
+  severity   String       @default("WARN")
+  status     String       @default("OPEN") // OPEN, ACKNOWLEDGED, RESOLVED
+  link       String?
+  ackBy      String?
+  resolvedAt DateTime?
+  createdAt  DateTime     @default(now())
+  org        Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  monitor    Monitor?     @relation(fields: [monitorId], references: [id], onDelete: SetNull)
+
+  @@index([orgId, status])
+}
+
+// ───────────────────────── Super admin and growth marketing ─────────────────────────
+
+// People who gave OENOD permission to contact them (website, Jobs, Academy, events).
+model Lead {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  name            String?
+  phone           String?
+  company         String?
+  locale          String    @default("en")
+  source          String    @default("website")
+  utm             Json?
+  tags            String[]
+  emailConsent    Boolean   @default(false)
+  smsConsent      Boolean   @default(false)
+  consentAt       DateTime?
+  consentText     String?
+  consentIp       String?
+  unsubscribedAt  DateTime?
+  convertedUserId String?
+  createdAt       DateTime  @default(now())
+}
+
+model GrowthCampaign {
+  id          String    @id @default(cuid())
+  name        String
+  channel     String    @default("EMAIL") // EMAIL, SMS, IN_APP
+  audience    String // ALL_CONSENTED, LEADS, TRIALS, TRIAL_ENDING, INACTIVE_14D, CANCELED, JOB_SEEKERS, LEARNERS, CUSTOMERS
+  subject     String?
+  preheader   String?
+  content     String
+  ctaLabel    String?
+  ctaUrl      String?
+  status      String    @default("DRAFT") // DRAFT, SCHEDULED, SENDING, SENT
+  scheduledAt DateTime?
+  sentAt      DateTime?
+  sent        Int       @default(0)
+  skipped     Int       @default(0)
+  opened      Int       @default(0)
+  clicked     Int       @default(0)
+  conversions Int       @default(0)
+  createdBy   String?
+  createdAt   DateTime  @default(now())
+}
+
+model GrowthAutomation {
+  id         String   @id @default(cuid())
+  key        String   @unique
+  name       String
+  trigger    String // SIGNUP, TRIAL_DAY_3, TRIAL_ENDING, INACTIVE_7D, INACTIVE_30D, PAYMENT_FAILED, CANCELED, LEAD_NURTURE
+  delayHours Int      @default(0)
+  channel    String   @default("EMAIL")
+  subject    String
+  content    String
+  ctaLabel   String?
+  ctaUrl     String?
+  enabled    Boolean  @default(true)
+  sentCount  Int      @default(0)
+  createdAt  DateTime @default(now())
+}
+
+model MessageLog {
+  id             String   @id @default(cuid())
+  scope          String   @default("PLATFORM") // PLATFORM, ORG
+  orgId          String?
+  channel        String
+  to             String
+  subject        String?
+  status         String   @default("QUEUED") // QUEUED, SENT, FAILED, SKIPPED_NO_CONSENT
+  providerId     String?
+  campaignId     String?
+  automationKey  String?
+  idempotencyKey String?  @unique
+  error          String?
+  createdAt      DateTime @default(now())
+
+  @@index([campaignId])
+}
+
+model FeatureFlag {
+  key            String   @id
+  description    String?
+  enabled        Boolean  @default(false)
+  rolloutPercent Int      @default(0)
+  orgIds         String[]
+  updatedAt      DateTime @updatedAt
+}
+
+model PlatformBanner {
+  id        String   @id @default(cuid())
+  message   String
+  level     String   @default("info")
+  link      String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model StatusIncident {
+  id         String    @id @default(cuid())
+  title      String
+  status     String    @default("INVESTIGATING") // INVESTIGATING, IDENTIFIED, MONITORING, RESOLVED
+  components String[]
+  message    String
+  createdAt  DateTime  @default(now())
+  resolvedAt DateTime?
+}
+
+// ───────────────────────── Fleet GPS tracking ─────────────────────────
+// Positions come from the OENOD Driver mobile app or any GPS tracker that speaks
+// the OsmAnd/Traccar HTTP protocol (POST /api/fleet/ingest).
+
+model Vehicle {
+  id            String            @id @default(cuid())
+  orgId         String
+  name          String
+  plate         String?
+  make          String?
+  model         String?
+  year          Int?
+  vin           String?
+  kind          String            @default("TRUCK") // TRUCK, VAN, CAR, BUS, TRAILER, EQUIPMENT
+  driverId      String? // Employee id
+  deviceId      String            @unique // tracker identifier / driver-app device id
+  deviceToken   String            @unique @default(cuid())
+  speedLimitKmh Int               @default(100)
+  idleAlertMin  Int               @default(15)
+  stopAlertMin  Int               @default(30)
+  odometerKm    Float             @default(0)
+  fuelType      String?
+  status        String            @default("OFFLINE") // MOVING, IDLE, STOPPED, OFFLINE
+  lastLat       Float?
+  lastLng       Float?
+  lastSpeedKmh  Float?
+  lastHeading   Float?
+  lastSeenAt    DateTime?
+  stoppedSince  DateTime?
+  nextServiceKm Float?
+  createdAt     DateTime          @default(now())
+  org           Organization      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  positions     VehiclePosition[]
+  trips         Trip[]
+  events        FleetEvent[]
+}
+
+model VehiclePosition {
+  id        String   @id @default(cuid())
+  vehicleId String
+  lat       Float
+  lng       Float
+  speedKmh  Float    @default(0)
+  heading   Float?
+  altitude  Float?
+  accuracy  Float?
+  ignition  Boolean?
+  at        DateTime @default(now())
+  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@index([vehicleId, at])
+}
+
+model Trip {
+  id             String    @id @default(cuid())
+  vehicleId      String
+  driverId       String?
+  startAt        DateTime
+  endAt          DateTime?
+  startLat       Float
+  startLng       Float
+  endLat         Float?
+  endLng         Float?
+  distanceKm     Float     @default(0)
+  maxSpeedKmh    Float     @default(0)
+  avgSpeedKmh    Float     @default(0)
+  speedingEvents Int       @default(0)
+  vehicle        Vehicle   @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@index([vehicleId, startAt])
+}
+
+model Geofence {
+  id           String       @id @default(cuid())
+  orgId        String
+  name         String
+  lat          Float
+  lng          Float
+  radiusM      Int          @default(300)
+  alertOnEnter Boolean      @default(true)
+  alertOnExit  Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+  org          Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+}
+
+model FleetEvent {
+  id        String       @id @default(cuid())
+  orgId     String
+  vehicleId String
+  kind      String // SPEEDING, LONG_STOP, IDLE, GEOFENCE_ENTER, GEOFENCE_EXIT, OFFLINE, HARSH_BRAKE, SERVICE_DUE
+  message   String
+  lat       Float?
+  lng       Float?
+  value     Float?
+  at        DateTime     @default(now())
+  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  vehicle   Vehicle      @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@index([orgId, at])
+}
+
+// ---------------------------------------------------------------------------
+// Connect anything: custom connectors (any REST API, OpenAPI import, inbound
+// webhooks) and the plugin marketplace.
+// ---------------------------------------------------------------------------
+
+model CustomConnector {
+  id              String       @id @default(cuid())
+  orgId           String
+  name            String
+  description     String?
+  color           String       @default("#2342E0")
+  baseUrl         String
+  authType        String       @default("none") // none, bearer, header, query, basic, oauth2
+  authConfig      Json? // secret values encrypted at rest
+  // OAuth 2 (authorization code) with the customer's own app credentials
+  authorizeUrl    String?
+  tokenUrl        String?
+  scopes          String[]
+  clientId        String?
+  clientSecret    String? // encrypted
+  accessToken     String? // encrypted
+  refreshToken    String? // encrypted
+  expiresAt       DateTime?
+  defaultHeaders  Json?
+  actions         Json // [{ key, name, method, path, description, body }]
+  // Inbound: any app can POST JSON to /api/hooks/{id}?token=... and OENOD creates records
+  inboundToken    String       @unique
+  inboundResource String? // contacts, tickets, orders, leads, tasks, bookings...
+  inboundMapping  Json? // { oenodField: "path.in.payload" }
+  status          String       @default("ACTIVE") // ACTIVE, ERROR, PAUSED
+  lastError       String?
+  lastUsedAt      DateTime?
+  callCount       Int          @default(0)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  org             Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+}
+
+model Plugin {
+  id             String          @id @default(cuid())
+  slug           String          @unique
+  name           String
+  tagline        String
+  description    String
+  category       String          @default("Productivity")
+  developer      String
+  website        String?
+  supportEmail   String?
+  color          String          @default("#000F55")
+  iconUrl        String?
+  // Manifest: { scopes: [modules], events: [webhook events], webhookUrl, installUrl, embed: { url, placement }, settings: [{ name, label, secret }] }
+  manifest       Json
+  priceCents     Int             @default(0)
+  status         String          @default("REVIEW") // DRAFT, REVIEW, PUBLISHED, REJECTED
+  verified       Boolean         @default(false)
+  featured       Boolean         @default(false)
+  installs       Int             @default(0)
+  rating         Float           @default(0)
+  publisherOrgId String?
+  reviewNote     String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  publisher      Organization?   @relation(fields: [publisherOrgId], references: [id], onDelete: SetNull)
+  installations  PluginInstall[]
+}
+
+model PluginInstall {
+  id          String       @id @default(cuid())
+  orgId       String
+  pluginId    String
+  apiKeyId    String?
+  webhookId   String?
+  settings    Json?
+  status      String       @default("ACTIVE") // ACTIVE, DISABLED
+  installedBy String?
+  createdAt   DateTime     @default(now())
+  org         Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  plugin      Plugin       @relation(fields: [pluginId], references: [id], onDelete: Cascade)
+
+  @@unique([orgId, pluginId])
+}
+
+// Super admin "under construction" switches. One row per surface:
+// all, web (website + web app), marketing (public site only), app (customer web app), mobile, desktop, api.
+model PlatformControl {
+  surface       String    @id
+  mode          String    @default("LIVE") // LIVE, MAINTENANCE (paused, shows the message), READ_ONLY (viewing works, changes blocked)
+  title         String    @default("We'll be right back")
+  message       String    @default("OENOD is getting an upgrade. Everything will be back shortly.")
+  messages      Json? // translations: { fr: "...", ar: "..." }
+  startsAt      DateTime?
+  endsAt        DateTime? // shown as the expected return time; auto-returns to LIVE after this
+  allowAdmins   Boolean   @default(true) // super admins can still use it to test
+  allowOrgIds   String[] // pilot customers that bypass maintenance
+  minVersion    String? // mobile/desktop: force an update below this version
+  latestVersion String?
+  updateUrl     String?
+  pausedModules String[] // pause single modules (e.g. payroll) everywhere
+  updatedBy     String?
+  updatedAt     DateTime  @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Verified companies (blue badge), business directory and self-serve ads.
+// ---------------------------------------------------------------------------
+
+model VerificationRequest {
+  id               String       @id @default(cuid())
+  orgId            String
+  legalName        String
+  businessNumber   String
+  registry         String? // where it's registered: "Canada - CRA", "Ontario Business Registry", "Delaware"...
+  country          String
+  address          Json
+  website          String?
+  phone            String
+  contactName      String
+  contactTitle     String?
+  domainEmail      String? // someone@their-domain, confirmed by code
+  emailCode        String? // sha256 of the code
+  emailVerifiedAt  DateTime?
+  documentIds      String[] // Document ids (incorporation, licence, utility bill, ID)
+  aiScore          Int? // 0-100
+  aiRecommendation String? // APPROVE, REVIEW, REJECT
+  aiReport         Json? // { checks: [{ name, passed, note }], summary, risks }
+  status           String       @default("SUBMITTED") // SUBMITTED, AI_CHECKED, VERIFIED, REJECTED, NEEDS_INFO
+  reviewedBy       String?
+  reviewNote       String?
+  submittedAt      DateTime     @default(now())
+  decidedAt        DateTime?
+  org              Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+}
+
+model CompanyFollow {
+  id        String       @id @default(cuid())
+  orgId     String
+  userId    String
+  createdAt DateTime     @default(now())
+  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@unique([orgId, userId])
+}
+
+model AdCampaign {
+  id               String       @id @default(cuid())
+  orgId            String
+  name             String
+  objective        String       @default("PROFILE_VISITS") // PROFILE_VISITS, WEBSITE, JOBS, BOOKINGS, LEADS, CALLS, APP
+  status           String       @default("DRAFT") // DRAFT, REVIEW, ACTIVE, PAUSED, REJECTED, ENDED, OUT_OF_FUNDS
+  headline         String
+  body             String
+  imageUrl         String?
+  imageData        Bytes?
+  imageMime        String?
+  ctaLabel         String       @default("Learn more")
+  destinationUrl   String? // defaults to the company profile
+  placements       String[] // web_feed, web_sidebar, directory, jobs, academy, app_home, employee_home, mobile_feed
+  // { countries:[], regions:[], cities:[], industries:[], audiences:[owners, employees, job_seekers, learners, customers], locales:[], lat, lng, radiusKm, ageMin? }
+  targeting        Json?
+  pricing          String       @default("CPC") // CPC, CPM
+  bidCents         Int          @default(75) // per click or per 1,000 views
+  dailyBudgetCents Int          @default(1000)
+  totalBudgetCents Int?
+  spentCents       Int          @default(0)
+  impressions      Int          @default(0)
+  clicks           Int          @default(0)
+  leads            Int          @default(0)
+  startAt          DateTime?
+  endAt            DateTime?
+  reviewNote       String?
+  aiReview         Json? // policy pre-check
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  org              Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  stats            AdStat[]
+  adLeads          AdLead[]
+
+  @@index([status])
+}
+
+model AdStat {
+  id          String     @id @default(cuid())
+  campaignId  String
+  date        DateTime   @db.Date
+  placement   String
+  impressions Int        @default(0)
+  clicks      Int        @default(0)
+  leads       Int        @default(0)
+  spentCents  Int        @default(0)
+  campaign    AdCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, date, placement])
+}
+
+// One row per viewer per ad per day, so repeat views/clicks aren't billed twice.
+model AdSeen {
+  id         String   @id @default(cuid())
+  campaignId String
+  viewer     String // sha256(user id or ip+ua)
+  day        String // YYYY-MM-DD
+  clicked    Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@unique([campaignId, viewer, day])
+}
+
+model AdLead {
+  id         String     @id @default(cuid())
+  campaignId String
+  name       String
+  email      String
+  phone      String?
+  message    String?
+  consent    Boolean    @default(false)
+  createdAt  DateTime   @default(now())
+  campaign   AdCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+}
+
+model AdLedger {
+  id          String       @id @default(cuid())
+  orgId       String
+  kind        String // TOPUP, SPEND, REFUND, CREDIT
+  amountCents Int // positive adds, negative spends
+  reference   String?      @unique // stripe session, or campaign:day
+  note        String?
+  createdAt   DateTime     @default(now())
+  org         Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+}
+
+// Academy sales: single course, Academy Pass (all courses) or company seats.
+model CoursePurchase {
+  id              String    @id @default(cuid())
+  kind            String // COURSE, PASS_MONTH, PASS_YEAR, SEATS
+  userId          String?
+  orgId           String?
+  courseId        String?
+  seats           Int       @default(1)
+  amountCents     Int
+  currency        String    @default("CAD")
+  stripeSessionId String?   @unique
+  status          String    @default("PENDING") // PENDING, PAID, REFUNDED
+  couponCode      String?
+  paidAt          DateTime?
+  createdAt       DateTime  @default(now())
+
+  @@index([userId])
+}
+
+// Super admin plugin centre: platform-wide keys (payments, email, SMS, AI, OAuth apps...).
+// Stored encrypted; they override hosting environment variables of the same name.
+model PlatformSetting {
+  key       String   @id // e.g. STRIPE_SECRET_KEY
+  value     String // encrypted
+  plugin    String // stripe, resend, twilio, anthropic, google, microsoft...
+  updatedBy String?
+  updatedAt DateTime @updatedAt
+}
+
+// Super admin AI: everything it wants to do waits here for a person's approval.
+model AdminAction {
+  id         String    @id @default(cuid())
+  kind       String // approve_verification, approve_ad, send_growth_campaign, set_maintenance, ...
+  title      String
+  summary    String
+  payload    Json
+  status     String    @default("PROPOSED") // PROPOSED, APPROVED, REJECTED, DONE, FAILED
+  proposedBy String    @default("AI")
+  decidedBy  String?
+  result     Json?
+  error      String?
+  createdAt  DateTime  @default(now())
+  decidedAt  DateTime?
+
+  @@index([status, createdAt])
+}
+
+model AdminConversation {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String   @default("New chat")
+  messages  Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Company-bought seats for paid Academy courses, used when assigning training.
+model CourseSeat {
+  id        String   @id @default(cuid())
+  orgId     String
+  courseId  String
+  seats     Int
+  used      Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@unique([orgId, courseId])
+}

@@ -1,0 +1,12 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+onlyBuiltDependencies:
+  - "@prisma/client"
+  - "@prisma/engines"
+  - prisma
+  - electron
+  - esbuild
+  - sharp
+ignoredBuiltDependencies:
+  - electron-winstaller

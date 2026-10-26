@@ -1,0 +1,18 @@
+{
+  "name": "oenod",
+  "private": true,
+  "version": "1.0.0",
+  "description": "OENOD - one connected platform and AI Business Manager (web, super admin, API, mobile, desktop)",
+  "packageManager": "pnpm@10.28.0",
+  "scripts": {
+    "dev": "pnpm --filter @oenod/web dev",
+    "build": "pnpm --filter @oenod/web build",
+    "start": "pnpm --filter @oenod/web start",
+    "db:push": "pnpm --filter @oenod/web db:push",
+    "db:migrate": "pnpm --filter @oenod/web db:migrate",
+    "db:seed": "pnpm --filter @oenod/web db:seed",
+    "mobile": "pnpm --filter @oenod/mobile start",
+    "desktop": "pnpm --filter @oenod/desktop start",
+    "desktop:dist": "pnpm --filter @oenod/desktop dist"
+  }
+}
