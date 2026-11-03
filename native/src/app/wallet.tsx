@@ -188,6 +188,7 @@ function WalletView({ base }: { base: '/api/me/wallet' | '/api/wallet' }) {
       {w.activated && manage ? (
         <>
           <H2>{t('Automatic transfers')}</H2>
+          {onHold ? <Muted>{t('For safety, new wallets can transfer to the bank from {d}.', { d: day(x.security.hold_until!) })}</Muted> : null}
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
             {(['manual', 'daily', 'weekly', 'monthly'] as const).map((s) => <Chip key={s} on={w.payout_schedule === s} label={t(s === 'manual' ? 'Only when I ask' : s === 'daily' ? 'Every day' : s === 'weekly' ? 'Every week' : 'Every month')} onPress={() => { if (!manage || w.payout_schedule === s) return; setError(''); setConfirm({ type: 'schedule', v: s }); }} />)}
           </View>
