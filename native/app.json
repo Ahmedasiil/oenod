@@ -23,6 +23,9 @@
         "UIBackgroundModes": [
           "location"
         ]
+      },
+      "config": {
+        "usesNonExemptEncryption": false
       }
     },
     "android": {
