@@ -27,7 +27,7 @@ jobs:
         working-directory: native/android
         run: |
           chmod +x gradlew
-          ./gradlew --no-daemon bundleRelease assembleRelease
+          ./gradlew --no-daemon bundleRelease assembleRelease -PreactNativeArchitectures=armeabi-v7a,arm64-v8a
       - name: Collect
         run: |
           mkdir -p out
