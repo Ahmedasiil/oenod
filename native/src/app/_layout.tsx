@@ -25,6 +25,10 @@ function Gate() {
         <Stack.Screen name="employee/[id]" options={{ headerShown: true, title: t('Team member'), headerTintColor: C.white, headerStyle: { backgroundColor: C.navy } }} />
         <Stack.Screen name="notifications" options={{ headerShown: true, title: t('Notifications'), headerTintColor: C.white, headerStyle: { backgroundColor: C.navy } }} />
         <Stack.Screen name="timeoff-new" options={{ presentation: 'modal', headerShown: true, title: t('Request time off'), headerTintColor: C.white, headerStyle: { backgroundColor: C.navy } }} />
+        <Stack.Screen name="shift/[id]" options={{ headerShown: true, title: t('Shift'), headerTintColor: C.white, headerStyle: { backgroundColor: C.navy } }} />
+        <Stack.Screen name="availability" options={{ headerShown: true, title: t('My availability'), headerTintColor: C.white, headerStyle: { backgroundColor: C.navy } }} />
+        <Stack.Screen name="pay" options={{ headerShown: true, title: t('My pay'), headerTintColor: C.white, headerStyle: { backgroundColor: C.navy } }} />
+        <Stack.Screen name="feed" options={{ headerShown: true, title: t('Team news'), headerTintColor: C.white, headerStyle: { backgroundColor: C.navy } }} />
         <Stack.Screen name="timesheet" options={{ headerShown: true, title: t('My hours'), headerTintColor: C.white, headerStyle: { backgroundColor: C.navy } }} />
       </Stack.Protected>
       <Stack.Protected guard={!signedIn}>

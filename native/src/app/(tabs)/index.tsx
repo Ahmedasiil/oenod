@@ -164,6 +164,16 @@ export default function Home() {
           <Row><Icon name="clock" color={C.blue} /><B style={{ flex: 1 }}>{t('My hours and timesheet')}</B><Icon name="chevron" color={C.faint} size={18} /></Row>
         </Card>
       ) : null}
+      {hasEmployee ? (
+        <Card onPress={() => router.push('/pay')}>
+          <Row><Icon name="cash" color={C.blue} /><B style={{ flex: 1 }}>{t('My pay stubs')}</B><Icon name="chevron" color={C.faint} size={18} /></Row>
+        </Card>
+      ) : null}
+      {hasEmployee || isManager ? (
+        <Card onPress={() => router.push('/feed')}>
+          <Row><Icon name="users" color={C.blue} /><B style={{ flex: 1 }}>{t('Team news')}</B><Icon name="chevron" color={C.faint} size={18} /></Row>
+        </Card>
+      ) : null}
       {isManager ? <Manager /> : null}
       {!hasEmployee && !isManager ? (
         <Card>
