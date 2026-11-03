@@ -2,14 +2,14 @@
   "expo": {
     "name": "OENOD",
     "slug": "oenod",
-    "version": "3.4.0",
+    "version": "3.4.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.oenod.app",
-      "buildNumber": "340",
+      "buildNumber": "341",
       "associatedDomains": [
         "applinks:oenod.com",
         "webcredentials:oenod.com"
@@ -30,9 +30,9 @@
     },
     "android": {
       "package": "com.oenod.app",
-      "versionCode": 340,
+      "versionCode": 341,
       "adaptiveIcon": {
-        "backgroundColor": "#000000",
+        "backgroundColor": "#000C58",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -63,7 +63,7 @@
           "image": "./assets/splash-icon.png",
           "imageWidth": 160,
           "resizeMode": "contain",
-          "backgroundColor": "#000000"
+          "backgroundColor": "#000C58"
         }
       ],
       "expo-router",

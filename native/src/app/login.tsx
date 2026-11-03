@@ -49,7 +49,7 @@ export default function Login() {
   const shown = [...providers].sort((a, b) => (a === 'apple' ? -1 : b === 'apple' ? 1 : 0));
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: '#000' }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: '#000C58' }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: S.xl, paddingTop: insets.top + S.xl }} keyboardShouldPersistTaps="handled">
         <View style={{ alignItems: 'center', marginBottom: 32 }}>
           <Image source={require('../../assets/wordmark.png')} style={{ width: 200, height: 54 }} resizeMode="contain" accessibilityRole="header" accessibilityLabel="OENOD" />
