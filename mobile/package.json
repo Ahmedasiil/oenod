@@ -1,0 +1,29 @@
+{
+  "name": "oenod-mobile",
+  "version": "3.0.0",
+  "private": true,
+  "description": "OENOD for iPhone and Android (Capacitor shell around the OENOD web app).",
+  "scripts": {
+    "configure": "node configure.js",
+    "add:ios": "npm run configure && npx cap add ios && npm run icons && node patch-native.js",
+    "add:android": "npm run configure && npx cap add android && npm run icons && node patch-native.js",
+    "icons": "npx @capacitor/assets generate --iconBackgroundColor '#0B1B3F' --splashBackgroundColor '#0B1B3F'",
+    "sync": "npm run configure && npx cap sync && node patch-native.js",
+    "open:ios": "npx cap open ios",
+    "open:android": "npx cap open android",
+    "build:android": "npm run sync && cd android && ./gradlew bundleRelease assembleDebug"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.6.0",
+    "@capacitor/app": "^8.1.2",
+    "@capacitor/core": "^8.6.0",
+    "@capacitor/ios": "^8.6.0",
+    "@capacitor/splash-screen": "^8.0.2",
+    "@capacitor/status-bar": "^8.0.4",
+    "@capacitor/local-notifications": "^8.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^4.0.0",
+    "@capacitor/cli": "^8.6.0"
+  }
+}

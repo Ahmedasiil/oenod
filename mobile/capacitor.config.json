@@ -1,0 +1,44 @@
+{
+  "appId": "com.oenod.app",
+  "appName": "OENOD",
+  "webDir": "www",
+  "server": {
+    "url": "https://oenod.com",
+    "cleartext": false,
+    "allowNavigation": [
+      "oenod.com",
+      "checkout.stripe.com",
+      "meet.jit.si"
+    ],
+    "errorPath": "index.html"
+  },
+  "ios": {
+    "contentInset": "never",
+    "limitsNavigationsToAppBoundDomains": false,
+    "backgroundColor": "#0B1B3F",
+    "scheme": "OENOD"
+  },
+  "android": {
+    "backgroundColor": "#0B1B3F",
+    "allowMixedContent": false,
+    "captureInput": true
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 3000,
+      "launchAutoHide": true,
+      "backgroundColor": "#0B1B3F",
+      "showSpinner": false,
+      "androidScaleType": "CENTER_CROP"
+    },
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#0B1B3F",
+      "overlaysWebView": false
+    },
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_oenod",
+      "iconColor": "#2252D1"
+    }
+  }
+}

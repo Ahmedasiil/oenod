@@ -1,0 +1,13 @@
+{
+  "appName": "OENOD",
+  "appId": "com.oenod.app",
+  "version": "3.0.0",
+  "build": 300,
+  "url": "https://oenod.com",
+  "allowedHosts": [
+    "oenod.com",
+    "www.oenod.com",
+    "checkout.stripe.com",
+    "meet.jit.si"
+  ]
+}

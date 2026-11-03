@@ -1,0 +1,84 @@
+{
+  "name": "oenod-desktop",
+  "productName": "OENOD",
+  "version": "3.0.0",
+  "private": true,
+  "description": "OENOD for Windows, Mac and Linux.",
+  "author": "OENOD Inc.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "prebuild": "node -e \"require('fs').copyFileSync('../oenod.app.json','oenod.app.json')\"",
+    "build:win": "npm run prebuild && electron-builder --win nsis",
+    "build:mac": "npm run prebuild && electron-builder --mac dmg",
+    "build:all": "npm run prebuild && electron-builder --win nsis --mac dmg",
+    "build:linux": "npm run prebuild && electron-builder --linux AppImage"
+  },
+  "devDependencies": {
+    "electron": "^45.2.1",
+    "electron-builder": "^26.18.0"
+  },
+  "build": {
+    "appId": "com.oenod.desktop",
+    "productName": "OENOD",
+    "files": [
+      "main.js",
+      "offline.html",
+      "oenod.app.json",
+      "build/icon.png"
+    ],
+    "extraMetadata": {
+      "main": "main.js"
+    },
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "artifactName": "OENOD-Setup-${version}.exe",
+      "shortcutName": "OENOD"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "universal"
+          ]
+        }
+      ],
+      "category": "public.app-category.business",
+      "icon": "build/icon.png",
+      "hardenedRuntime": true,
+      "artifactName": "OENOD-${version}.dmg",
+      "extendInfo": {
+        "NSCameraUsageDescription": "OENOD uses the camera to scan QR badges and for OENOD Meet video calls.",
+        "NSMicrophoneUsageDescription": "OENOD uses the microphone for OENOD Meet video calls."
+      }
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "category": "Office",
+      "icon": "build/icon.png",
+      "artifactName": "OENOD-${version}.AppImage",
+      "maintainer": "OENOD Inc. <info@oenod.com>"
+    },
+    "publish": null
+  }
+}
