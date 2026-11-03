@@ -2,28 +2,32 @@
   "expo": {
     "name": "OENOD",
     "slug": "oenod",
-    "version": "3.1.0",
+    "version": "3.2.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.oenod.app",
-      "buildNumber": "310",
+      "buildNumber": "320",
       "associatedDomains": [
         "applinks:oenod.com",
         "webcredentials:oenod.com"
       ],
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "OENOD checks your location once when you clock in, only if your workplace uses a geofence.",
+        "NSLocationWhenInUseUsageDescription": "OENOD uses your location to confirm you are at your workplace when you clock in. If your workplace uses site attendance, it keeps sharing your location with your managers while you are clocked in, never on breaks or after you clock out.",
         "NSCameraUsageDescription": "OENOD uses the camera to scan QR badges.",
         "NSFaceIDUsageDescription": "OENOD uses Face ID to unlock the app quickly.",
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "OENOD uses your location to confirm you are at your workplace when you clock in. If your workplace uses site attendance, it keeps sharing your location with your managers while you are clocked in, never on breaks or after you clock out.",
+        "UIBackgroundModes": [
+          "location"
+        ]
       }
     },
     "android": {
       "package": "com.oenod.app",
-      "versionCode": 310,
+      "versionCode": 320,
       "adaptiveIcon": {
         "backgroundColor": "#000000",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -34,7 +38,11 @@
         "ACCESS_COARSE_LOCATION",
         "ACCESS_FINE_LOCATION",
         "CAMERA",
-        "USE_BIOMETRIC"
+        "USE_BIOMETRIC",
+        "ACCESS_BACKGROUND_LOCATION",
+        "FOREGROUND_SERVICE",
+        "FOREGROUND_SERVICE_LOCATION",
+        "POST_NOTIFICATIONS"
       ],
       "predictiveBackGestureEnabled": false
     },
@@ -59,7 +67,11 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "OENOD checks your location once when you clock in, only if your workplace uses a geofence."
+          "locationWhenInUsePermission": "OENOD uses your location to confirm you are at your workplace when you clock in. If your workplace uses site attendance, it keeps sharing your location with your managers while you are clocked in, never on breaks or after you clock out.",
+          "locationAlwaysAndWhenInUsePermission": "OENOD uses your location to confirm you are at your workplace when you clock in. If your workplace uses site attendance, it keeps sharing your location with your managers while you are clocked in, never on breaks or after you clock out.",
+          "isAndroidBackgroundLocationEnabled": true,
+          "isAndroidForegroundServiceEnabled": true,
+          "isIosBackgroundLocationEnabled": true
         }
       ],
       [
@@ -74,7 +86,13 @@
           "faceIDPermission": "OENOD uses Face ID to unlock the app quickly."
         }
       ],
-      "expo-localization"
+      "expo-localization",
+      [
+        "expo-notifications",
+        {
+          "color": "#0B1B3F"
+        }
+      ]
     ],
     "scheme": "oenod",
     "backgroundColor": "#0B1B3F",

@@ -80,6 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = useCallback(async () => {
     try { await post('/api/auth/logout'); } catch (e) { if (!(e instanceof ApiError)) throw e; }
     await clearCred();
+    await import('./geo').then((g) => g.stopTracking()).catch(() => {});
     setPending2fa(false);
     setSession(null);
   }, []);

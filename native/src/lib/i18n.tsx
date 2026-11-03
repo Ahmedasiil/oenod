@@ -738,6 +738,54 @@ Object.assign(ar, {
   "Limits: {a} per transfer, {b} per day.": "الحدود: {a} لكل تحويل، {b} يوميًا.",
   "Your password is not right.": "كلمة المرور غير صحيحة.",
 });
+Object.assign(fr, {
+  "OENOD: clocked in": "OENOD : au travail",
+  "Location is shared with your manager until you clock out or start a break.": "Votre position est partagée avec votre gestionnaire jusqu'à votre départ ou votre pause.",
+  "Your workplace uses site attendance": "Votre lieu de travail utilise la présence sur site",
+  "While you are clocked in, OENOD shares your location with your managers so they know you are on site. Never on breaks and never after you clock out.": "Pendant que vous êtes au travail, OENOD partage votre position avec vos gestionnaires pour confirmer que vous êtes sur place. Jamais pendant les pauses ni après votre départ.",
+  "Location history is deleted after {n} days.": "L'historique des positions est supprimé après {n} jours.",
+  "I have read this and I agree to share my location while I am clocked in.": "J'ai lu ce texte et j'accepte de partager ma position pendant que je suis au travail.",
+  "Agree and clock in": "Accepter et pointer",
+  "Not now": "Pas maintenant",
+  "Site attendance": "Présence sur site",
+  "Turn on location for OENOD in your phone settings (precise location), then try again.": "Activez la localisation précise pour OENOD dans les réglages du téléphone, puis réessayez.",
+  "You are outside {s}. Time may not count unless your manager approves it.": "Vous êtes hors de {s}. Ce temps pourrait ne pas compter sans l'approbation de votre gestionnaire.",
+  "Location is off. Turn it back on so your time counts at {s}.": "La localisation est désactivée. Réactivez-la pour que votre temps compte à {s}.",
+  "OENOD cannot confirm you are at {s}. Open the app with location on.": "OENOD ne peut pas confirmer que vous êtes à {s}. Ouvrez l'app avec la localisation activée.",
+  "On site at {s}. Location is shared until you clock out or start a break.": "Sur place à {s}. La position est partagée jusqu'à votre départ ou votre pause.",
+});
+Object.assign(es, {
+  "OENOD: clocked in": "OENOD: en turno",
+  "Location is shared with your manager until you clock out or start a break.": "Tu ubicación se comparte con tu gerente hasta que marques la salida o empieces un descanso.",
+  "Your workplace uses site attendance": "Tu lugar de trabajo usa asistencia en el sitio",
+  "While you are clocked in, OENOD shares your location with your managers so they know you are on site. Never on breaks and never after you clock out.": "Mientras estás en turno, OENOD comparte tu ubicación con tus gerentes para confirmar que estás en el sitio. Nunca en descansos ni después de marcar la salida.",
+  "Location history is deleted after {n} days.": "El historial de ubicación se elimina después de {n} días.",
+  "I have read this and I agree to share my location while I am clocked in.": "He leído esto y acepto compartir mi ubicación mientras estoy en turno.",
+  "Agree and clock in": "Aceptar y marcar entrada",
+  "Not now": "Ahora no",
+  "Site attendance": "Asistencia en el sitio",
+  "Turn on location for OENOD in your phone settings (precise location), then try again.": "Activa la ubicación precisa para OENOD en los ajustes del teléfono y vuelve a intentarlo.",
+  "You are outside {s}. Time may not count unless your manager approves it.": "Estás fuera de {s}. Es posible que este tiempo no cuente si tu gerente no lo aprueba.",
+  "Location is off. Turn it back on so your time counts at {s}.": "La ubicación está desactivada. Actívala para que tu tiempo cuente en {s}.",
+  "OENOD cannot confirm you are at {s}. Open the app with location on.": "OENOD no puede confirmar que estás en {s}. Abre la app con la ubicación activada.",
+  "On site at {s}. Location is shared until you clock out or start a break.": "En el sitio: {s}. La ubicación se comparte hasta que marques la salida o empieces un descanso.",
+});
+Object.assign(ar, {
+  "OENOD: clocked in": "OENOD: تم تسجيل الحضور",
+  "Location is shared with your manager until you clock out or start a break.": "يتم مشاركة موقعك مع مديرك حتى تسجّل الانصراف أو تبدأ استراحة.",
+  "Your workplace uses site attendance": "يستخدم مكان عملك الحضور في الموقع",
+  "While you are clocked in, OENOD shares your location with your managers so they know you are on site. Never on breaks and never after you clock out.": "أثناء تسجيل حضورك، يشارك OENOD موقعك مع مديريك ليعرفوا أنك في الموقع. لا يحدث ذلك أثناء الاستراحات ولا بعد تسجيل الانصراف.",
+  "Location history is deleted after {n} days.": "يُحذف سجل المواقع بعد {n} يومًا.",
+  "I have read this and I agree to share my location while I am clocked in.": "قرأت هذا وأوافق على مشاركة موقعي أثناء تسجيل حضوري.",
+  "Agree and clock in": "موافقة وتسجيل الحضور",
+  "Not now": "ليس الآن",
+  "Site attendance": "الحضور في الموقع",
+  "Turn on location for OENOD in your phone settings (precise location), then try again.": "فعّل الموقع الدقيق لتطبيق OENOD في إعدادات الهاتف، ثم حاول مرة أخرى.",
+  "You are outside {s}. Time may not count unless your manager approves it.": "أنت خارج {s}. قد لا يُحتسب هذا الوقت ما لم يوافق عليه مديرك.",
+  "Location is off. Turn it back on so your time counts at {s}.": "الموقع متوقف. أعد تشغيله ليُحتسب وقتك في {s}.",
+  "OENOD cannot confirm you are at {s}. Open the app with location on.": "لا يستطيع OENOD التأكد من وجودك في {s}. افتح التطبيق مع تشغيل الموقع.",
+  "On site at {s}. Location is shared until you clock out or start a break.": "في الموقع: {s}. تتم مشاركة الموقع حتى تسجّل الانصراف أو تبدأ استراحة.",
+});
 const DICTS: Record<Lang, Dict> = { en: {}, fr, ar, es };
 
 let current: Lang = 'en';

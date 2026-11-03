@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, Platform, Pressable, Text, View } from 'react-native';
 import { router } from 'expo-router';
-import * as Location from 'expo-location';
 import * as Haptics from 'expo-haptics';
 import { useAuth } from '../../lib/auth';
 import { get, post } from '../../lib/api';
@@ -11,6 +10,7 @@ import { C, S } from '../../lib/theme';
 import { Avatar, B, Button, Card, Empty, ErrorBox, H2, ListRow, Loading, Muted, Pill, Row, Screen, Stat } from '../../ui/kit';
 import { Icon } from '../../ui/Icon';
 import { t } from '../../lib/i18n';
+import { currentFix, syncTracking, waitForConsent, type GeoMe } from '../../lib/geo';
 
 type Clock = {
   employee: { id: number; name: string; job_title: string | null; location_id: number | null } | null;
@@ -19,18 +19,6 @@ type Clock = {
   today_minutes: number;
   next_shift: { starts_at: string; ends_at: string; role: string | null; location?: string | null } | null;
 };
-
-async function where(): Promise<{ lat?: number; lng?: number }> {
-  try {
-    const perm = await Location.requestForegroundPermissionsAsync();
-    if (perm.status !== 'granted') return {};
-    const pos = await Promise.race([
-      Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced }),
-      new Promise<null>((r) => setTimeout(() => r(null), 10000)),
-    ]);
-    return pos ? { lat: pos.coords.latitude, lng: pos.coords.longitude } : {};
-  } catch { return {}; }
-}
 
 function useTick(on: boolean) {
   const [, set] = useState(0);
@@ -49,17 +37,40 @@ function ClockCard({ clock, onChange }: { clock: Clock; onChange: (c: Clock) => 
   const nowUtc = new Date().toISOString().replace('T', ' ').slice(0, 19);
   const worked = open ? Math.max(0, minutesBetween(open.clock_in, nowUtc) - (open.break_minutes || 0) - (onBreak ? minutesBetween(open.break_started_at, nowUtc) : 0)) : 0;
 
-  const act = async (action: 'in' | 'out' | 'break' | 'resume') => {
+  const [geo, setGeo] = useState<GeoMe | null>(null);
+  useEffect(() => { if (open) syncTracking().then(setGeo); }, [!!open]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const say = (msg: string) => { if (Platform.OS === 'web') window.alert(msg); else Alert.alert(t('Not done'), msg); };
+  const act = async (action: 'in' | 'out' | 'break' | 'resume', retried = false): Promise<void> => {
     setBusy(action);
     try {
-      const loc = action === 'in' || action === 'out' ? await where() : {};
-      const r = await post<Clock>('/api/me/clock', { action, ...loc });
+      let body: Record<string, unknown> = { action };
+      if (action === 'in' || action === 'out') {
+        const f = await currentFix();
+        body = { ...body, ...f };
+      }
+      const r = await post<Clock>('/api/me/clock', body);
       onChange(r);
       if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+      syncTracking().then(setGeo);
     } catch (e: any) {
-      if (Platform.OS === 'web') window.alert(e.message); else Alert.alert(t('Not done'), e.message);
+      if (e?.data?.geo_consent && !retried) {
+        setBusy(null);
+        router.push('/geo-consent');
+        if (await waitForConsent()) return act(action, true);
+        return;
+      }
+      if (e?.data?.geo_need_location) say(e.message + '\n\n' + t('Turn on location for OENOD in your phone settings (precise location), then try again.'));
+      else say(e.message);
     } finally { setBusy(null); }
   };
+  const gs = geo?.session?.state;
+  const geoNote = !open || !geo?.session ? null
+    : gs === 'outside' ? t('You are outside {s}. Time may not count unless your manager approves it.', { s: geo.session.site })
+    : gs === 'off' ? t('Location is off. Turn it back on so your time counts at {s}.', { s: geo.session.site })
+    : gs === 'lost' ? t('OENOD cannot confirm you are at {s}. Open the app with location on.', { s: geo.session.site })
+    : gs === 'inside' ? t('On site at {s}. Location is shared until you clock out or start a break.', { s: geo.session.site })
+    : null;
 
   return (
     <View style={{ backgroundColor: C.navy, borderRadius: 22, padding: S.xl, gap: S.md }}>
@@ -83,6 +94,12 @@ function ClockCard({ clock, onChange }: { clock: Clock; onChange: (c: Clock) => 
           <Button title={t('Clock out')} icon="logout" kind="danger" onPress={() => act('out')} busy={busy === 'out'} style={{ flex: 1 }} />
         </Row>
       )}
+      {geoNote ? (
+        <View style={{ flexDirection: 'row', gap: 8, alignItems: 'flex-start', backgroundColor: gs === 'inside' ? 'rgba(255,255,255,0.08)' : C.warnSoft, borderRadius: 12, padding: 10 }}>
+          <Icon name="pin" size={16} color={gs === 'inside' ? '#C9D3EA' : C.warn} />
+          <Text style={{ flex: 1, color: gs === 'inside' ? '#C9D3EA' : C.ink, fontSize: 13 }}>{geoNote}</Text>
+        </View>
+      ) : null}
       {clock.next_shift ? (
         <Text style={{ color: '#C9D3EA', fontSize: 13 }}>
           {t('Next shift: {d}', { d: `${day(clock.next_shift.starts_at)}, ${time(clock.next_shift.starts_at)}–${time(clock.next_shift.ends_at)}` })}{clock.next_shift.role ? ` · ${clock.next_shift.role}` : ''}

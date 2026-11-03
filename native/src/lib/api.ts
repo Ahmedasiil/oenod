@@ -13,10 +13,12 @@ export const BASE = Platform.OS === 'web' && typeof window !== 'undefined' ? win
 export class ApiError extends Error {
   status: number;
   fields?: Record<string, string>;
-  constructor(status: number, message: string, fields?: Record<string, string>) {
+  data: any;
+  constructor(status: number, message: string, fields?: Record<string, string>, data?: any) {
     super(message);
     this.status = status;
     this.fields = fields;
+    this.data = data || {};
   }
 }
 
@@ -78,7 +80,7 @@ export async function api<T = any>(method: 'GET' | 'POST' | 'PUT' | 'DELETE', pa
   }
   if (r.status >= 400 || r.status === 0) {
     const d = r.data || {};
-    throw new ApiError(r.status, d.error || 'Something went wrong. Please try again.', d.fields);
+    throw new ApiError(r.status, d.error || 'Something went wrong. Please try again.', d.fields, d);
   }
   return r.data as T;
 }
