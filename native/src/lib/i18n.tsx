@@ -690,6 +690,54 @@ Object.assign(ar, {
   "Fee": "رسوم",
   "Bank account for payouts": "حساب بنكي للتحويلات",
 });
+Object.assign(fr, {
+  "Confirming": "Confirmation en cours",
+  "The most you can send in one transfer is {a}.": "Le maximum par virement est {a}.",
+  "We are confirming this transfer": "Nous confirmons ce virement",
+  "Stripe is taking a moment to answer. Do not send it again: it will update here by itself.": "Stripe met un moment à répondre. Ne le renvoyez pas : il se mettra à jour ici tout seul.",
+  "Only the company owner can move money from this wallet.": "Seul le propriétaire peut déplacer l’argent de ce portefeuille.",
+  "For safety, new wallets can transfer to the bank from {d}.": "Par sécurité, les nouveaux portefeuilles peuvent virer à la banque à partir du {d}.",
+  "Open bank and statements": "Ouvrir la banque et les relevés",
+  "Change automatic transfers": "Modifier les virements automatiques",
+  "Let admins transfer money": "Permettre aux administrateurs de virer",
+  "Stop admins from transferring money": "Empêcher les administrateurs de virer",
+  "Confirm": "Confirmer",
+  "Admins can transfer": "Les administrateurs peuvent virer",
+  "Limits: {a} per transfer, {b} per day.": "Limites : {a} par virement, {b} par jour.",
+  "Your password is not right.": "Votre mot de passe n’est pas correct.",
+});
+Object.assign(es, {
+  "Confirming": "Confirmando",
+  "The most you can send in one transfer is {a}.": "Lo máximo por transferencia es {a}.",
+  "We are confirming this transfer": "Estamos confirmando esta transferencia",
+  "Stripe is taking a moment to answer. Do not send it again: it will update here by itself.": "Stripe tarda un momento en responder. No la envíes de nuevo: se actualizará aquí sola.",
+  "Only the company owner can move money from this wallet.": "Solo el propietario puede mover dinero de esta billetera.",
+  "For safety, new wallets can transfer to the bank from {d}.": "Por seguridad, las billeteras nuevas pueden transferir al banco desde el {d}.",
+  "Open bank and statements": "Abrir banco y estados de cuenta",
+  "Change automatic transfers": "Cambiar transferencias automáticas",
+  "Let admins transfer money": "Permitir que los administradores transfieran",
+  "Stop admins from transferring money": "Impedir que los administradores transfieran",
+  "Confirm": "Confirmar",
+  "Admins can transfer": "Los administradores pueden transferir",
+  "Limits: {a} per transfer, {b} per day.": "Límites: {a} por transferencia, {b} por día.",
+  "Your password is not right.": "Tu contraseña no es correcta.",
+});
+Object.assign(ar, {
+  "Confirming": "جارٍ التأكيد",
+  "The most you can send in one transfer is {a}.": "الحد الأقصى للتحويل الواحد هو {a}.",
+  "We are confirming this transfer": "نؤكد هذا التحويل",
+  "Stripe is taking a moment to answer. Do not send it again: it will update here by itself.": "يستغرق Stripe لحظة للرد. لا ترسله مرة أخرى: سيتحدث هنا تلقائيًا.",
+  "Only the company owner can move money from this wallet.": "فقط مالك الشركة يمكنه تحويل المال من هذه المحفظة.",
+  "For safety, new wallets can transfer to the bank from {d}.": "للأمان، يمكن للمحافظ الجديدة التحويل إلى البنك اعتبارًا من {d}.",
+  "Open bank and statements": "فتح البنك والكشوفات",
+  "Change automatic transfers": "تغيير التحويلات التلقائية",
+  "Let admins transfer money": "السماح للمسؤولين بالتحويل",
+  "Stop admins from transferring money": "منع المسؤولين من التحويل",
+  "Confirm": "تأكيد",
+  "Admins can transfer": "يمكن للمسؤولين التحويل",
+  "Limits: {a} per transfer, {b} per day.": "الحدود: {a} لكل تحويل، {b} يوميًا.",
+  "Your password is not right.": "كلمة المرور غير صحيحة.",
+});
 const DICTS: Record<Lang, Dict> = { en: {}, fr, ar, es };
 
 let current: Lang = 'en';

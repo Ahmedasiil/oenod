@@ -19,13 +19,13 @@ type W = {
   activity: { id: string; type: string; description: string; amount: number; fee: number; net: number; status: string; created: string; available_on: string | null }[];
   payouts: { id: number; amount: number; status: string; arrival: string | null; failure: string | null; created_at: string; automatic: number }[];
   received: { amount: number; payer_name: string | null; note: string | null; paid_at: string }[];
-  security: { twofa: boolean; min_payout: number; max_payout: number | null };
+  security: { twofa: boolean; min_payout: number; max_payout: number | null; day_cap?: number | null; hold_until?: string | null; can_manage?: boolean; is_owner?: boolean; admin_payouts?: boolean };
   error: string | null;
 };
 const say = (title: string, msg: string) => (Platform.OS === 'web' ? window.alert(msg) : Alert.alert(title, msg));
 const rid = () => 'app-' + Date.now().toString(36) + '-' + Array.from({ length: 16 }, () => Math.floor(Math.random() * 36).toString(36)).join('');
 const PAYOUT_STATUS: Record<string, [string, 'good' | 'warn' | 'bad' | 'info' | 'plain']> = {
-  requested: ['Requested', 'info'], pending: ['On the way', 'info'], in_transit: ['On the way', 'info'], paid: ['In your bank', 'good'], failed: ['Failed', 'bad'], canceled: ['Canceled', 'plain'],
+  requested: ['Requested', 'info'], checking: ['Confirming', 'warn'], pending: ['On the way', 'info'], in_transit: ['On the way', 'info'], paid: ['In your bank', 'good'], failed: ['Failed', 'bad'], canceled: ['Canceled', 'plain'],
 };
 
 function Chip({ on, label, onPress }: { on: boolean; label: string; onPress: () => void }) {
@@ -47,34 +47,54 @@ function WalletView({ base }: { base: '/api/me/wallet' | '/api/wallet' }) {
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
   const [showQR, setShowQR] = useState(false);
+  // Bank page, automatic transfers and admin rights need the password again (and the 2FA code when it is on).
+  const [confirm, setConfirm] = useState<null | { type: 'bank' } | { type: 'schedule'; v: string } | { type: 'admin'; v: boolean }>(null);
   const x = d.data;
 
   // Stripe pages open in a secure browser tab; when it closes we ask Stripe for the latest state.
-  const openStripe = useCallback(async (path: string, key: string) => {
+  const openStripe = useCallback(async (path: string, key: string, body: Record<string, unknown> = {}) => {
     setBusy(key);
     try {
-      const r = await post<{ url: string }>(base + path);
+      const r = await post<{ url: string }>(base + path, body);
       await WebBrowser.openBrowserAsync(r.url);
       setFresh(true); d.reload();
-    } catch (e: any) { say(t('Not done'), e.message); } finally { setBusy(null); }
+    } catch (e: any) { if (body.password) throw e; say(t('Not done'), e.message); } finally { setBusy(null); }
   }, [base, d]);
 
   const setting = async (body: Record<string, unknown>) => {
-    try { await put(base + '/settings', body); d.reload(); } catch (e: any) { say(t('Not done'), e.message); }
+    try { await put(base + '/settings', body); d.reload(); return true; } catch (e: any) { if (body.password) throw e; say(t('Not done'), e.message); return false; }
+  };
+  const secret = () => ({ password, code: x?.security.twofa ? code : undefined });
+  const checkSecret = () => {
+    if (!password) { setError(t('Enter your OENOD password to confirm.')); return false; }
+    if (x?.security.twofa && !/^\d{6}$/.test(code)) { setError(t('Enter the 6-digit code from your authenticator app.')); return false; }
+    return true;
+  };
+  const runConfirm = async () => {
+    if (!confirm) return;
+    setError('');
+    if (!checkSecret()) return;
+    const c = confirm;
+    try {
+      if (c.type === 'bank') { await openStripe('/bank', 'bank', secret()); }
+      else { setBusy('confirm'); await setting(c.type === 'schedule' ? { payout_schedule: c.v, ...secret() } : { admin_payouts: c.v, ...secret() }); }
+      setConfirm(null); setPassword(''); setCode('');
+    } catch (e: any) { setError(e.message); setPassword(''); } finally { setBusy(null); }
   };
 
   const payout = async () => {
     setError('');
     const amt = Math.round(Number(amount.replace(',', '.')) * 100) / 100;
     if (!amt || amt <= 0) { setError(t('Enter an amount.')); return; }
-    if (!password) { setError(t('Enter your OENOD password to confirm.')); return; }
-    if (x?.security.twofa && !/^\d{6}$/.test(code)) { setError(t('Enter the 6-digit code from your authenticator app.')); return; }
+    if (x?.security.max_payout && amt > x.security.max_payout) { setError(t('The most you can send in one transfer is {a}.', { a: money(x.security.max_payout, 2) })); return; }
+    if (!checkSecret()) return;
     setBusy('payout');
     try {
-      await post(base + '/payout', { amount: amt, password, code: x?.security.twofa ? code : undefined, request_id: rid() });
+      const r = await post<{ confirming?: boolean }>(base + '/payout', { amount: amt, ...secret(), request_id: rid() });
       if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
       setSending(false); setAmount(''); setPassword(''); setCode('');
-      say(t('Transfer started'), t('{a} is on its way to your bank. It usually arrives in 1 to 3 business days.', { a: money(amt, 2) }));
+      if (r?.confirming) say(t('We are confirming this transfer'), t('Stripe is taking a moment to answer. Do not send it again: it will update here by itself.'));
+      else say(t('Transfer started'), t('{a} is on its way to your bank. It usually arrives in 1 to 3 business days.', { a: money(amt, 2) }));
       d.reload();
     } catch (e: any) { setError(e.message); setPassword(''); } finally { setBusy(null); }
   };
@@ -84,7 +104,9 @@ function WalletView({ base }: { base: '/api/me/wallet' | '/api/wallet' }) {
   const w = x.wallet;
   const cur = (n: number) => money(n, 2);
   const avail = x.balance?.available ?? 0;
-  const canSend = w.can_payout && avail >= x.security.min_payout && w.status !== 'frozen';
+  const manage = x.security.can_manage !== false;
+  const onHold = !!x.security.hold_until && new Date(x.security.hold_until.replace(' ', 'T') + 'Z').getTime() > Date.now();
+  const canSend = manage && !onHold && w.can_payout && avail >= x.security.min_payout && w.status !== 'frozen';
 
   return (
     <>
@@ -126,20 +148,32 @@ function WalletView({ base }: { base: '/api/me/wallet' | '/api/wallet' }) {
             <Pressable onPress={() => setAmount(String(avail))} style={{ alignSelf: 'flex-start' }}><Text style={{ color: C.blue, fontWeight: '700' }}>{t('Use full balance')}</Text></Pressable>
             <Field label={t('Your OENOD password')} value={password} onChangeText={setPassword} secureTextEntry autoComplete="password" textContentType="password" />
             {x.security.twofa ? <Field label={t('6-digit code')} value={code} onChangeText={setCode} keyboardType="number-pad" maxLength={6} textContentType="oneTimeCode" /> : null}
-            <Muted>{t('For your safety we ask for your password on every transfer.')}</Muted>
+            <Muted>{t('For your safety we ask for your password on every transfer.')}{x.security.max_payout ? ' ' + t('Limits: {a} per transfer, {b} per day.', { a: cur(x.security.max_payout), b: cur(x.security.day_cap || x.security.max_payout) }) : ''}</Muted>
             {error ? <Text style={{ color: C.bad, fontWeight: '600' }}>{error}</Text> : null}
             <Row><Button title={t('Cancel')} kind="secondary" onPress={() => { setSending(false); setError(''); }} style={{ flex: 1 }} /><Button title={t('Send to bank')} onPress={payout} busy={busy === 'payout'} style={{ flex: 1 }} /></Row>
           </Card>
         ) : (
           <View style={{ gap: S.sm }}>
             <Button title={t('Transfer to my bank')} icon="cash" onPress={() => setSending(true)} disabled={!canSend} />
-            {!canSend && w.can_payout ? <Muted style={{ textAlign: 'center' }}>{t('You can transfer once you have at least {a}.', { a: cur(x.security.min_payout) })}</Muted> : null}
+            {!manage ? <Muted style={{ textAlign: 'center' }}>{t('Only the company owner can move money from this wallet.')}</Muted>
+              : onHold ? <Muted style={{ textAlign: 'center' }}>{t('For safety, new wallets can transfer to the bank from {d}.', { d: day(x.security.hold_until!) })}</Muted>
+              : !canSend && w.can_payout ? <Muted style={{ textAlign: 'center' }}>{t('You can transfer once you have at least {a}.', { a: cur(x.security.min_payout) })}</Muted> : null}
             <Row>
               {w.can_receive && w.accept_payments ? <Button title={t('Get paid')} icon="qr" kind="secondary" onPress={() => setShowQR(!showQR)} style={{ flex: 1 }} /> : null}
-              <Button title={t('Bank and statements')} icon="globe" kind="secondary" onPress={() => openStripe('/bank', 'bank')} busy={busy === 'bank'} style={{ flex: 1 }} />
+              {manage ? <Button title={t('Bank and statements')} icon="globe" kind="secondary" onPress={() => { setError(''); setConfirm({ type: 'bank' }); }} busy={busy === 'bank'} style={{ flex: 1 }} /> : null}
             </Row>
           </View>
         )
+      ) : null}
+
+      {confirm ? (
+        <Card style={{ gap: S.md, borderColor: C.blue }}>
+          <B>{confirm.type === 'bank' ? t('Open bank and statements') : confirm.type === 'schedule' ? t('Change automatic transfers') : t(confirm.v ? 'Let admins transfer money' : 'Stop admins from transferring money')}</B>
+          <Field label={t('Your OENOD password')} value={password} onChangeText={setPassword} secureTextEntry autoComplete="password" textContentType="password" autoFocus />
+          {x.security.twofa ? <Field label={t('6-digit code')} value={code} onChangeText={setCode} keyboardType="number-pad" maxLength={6} textContentType="oneTimeCode" /> : null}
+          {error ? <Text style={{ color: C.bad, fontWeight: '600' }}>{error}</Text> : null}
+          <Row><Button title={t('Cancel')} kind="secondary" onPress={() => { setConfirm(null); setError(''); setPassword(''); }} style={{ flex: 1 }} /><Button title={t('Confirm')} onPress={runConfirm} busy={busy === 'bank' || busy === 'confirm'} style={{ flex: 1 }} /></Row>
+        </Card>
       ) : null}
 
       {showQR ? (
@@ -151,12 +185,17 @@ function WalletView({ base }: { base: '/api/me/wallet' | '/api/wallet' }) {
         </Card>
       ) : null}
 
-      {w.activated ? (
+      {w.activated && manage ? (
         <>
           <H2>{t('Automatic transfers')}</H2>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-            {(['manual', 'daily', 'weekly', 'monthly'] as const).map((s) => <Chip key={s} on={w.payout_schedule === s} label={t(s === 'manual' ? 'Only when I ask' : s === 'daily' ? 'Every day' : s === 'weekly' ? 'Every week' : 'Every month')} onPress={() => setting({ payout_schedule: s })} />)}
+            {(['manual', 'daily', 'weekly', 'monthly'] as const).map((s) => <Chip key={s} on={w.payout_schedule === s} label={t(s === 'manual' ? 'Only when I ask' : s === 'daily' ? 'Every day' : s === 'weekly' ? 'Every week' : 'Every month')} onPress={() => { if (!manage || w.payout_schedule === s) return; setError(''); setConfirm({ type: 'schedule', v: s }); }} />)}
           </View>
+          {w.kind === 'company' && x.security.is_owner ? (
+            <Card onPress={() => { setError(''); setConfirm({ type: 'admin', v: !x.security.admin_payouts }); }}>
+              <Row><Icon name={x.security.admin_payouts ? 'check' : 'x'} color={x.security.admin_payouts ? C.good : C.faint} /><View style={{ flex: 1 }}><B>{t('Admins can transfer')}</B><Muted>{t(x.security.admin_payouts ? 'On. Tap to turn off.' : 'Off. Tap to turn on.')}</Muted></View></Row>
+            </Card>
+          ) : null}
           <Card onPress={() => setting({ accept_payments: !w.accept_payments })}>
             <Row><Icon name={w.accept_payments ? 'check' : 'x'} color={w.accept_payments ? C.good : C.faint} /><View style={{ flex: 1 }}><B>{t('Accept payments with my link')}</B><Muted>{t(w.accept_payments ? 'On. Tap to turn off.' : 'Off. Tap to turn on.')}</Muted></View></Row>
           </Card>
