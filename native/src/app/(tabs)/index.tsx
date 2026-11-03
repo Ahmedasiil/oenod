@@ -159,6 +159,9 @@ export default function Home() {
       {hasEmployee ? (
         c.data ? <ClockCard clock={c.data} onChange={(x) => c.setData(x)} /> : c.error ? <ErrorBox text={c.error} onRetry={c.reload} /> : <Loading />
       ) : null}
+      <Card onPress={() => router.push('/wallet')}>
+        <Row><Icon name="cash" color={C.blue} /><View style={{ flex: 1 }}><B>{t('Wallet')}</B><Muted>{t('Get paid and transfer money to your bank')}</Muted></View><Icon name="chevron" color={C.faint} size={18} /></Row>
+      </Card>
       {hasEmployee && c.data ? (
         <Card onPress={() => router.push('/timesheet')}>
           <Row><Icon name="clock" color={C.blue} /><B style={{ flex: 1 }}>{t('My hours and timesheet')}</B><Icon name="chevron" color={C.faint} size={18} /></Row>

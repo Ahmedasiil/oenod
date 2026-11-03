@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Alert, Platform, Share, Text, View } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
+import { router } from 'expo-router';
 import Constants from 'expo-constants';
 import { useAuth } from '../../lib/auth';
 import { BASE, get } from '../../lib/api';
@@ -74,6 +75,8 @@ export default function Me() {
 
       <H2>{t('More')}</H2>
       <Card style={{ paddingVertical: S.xs }}>
+        <ListRow title={t('Wallet')} sub={t('Get paid and transfer money to your bank')} left={<Icon name="cash" color={C.blue} />} onPress={() => router.push('/wallet')} />
+        <Divider />
         <ListRow title={t('Open the full OENOD website')} sub={t('Payroll, POS, invoices, reports and everything else')} left={<Icon name="globe" color={C.blue} />} onPress={() => open('/#/')} />
         <Divider />
         <ListRow title={t('Edit my card and resume')} left={<Icon name="user" color={C.blue} />} onPress={() => open('/#/profile')} />
