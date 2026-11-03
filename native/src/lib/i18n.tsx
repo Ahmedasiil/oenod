@@ -849,6 +849,9 @@ Object.assign(ar, {
   "Turn on {m}": "تفعيل {m}",
   "You will need to sign in again.": "ستحتاج إلى تسجيل الدخول مرة أخرى.",
 });
+Object.assign(fr, { "Check your email for a link to set your password, then come back here.": "Vérifiez vos courriels : un lien vous permet de choisir votre mot de passe. Revenez ensuite ici.", "No password? Email me a link to set one": "Pas de mot de passe ? Recevoir un lien par courriel" });
+Object.assign(es, { "Check your email for a link to set your password, then come back here.": "Revisa tu correo: te enviamos un enlace para crear tu contraseña. Luego vuelve aquí.", "No password? Email me a link to set one": "¿No tienes contraseña? Envíame un enlace por correo" });
+Object.assign(ar, { "Check your email for a link to set your password, then come back here.": "تحقق من بريدك الإلكتروني: أرسلنا رابطًا لتعيين كلمة المرور، ثم عد إلى هنا.", "No password? Email me a link to set one": "لا توجد كلمة مرور؟ أرسل لي رابطًا لتعيينها" });
 const DICTS: Record<Lang, Dict> = { en: {}, fr, ar, es };
 
 let current: Lang = 'en';

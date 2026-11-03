@@ -80,7 +80,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })();
   }, [apply, refreshQuick]);
 
-  const offerQuick = useCallback(async () => {
+  const offerQuick = useCallback(async (role?: string) => {
+    if (role === 'superadmin') return; // HQ accounts use passkeys only
     const name = await quickName();
     if (!name || (await quickOn())) return;
     const yes = () => quickEnroll().then(refreshQuick).catch((e) => Alert.alert(name, e?.message || t('Could not turn it on. Try again from the Me tab.')));
@@ -97,7 +98,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Phones with Face ID / fingerprint use a device key instead of keeping the password.
     if (!(await quickName())) await saveCred({ email: email.trim(), password });
     apply(r);
-    offerQuick();
+    offerQuick(r?.user?.role);
   }, [apply, offerQuick]);
 
   const signInQuick = useCallback(async () => {
@@ -128,7 +129,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setPending2fa(false);
     setPendingCred(null);
     apply(r);
-    if (strong) offerQuick();
+    if (strong) offerQuick(r?.user?.role);
   }, [apply, pendingCred, offerQuick]);
 
   const signOut = useCallback(async () => {

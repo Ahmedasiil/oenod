@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Text, View } from 'react-native';
 import { useAuth } from '../lib/auth';
 import { quickDisable, quickEnroll } from '../lib/quick';
+import { post } from '../lib/api';
 import { C, S } from '../lib/theme';
 import { t } from '../lib/i18n';
 import { B, Button, Card, Field, Muted, Pill, Row } from './kit';
@@ -14,6 +15,7 @@ export function QuickCard() {
   const [pw, setPw] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [sent, setSent] = useState(false);
   if (!quick.name || session?.user?.role === 'superadmin') return null;
   const name = quick.name;
 
@@ -42,6 +44,10 @@ export function QuickCard() {
       </Row>
       {askPw && !quick.on ? (
         <Field label={t('Confirm your password')} value={pw} onChangeText={setPw} secureTextEntry textContentType="password" autoComplete="password" onSubmitEditing={turnOn} />
+      ) : null}
+      {askPw && !quick.on ? (
+        sent ? <Muted>{t('Check your email for a link to set your password, then come back here.')}</Muted>
+          : <Button title={t('No password? Email me a link to set one')} kind="secondary" onPress={async () => { try { await post('/api/auth/forgot', { email: session?.user?.email }); setSent(true); } catch (e: any) { setError(e.message); } }} />
       ) : null}
       {error ? <Text style={{ color: C.bad }}>{error}</Text> : null}
       {quick.on
