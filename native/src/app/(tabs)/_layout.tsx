@@ -1,5 +1,6 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../lib/auth';
 import { C } from '../../lib/theme';
 import { t } from '../../lib/i18n';
@@ -10,14 +11,16 @@ const icon = (name: IconName) => ({ color }: { color: unknown }) => <Icon name={
 export default function TabsLayout() {
   const { isManager, session } = useAuth();
   const hasEmployee = !!session?.employee;
+  // Taller bar so Hindi, Punjabi, Urdu and Arabic labels are not cut off.
+  const insets = useSafeAreaInsets();
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: C.blue,
         tabBarInactiveTintColor: C.faint,
-        tabBarLabelStyle: { fontSize: 12, fontWeight: '600' },
-        tabBarStyle: { borderTopColor: C.line },
+        tabBarLabelStyle: { fontSize: 12, fontWeight: '600', lineHeight: 18 },
+        tabBarStyle: { borderTopColor: C.line, height: 64 + insets.bottom },
       }}
     >
       <Tabs.Screen name="index" options={{ title: t('Home'), tabBarIcon: icon('home') }} />

@@ -1,15 +1,24 @@
-// Languages: English, French, Arabic (right-to-left) and Spanish.
+// Languages: the same 10 as oenod.com. Arabic and Urdu read right to left.
+// The six newer languages live in src/i18n/<code>.json.
 // English text is the key; a missing translation falls back to English.
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { I18nManager, Platform } from 'react-native';
 import { getLocales } from 'expo-localization';
+import zh from '../i18n/zh.json';
+import pa from '../i18n/pa.json';
+import tl from '../i18n/tl.json';
+import hi from '../i18n/hi.json';
+import pt from '../i18n/pt.json';
+import ur from '../i18n/ur.json';
 import { secure } from './secure';
 import { useAuth } from './auth';
 import { post } from './api';
 
-export type Lang = 'en' | 'fr' | 'ar' | 'es';
+export type Lang = 'en' | 'fr' | 'es' | 'ar' | 'zh' | 'pa' | 'tl' | 'hi' | 'pt' | 'ur';
 export const LANGS: { code: Lang; name: string }[] = [
-  { code: 'en', name: 'English' }, { code: 'fr', name: 'Français' }, { code: 'ar', name: 'العربية' }, { code: 'es', name: 'Español' },
+  { code: 'en', name: 'English' }, { code: 'fr', name: 'Français' }, { code: 'es', name: 'Español' }, { code: 'ar', name: 'العربية' },
+  { code: 'zh', name: '中文（简体）' }, { code: 'pa', name: 'ਪੰਜਾਬੀ' }, { code: 'tl', name: 'Tagalog' }, { code: 'hi', name: 'हिन्दी' },
+  { code: 'pt', name: 'Português' }, { code: 'ur', name: 'اردو' },
 ];
 
 type Dict = Record<string, string>;
@@ -852,11 +861,11 @@ Object.assign(ar, {
 Object.assign(fr, { "Check your email for a link to set your password, then come back here.": "Vérifiez vos courriels : un lien vous permet de choisir votre mot de passe. Revenez ensuite ici.", "No password? Email me a link to set one": "Pas de mot de passe ? Recevoir un lien par courriel" });
 Object.assign(es, { "Check your email for a link to set your password, then come back here.": "Revisa tu correo: te enviamos un enlace para crear tu contraseña. Luego vuelve aquí.", "No password? Email me a link to set one": "¿No tienes contraseña? Envíame un enlace por correo" });
 Object.assign(ar, { "Check your email for a link to set your password, then come back here.": "تحقق من بريدك الإلكتروني: أرسلنا رابطًا لتعيين كلمة المرور، ثم عد إلى هنا.", "No password? Email me a link to set one": "لا توجد كلمة مرور؟ أرسل لي رابطًا لتعيينها" });
-const DICTS: Record<Lang, Dict> = { en: {}, fr, ar, es };
+const DICTS: Record<Lang, Dict> = { en: {}, fr, ar, es, zh, pa, tl, hi, pt, ur };
 
 let current: Lang = 'en';
 export const lang = () => current;
-export const locale = () => ({ en: 'en-CA', fr: 'fr-CA', ar: 'ar', es: 'es' }[current]);
+export const locale = () => ({ en: 'en-CA', fr: 'fr-CA', ar: 'ar', es: 'es', zh: 'zh-CN', pa: 'pa-IN', tl: 'fil-PH', hi: 'hi-IN', pt: 'pt-BR', ur: 'ur-PK' }[current]);
 
 /** Translate. English is the key; {name} placeholders are filled from vars. */
 export function t(s: string, vars?: Record<string, string | number>): string {
@@ -868,8 +877,9 @@ export function t(s: string, vars?: Record<string, string | number>): string {
 const KEY = 'oenod.lang';
 const detect = (): Lang => {
   try {
-    const code = getLocales()[0]?.languageCode || 'en';
-    return (['en', 'fr', 'ar', 'es'] as Lang[]).includes(code as Lang) ? (code as Lang) : 'en';
+    let code = getLocales()[0]?.languageCode || 'en';
+    if (code === 'fil') code = 'tl';
+    return code in DICTS ? (code as Lang) : 'en';
   } catch { return 'en'; }
 };
 
@@ -899,9 +909,9 @@ export function LangProvider({ children }: { children: React.ReactNode }) {
 }
 export const useLang = () => useContext(Ctx);
 
-/** Arabic reads right to left. Returns true when the app must restart to flip the layout. */
+/** Arabic and Urdu read right to left. Returns true when the app must restart to flip the layout. */
 function applyDirection(l: Lang): boolean {
-  const rtl = l === 'ar';
+  const rtl = l === 'ar' || l === 'ur';
   if (Platform.OS === 'web') {
     try { document.documentElement.dir = rtl ? 'rtl' : 'ltr'; document.documentElement.lang = l; } catch { /* ignore */ }
     return false;

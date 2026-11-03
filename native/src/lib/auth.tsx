@@ -96,7 +96,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const r = await api('POST', '/api/auth/login', { email: email.trim(), password });
     if (r?.pending_2fa) { setPendingCred({ email: email.trim(), password }); setPending2fa(true); return; }
     // Phones with Face ID / fingerprint use a device key instead of keeping the password.
-    if (!(await quickName())) await saveCred({ email: email.trim(), password });
+    if (Platform.OS !== 'web' && !(await quickName())) await saveCred({ email: email.trim(), password });
     apply(r);
     offerQuick(r?.user?.role);
   }, [apply, offerQuick]);
@@ -124,7 +124,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const verify2fa = useCallback(async (code: string) => {
     const r = await api('POST', '/api/auth/2fa', { code: code.replace(/\s/g, '') });
-    if (pendingCred && !(await quickName())) await saveCred(pendingCred);
+    if (pendingCred && Platform.OS !== 'web' && !(await quickName())) await saveCred(pendingCred);
     const strong = !!pendingCred; // a Google/Apple/Microsoft sign-in can't add Face ID without the password
     setPending2fa(false);
     setPendingCred(null);
