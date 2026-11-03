@@ -1,0 +1,80 @@
+name: Build OENOD native app
+on:
+  push:
+    branches: [apps-build]
+    paths: ['native/**', '.github/workflows/build-native.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 21 }
+      - name: Install and typecheck
+        working-directory: native
+        run: |
+          npm ci
+          npx tsc --noEmit
+      - name: Generate Android project
+        working-directory: native
+        run: npx expo prebuild --platform android --no-install
+      - name: Build release AAB and APK
+        working-directory: native/android
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon bundleRelease assembleRelease
+      - name: Collect
+        run: |
+          mkdir -p out
+          cp native/android/app/build/outputs/bundle/release/*.aab out/OENOD-native-unsigned.aab
+          cp native/android/app/build/outputs/apk/release/*.apk out/OENOD-native-unsigned.apk
+          ls -la out
+      - uses: actions/upload-artifact@v4
+        with: { name: native-android, path: out/ }
+
+  ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Install
+        working-directory: native
+        run: npm ci
+      - name: Generate iOS project and pods
+        working-directory: native
+        run: npx expo prebuild --platform ios
+      - name: Compile check (no signing)
+        working-directory: native/ios
+        run: |
+          WS=$(ls -d *.xcworkspace | head -1)
+          SCHEME=$(basename "$WS" .xcworkspace)
+          set -o pipefail
+          xcodebuild -workspace "$WS" -scheme "$SCHEME" -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO build | tail -40
+      - name: Package source for Xcode
+        run: |
+          cd native && rm -rf ios/build ios/Pods android && cd ..
+          zip -qry OENOD-native-iOS-project.zip native -x 'native/node_modules/*'
+      - uses: actions/upload-artifact@v4
+        with: { name: native-ios, path: OENOD-native-iOS-project.zip }
+
+  release:
+    needs: [android, ios]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with: { path: files, merge-multiple: true }
+      - run: ls -la files
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: native-3.1.0-${{ github.run_number }}
+          name: OENOD native app 3.1.0 (build ${{ github.run_number }})
+          draft: true
+          target_commitish: ${{ github.sha }}
+          files: files/*

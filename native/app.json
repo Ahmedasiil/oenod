@@ -1,0 +1,88 @@
+{
+  "expo": {
+    "name": "OENOD",
+    "slug": "oenod",
+    "version": "3.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.oenod.app",
+      "buildNumber": "310",
+      "associatedDomains": [
+        "applinks:oenod.com",
+        "webcredentials:oenod.com"
+      ],
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "OENOD checks your location once when you clock in, only if your workplace uses a geofence.",
+        "NSCameraUsageDescription": "OENOD uses the camera to scan QR badges.",
+        "NSFaceIDUsageDescription": "OENOD uses Face ID to unlock the app quickly.",
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "com.oenod.app",
+      "versionCode": 310,
+      "adaptiveIcon": {
+        "backgroundColor": "#000000",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "CAMERA",
+        "USE_BIOMETRIC"
+      ],
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "output": "single"
+    },
+    "plugins": [
+      "expo-secure-store",
+      "expo-web-browser",
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 160,
+          "resizeMode": "contain",
+          "backgroundColor": "#000000"
+        }
+      ],
+      "expo-router",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "OENOD checks your location once when you clock in, only if your workplace uses a geofence."
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "OENOD uses the camera to scan QR badges."
+        }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "OENOD uses Face ID to unlock the app quickly."
+        }
+      ],
+      "expo-localization"
+    ],
+    "scheme": "oenod",
+    "backgroundColor": "#0B1B3F",
+    "extra": {
+      "apiUrl": "https://oenod.com"
+    },
+    "experiments": {
+      "typedRoutes": false
+    }
+  }
+}

@@ -2,6 +2,7 @@ name: Build OENOD apps
 on:
   push:
     branches: [apps-build]
+    paths-ignore: ['native/**', '.github/workflows/build-native.yml']
   workflow_dispatch:
 permissions:
   contents: write

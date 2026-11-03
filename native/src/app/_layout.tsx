@@ -1,0 +1,48 @@
+import React from 'react';
+import { Stack } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import { ActivityIndicator, Text, View } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { AuthProvider, useAuth } from '../lib/auth';
+import { C } from '../lib/theme';
+import { LangProvider, t } from '../lib/i18n';
+
+function Gate() {
+  const { ready, session } = useAuth();
+  if (!ready) {
+    return (
+      <View style={{ flex: 1, backgroundColor: '#000', alignItems: 'center', justifyContent: 'center', gap: 20 }}>
+        <Text style={{ color: C.white, fontSize: 28, fontWeight: '800', letterSpacing: 6 }}>OENOD</Text>
+        <ActivityIndicator color={C.white} />
+      </View>
+    );
+  }
+  const signedIn = !!session?.user;
+  return (
+    <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: C.bg } }}>
+      <Stack.Protected guard={signedIn}>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="employee/[id]" options={{ headerShown: true, title: t('Team member'), headerTintColor: C.white, headerStyle: { backgroundColor: C.navy } }} />
+        <Stack.Screen name="notifications" options={{ headerShown: true, title: t('Notifications'), headerTintColor: C.white, headerStyle: { backgroundColor: C.navy } }} />
+        <Stack.Screen name="timeoff-new" options={{ presentation: 'modal', headerShown: true, title: t('Request time off'), headerTintColor: C.white, headerStyle: { backgroundColor: C.navy } }} />
+        <Stack.Screen name="timesheet" options={{ headerShown: true, title: t('My hours'), headerTintColor: C.white, headerStyle: { backgroundColor: C.navy } }} />
+      </Stack.Protected>
+      <Stack.Protected guard={!signedIn}>
+        <Stack.Screen name="login" />
+      </Stack.Protected>
+    </Stack>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <SafeAreaProvider>
+      <AuthProvider>
+      <LangProvider>
+        <StatusBar style="light" />
+        <Gate />
+      </LangProvider>
+      </AuthProvider>
+    </SafeAreaProvider>
+  );
+}
