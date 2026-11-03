@@ -1,8 +1,10 @@
 name: Send iPhone app to App Store Connect
-# Run by hand (Actions tab, "Run workflow") once the four Apple secrets are saved in this repository:
+# Runs when the apps-build branch is pushed to the ios-store branch, once the four Apple secrets are saved in this repository:
 # APPLE_KEY_ID, APPLE_ISSUER_ID, APPLE_TEAM_ID and APPLE_KEY_P8 (the whole .p8 file).
 # It builds, signs (automatic signing through the App Store Connect API key) and uploads the build to App Store Connect.
 on:
+  push:
+    branches: [ios-store]
   workflow_dispatch:
 permissions:
   contents: read
