@@ -56,11 +56,14 @@ export async function refreshSession(): Promise<any> {
 }
 
 let relogin: Promise<boolean> | null = null;
+let altSignIn: (() => Promise<boolean>) | null = null;
+/** Lets the Face ID module sign back in when the server session ends. */
+export const setAltSignIn = (fn: () => Promise<boolean>) => { altSignIn = fn; };
 async function silentSignIn(): Promise<boolean> {
   if (!relogin) {
     relogin = (async () => {
       const c = await loadCred();
-      if (!c) return false;
+      if (!c) { try { return altSignIn ? await altSignIn() : false; } catch { return false; } }
       await refreshSession();
       const r = await raw('POST', '/api/auth/login', c);
       return r.status === 200 && !!r.data?.user;

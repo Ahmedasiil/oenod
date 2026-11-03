@@ -1,5 +1,9 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { api, ApiError, clearCred, loadCred, post, refreshSession, saveCred, setSignedOutHandler } from './api';
+import { Alert, Platform } from 'react-native';
+import * as WebBrowser from 'expo-web-browser';
+import { api, ApiError, BASE, clearCred, loadCred, post, refreshSession, saveCred, setAltSignIn, setSignedOutHandler } from './api';
+import { quickEnroll, quickLogin, quickName, quickOn } from './quick';
+import { t } from './i18n';
 import { setLocale } from './format';
 
 export type Session = {
@@ -19,6 +23,11 @@ type Ctx = {
   verify2fa: (code: string) => Promise<void>;
   signOut: () => Promise<void>;
   reload: () => Promise<void>;
+  providers: string[];
+  signInWith: (provider: string) => Promise<void>;
+  signInQuick: () => Promise<boolean>;
+  quick: { name: string | null; on: boolean };
+  refreshQuick: () => Promise<void>;
   isManager: boolean;
 };
 
@@ -30,8 +39,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [pending2fa, setPending2fa] = useState(false);
   const [pendingCred, setPendingCred] = useState<{ email: string; password: string } | null>(null);
+  const [providers, setProviders] = useState<string[]>([]);
+  const [quick, setQuick] = useState<{ name: string | null; on: boolean }>({ name: null, on: false });
+  const refreshQuick = useCallback(async () => { setQuick({ name: await quickName(), on: await quickOn() }); }, []);
 
   const apply = useCallback((s: Session | null) => {
+    const sp = (s as any)?.signin_providers;
+    if (Array.isArray(sp)) setProviders(sp.filter((p: string) => ['google', 'apple', 'microsoft'].includes(p)));
     setSession(s && s.user ? s : null);
     if (s?.company) setLocale(s.company.timezone, s.company.currency);
   }, []);
@@ -43,9 +57,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     setSignedOutHandler(() => setSession(null));
+    setAltSignIn(async () => !!(await quickLogin())?.user);
     (async () => {
       try {
         let s: Session = await refreshSession();
+        await refreshQuick();
+        if (!s.user && (await quickOn())) {
+          try { const q = await quickLogin(); if (q?.user) s = q; } catch { /* show sign-in */ }
+        }
         if (!s.user) {
           const c = await loadCred();
           if (c) {
@@ -59,23 +78,58 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } catch { apply(null); }
       setReady(true);
     })();
-  }, [apply]);
+  }, [apply, refreshQuick]);
+
+  const offerQuick = useCallback(async () => {
+    const name = await quickName();
+    if (!name || (await quickOn())) return;
+    const yes = () => quickEnroll().then(refreshQuick).catch((e) => Alert.alert(name, e?.message || t('Could not turn it on. Try again from the Me tab.')));
+    Alert.alert(t('Sign in with {m}?', { m: name }), t('Next time, open OENOD with {m} instead of typing your password. You can turn it off on the Me tab.', { m: name }), [
+      { text: t('Not now'), style: 'cancel' },
+      { text: t('Turn on'), onPress: yes },
+    ]);
+  }, [refreshQuick]);
 
   const signIn = useCallback(async (email: string, password: string) => {
     await refreshSession();
     const r = await api('POST', '/api/auth/login', { email: email.trim(), password });
     if (r?.pending_2fa) { setPendingCred({ email: email.trim(), password }); setPending2fa(true); return; }
-    await saveCred({ email: email.trim(), password });
+    // Phones with Face ID / fingerprint use a device key instead of keeping the password.
+    if (!(await quickName())) await saveCred({ email: email.trim(), password });
     apply(r);
+    offerQuick();
+  }, [apply, offerQuick]);
+
+  const signInQuick = useCallback(async () => {
+    const r = await quickLogin();
+    if (r?.user) { apply(r); return true; }
+    await refreshQuick();
+    return false;
+  }, [apply, refreshQuick]);
+
+  const signInWith = useCallback(async (provider: string) => {
+    if (Platform.OS === 'web') { window.location.href = `${BASE}/api/auth/oauth/${provider}/start`; return; }
+    const res = await WebBrowser.openAuthSessionAsync(`${BASE}/api/auth/oauth/${provider}/start?app=1`, 'oenod://auth');
+    if (res.type !== 'success' || !res.url) return; // closed by the person
+    const q = new URL(res.url.replace(/^oenod:\/\/auth/, 'https://app.invalid/auth')).searchParams;
+    if (q.get('error')) throw new ApiError(400, q.get('error') || '');
+    const ticket = q.get('ticket');
+    if (!ticket) return;
+    await refreshSession();
+    const r = await api('POST', '/api/auth/oauth/ticket', { ticket });
+    if (r?.pending_2fa) { setPendingCred(null); setPending2fa(true); return; }
+    apply(r); // Face ID can be turned on later from the Me tab (it asks for the password)
   }, [apply]);
 
   const verify2fa = useCallback(async (code: string) => {
     const r = await api('POST', '/api/auth/2fa', { code: code.replace(/\s/g, '') });
-    if (pendingCred) await saveCred(pendingCred);
+    if (pendingCred && !(await quickName())) await saveCred(pendingCred);
+    const strong = !!pendingCred; // a Google/Apple/Microsoft sign-in can't add Face ID without the password
     setPending2fa(false);
     setPendingCred(null);
     apply(r);
-  }, [apply, pendingCred]);
+    if (strong) offerQuick();
+  }, [apply, pendingCred, offerQuick]);
 
   const signOut = useCallback(async () => {
     try { await post('/api/auth/logout'); } catch (e) { if (!(e instanceof ApiError)) throw e; }
@@ -86,9 +140,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const value = useMemo<Ctx>(() => ({
-    ready, session, pending2fa, signIn, verify2fa, signOut, reload,
+    ready, session, pending2fa, signIn, verify2fa, signOut, reload, providers, signInWith, signInQuick, quick, refreshQuick,
     isManager: MANAGER_ROLES.includes(session?.user?.role || ''),
-  }), [ready, session, pending2fa, signIn, verify2fa, signOut, reload]);
+  }), [ready, session, pending2fa, signIn, verify2fa, signOut, reload, providers, signInWith, signInQuick, quick, refreshQuick]);
 
   return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;
 }

@@ -12,6 +12,7 @@ import { Avatar, Button, Card, Divider, H2, ListRow, Muted, Pill, Row, Screen } 
 import { Icon } from '../../ui/Icon';
 import { QR } from '../../ui/QR';
 import { LANGS, t, useLang } from '../../lib/i18n';
+import { QuickCard } from '../../ui/QuickCard';
 
 export default function Me() {
   const { session, signOut } = useAuth();
@@ -31,7 +32,7 @@ export default function Me() {
   const open = (path: string) => WebBrowser.openBrowserAsync(`${BASE}/?lang=${lang}${path.replace(/^\//, '')}`);
   const confirmOut = () => {
     if (Platform.OS === 'web') { if (window.confirm(t('Sign out of OENOD on this device?'))) signOut(); return; }
-    Alert.alert(t('Sign out?'), t('You will need your email and password to sign in again.'), [{ text: t('Cancel'), style: 'cancel' }, { text: t('Sign out'), style: 'destructive', onPress: () => signOut() }]);
+    Alert.alert(t('Sign out?'), t('You will need to sign in again.'), [{ text: t('Cancel'), style: 'cancel' }, { text: t('Sign out'), style: 'destructive', onPress: () => signOut() }]);
   };
 
   return (
@@ -72,6 +73,8 @@ export default function Me() {
           <Button key={l.code} title={l.name} kind={lang === l.code ? 'primary' : 'secondary'} onPress={() => pickLang(l.code)} style={{ flexGrow: 1, flexBasis: '45%', minHeight: 48 }} />
         ))}
       </View>
+
+      <QuickCard />
 
       <H2>{t('More')}</H2>
       <Card style={{ paddingVertical: S.xs }}>

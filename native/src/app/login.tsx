@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -9,7 +9,7 @@ import { Button, Field } from '../ui/kit';
 import { t } from '../lib/i18n';
 
 export default function Login() {
-  const { signIn, verify2fa, pending2fa } = useAuth();
+  const { signIn, verify2fa, pending2fa, providers, signInWith, signInQuick, quick } = useAuth();
   const insets = useSafeAreaInsets();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -33,6 +33,21 @@ export default function Login() {
 
   const open = (path: string) => WebBrowser.openBrowserAsync(BASE + path);
 
+  const runQuick = async () => {
+    setError(''); setBusy(true);
+    try { await signInQuick(); } catch (e: any) { setError(e?.message || t('Could not sign in.')); } finally { setBusy(false); }
+  };
+  const asked = useRef(false);
+  useEffect(() => { if (quick.on && !pending2fa && !asked.current) { asked.current = true; runQuick(); } }, [quick.on]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const social = async (p: string) => {
+    setError(''); setBusy(true);
+    try { await signInWith(p); } catch (e: any) { setError(e?.message || t('Could not sign in.')); } finally { setBusy(false); }
+  };
+  const LABEL: Record<string, string> = { google: 'Google', apple: 'Apple', microsoft: 'Microsoft' };
+  // Apple's rules: when another provider is offered on iPhone, Apple comes first.
+  const shown = [...providers].sort((a, b) => (a === 'apple' ? -1 : b === 'apple' ? 1 : 0));
+
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: '#000' }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: S.xl, paddingTop: insets.top + S.xl }} keyboardShouldPersistTaps="handled">
@@ -55,6 +70,20 @@ export default function Login() {
           )}
           {error ? <Text style={{ color: C.bad, fontSize: 14, fontWeight: '600' }} accessibilityLiveRegion="polite">{error}</Text> : null}
           <Button title={t(pending2fa ? 'Verify' : 'Sign in')} onPress={go} busy={busy} />
+          {!pending2fa && quick.on ? (
+            <Button title={t('Sign in with {m}', { m: quick.name || t('Face ID') })} kind="secondary" icon="user" onPress={runQuick} disabled={busy} />
+          ) : null}
+          {!pending2fa && shown.length ? (
+            <View style={{ gap: S.sm }}>
+              <Text style={{ color: C.sub, textAlign: 'center', fontSize: 13 }}>{t('or')}</Text>
+              {shown.map((p) => (
+                <Pressable key={p} onPress={() => social(p)} disabled={busy} accessibilityRole="button"
+                  style={({ pressed }) => ({ borderWidth: 1, borderColor: p === 'apple' ? '#000' : C.line, backgroundColor: p === 'apple' ? '#000' : C.white, borderRadius: 12, paddingVertical: 13, alignItems: 'center', opacity: pressed || busy ? 0.7 : 1 })}>
+                  <Text style={{ color: p === 'apple' ? C.white : C.ink, fontWeight: '700', fontSize: 16 }}>{t('Continue with {p}', { p: LABEL[p] || p })}</Text>
+                </Pressable>
+              ))}
+            </View>
+          ) : null}
           {!pending2fa ? (
             <Pressable onPress={() => open('/#/forgot')} accessibilityRole="link" style={{ alignSelf: 'center', padding: 6 }}>
               <Text style={{ color: C.blue, fontWeight: '600' }}>{t('Forgot your password?')}</Text>
