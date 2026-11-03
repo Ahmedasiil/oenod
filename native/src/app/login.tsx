@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../lib/auth';
@@ -52,7 +52,7 @@ export default function Login() {
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: '#000' }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: S.xl, paddingTop: insets.top + S.xl }} keyboardShouldPersistTaps="handled">
         <View style={{ alignItems: 'center', marginBottom: 32 }}>
-          <Text style={{ color: C.white, fontSize: 40, fontWeight: '900', letterSpacing: 8 }} accessibilityRole="header">OENOD</Text>
+          <Image source={require('../../assets/wordmark.png')} style={{ width: 200, height: 54 }} resizeMode="contain" accessibilityRole="header" accessibilityLabel="OENOD" />
           <Text style={{ color: '#C9D3EA', fontSize: 16, marginTop: 8, textAlign: 'center' }}>{t('Run your whole business from your phone.')}</Text>
         </View>
         <View style={{ backgroundColor: C.white, borderRadius: 22, padding: S.xl, gap: S.lg }}>

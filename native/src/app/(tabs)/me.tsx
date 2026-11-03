@@ -87,6 +87,8 @@ export default function Me() {
         <ListRow title={t('Help and support')} left={<Icon name="mail" color={C.blue} />} onPress={() => open('/#/help')} />
         <Divider />
         <ListRow title={t('Privacy policy')} left={<Icon name="check" color={C.blue} />} onPress={() => open('/#/privacy')} />
+        <Divider />
+        <ListRow title={t('Delete my account')} sub={t('Permanently remove your login and personal information')} left={<Icon name="x" color={C.bad} />} onPress={() => router.push('/delete-account')} />
       </Card>
 
       <Button title={t('Sign out')} icon="logout" kind="secondary" onPress={confirmOut} />
