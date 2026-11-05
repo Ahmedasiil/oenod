@@ -82,13 +82,29 @@ jobs:
           for v in APPLE_KEY_ID APPLE_ISSUER_ID APPLE_KEY_P8; do
             if [ -z "${!v}" ]; then echo "::error::Missing repository secret $v"; exit 1; fi
           done
-      - name: Check the key format (prints yes/no only, never the values)
+      - name: Check the key with Apple (prints yes/no only, never the values)
         run: |
-          [[ "$APPLE_KEY_ID" =~ ^[A-Z0-9]{10}$ ]] && echo "Key ID looks right: yes" || echo "::error::Key ID is not 10 capital letters/numbers (length ${#APPLE_KEY_ID})"
-          [[ "$APPLE_ISSUER_ID" =~ ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$ ]] && echo "Issuer ID looks right: yes" || echo "::error::Issuer ID is not a UUID (length ${#APPLE_ISSUER_ID})"
-          printf '%s' "$APPLE_KEY_P8" | head -1 | grep -q -- '-----BEGIN PRIVATE KEY-----' && echo "P8 starts right: yes" || echo "::error::P8 does not start with -----BEGIN PRIVATE KEY-----"
-          printf '%s' "$APPLE_KEY_P8" | grep -q -- '-----END PRIVATE KEY-----' && echo "P8 ends right: yes" || echo "::error::P8 is missing the END line"
-          printf '%s\n' "$APPLE_KEY_P8" | openssl pkey -noout 2>/dev/null && echo "P8 is a valid key: yes" || echo "::error::P8 text is not a valid private key"
+          bad=0
+          [[ "$APPLE_KEY_ID" =~ ^[A-Z0-9]{10}$ ]] && echo "RESULT key-id-format: yes" || { echo "RESULT key-id-format: NO (length ${#APPLE_KEY_ID})"; bad=1; }
+          [[ "$APPLE_ISSUER_ID" =~ ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$ ]] && echo "RESULT issuer-format: yes" || { echo "RESULT issuer-format: NO (length ${#APPLE_ISSUER_ID})"; bad=1; }
+          printf '%s\n' "$APPLE_KEY_P8" | grep -q -- '-----BEGIN PRIVATE KEY-----' && echo "RESULT p8-begin: yes" || { echo "RESULT p8-begin: NO"; bad=1; }
+          printf '%s\n' "$APPLE_KEY_P8" | grep -q -- '-----END PRIVATE KEY-----' && echo "RESULT p8-end: yes" || { echo "RESULT p8-end: NO"; bad=1; }
+          printf '%s\n' "$APPLE_KEY_P8" | openssl pkey -noout 2>/dev/null && echo "RESULT p8-valid: yes" || { echo "RESULT p8-valid: NO"; bad=1; }
+          cat > /tmp/asc.rb <<'RB'
+          require 'jwt'; require 'openssl'; require 'net/http'; require 'json'
+          k = OpenSSL::PKey.read(ENV['APPLE_KEY_P8'])
+          t = JWT.encode({ iss: ENV['APPLE_ISSUER_ID'], iat: Time.now.to_i - 60, exp: Time.now.to_i + 600, aud: 'appstoreconnect-v1' }, k, 'ES256', { kid: ENV['APPLE_KEY_ID'], typ: 'JWT' })
+          u = URI('https://api.appstoreconnect.apple.com/v1/apps?filter[bundleId]=com.oenod.app')
+          r = Net::HTTP.start(u.host, 443, use_ssl: true) { |h| h.request(Net::HTTP::Get.new(u, 'Authorization' => "Bearer #{t}")) }
+          puts "RESULT apple-http: #{r.code}"
+          b = JSON.parse(r.body) rescue {}
+          (b['errors'] || []).each { |e| puts "RESULT apple-error: #{e['status']} #{e['code']} #{e['title']} #{e['detail']}" }
+          puts "RESULT app-record-found: #{(b['data'] || []).any? ? 'yes' : 'no'}" if r.code == '200'
+          exit(r.code == '200' ? 0 : 1)
+          RB
+          ruby /tmp/asc.rb || { echo "RESULT apple-check: failed (see lines above)"; bad=1; }
+          echo "RESULT summary done"
+          [ $bad = 0 ]
       - uses: actions/checkout@v4
       - name: Save the API key for this run only
         run: |
