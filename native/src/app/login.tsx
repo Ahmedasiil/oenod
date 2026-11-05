@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../lib/auth';
@@ -7,6 +7,11 @@ import { BASE } from '../lib/api';
 import { C, S } from '../lib/theme';
 import { Button, Field } from '../ui/kit';
 import { t } from '../lib/i18n';
+import { router } from 'expo-router';
+import { Backdrop, Wordmark } from '../ui/Brand';
+import { Icon } from '../ui/Icon';
+import { secure } from '../lib/secure';
+import { SEEN } from './welcome';
 
 export default function Login() {
   const { signIn, verify2fa, pending2fa, providers, signInWith, signInQuick, quick } = useAuth();
@@ -37,6 +42,11 @@ export default function Login() {
     setError(''); setBusy(true);
     try { await signInQuick(); } catch (e: any) { setError(e?.message || t('Could not sign in.')); } finally { setBusy(false); }
   };
+  // First time on this phone: show the welcome pages first.
+  useEffect(() => {
+    if (quick.on || pending2fa || router.canGoBack()) return;
+    secure.get(SEEN).then((v) => { if (!v) router.replace('/welcome'); }).catch(() => {});
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const asked = useRef(false);
   useEffect(() => { if (quick.on && !pending2fa && !asked.current) { asked.current = true; runQuick(); } }, [quick.on]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -49,14 +59,23 @@ export default function Login() {
   const shown = [...providers].sort((a, b) => (a === 'apple' ? -1 : b === 'apple' ? 1 : 0));
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: '#000C58' }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: S.xl, paddingTop: insets.top + S.xl }} keyboardShouldPersistTaps="handled">
-        <View style={{ alignItems: 'center', marginBottom: 32 }}>
-          <Image source={require('../../assets/wordmark.png')} style={{ width: 200, height: 54 }} resizeMode="contain" accessibilityRole="header" accessibilityLabel="OENOD" />
-          <Text style={{ color: '#C9D3EA', fontSize: 16, marginTop: 8, textAlign: 'center' }}>{t('Run your whole business from your phone.')}</Text>
+    <Backdrop>
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      {router.canGoBack() ? (
+        <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel={t('Back')} style={{ position: 'absolute', zIndex: 2, top: insets.top + 8, left: 12, width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.08)' }}>
+          <Icon name="back" color={C.white} />
+        </Pressable>
+      ) : null}
+      <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: S.xl, paddingTop: insets.top + 56, paddingBottom: insets.bottom + S.xl }} keyboardShouldPersistTaps="handled">
+        <View style={{ alignItems: 'center', marginBottom: 28 }}>
+          <Wordmark width={190} />
+          <Text style={{ color: C.mist, fontSize: 16, marginTop: 10, textAlign: 'center' }}>{t('Run your whole business from your phone.')}</Text>
         </View>
-        <View style={{ backgroundColor: C.white, borderRadius: 22, padding: S.xl, gap: S.lg }}>
-          <Text style={{ fontSize: 22, fontWeight: '800', color: C.ink }}>{t(pending2fa ? 'Two-step check' : 'Sign in')}</Text>
+        <View style={{ backgroundColor: C.white, borderRadius: 26, padding: S.xl, gap: S.lg, shadowColor: '#000', shadowOpacity: 0.25, shadowRadius: 30, shadowOffset: { width: 0, height: 14 }, elevation: 8 }}>
+          <View style={{ gap: 4 }}>
+            <Text style={{ fontSize: 24, fontWeight: '800', color: C.ink, letterSpacing: -0.4 }}>{t(pending2fa ? 'Two-step check' : 'Welcome back')}</Text>
+            {!pending2fa ? <Text style={{ color: C.sub, fontSize: 14 }}>{t('Owners and employees sign in here. OENOD opens the right home for you.')}</Text> : null}
+          </View>
           {pending2fa ? (
             <>
               <Text style={{ color: C.sub, fontSize: 15 }}>{t('Enter the 6-digit code from your authenticator app.')}</Text>
@@ -91,12 +110,17 @@ export default function Login() {
           ) : null}
         </View>
         <View style={{ alignItems: 'center', marginTop: S.xl, gap: 8 }}>
-          <Text style={{ color: '#C9D3EA' }}>{t('New to OENOD?')}</Text>
+          <Text style={{ color: C.mist }}>{t('New to OENOD?')}</Text>
           <Pressable onPress={() => open('/#/signup')} accessibilityRole="link" style={{ padding: 6 }}>
             <Text style={{ color: C.white, fontWeight: '700', fontSize: 16 }}>{t('Start your free trial')}</Text>
           </Pressable>
         </View>
+        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 6, marginTop: S.lg }}>
+          <Icon name="shield" size={14} color={C.mist} />
+          <Text style={{ color: C.mist, fontSize: 12 }}>{t('Your sign-in is encrypted and kept in your phone’s secure keychain.')}</Text>
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
+    </Backdrop>
   );
 }

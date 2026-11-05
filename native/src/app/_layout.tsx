@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { ActivityIndicator, AppState, Text, View } from 'react-native';
+import { AppState } from 'react-native';
+import { Splash } from '../ui/Brand';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider, useAuth } from '../lib/auth';
 import { C } from '../lib/theme';
@@ -19,14 +20,7 @@ function Gate() {
     const sub = AppState.addEventListener('change', (st) => { if (st === 'active') syncTracking(); });
     return () => sub.remove();
   }, [ready, signedIn, hasEmployee]);
-  if (!ready) {
-    return (
-      <View style={{ flex: 1, backgroundColor: '#000', alignItems: 'center', justifyContent: 'center', gap: 20 }}>
-        <Text style={{ color: C.white, fontSize: 28, fontWeight: '800', letterSpacing: 6 }}>OENOD</Text>
-        <ActivityIndicator color={C.white} />
-      </View>
-    );
-  }
+  if (!ready) return <Splash />;
   return (
     <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: C.bg } }}>
       <Stack.Protected guard={signedIn}>
@@ -44,7 +38,8 @@ function Gate() {
         <Stack.Screen name="timesheet" options={{ headerShown: true, title: t('My hours'), headerTintColor: C.white, headerStyle: { backgroundColor: C.navy } }} />
       </Stack.Protected>
       <Stack.Protected guard={!signedIn}>
-        <Stack.Screen name="login" />
+        <Stack.Screen name="welcome" options={{ contentStyle: { backgroundColor: C.navy } }} />
+        <Stack.Screen name="login" options={{ animation: 'fade_from_bottom', contentStyle: { backgroundColor: C.navy } }} />
       </Stack.Protected>
     </Stack>
   );

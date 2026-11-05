@@ -20,7 +20,7 @@ export default function TabsLayout() {
         tabBarActiveTintColor: C.blue,
         tabBarInactiveTintColor: C.faint,
         tabBarLabelStyle: { fontSize: 12, fontWeight: '600', lineHeight: 18 },
-        tabBarStyle: { borderTopColor: C.line, height: 64 + insets.bottom },
+        tabBarStyle: { borderTopColor: 'transparent', height: 66 + insets.bottom, paddingTop: 6, backgroundColor: C.white, shadowColor: '#000C58', shadowOpacity: 0.08, shadowRadius: 18, shadowOffset: { width: 0, height: -4 }, elevation: 12 },
       }}
     >
       <Tabs.Screen name="index" options={{ title: t('Home'), tabBarIcon: icon('home') }} />

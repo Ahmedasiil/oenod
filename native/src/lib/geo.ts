@@ -145,7 +145,7 @@ export async function syncTracking(): Promise<GeoMe | null> {
       foregroundService: {
         notificationTitle: t('OENOD: clocked in'),
         notificationBody: t('Location is shared with your manager until you clock out or start a break.'),
-        notificationColor: '#0B1B3F',
+        notificationColor: '#000C58',
         killServiceOnDestroy: false,
       },
     });

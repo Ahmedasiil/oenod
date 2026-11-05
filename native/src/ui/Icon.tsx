@@ -1,7 +1,7 @@
 import React from 'react';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 
-export type IconName = 'home' | 'calendar' | 'sun' | 'users' | 'user' | 'bell' | 'clock' | 'check' | 'x' | 'chevron' | 'back' | 'phone' | 'mail' | 'pin' | 'logout' | 'globe' | 'qr' | 'plus' | 'coffee' | 'cash';
+export type IconName = 'home' | 'calendar' | 'sun' | 'users' | 'user' | 'bell' | 'clock' | 'check' | 'x' | 'chevron' | 'back' | 'phone' | 'mail' | 'pin' | 'logout' | 'globe' | 'qr' | 'plus' | 'coffee' | 'cash' | 'chart' | 'briefcase' | 'shield' | 'spark' | 'arrow' | 'face' | 'news';
 
 export function Icon({ name, size = 22, color = '#0B1220', stroke = 2 }: { name: IconName; size?: number; color?: string; stroke?: number }) {
   const p = { stroke: color, strokeWidth: stroke, fill: 'none', strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
@@ -27,6 +27,13 @@ export function Icon({ name, size = 22, color = '#0B1220', stroke = 2 }: { name:
       {name === 'plus' && <Path {...p} d="M12 5v14M5 12h14" />}
       {name === 'coffee' && <><Path {...p} d="M4 9h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z" /><Path {...p} d="M17 10h1.5a2.5 2.5 0 0 1 0 5H17M8 3v3M12 3v3" /></>}
       {name === 'cash' && <><Rect {...p} x={2.5} y={6} width={19} height={12} rx={2} /><Circle {...p} cx={12} cy={12} r={2.5} /></>}
+      {name === 'chart' && <><Path {...p} d="M4 20V10M10 20V4M16 20v-7M22 20H2" /></>}
+      {name === 'briefcase' && <><Rect {...p} x={3} y={7} width={18} height={13} rx={2.5} /><Path {...p} d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18" /></>}
+      {name === 'shield' && <><Path {...p} d="M12 3 4.5 6v5.5c0 4.6 3.2 8.4 7.5 9.5 4.3-1.1 7.5-4.9 7.5-9.5V6z" /><Path {...p} d="m9 12 2 2 4-4" /></>}
+      {name === 'spark' && <Path {...p} d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M5.6 18.4l2.8-2.8M15.6 8.4l2.8-2.8" />}
+      {name === 'arrow' && <Path {...p} d="M5 12h14M13 6l6 6-6 6" />}
+      {name === 'face' && <><Path {...p} d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2" /><Path {...p} d="M9 9.5v1M15 9.5v1M12 9.5v3.5h-1M9.5 16c1.5 1.2 3.5 1.2 5 0" /></>}
+      {name === 'news' && <><Rect {...p} x={3} y={4} width={18} height={16} rx={2.5} /><Path {...p} d="M7 8h10M7 12h10M7 16h6" /></>}
     </Svg>
   );
 }
