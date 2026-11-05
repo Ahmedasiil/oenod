@@ -9,7 +9,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.oenod.app",
-      "buildNumber": "350",
+      "buildNumber": "351",
       "associatedDomains": [
         "applinks:oenod.com",
         "webcredentials:oenod.com"
