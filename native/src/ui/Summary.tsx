@@ -18,7 +18,7 @@ export const tint = (n: number) => TINTS[((n % TINTS.length) + TINTS.length) % T
 export function Mini({ label, value }: { label: string; value: string }) {
   return (
     <View style={{ flex: 1, minWidth: 0, backgroundColor: 'rgba(7,11,34,0.35)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', borderRadius: 14, padding: 12 }}>
-      <Text style={{ color: C.mist, fontSize: 12, fontWeight: '600' }} numberOfLines={1}>{label}</Text>
+      <Text style={{ color: C.mist, fontSize: 12, fontWeight: '600' }} numberOfLines={2}>{label}</Text>
       <Text style={{ color: C.white, fontSize: value.length > 11 ? 13 : value.length > 7 ? 15 : 18, fontWeight: '800', marginTop: 2 }} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{value}</Text>
     </View>
   );

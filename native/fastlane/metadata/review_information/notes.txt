@@ -1,0 +1,9 @@
+OENOD is a workforce app for businesses: time clock, schedules, time off, pay stubs, team list and a business wallet. Company accounts are created on https://oenod.com; the app is where owners and employees use them every day.
+
+Demo account: sign in with the email above. It is the owner of "OENOD Demo Cafe", a sample company with 5 staff and 2 weeks of shifts, so every screen has data. Tap "Sign in" on the first screen.
+
+Location: used only to confirm the person is at their workplace when they clock in. If the employer turns on site attendance, location is shared with managers only while clocked in, never on breaks or after clocking out. Background location is used only for that.
+Camera: used only to scan QR work badges.
+Face ID: optional quick unlock.
+Account deletion: Me tab, Delete my account (also at https://oenod.com/m/delete-account).
+There are no purchases inside the app. Companies sign up and manage their plan on oenod.com.

@@ -66,7 +66,7 @@ export default function TimeOff() {
         <>
           <Summary seed={7} label={isManager ? t('To review') : t('Days off this year')} value={String(isManager ? pending.length : usedDays)}
             badge={isManager ? (pending.length ? <Pill text={t('Needs you')} kind="warn" /> : <Pill text={t('All clear')} kind="good" />) : undefined}
-            minis={isManager ? [[t('Approved, coming up'), String(upcoming)], [t('Decided'), String(decided.length)], [t('My requests'), String(mine.length)]]
+            minis={isManager ? [[t('Coming up'), String(upcoming)], [t('Decided'), String(decided.length)], [t('My requests'), String(mine.length)]]
               : [[t('Waiting'), String(myPending)], [t('Coming up'), String(upcoming)], [t('All requests'), String(mine.length)]]} />
           {session?.employee ? <Button title={t('Request time off')} icon="plus" onPress={() => router.push('/timeoff-new')} /> : null}
           {isManager ? (

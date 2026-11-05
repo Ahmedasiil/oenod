@@ -67,3 +67,36 @@ jobs:
       - name: Remove the key
         if: always()
         run: rm -rf "$RUNNER_TEMP/keys"
+
+  # Fills in the App Store listing from native/fastlane: name, subtitle, description, keywords, links,
+  # categories, review notes and the screenshots (English + French). Runs next to the build, no binary needed.
+  listing:
+    runs-on: macos-latest
+    env:
+      APPLE_KEY_ID: ${{ secrets.APPLE_KEY_ID }}
+      APPLE_ISSUER_ID: ${{ secrets.APPLE_ISSUER_ID }}
+      APPLE_KEY_P8: ${{ secrets.APPLE_KEY_P8 }}
+    steps:
+      - name: Check the Apple secrets
+        run: |
+          for v in APPLE_KEY_ID APPLE_ISSUER_ID APPLE_KEY_P8; do
+            if [ -z "${!v}" ]; then echo "::error::Missing repository secret $v"; exit 1; fi
+          done
+      - uses: actions/checkout@v4
+      - name: Save the API key for this run only
+        run: |
+          mkdir -p "$RUNNER_TEMP/keys"
+          python3 -c 'import json,os; print(json.dumps({"key_id":os.environ["APPLE_KEY_ID"],"issuer_id":os.environ["APPLE_ISSUER_ID"],"key":os.environ["APPLE_KEY_P8"],"in_house":False}))' > "$RUNNER_TEMP/keys/api.json"
+          chmod 600 "$RUNNER_TEMP/keys/api.json"
+      - name: Upload listing and screenshots
+        working-directory: native
+        run: |
+          which fastlane || brew install fastlane
+          VERSION=$(python3 -c 'import json; print(json.load(open("app.json"))["expo"]["version"])')
+          fastlane deliver --api_key_path "$RUNNER_TEMP/keys/api.json" --app_identifier com.oenod.app --platform ios \
+            --app_version "$VERSION" --metadata_path fastlane/metadata --screenshots_path fastlane/screenshots \
+            --skip_binary_upload true --submit_for_review false --automatic_release false \
+            --overwrite_screenshots true --force true --run_precheck_before_submit false --ignore_language_directory_validation true
+      - name: Remove the key
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/keys"

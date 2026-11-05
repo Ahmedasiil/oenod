@@ -1,0 +1,1 @@
+équipe,horaire,pointage,quart,employé,personnel,paie,congé,feuille de temps,heures,entreprise

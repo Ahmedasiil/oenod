@@ -1,0 +1,1 @@
+team,schedule,time clock,shift,employee,staff,payroll,pay stub,time off,timesheet,hours,workforce

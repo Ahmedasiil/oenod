@@ -29,7 +29,7 @@ export default function PayScreen() {
         <>
           <Summary seed={13} label={t('Last pay')} value={x?.lines[0] ? money(n(x.lines[0].net) || n(x.lines[0].gross), 2) : '—'}
             badge={x?.lines[0]?.pay_date ? <Pill text={date(x.lines[0].pay_date)} kind="info" /> : undefined}
-            minis={[[t('Next pay day'), shortDay(x?.next_pay_date)], [t('Take-home pay'), x?.ytd ? money(x.ytd.net) : '—'], [t('Hours paid'), x?.ytd ? String(Math.round(n(x.ytd.hours) * 10) / 10) : '—']]}
+            minis={[[t('Next pay day'), shortDay(x?.next_pay_date)], [t('Take-home'), x?.ytd ? money(x.ytd.net) : '—'], [t('Hours paid'), x?.ytd ? String(Math.round(n(x.ytd.hours) * 10) / 10) : '—']]}
             foot={x?.frequency ? t(x.frequency === 'weekly' ? 'Weekly' : x.frequency === 'biweekly' ? 'Every two weeks' : x.frequency === 'semimonthly' ? 'Twice a month' : 'Monthly') : undefined} />
           {x?.ytd ? (
             <Card style={{ gap: 4 }}>
