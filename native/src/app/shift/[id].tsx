@@ -8,6 +8,7 @@ import { C, R, S } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import type { MySchedule } from '../../lib/types';
 import { Avatar, B, Button, Card, ErrorBox, Field, H2, ListRow, Loading, Muted, Pill, Row } from '../../ui/kit';
+import { IconTile, Summary, tint } from '../../ui/Summary';
 
 const say = (title: string, msg: string) => (Platform.OS === 'web' ? window.alert(msg) : Alert.alert(title, msg));
 
@@ -41,18 +42,12 @@ export default function ShiftDetail() {
 
   return (
     <ScrollView style={{ backgroundColor: C.bg }} contentContainerStyle={{ padding: S.lg, gap: S.md, paddingBottom: 48 }} keyboardShouldPersistTaps="handled">
-      <Card style={{ gap: 6 }}>
-        <Muted>{longDay(s.starts_at)}</Muted>
-        <Text style={{ fontSize: 28, fontWeight: '800', color: C.ink }}>{time(s.starts_at)} – {time(s.ends_at)}</Text>
-        <Muted>{[s.role, s.location, hm(s.minutes ?? minutesBetween(s.starts_at, s.ends_at) - (s.break_minutes || 0))].filter(Boolean).join(' · ')}</Muted>
-        <Row style={{ marginTop: 4, flexWrap: 'wrap' }}>
-          {s.confirm === 'confirmed' ? <Pill text={t('Confirmed')} kind="good" /> : s.confirm === 'declined' ? <Pill text={t("Can't work")} kind="bad" /> : <Pill text={t('Not confirmed yet')} kind="warn" />}
-          {s.request ? <Pill text={t(s.request.kind === 'swap' ? 'Swap requested' : 'Give-away requested')} kind="info" /> : null}
-        </Row>
-        {s.notes ? <Muted style={{ marginTop: 6 }}>{s.notes}</Muted> : null}
-      </Card>
+      <Summary seed={15} label={longDay(s.starts_at)} value={`${time(s.starts_at)} – ${time(s.ends_at)}`}
+        badge={s.confirm === 'confirmed' ? <Pill text={t('Confirmed')} kind="good" /> : s.confirm === 'declined' ? <Pill text={t("Can't work")} kind="bad" /> : <Pill text={t('Not confirmed yet')} kind="warn" />}
+        minis={[[t('Paid time'), hm(s.minutes ?? minutesBetween(s.starts_at, s.ends_at) - (s.break_minutes || 0))], [t('Role'), s.role || '—'], [t('Location'), s.location || '—']]}
+        foot={[s.request ? t(s.request.kind === 'swap' ? 'Swap requested' : 'Give-away requested') : null, s.notes].filter(Boolean).join(' · ') || undefined} />
 
-      {(s.tasks || []).length ? (<><H2>{t('Tasks for this shift')}</H2><Card>{s.tasks!.map((x, i) => <ListRow key={i} title={String(x)} />)}</Card></>) : null}
+      {(s.tasks || []).length ? (<><H2>{t('Tasks for this shift')}</H2><Card style={{ paddingVertical: S.xs }}>{s.tasks!.map((x, i) => <ListRow key={i} title={String(x)} left={<IconTile name="check" color={tint(i)} size={34} />} />)}</Card></>) : null}
 
       {(s.with || []).length ? (
         <>
@@ -83,7 +78,7 @@ export default function ShiftDetail() {
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
                 {[{ id: 0, first_name: t('Anyone (give away)'), last_name: '' }, ...(d.data?.teammates || [])].map((p) => (
                   <Pressable key={p.id} onPress={() => setTarget(p.id)} accessibilityRole="radio" accessibilityState={{ checked: target === p.id }}
-                    style={{ paddingHorizontal: 14, paddingVertical: 10, borderRadius: R.md, borderWidth: 1, borderColor: target === p.id ? C.blue : C.line, backgroundColor: target === p.id ? C.blueSoft : C.white }}>
+                    style={{ paddingHorizontal: 14, paddingVertical: 10, borderRadius: R.md, borderWidth: 1, borderColor: target === p.id ? C.blue : C.line, backgroundColor: target === p.id ? C.blueSoft : C.card2 }}>
                     <Text style={{ fontWeight: '700', color: target === p.id ? C.blue : C.ink }}>{`${p.first_name} ${p.last_name}`.trim()}</Text>
                   </Pressable>
                 ))}

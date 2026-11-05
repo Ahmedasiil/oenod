@@ -7,7 +7,8 @@ import { useAuth } from '../lib/auth';
 import { quickForgetLocal } from '../lib/quick';
 import { C, S } from '../lib/theme';
 import { t } from '../lib/i18n';
-import { B, Button, Card, ErrorBox, Field, Loading, Muted } from '../ui/kit';
+import { B, Button, Card, ErrorBox, Field, Loading, Muted, Row } from '../ui/kit';
+import { IconTile } from '../ui/Summary';
 
 type Check = { blockers: string[]; needs_code: boolean; email: string; closes_company?: string | null };
 
@@ -47,8 +48,8 @@ export default function DeleteAccount() {
     <ScrollView style={{ backgroundColor: C.bg }} contentContainerStyle={{ padding: S.lg, gap: S.md, paddingBottom: 48 }} keyboardShouldPersistTaps="handled">
       {d.loading && !d.data ? <Loading /> : d.error && !d.data ? <ErrorBox text={d.error} onRetry={d.reload} /> : d.data ? (
         <>
-          <Card style={{ gap: 8 }}>
-            <B>{t('This cannot be undone')}</B>
+          <Card style={{ gap: 8, borderColor: C.badLine, backgroundColor: C.badSoft }}>
+            <Row><IconTile name="shield" color={C.bad} /><B style={{ flex: 1 }}>{t('This cannot be undone')}</B></Row>
             <Muted>{t('We delete your login, your name and email, your phone sign-in keys, your public business card and your resumes. You are signed out everywhere.')}</Muted>
             <Muted>{t('Your employer keeps the work records the law requires, such as hours worked, pay stubs and tax slips, but they are no longer linked to a login.')}</Muted>
           </Card>

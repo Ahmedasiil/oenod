@@ -5,8 +5,10 @@ import { get } from '../../lib/api';
 import { useLoad } from '../../lib/useLoad';
 import { time } from '../../lib/format';
 import { C, R, S } from '../../lib/theme';
-import { Avatar, Card, Divider, Empty, ErrorBox, ListRow, Loading, Muted, Pill, Screen } from '../../ui/kit';
+import { Avatar, Card, Divider, Empty, ErrorBox, H2, ListRow, Loading, Muted, Pill, Screen } from '../../ui/kit';
 import { t } from '../../lib/i18n';
+import { Section, Summary } from '../../ui/Summary';
+import { Icon } from '../../ui/Icon';
 
 type Emp = { id: number; name: string; job_title: string | null; location: string | null; status: string; color: string | null; open_entry: { clock_in: string; break_started_at: string | null } | null; account_role: string | null };
 
@@ -19,12 +21,24 @@ export default function Team() {
     return s ? all.filter((e) => `${e.name} ${e.job_title || ''} ${e.location || ''}`.toLowerCase().includes(s)) : all;
   }, [d.data, q]);
   const working = list.filter((e) => e.open_entry).length;
+  const all = (d.data?.employees || []).filter((e) => e.status !== 'terminated');
+  const onBreak = all.filter((e) => e.open_entry?.break_started_at).length;
+  const onLeave = all.filter((e) => e.status === 'on_leave').length;
+  const live = all.filter((e) => e.open_entry).length;
 
   return (
     <Screen title={t('Team')} subtitle={d.data ? t('{n} people · {w} working now', { n: list.length, w: working }) : t('Your people')} refreshing={d.refreshing} onRefresh={d.refresh}>
+      {d.data ? <Summary seed={8} label={t('Team members')} value={String(all.length)}
+        badge={live ? <Pill text={t('{n} working now', { n: live })} kind="good" /> : undefined}
+        minis={[[t('Working now'), String(live - onBreak)], [t('On break'), String(onBreak)], [t('On leave'), String(onLeave)]]} /> : null}
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: C.field, borderRadius: R.md, borderWidth: 1, borderColor: C.line, paddingHorizontal: 14 }}>
+      <Icon name="users" size={18} color={C.sub} />
       <TextInput value={q} onChangeText={setQ} placeholder={t('Search by name, role or location')} placeholderTextColor={C.faint} accessibilityLabel={t('Search team')}
-        style={{ backgroundColor: C.field, borderRadius: R.md, borderWidth: 1, borderColor: C.line, paddingHorizontal: 14, minHeight: 48, fontSize: 16, color: C.ink }} />
+        style={{ flex: 1, minHeight: 48, fontSize: 16, color: C.ink }} />
+      </View>
       {d.loading && !d.data ? <Loading /> : d.error && !d.data ? <ErrorBox text={d.error} onRetry={d.reload} /> : (
+        <Section>
+        <H2>{q ? t('Results') : t('Everyone')}</H2>
         <Card style={{ paddingVertical: S.xs }}>
           {list.length ? list.map((e, i) => (
             <View key={e.id}>
@@ -39,6 +53,7 @@ export default function Team() {
             </View>
           )) : <Empty icon="users" title={t('No one found')} sub={t(q ? 'Try another search.' : 'Add team members on the website.')} />}
         </Card>
+        </Section>
       )}
       <Muted style={{ textAlign: 'center' }}>{t('Add or edit people on oenod.com. Changes show here right away.')}</Muted>
     </Screen>

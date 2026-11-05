@@ -63,7 +63,7 @@ export default function Availability() {
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
               {modes.map(([m, l]) => (
                 <Pressable key={m} onPress={() => set(wd, { mode: m })} accessibilityRole="radio" accessibilityState={{ checked: rows[wd].mode === m }}
-                  style={{ paddingHorizontal: 12, paddingVertical: 9, borderRadius: R.md, borderWidth: 1, borderColor: rows[wd].mode === m ? C.blue : C.line, backgroundColor: rows[wd].mode === m ? C.blueSoft : C.white }}>
+                  style={{ paddingHorizontal: 12, paddingVertical: 9, borderRadius: R.md, borderWidth: 1, borderColor: rows[wd].mode === m ? C.blue : C.line, backgroundColor: rows[wd].mode === m ? C.blueSoft : C.card2 }}>
                   <Text style={{ fontWeight: '700', color: rows[wd].mode === m ? C.blue : C.ink }}>{l}</Text>
                 </Pressable>
               ))}

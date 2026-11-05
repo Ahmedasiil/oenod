@@ -7,6 +7,7 @@ import { answerConsent } from '../lib/geo';
 import { C, R, S } from '../lib/theme';
 import { t } from '../lib/i18n';
 import { B, Button, Card, ErrorBox, Loading, Muted, Row } from '../ui/kit';
+import { IconTile, tint } from '../ui/Summary';
 import { Icon } from '../ui/Icon';
 
 type Policy = { version: number; text: string; retention_days: number; consented: boolean };
@@ -36,7 +37,7 @@ export default function GeoConsent() {
       {d.loading && !d.data ? <Loading /> : d.error && !d.data ? <ErrorBox text={d.error} onRetry={d.reload} /> : d.data ? (
         <>
           <Card style={{ gap: 6 }}>
-            <Row><Icon name="pin" color={C.blue} /><B style={{ flex: 1 }}>{t('Your workplace uses site attendance')}</B></Row>
+            <Row><IconTile name="pin" color={tint(0)} /><B style={{ flex: 1 }}>{t('Your workplace uses site attendance')}</B></Row>
             <Muted>{t('While you are clocked in, OENOD shares your location with your managers so they know you are on site. Never on breaks and never after you clock out.')}</Muted>
             <Muted>{t('Location history is deleted after {n} days.', { n: d.data.retention_days })}</Muted>
           </Card>

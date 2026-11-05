@@ -19,7 +19,7 @@ export function TabBar({ state, descriptors, emitter, navigateToTab, insets }: B
   }, [idx, slot, x]);
   return (
     <View style={{ position: 'absolute', left: 14, right: 14, bottom: Math.max(insets.bottom, 12), borderRadius: 26, padding: 6,
-      backgroundColor: C.dark ? 'rgba(13,19,56,0.94)' : 'rgba(255,255,255,0.96)', borderWidth: 1, borderColor: C.line,
+      backgroundColor: C.dark ? '#0D1338' : '#FFFFFF', borderWidth: 1, borderColor: C.line,
       shadowColor: '#000', shadowOpacity: C.dark ? 0.5 : 0.14, shadowRadius: 24, shadowOffset: { width: 0, height: 10 }, elevation: 14 }}>
       <View style={{ flexDirection: 'row' }} onLayout={(e) => setW(e.nativeEvent.layout.width)}>
         {slot ? (

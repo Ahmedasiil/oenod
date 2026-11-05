@@ -9,6 +9,7 @@ import { day, money, time } from '../lib/format';
 import { C, R, S } from '../lib/theme';
 import { t } from '../lib/i18n';
 import { B, Button, Card, Divider, Empty, ErrorBox, Field, H2, ListRow, Loading, Muted, Pill, Row } from '../ui/kit';
+import { IconTile, Section, Summary, tint } from '../ui/Summary';
 import { Icon } from '../ui/Icon';
 import { QR } from '../ui/QR';
 
@@ -31,7 +32,7 @@ const PAYOUT_STATUS: Record<string, [string, 'good' | 'warn' | 'bad' | 'info' | 
 function Chip({ on, label, onPress }: { on: boolean; label: string; onPress: () => void }) {
   return (
     <Pressable onPress={onPress} accessibilityRole="radio" accessibilityState={{ checked: on }}
-      style={{ paddingHorizontal: 12, paddingVertical: 8, borderRadius: R.md, borderWidth: 1, borderColor: on ? C.blue : C.line, backgroundColor: on ? C.blueSoft : C.white }}>
+      style={{ paddingHorizontal: 12, paddingVertical: 8, borderRadius: R.md, borderWidth: 1, borderColor: on ? C.blue : C.line, backgroundColor: on ? C.blueSoft : C.card2 }}>
       <Text style={{ fontWeight: '700', color: on ? C.blue : C.ink }}>{label}</Text>
     </Pressable>
   );
@@ -110,16 +111,11 @@ function WalletView({ base }: { base: '/api/me/wallet' | '/api/wallet' }) {
 
   return (
     <>
-      <View style={{ backgroundColor: C.navy, borderRadius: 22, padding: S.xl, gap: S.sm }}>
-        <Row style={{ justifyContent: 'space-between' }}>
-          <Text style={{ color: '#C9D3EA', fontWeight: '600' }}>{w.kind === 'company' ? t('Company wallet') : t('My wallet')}</Text>
-          <Pill text={t(w.status === 'active' ? 'Active' : w.status === 'frozen' ? 'On hold' : w.status === 'review' ? 'Being checked' : w.activated ? 'Setup not finished' : 'Not activated')}
-            kind={w.status === 'active' ? 'good' : w.status === 'frozen' ? 'bad' : 'warn'} />
-        </Row>
-        <Text style={{ color: C.white, fontSize: 40, fontWeight: '800', letterSpacing: -1 }} accessibilityLabel={t('Available balance')}>{cur(avail)}</Text>
-        <Text style={{ color: '#C9D3EA' }}>{t('Available')}{x.balance?.pending ? ` · ${t('{a} on the way', { a: cur(x.balance.pending) })}` : ''}</Text>
-        {w.bank ? <Text style={{ color: '#C9D3EA', fontSize: 13 }}>🏦 {w.bank}</Text> : null}
-      </View>
+      <Summary seed={12} label={w.kind === 'company' ? t('Company wallet') : t('My wallet')}
+        badge={<Pill text={t(w.status === 'active' ? 'Active' : w.status === 'frozen' ? 'On hold' : w.status === 'review' ? 'Being checked' : w.activated ? 'Setup not finished' : 'Not activated')}
+          kind={w.status === 'active' ? 'good' : w.status === 'frozen' ? 'bad' : 'warn'} />}
+        value={cur(avail)}
+        minis={[[t('Payouts'), t(w.can_payout ? 'On' : 'Off')], [t('On the way'), cur(x.balance?.pending ?? 0)], [t('Bank'), w.bank ? '•••• ' + (String(w.bank).match(/(\d{4})\D*$/)?.[1] || '') : '—']]} />
 
       {x.error ? <Card style={{ backgroundColor: C.warnSoft }}><Muted>{x.error}</Muted></Card> : null}
       {w.status === 'frozen' ? <Card style={{ backgroundColor: C.badSoft }}><B>{t('Your wallet is on hold')}</B><Muted>{w.frozen_reason || t('Contact OENOD support.')}</Muted></Card> : null}

@@ -4,9 +4,14 @@ import { router } from 'expo-router';
 import { post } from '../lib/api';
 import { todayKey } from '../lib/format';
 import { C, R, S } from '../lib/theme';
-import { Button, Field, Muted } from '../ui/kit';
+import { Button, Field, Muted, H2 } from '../ui/kit';
+import { IconTile, tint } from '../ui/Summary';
+import { Pressy } from '../ui/Motion';
+import type { IconName } from '../ui/Icon';
 import { t } from '../lib/i18n';
 
+const KIND_ICON: Record<string, IconName> = { vacation: 'sun', sick: 'shield', personal: 'user', unpaid: 'cash' };
+const KIND_TINT: Record<string, number> = { vacation: 3, sick: 5, personal: 1, unpaid: 2 };
 const KINDS: [string, string][] = [['vacation', 'Vacation'], ['sick', 'Sick day'], ['personal', 'Personal'], ['unpaid', 'Unpaid']];
 const valid = (s: string) => /^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(new Date(s + 'T12:00:00').getTime());
 
@@ -35,13 +40,14 @@ export default function NewTimeOff() {
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: C.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={{ padding: S.lg, gap: S.lg }} keyboardShouldPersistTaps="handled">
         <View style={{ gap: 6 }}>
-          <Text style={{ fontWeight: '600', color: C.ink }}>{t('Type')}</Text>
+          <H2>{t('Type')}</H2>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }} accessibilityRole="radiogroup">
             {KINDS.map(([v, l]) => (
-              <Pressable key={v} onPress={() => setKind(v)} accessibilityRole="radio" accessibilityState={{ checked: kind === v }}
-                style={{ paddingHorizontal: 16, paddingVertical: 12, borderRadius: R.md, borderWidth: 1, borderColor: kind === v ? C.blue : C.line, backgroundColor: kind === v ? C.blueSoft : C.white }}>
-                <Text style={{ fontWeight: '700', color: kind === v ? C.blue : C.ink }}>{t(l)}</Text>
-              </Pressable>
+              <View key={v} style={{ width: '47%', flexGrow: 1 }}><Pressy onPress={() => setKind(v)} accessibilityRole="radio" accessibilityState={{ checked: kind === v }} accessibilityLabel={t(l)}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, borderRadius: 18, borderWidth: 1, borderColor: kind === v ? C.blue : C.line, backgroundColor: kind === v ? C.blueSoft : C.card }}>
+                <IconTile name={KIND_ICON[v]} color={tint(KIND_TINT[v])} size={36} />
+                <Text style={{ fontWeight: '700', color: kind === v ? C.link : C.ink, flexShrink: 1 }}>{t(l)}</Text>
+              </Pressy></View>
             ))}
           </View>
         </View>

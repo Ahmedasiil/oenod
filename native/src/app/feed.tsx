@@ -30,7 +30,7 @@ const inputStyle = () => ({ backgroundColor: C.field, borderRadius: R.md, border
 function Chip({ on, label, onPress }: { on: boolean; label: string; onPress: () => void }) {
   return (
     <Pressable onPress={onPress} accessibilityRole="radio" accessibilityState={{ checked: on }}
-      style={{ paddingHorizontal: 12, paddingVertical: 8, borderRadius: R.md, borderWidth: 1, borderColor: on ? C.blue : C.line, backgroundColor: on ? C.blueSoft : C.white }}>
+      style={{ paddingHorizontal: 12, paddingVertical: 8, borderRadius: R.md, borderWidth: 1, borderColor: on ? C.blue : C.line, backgroundColor: on ? C.blueSoft : C.card2 }}>
       <Text style={{ fontWeight: '700', color: on ? C.blue : C.ink }}>{label}</Text>
     </Pressable>
   );

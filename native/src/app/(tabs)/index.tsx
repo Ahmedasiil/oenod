@@ -8,6 +8,7 @@ import { useLoad } from '../../lib/useLoad';
 import { greeting, hm, minutesBetween, money, time, day } from '../../lib/format';
 import { C, S } from '../../lib/theme';
 import { Avatar, B, Button, Card, Empty, ErrorBox, H2, ListRow, Loading, Muted, Pill, Row, Screen, Stat } from '../../ui/kit';
+import { IconTile, Mini, TINTS, tint } from '../../ui/Summary';
 import { Icon, IconName } from '../../ui/Icon';
 import { HeroCard } from '../../ui/Brand';
 import { Pressy, Rise, useCountUp } from '../../ui/Motion';
@@ -114,7 +115,6 @@ function ClockCard({ clock, onChange }: { clock: Clock; onChange: (c: Clock) => 
 const ROLE_LABEL: Record<string, string> = { owner: 'Owner', admin: 'Admin', manager: 'Manager' };
 
 type Quick = { icon: IconName; label: string; go: () => void; tint?: string };
-const TINTS = ['#7C93FF', '#A78BFA', '#34D399', '#FBBF24', '#38BDF8', '#F472B6'];
 function QuickGrid({ items }: { items: Quick[] }) {
   return (
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: S.md }}>
@@ -129,15 +129,6 @@ function QuickGrid({ items }: { items: Quick[] }) {
         </Pressy>
         </Rise>
       ))}
-    </View>
-  );
-}
-
-function Mini({ label, value }: { label: string; value: string }) {
-  return (
-    <View style={{ flex: 1, backgroundColor: 'rgba(7,11,34,0.35)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', borderRadius: 14, padding: 12 }}>
-      <Text style={{ color: C.mist, fontSize: 12, fontWeight: '600' }} numberOfLines={1}>{label}</Text>
-      <Text style={{ color: C.white, fontSize: 18, fontWeight: '800', marginTop: 2 }} numberOfLines={1}>{value}</Text>
     </View>
   );
 }
@@ -257,7 +248,7 @@ export default function Home() {
       ) : (
         <>
           <Card onPress={() => router.push('/wallet')}>
-            <Row><Icon name="cash" color={C.blue} /><View style={{ flex: 1 }}><B>{t('Wallet')}</B><Muted>{t('Get paid and transfer money to your bank')}</Muted></View><Icon name="chevron" color={C.faint} size={18} /></Row>
+            <Row><IconTile name="cash" color={tint(0)} /><View style={{ flex: 1 }}><B>{t('Wallet')}</B><Muted>{t('Get paid and transfer money to your bank')}</Muted></View><Icon name="chevron" color={C.faint} size={18} /></Row>
           </Card>
           <Card>
             <Empty icon="user" title={t('Your OENOD account')} sub={t('Your digital business card and badge are under Me. When an employer adds you to their team, your shifts and time clock show up here.')} />

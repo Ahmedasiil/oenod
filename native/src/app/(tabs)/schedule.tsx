@@ -8,13 +8,16 @@ import { dayKey, day, hm, longDay, minutesBetween, time, todayKey } from '../../
 import { C, R, S } from '../../lib/theme';
 import { t, locale } from '../../lib/i18n';
 import type { MySchedule } from '../../lib/types';
-import { Avatar, B, Button, Card, Empty, ErrorBox, H2, Loading, Muted, Pill, Row, Screen, Stat } from '../../ui/kit';
+import { Avatar, B, Button, Card, Empty, ErrorBox, H2, Loading, Muted, Pill, Row, Screen } from '../../ui/kit';
+import { DateTile, IconTile, Section, Summary, shortDay, tint } from '../../ui/Summary';
 import { Icon } from '../../ui/Icon';
 
 type Shift = { id: number; starts_at: string; ends_at: string; role: string | null; location: string | null; notes?: string | null; break_minutes?: number; first_name?: string; last_name?: string; color?: string | null; published?: number; employee_id?: number | null };
 type Req = { id: number; kind: 'swap' | 'drop' | 'claim'; name: string; target_name: string | null; starts_at: string; ends_at: string; role: string | null; note: string | null };
 
 const addDays = (ymd: string, n: number) => { const d = new Date(ymd + 'T12:00:00'); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
+const WK = { flex: 1, flexDirection: 'row' as const, alignItems: 'center' as const, justifyContent: 'center' as const, gap: 4, paddingVertical: 10, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.12)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.16)' };
+const WKT = { color: '#FFFFFF', fontWeight: '700' as const, fontSize: 13 };
 const say = (title: string, msg: string) => (Platform.OS === 'web' ? window.alert(msg) : Alert.alert(title, msg));
 
 function Segmented({ value, onChange, options }: { value: string; onChange: (v: string) => void; options: [string, string][] }) {
@@ -47,18 +50,19 @@ function Mine() {
   const toConfirm = x.shifts.filter((s) => !s.confirm).length;
   return (
     <>
-      <Row>
-        <Stat label={t('This week')} value={hm(x.week_minutes)} />
-        <Stat label={t('Upcoming shifts')} value={String(x.shifts.length)} sub={toConfirm ? t('{n} to confirm', { n: toConfirm }) : undefined} />
-      </Row>
+      <Summary seed={4} label={t('Scheduled this week')} value={hm(x.week_minutes)}
+        badge={toConfirm ? <Pill text={t('{n} to confirm', { n: toConfirm })} kind="warn" /> : <Pill text={t('All confirmed')} kind="good" />}
+        minis={[[t('Upcoming'), String(x.shifts.length)], [t('Open shifts'), String(x.open.length)], [t('Next shift'), x.shifts[0] ? shortDay(x.shifts[0].starts_at) : '—']]} />
+      <Section>
+      <H2>{t('Upcoming shifts')}</H2>
       {x.shifts.length ? x.shifts.map((s) => (
-        <Card key={s.id} onPress={() => router.push(`/shift/${s.id}`)} style={{ borderLeftWidth: 4, borderLeftColor: C.blue }}>
+        <Card key={s.id} onPress={() => router.push(`/shift/${s.id}`)}>
           <Row>
+            <DateTile iso={s.starts_at} today={dayKey(s.starts_at) === today} />
             <View style={{ flex: 1, gap: 2 }}>
-              <Row><B>{longDay(s.starts_at)}</B>{dayKey(s.starts_at) === today ? <Pill text={t('Today')} /> : null}</Row>
-              <Text style={{ fontSize: 18, fontWeight: '800', color: C.ink }}>{time(s.starts_at)} – {time(s.ends_at)}</Text>
+              <Text style={{ fontSize: 17, fontWeight: '800', color: C.ink }}>{time(s.starts_at)} – {time(s.ends_at)}</Text>
               <Muted>{[s.role, s.location].filter(Boolean).join(' · ') || t('Shift')}</Muted>
-              <Row style={{ marginTop: 4, flexWrap: 'wrap' }}>
+              <Row style={{ marginTop: 4, flexWrap: 'wrap', gap: 6 }}>
                 {s.confirm === 'confirmed' ? <Pill text={t('Confirmed')} kind="good" /> : s.confirm === 'declined' ? <Pill text={t("Can't work")} kind="bad" /> : <Pill text={t('Tap to confirm')} kind="warn" />}
                 {s.request ? <Pill text={t(s.request.kind === 'swap' ? 'Swap requested' : 'Give-away requested')} kind="info" /> : null}
               </Row>
@@ -67,13 +71,16 @@ function Mine() {
           </Row>
         </Card>
       )) : <Card><Empty icon="calendar" title={t('No shifts yet')} sub={t('When your manager publishes the schedule, your shifts show up here.')} /></Card>}
+      </Section>
 
+      <Section i={1}>
       <H2>{t('Open shifts')}</H2>
       {x.open.length ? x.open.map((o) => (
         <Card key={o.id}>
           <Row>
+            <DateTile iso={o.starts_at} />
             <View style={{ flex: 1 }}>
-              <B>{day(o.starts_at)}, {time(o.starts_at)} – {time(o.ends_at)}</B>
+              <B>{time(o.starts_at)} – {time(o.ends_at)}</B>
               <Muted>{[o.role, o.location, hm(o.minutes ?? minutesBetween(o.starts_at, o.ends_at))].filter(Boolean).join(' · ')}</Muted>
               {o.clash ? <Muted style={{ color: C.warn }}>{t('You already work at that time.')}</Muted> : null}
             </View>
@@ -81,9 +88,10 @@ function Mine() {
           </Row>
         </Card>
       )) : <Card><Muted>{t('No open shifts right now. Extra shifts your manager posts show up here.')}</Muted></Card>}
+      </Section>
 
       <Card onPress={() => router.push('/availability')}>
-        <Row><Icon name="clock" color={C.blue} /><View style={{ flex: 1 }}><B>{t('My availability')}</B><Muted>{t('Tell your manager when you can and cannot work.')}</Muted></View><Icon name="chevron" color={C.faint} size={18} /></Row>
+        <Row><IconTile name="clock" color={tint(0)} /><View style={{ flex: 1 }}><B>{t('My availability')}</B><Muted>{t('Tell your manager when you can and cannot work.')}</Muted></View><Icon name="chevron" color={C.faint} size={18} /></Row>
       </Card>
     </>
   );
@@ -137,24 +145,26 @@ function Everyone() {
   const fmt = (ymd: string) => new Date(ymd + 'T12:00:00').toLocaleDateString(locale(), { month: 'short', day: 'numeric' });
   return (
     <>
-      <Row style={{ justifyContent: 'space-between' }}>
-        <Pressable onPress={() => setFrom(addDays(from, -7))} accessibilityRole="button" accessibilityLabel={t('Previous week')} style={{ padding: 10 }}><Icon name="back" color={C.blue} /></Pressable>
-        <B>{fmt(from)} – {fmt(to)}</B>
-        <Pressable onPress={() => setFrom(addDays(from, 7))} accessibilityRole="button" accessibilityLabel={t('Next week')} style={{ padding: 10 }}><Icon name="chevron" color={C.blue} /></Pressable>
-      </Row>
+      <Summary seed={6} label={`${fmt(from)} – ${fmt(to)}`} value={hm(total)}
+        badge={(d.data?.requests || []).length ? <Pill text={d.data!.requests.length === 1 ? t('1 request') : t('{n} requests', { n: d.data!.requests.length })} kind="warn" /> : undefined}
+        minis={[[t('Shifts'), String(d.data?.shifts.length ?? 0)], [t('People'), String(new Set((d.data?.shifts || []).map((s) => s.employee_id).filter(Boolean)).size)], [t('Open shifts'), String((d.data?.shifts || []).filter((s) => !s.employee_id).length)]]}>
+        <Row style={{ gap: 8 }}>
+          <Pressable onPress={() => setFrom(addDays(from, -7))} accessibilityRole="button" accessibilityLabel={t('Previous week')} style={WK}><Icon name="back" color={C.white} size={18} /><Text style={WKT}>{t('Previous week')}</Text></Pressable>
+          <Pressable onPress={() => setFrom(addDays(from, 7))} accessibilityRole="button" accessibilityLabel={t('Next week')} style={WK}><Text style={WKT}>{t('Next week')}</Text><Icon name="chevron" color={C.white} size={18} /></Pressable>
+        </Row>
+      </Summary>
       {d.loading && !d.data ? <Loading /> : d.error && !d.data ? <ErrorBox text={d.error} onRetry={d.reload} /> : (
         <>
           <Requests list={d.data?.requests || []} onDone={d.reload} />
           {!groups.length ? <Card><Empty icon="calendar" title={t('No shifts yet')} sub={t('No shifts in this week.')} /></Card> : (
             <>
-              <Muted>{d.data!.shifts.length === 1 ? t('1 shift') : t('{n} shifts', { n: d.data!.shifts.length })} · {hm(total)}</Muted>
               {groups.map(([k, list]) => (
-                <View key={k} style={{ gap: S.sm }}>
-                  <Row><B>{longDay(list[0].starts_at)}</B>{k === today ? <Pill text={t('Today')} /> : null}</Row>
+                <Section key={k} i={0}>
+                  <H2 right={k === today ? <Pill text={t('Today')} /> : undefined}>{longDay(list[0].starts_at)}</H2>
                   {list.map((s) => (
-                    <Card key={s.id} style={{ borderLeftWidth: 4, borderLeftColor: s.color || C.blue }}>
+                    <Card key={s.id}>
                       <Row>
-                        {s.first_name ? <Avatar name={`${s.first_name} ${s.last_name}`} color={s.color} size={36} /> : null}
+                        {s.first_name ? <Avatar name={`${s.first_name} ${s.last_name}`} color={s.color} size={40} /> : <IconTile name="plus" color={tint(2)} />}
                         <View style={{ flex: 1 }}>
                           <Text style={{ fontSize: 18, fontWeight: '800', color: C.ink }}>{time(s.starts_at)} – {time(s.ends_at)}</Text>
                           <Muted>{[s.first_name ? `${s.first_name} ${s.last_name}` : t('Open shift'), s.role, s.location].filter(Boolean).join(' · ')}</Muted>
@@ -165,7 +175,7 @@ function Everyone() {
                       {!s.published ? <View style={{ marginTop: 8 }}><Pill text={t('Draft, not published')} kind="warn" /></View> : null}
                     </Card>
                   ))}
-                </View>
+                </Section>
               ))}
             </>
           )}

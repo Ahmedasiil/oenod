@@ -8,6 +8,7 @@ import { date, label } from '../../lib/format';
 import { C, S } from '../../lib/theme';
 import { Avatar, B, Button, Card, Empty, ErrorBox, H2, Loading, Muted, Pill, Row, Screen } from '../../ui/kit';
 import { t } from '../../lib/i18n';
+import { IconTile, Section, Summary, tint } from '../../ui/Summary';
 
 type Req = { id: number; employee_id: number; kind: string; starts_on: string; ends_on: string; reason: string | null; status: string; first_name: string; last_name: string; color: string | null };
 const KINDS: Record<string, string> = { vacation: 'Vacation', sick: 'Sick day', personal: 'Personal', unpaid: 'Unpaid' };
@@ -27,7 +28,7 @@ function ReqCard({ r, canDecide, mine, onDone }: { r: Req; canDecide: boolean; m
   return (
     <Card>
       <Row>
-        {!mine ? <Avatar name={`${r.first_name} ${r.last_name}`} color={r.color} size={38} /> : null}
+        {!mine ? <Avatar name={`${r.first_name} ${r.last_name}`} color={r.color} size={40} /> : <IconTile name={r.kind === 'sick' ? 'shield' : r.kind === 'vacation' ? 'sun' : r.kind === 'unpaid' ? 'cash' : 'user'} color={tint(r.kind === 'sick' ? 5 : r.kind === 'vacation' ? 3 : r.kind === 'unpaid' ? 2 : 1)} />}
         <View style={{ flex: 1 }}>
           <B>{mine ? kindName(r.kind) : `${r.first_name} ${r.last_name}`}</B>
           <Muted>{!mine ? `${kindName(r.kind)} · ` : ''}{r.starts_on === r.ends_on ? date(r.starts_on) : `${date(r.starts_on)} – ${date(r.ends_on)}`} · {n === 1 ? t('1 day') : t('{n} days', { n })}</Muted>
@@ -54,29 +55,37 @@ export default function TimeOff() {
   const team = all.filter((r) => r.employee_id !== me);
   const pending = team.filter((r) => r.status === 'pending');
   const decided = team.filter((r) => r.status !== 'pending').slice(0, 15);
+  const yr = String(new Date().getFullYear());
+  const usedDays = mine.filter((r) => r.status === 'approved' && r.starts_on.startsWith(yr)).reduce((a, r) => a + days(r.starts_on, r.ends_on), 0);
+  const myPending = mine.filter((r) => r.status === 'pending').length;
+  const upcoming = (isManager ? team : mine).filter((r) => r.status === 'approved' && r.ends_on >= new Date().toISOString().slice(0, 10)).length;
 
   return (
     <Screen title={t('Time off')} subtitle={t('Vacation, sick days and personal time')} refreshing={d.refreshing} onRefresh={d.refresh}>
-      {session?.employee ? <Button title={t('Request time off')} icon="plus" onPress={() => router.push('/timeoff-new')} /> : null}
       {d.loading && !d.data ? <Loading /> : d.error && !d.data ? <ErrorBox text={d.error} onRetry={d.reload} /> : (
         <>
+          <Summary seed={7} label={isManager ? t('To review') : t('Days off this year')} value={String(isManager ? pending.length : usedDays)}
+            badge={isManager ? (pending.length ? <Pill text={t('Needs you')} kind="warn" /> : <Pill text={t('All clear')} kind="good" />) : undefined}
+            minis={isManager ? [[t('Approved, coming up'), String(upcoming)], [t('Decided'), String(decided.length)], [t('My requests'), String(mine.length)]]
+              : [[t('Waiting'), String(myPending)], [t('Coming up'), String(upcoming)], [t('All requests'), String(mine.length)]]} />
+          {session?.employee ? <Button title={t('Request time off')} icon="plus" onPress={() => router.push('/timeoff-new')} /> : null}
           {isManager ? (
-            <>
+            <Section>
               <H2>{t('To review')}{pending.length ? ` (${pending.length})` : ''}</H2>
               {pending.length ? pending.map((r) => <ReqCard key={r.id} r={r} canDecide mine={false} onDone={d.reload} />) : <Card><Muted>{t('Nothing waiting for your approval.')}</Muted></Card>}
-            </>
+            </Section>
           ) : null}
           {session?.employee ? (
-            <>
+            <Section i={1}>
               <H2>{t('My requests')}</H2>
               {mine.length ? mine.map((r) => <ReqCard key={r.id} r={r} canDecide={false} mine onDone={d.reload} />) : <Card><Empty icon="sun" title={t('No requests yet')} sub={t('Ask for vacation, a sick day or personal time. Your manager gets notified right away.')} /></Card>}
-            </>
+            </Section>
           ) : null}
           {isManager && decided.length ? (
-            <>
+            <Section i={2}>
               <H2>{t('Recently decided')}</H2>
               {decided.map((r) => <ReqCard key={r.id} r={r} canDecide={false} mine={false} onDone={d.reload} />)}
-            </>
+            </Section>
           ) : null}
           <View style={{ height: 8 }} />
           <Muted style={{ color: C.faint, textAlign: 'center' }}>{t('Changes show on the website instantly.')}</Muted>

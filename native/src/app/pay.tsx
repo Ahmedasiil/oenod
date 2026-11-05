@@ -6,7 +6,8 @@ import { useLoad } from '../lib/useLoad';
 import { date, money } from '../lib/format';
 import { C, S } from '../lib/theme';
 import { lang, t } from '../lib/i18n';
-import { B, Card, Divider, Empty, ErrorBox, ListRow, Loading, Muted, Pill, Row, Stat } from '../ui/kit';
+import { B, Card, Divider, Empty, ErrorBox, H2, ListRow, Loading, Muted, Pill, Row } from '../ui/kit';
+import { IconTile, Section, Summary, shortDay, tint } from '../ui/Summary';
 import { Icon } from '../ui/Icon';
 
 type Line = { id: number; period_start: string; period_end: string; pay_date: string | null; status: string; regular_h: number; overtime_h: number; tips: number; gross: number; net: number; deductions: number; deposit_status: string | null; deposit_last4: string | null };
@@ -25,13 +26,13 @@ export default function PayScreen() {
     <ScrollView style={{ backgroundColor: C.bg }} contentContainerStyle={{ padding: S.lg, gap: S.md, paddingBottom: 48 }}>
       {d.loading && !x ? <Loading /> : d.error && !x ? <ErrorBox text={d.error} onRetry={d.reload} /> : (
         <>
-          <Row>
-            <Stat label={t('Last pay')} value={x?.lines[0] ? money(n(x.lines[0].net) || n(x.lines[0].gross), 2) : '—'} sub={x?.lines[0]?.pay_date ? date(x.lines[0].pay_date) : undefined} />
-            <Stat label={t('Next pay day')} value={x?.next_pay_date ? date(x.next_pay_date) : '—'} sub={x?.frequency ? t(x.frequency === 'weekly' ? 'Weekly' : x.frequency === 'biweekly' ? 'Every two weeks' : x.frequency === 'semimonthly' ? 'Twice a month' : 'Monthly') : undefined} />
-          </Row>
+          <Summary seed={13} label={t('Last pay')} value={x?.lines[0] ? money(n(x.lines[0].net) || n(x.lines[0].gross), 2) : '—'}
+            badge={x?.lines[0]?.pay_date ? <Pill text={date(x.lines[0].pay_date)} kind="info" /> : undefined}
+            minis={[[t('Next pay day'), shortDay(x?.next_pay_date)], [t('Take-home pay'), x?.ytd ? money(x.ytd.net) : '—'], [t('Hours paid'), x?.ytd ? String(Math.round(n(x.ytd.hours) * 10) / 10) : '—']]}
+            foot={x?.frequency ? t(x.frequency === 'weekly' ? 'Weekly' : x.frequency === 'biweekly' ? 'Every two weeks' : x.frequency === 'semimonthly' ? 'Twice a month' : 'Monthly') : undefined} />
           {x?.ytd ? (
             <Card style={{ gap: 4 }}>
-              <B>{t('This year')}</B>
+              <H2>{t('This year')}</H2>
               <ListRow title={t('Gross pay')} right={<B>{money(x.ytd.gross, 2)}</B>} />
               <ListRow title={t('Taxes and deductions')} right={<B>{money(x.ytd.deductions, 2)}</B>} />
               <ListRow title={t('Take-home pay')} right={<B>{money(x.ytd.net, 2)}</B>} />
@@ -41,7 +42,7 @@ export default function PayScreen() {
 
           <Card onPress={open}>
             <Row>
-              <Icon name="cash" color={C.blue} />
+              <IconTile name="cash" color={tint(0)} />
               <View style={{ flex: 1 }}>
                 <B>{t('Direct deposit')}</B>
                 <Muted>{x?.bank ? `${x.bank.institution ? x.bank.institution + ' · ' : ''}•••• ${x.bank.last4}` : t('No bank account yet. Add one so you get paid by deposit.')}</Muted>
@@ -68,7 +69,7 @@ export default function PayScreen() {
               </View>
             </Card>
           )) : <Card><Empty icon="cash" title={t('No pay stubs yet')} sub={t('After your employer runs payroll in OENOD, your pay stubs show up here.')} /></Card>}
-          <Card onPress={open}><Row><Icon name="globe" color={C.blue} /><B style={{ flex: 1 }}>{t('Full pay stubs and tax slips on the website')}</B><Icon name="chevron" color={C.faint} size={18} /></Row></Card>
+          <Card onPress={open}><Row><IconTile name="globe" color={tint(1)} /><B style={{ flex: 1 }}>{t('Full pay stubs and tax slips on the website')}</B><Icon name="chevron" color={C.faint} size={18} /></Row></Card>
         </>
       )}
     </ScrollView>

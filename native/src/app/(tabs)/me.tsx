@@ -9,6 +9,9 @@ import { useLoad } from '../../lib/useLoad';
 import { label } from '../../lib/format';
 import { C, S } from '../../lib/theme';
 import { Avatar, Button, Card, Divider, H2, ListRow, Muted, Pill, Row, Screen } from '../../ui/kit';
+import { IconTile, Mini, Section, tint } from '../../ui/Summary';
+import { HeroCard } from '../../ui/Brand';
+import { Rise } from '../../ui/Motion';
 import { Icon } from '../../ui/Icon';
 import { QR } from '../../ui/QR';
 import { LANGS, t, useLang } from '../../lib/i18n';
@@ -42,15 +45,24 @@ export default function Me() {
 
   return (
     <Screen title={t('Me')} subtitle={u?.email} refreshing={p.refreshing} onRefresh={p.refresh}>
-      <Card style={{ alignItems: 'center', gap: S.md }}>
+      <Rise><HeroCard seed={11}>
         <Row>
-          <Avatar name={u?.name || '?'} size={56} />
+          <View style={{ borderRadius: 34, padding: 3, backgroundColor: 'rgba(255,255,255,0.18)' }}><Avatar name={u?.name || '?'} size={60} /></View>
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 20, fontWeight: '800', color: C.ink }}>{u?.name}</Text>
-            <Muted>{[p.data?.employee?.job_title || p.data?.headline, session?.company?.name].filter(Boolean).join(' · ') || t('OENOD member')}</Muted>
+            <Text style={{ fontSize: 21, fontWeight: '800', color: C.white }} numberOfLines={1}>{u?.name}</Text>
+            <Text style={{ color: C.mist }} numberOfLines={2}>{[p.data?.employee?.job_title || p.data?.headline, session?.company?.name].filter(Boolean).join(' · ') || t('OENOD member')}</Text>
           </View>
-          {u?.role ? <Pill text={label(u.role)} kind="plain" /> : null}
         </Row>
+        <Row style={{ gap: 8 }}>
+          <Mini label={t('Role')} value={t(({ owner: 'Owner', admin: 'Admin', manager: 'Manager' } as Record<string, string>)[u?.role || ''] || (session?.employee ? 'Employee' : 'Member'))} />
+          <Mini label={t('Language')} value={(LANGS.find((l) => l.code === lang)?.name) || lang} />
+          <Mini label={t('Appearance')} value={look.mode === 'system' ? t('Automatic') : look.mode === 'light' ? t('Light') : t('Dark')} />
+        </Row>
+      </HeroCard></Rise>
+
+      <Section>
+      <H2>{t(session?.employee ? 'My badge and card' : 'My business card')}</H2>
+      <Card style={{ alignItems: 'center', gap: S.md }}>
         {session?.employee ? (
           <View style={{ flexDirection: 'row', gap: 8, alignSelf: 'stretch' }}>
             <Button title={t('Work badge')} kind={which === 'badge' ? 'primary' : 'secondary'} onPress={() => setWhich('badge')} style={{ flex: 1, minHeight: 44 }} />
@@ -71,7 +83,9 @@ export default function Me() {
           </Row>
         ) : null}
       </Card>
+      </Section>
 
+      <Section i={1}>
       <H2>{t('Appearance')}</H2>
       <View style={{ flexDirection: 'row', backgroundColor: C.seg, borderRadius: 16, padding: 4, gap: 4 }} accessibilityRole="radiogroup">
         {MODES.map(([m, l, ic]) => {
@@ -86,6 +100,7 @@ export default function Me() {
         })}
       </View>
       <Muted style={{ fontSize: 13 }}>{t('Automatic follows your phone’s light or dark setting.')}</Muted>
+      </Section>
 
       <H2>{t('Language')}</H2>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
@@ -98,17 +113,17 @@ export default function Me() {
 
       <H2>{t('More')}</H2>
       <Card style={{ paddingVertical: S.xs }}>
-        <ListRow title={t('Wallet')} sub={t('Get paid and transfer money to your bank')} left={<Icon name="cash" color={C.blue} />} onPress={() => router.push('/wallet')} />
+        <ListRow title={t('Wallet')} sub={t('Get paid and transfer money to your bank')} left={<IconTile name="cash" color={tint(0)} />} onPress={() => router.push('/wallet')} />
         <Divider />
-        <ListRow title={t('Open the full OENOD website')} sub={t('Payroll, POS, invoices, reports and everything else')} left={<Icon name="globe" color={C.blue} />} onPress={() => open('/#/')} />
+        <ListRow title={t('Open the full OENOD website')} sub={t('Payroll, POS, invoices, reports and everything else')} left={<IconTile name="globe" color={tint(1)} />} onPress={() => open('/#/')} />
         <Divider />
-        <ListRow title={t('Edit my card and resume')} left={<Icon name="user" color={C.blue} />} onPress={() => open('/#/profile')} />
+        <ListRow title={t('Edit my card and resume')} left={<IconTile name="user" color={tint(2)} />} onPress={() => open('/#/profile')} />
         <Divider />
-        <ListRow title={t('Help and support')} left={<Icon name="mail" color={C.blue} />} onPress={() => open('/#/help')} />
+        <ListRow title={t('Help and support')} left={<IconTile name="mail" color={tint(3)} />} onPress={() => open('/#/help')} />
         <Divider />
-        <ListRow title={t('Privacy policy')} left={<Icon name="check" color={C.blue} />} onPress={() => open('/#/privacy')} />
+        <ListRow title={t('Privacy policy')} left={<IconTile name="check" color={tint(4)} />} onPress={() => open('/#/privacy')} />
         <Divider />
-        <ListRow title={t('Delete my account')} sub={t('Permanently remove your login and personal information')} left={<Icon name="x" color={C.bad} />} onPress={() => router.push('/delete-account')} />
+        <ListRow title={t('Delete my account')} sub={t('Permanently remove your login and personal information')} left={<IconTile name="x" color={C.bad} />} onPress={() => router.push('/delete-account')} />
       </Card>
 
       <Button title={t('Sign out')} icon="logout" kind="secondary" onPress={confirmOut} />
