@@ -151,6 +151,11 @@ const fr: Dict = {
   "Off": "Désactivé",
   "1 request": "1 demande",
   "Upcoming": "À venir",
+  "See all": "Tout voir",
+  "More tools": "Plus d’outils",
+  "Hours": "Heures",
+  "Pay": "Paie",
+  "In": "Présent",
 };
 const es: Dict = {
   'Home': 'Inicio', 'Schedule': 'Horario', 'Time off': 'Ausencias', 'Team': 'Equipo', 'Me': 'Yo',
@@ -281,6 +286,11 @@ const es: Dict = {
   "Off": "Desactivado",
   "1 request": "1 solicitud",
   "Upcoming": "Próximos",
+  "See all": "Ver todo",
+  "More tools": "Más herramientas",
+  "Hours": "Horas",
+  "Pay": "Pago",
+  "In": "Dentro",
 };
 const ar: Dict = {
   'Home': 'الرئيسية', 'Schedule': 'الجدول', 'Time off': 'الإجازات', 'Team': 'الفريق', 'Me': 'حسابي',
@@ -411,6 +421,11 @@ const ar: Dict = {
   "Off": "متوقف",
   "1 request": "طلب واحد",
   "Upcoming": "القادمة",
+  "See all": "عرض الكل",
+  "More tools": "أدوات أخرى",
+  "Hours": "الساعات",
+  "Pay": "الراتب",
+  "In": "حاضر",
 };
 // 3.1 features: shift swaps, open shifts, availability, pay stubs, team news
 Object.assign(fr, {

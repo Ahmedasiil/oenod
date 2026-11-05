@@ -9,6 +9,7 @@ import { day, money, time } from '../lib/format';
 import { C, R, S } from '../lib/theme';
 import { t } from '../lib/i18n';
 import { B, Button, Card, Divider, Empty, ErrorBox, Field, H2, ListRow, Loading, Muted, Pill, Row } from '../ui/kit';
+import { PoweredBy } from '../ui/Brand';
 import { IconTile, Section, Summary, tint } from '../ui/Summary';
 import { Icon } from '../ui/Icon';
 import { QR } from '../ui/QR';
@@ -261,6 +262,7 @@ export default function WalletScreen() {
         ) : null}
         <WalletView key={`${which}-${k}`} base={which === 'company' ? '/api/wallet' : '/api/me/wallet'} />
         <Button title={t('Refresh')} kind="ghost" onPress={() => setK((x) => x + 1)} />
+        <PoweredBy />
       </ScrollView>
     </KeyboardAvoidingView>
   );

@@ -6,6 +6,7 @@ import { day, time } from '../lib/format';
 import { C, R, S } from '../lib/theme';
 import { t } from '../lib/i18n';
 import { Avatar, B, Button, Card, Empty, ErrorBox, Loading, Muted, Pill, Row } from '../ui/kit';
+import { PoweredBy } from '../ui/Brand';
 
 type Post = {
   id: number; body: string; title: string | null; kind: 'post' | 'shoutout' | 'announcement' | 'poll' | 'event'; author: string; created_at: string; pinned: number | string;
@@ -166,6 +167,7 @@ export default function FeedScreen() {
         {d.loading && !x ? <Loading /> : d.error && !x ? <ErrorBox text={d.error} onRetry={d.reload} /> :
           x?.posts.length ? x.posts.map((p) => <PostCard key={`${p.id}-${p.comments.length}-${p.poll?.total ?? 0}-${p.read.me ?? ''}-${p.rsvp?.mine ?? ''}`} p={p} badges={x.badges} onChange={d.reload} />) :
           <Card><Empty icon="users" title={t('No posts yet')} sub={t('Share the first update with your team.')} /></Card>}
+        <PoweredBy />
       </ScrollView>
     </KeyboardAvoidingView>
   );

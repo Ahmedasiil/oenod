@@ -1,29 +1,45 @@
 import React from 'react';
 import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, TextInputProps, View, ViewStyle, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { setStatusBarStyle } from 'expo-status-bar';
+import { useFocusEffect } from 'expo-router';
 import { C, R, S, onPalette } from '../lib/theme';
 import { initials } from '../lib/format';
 import { Icon, IconName } from './Icon';
 import { t } from '../lib/i18n';
-import { Constellation, GradientButton, HeroGradient } from './Brand';
+import { CornerGlow, GradientButton, HeroGradient, PoweredBy } from './Brand';
 import { Pressy } from './Motion';
 
-export function Screen({ title, eyebrow, subtitle, right, children, refreshing, onRefresh, scroll = true }: {
+export function Screen({ title, eyebrow, subtitle, right, children, refreshing, onRefresh, scroll = true, hero }: {
   title?: string; eyebrow?: string; subtitle?: string; right?: React.ReactNode; children: React.ReactNode; refreshing?: boolean; onRefresh?: () => void; scroll?: boolean;
+  /** Home only: content shown inside the full-width navy top panel, under the title. */
+  hero?: React.ReactNode;
 }) {
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
-  const [hh, setHh] = React.useState(140);
-  const head = title ? (
-    <View style={[st.head, { paddingTop: insets.top + S.md }]} onLayout={(e) => setHh(e.nativeEvent.layout.height)}>
-      <HeroGradient width={width} height={hh} id="sh" fade={false} />
-      <Constellation width={width} height={hh} density={1.1} seed={11} />
+  const [hh, setHh] = React.useState(160);
+  const isHero = !!hero;
+  useFocusEffect(React.useCallback(() => { setStatusBarStyle(isHero || C.dark ? 'light' : 'dark'); return () => setStatusBarStyle(C.dark ? 'light' : 'dark'); }, [isHero]));
+  const titleRow = title ? (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: S.md }}>
       <View style={{ flex: 1 }}>
-        {eyebrow ? <Text style={{ color: C.sky, fontSize: 12, fontWeight: '700', letterSpacing: 1.4, marginBottom: 6 }}>{eyebrow}</Text> : null}
-        <Text style={st.h1} accessibilityRole="header">{title}</Text>
-        {subtitle ? <Text style={st.headSub}>{subtitle}</Text> : null}
+        {eyebrow ? <Text style={[st.eyebrow, hero ? { color: 'rgba(255,255,255,0.6)' } : null]}>{eyebrow}</Text> : null}
+        <Text style={[st.h1, hero ? { color: '#FFFFFF', fontSize: 24 } : null]} accessibilityRole="header">{title}</Text>
+        {subtitle ? <Text style={[st.headSub, hero ? { color: 'rgba(255,255,255,0.68)' } : null]}>{subtitle}</Text> : null}
       </View>
       {right}
+    </View>
+  ) : null;
+  const head = hero ? (
+    <View style={[st.panel, { paddingTop: insets.top + S.md }]} onLayout={(e) => setHh(e.nativeEvent.layout.height)}>
+      <HeroGradient width={width} height={hh} id="sp" fade={false} />
+      {titleRow}
+      {hero}
+    </View>
+  ) : title ? (
+    <View style={[st.head, { paddingTop: insets.top + S.lg }]} onLayout={(e) => setHh(e.nativeEvent.layout.height)}>
+      <CornerGlow width={width} height={hh + 60} color={C.dark ? '#3D5BFF' : '#7C93FF'} opacity={C.dark ? 0.32 : 0.22} />
+      {titleRow}
     </View>
   ) : null;
   if (!scroll) return <View style={st.screen}>{head}{children}</View>;
@@ -31,10 +47,11 @@ export function Screen({ title, eyebrow, subtitle, right, children, refreshing, 
     <View style={st.screen}>
       {head}
       <ScrollView
-        contentContainerStyle={{ padding: S.lg, paddingBottom: 130, gap: S.md }}
+        contentContainerStyle={{ padding: S.lg, paddingTop: hero ? S.xl : S.sm, paddingBottom: 120, gap: S.md }}
         refreshControl={onRefresh ? <RefreshControl refreshing={!!refreshing} onRefresh={onRefresh} tintColor={C.link} /> : undefined}
       >
         {children}
+        <PoweredBy />
       </ScrollView>
     </View>
   );
@@ -45,19 +62,23 @@ export const Card = ({ children, style, onPress }: { children: React.ReactNode; 
     <Pressy onPress={onPress} accessibilityRole="button" style={[st.card, style] as any}>{children}</Pressy>
   ) : <View style={[st.card, style]}>{children}</View>;
 
-export const H2 = ({ children, right }: { children: React.ReactNode; right?: React.ReactNode }) => (
-  <View style={st.h2Row}><Text style={st.h2} accessibilityRole="header">{children}</Text>{right}</View>
+export const H2 = ({ children, right, action, onAction }: { children: React.ReactNode; right?: React.ReactNode; action?: string; onAction?: () => void }) => (
+  <View style={st.h2Row}>
+    <Text style={st.h2} accessibilityRole="header">{children}</Text>
+    {right}
+    {action && onAction ? <Pressable onPress={onAction} accessibilityRole="link" hitSlop={10}><Text style={{ color: C.link, fontWeight: '700', fontSize: 14 }}>{action}</Text></Pressable> : null}
+  </View>
 );
 export const Muted = ({ children, style }: { children: React.ReactNode; style?: any }) => <Text style={[st.muted, style]}>{children}</Text>;
 export const B = ({ children, style }: { children: React.ReactNode; style?: any }) => <Text style={[st.b, style]}>{children}</Text>;
 
 export function Button({ title, onPress, kind = 'primary', icon, busy, disabled, style }: {
-  title: string; onPress: () => void; kind?: 'primary' | 'secondary' | 'danger' | 'light' | 'ghost'; icon?: IconName; busy?: boolean; disabled?: boolean; style?: ViewStyle;
+  title: string; onPress: () => void; kind?: 'primary' | 'secondary' | 'danger' | 'light' | 'ghost' | 'glass'; icon?: IconName; busy?: boolean; disabled?: boolean; style?: ViewStyle;
 }) {
   if (kind === 'primary') return <GradientButton title={title} onPress={onPress} icon={icon} busy={busy} disabled={disabled} style={style} />;
-  const bg = { primary: C.blue, secondary: C.field, danger: '#E5484D', light: C.white, ghost: 'transparent' }[kind];
-  const fg = { primary: C.white, secondary: C.ink, danger: C.white, light: C.navy, ghost: C.link }[kind];
-  const border = kind === 'secondary' ? C.line : 'transparent';
+  const bg = { primary: C.blue, secondary: C.card2, danger: '#E5484D', light: '#FFFFFF', ghost: 'transparent', glass: 'rgba(255,255,255,0.12)' }[kind];
+  const fg = { primary: C.white, secondary: C.ink, danger: '#FFFFFF', light: '#07080F', ghost: C.link, glass: '#FFFFFF' }[kind];
+  const border = 'transparent';
   return (
     <Pressable
       accessibilityRole="button"
@@ -87,7 +108,7 @@ export function Field({ label, error, ...p }: TextInputProps & { label: string; 
 }
 
 export const Pill = ({ text, kind = 'info' }: { text: string; kind?: 'good' | 'warn' | 'bad' | 'info' | 'plain' }) => {
-  const m = { good: [C.goodSoft, C.good], warn: [C.warnSoft, C.warn], bad: [C.badSoft, C.bad], info: [C.blueSoft, C.blue], plain: [C.seg, C.sub] }[kind];
+  const m = { good: [C.goodSoft, C.good], warn: [C.warnSoft, C.warn], bad: [C.badSoft, C.bad], info: [C.blueSoft, C.link], plain: [C.seg, C.sub] }[kind];
   return <View style={[st.pill, { backgroundColor: m[0] }]}><Text style={[st.pillT, { color: m[1] }]}>{text}</Text></View>;
 };
 
@@ -130,9 +151,9 @@ export const ErrorBox = ({ text, onRetry }: { text: string; onRetry?: () => void
 );
 
 export const Stat = ({ label, value, sub }: { label: string; value: string; sub?: string }) => (
-  <Card style={{ flex: 1, minWidth: 140 }}>
-    <Muted>{label}</Muted>
-    <Text style={{ fontSize: 24, fontWeight: '800', color: C.ink, marginTop: 4 }}>{value}</Text>
+  <Card style={{ flex: 1, minWidth: 0, padding: S.md + 2 }}>
+    <Muted style={{ fontSize: 13 }}>{label}</Muted>
+    <Text style={{ fontSize: 22, fontWeight: '800', color: C.ink, marginTop: 4 }} numberOfLines={1}>{value}</Text>
     {sub ? <Muted style={{ marginTop: 2, fontSize: 12 }}>{sub}</Muted> : null}
   </Card>
 );
@@ -140,19 +161,21 @@ export const Stat = ({ label, value, sub }: { label: string; value: string; sub?
 export const st: Record<string, any> = {};
 onPalette(() => { Object.assign(st, StyleSheet.create({
   screen: { flex: 1, backgroundColor: C.bg },
-  head: { backgroundColor: C.navy, overflow: 'hidden', paddingHorizontal: S.lg, paddingBottom: S.xl, borderBottomLeftRadius: 28, borderBottomRightRadius: 28, flexDirection: 'row', alignItems: 'flex-end', gap: S.md },
-  h1: { color: C.white, fontSize: 26, fontWeight: '800', letterSpacing: -0.7 },
-  headSub: { color: C.mist, fontSize: 14, marginTop: 4, fontWeight: '500' },
-  h2Row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: S.sm },
-  h2: { fontSize: 13, fontWeight: '800', color: C.sub, letterSpacing: 1.2, textTransform: 'uppercase' },
-  card: { backgroundColor: C.card, borderRadius: 20, padding: S.lg, borderWidth: StyleSheet.hairlineWidth, borderColor: C.line, },
+  head: { overflow: 'hidden', paddingHorizontal: S.lg, paddingBottom: S.md },
+  panel: { overflow: 'hidden', paddingHorizontal: S.lg, paddingBottom: S.xl, gap: S.lg, borderBottomLeftRadius: 34, borderBottomRightRadius: 34, backgroundColor: '#0A1675' },
+  eyebrow: { color: C.link, fontSize: 12, fontWeight: '700', letterSpacing: 1.4, marginBottom: 6 },
+  h1: { color: C.ink, fontSize: 32, fontWeight: '800', letterSpacing: -1 },
+  headSub: { color: C.sub, fontSize: 15, marginTop: 4, fontWeight: '500' },
+  h2Row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: S.md, gap: S.sm },
+  h2: { fontSize: 19, fontWeight: '800', color: C.ink, letterSpacing: -0.4, flexShrink: 1 },
+  card: { backgroundColor: C.card, borderRadius: 22, padding: S.lg, borderWidth: C.dark ? 0 : StyleSheet.hairlineWidth, borderColor: C.line },
   muted: { color: C.sub, fontSize: 14, lineHeight: 20 },
-  b: { color: C.ink, fontSize: 16, fontWeight: '600' },
-  btn: { minHeight: 54, borderRadius: 16, paddingHorizontal: S.lg, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderWidth: 1 },
+  b: { color: C.ink, fontSize: 16, fontWeight: '700' },
+  btn: { minHeight: 54, borderRadius: 999, paddingHorizontal: S.lg, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderWidth: 1 },
   btnT: { fontSize: 16, fontWeight: '700' },
-  label: { fontSize: 14, fontWeight: '600', color: C.ink },
-  input: { minHeight: 52, borderRadius: 14, borderWidth: 1, borderColor: C.line, backgroundColor: C.field, paddingHorizontal: 14, fontSize: 16, color: C.ink },
+  label: { fontSize: 14, fontWeight: '600', color: C.sub },
+  input: { minHeight: 54, borderRadius: 16, borderWidth: 1, borderColor: C.line, backgroundColor: C.field, paddingHorizontal: 16, fontSize: 16, color: C.ink },
   pill: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999, alignSelf: 'flex-start' },
   pillT: { fontSize: 12, fontWeight: '700' },
-  lrow: { flexDirection: 'row', alignItems: 'center', gap: S.md, paddingVertical: S.md, minHeight: 56 },
+  lrow: { flexDirection: 'row', alignItems: 'center', gap: S.md, paddingVertical: S.md, minHeight: 58 },
 })); });

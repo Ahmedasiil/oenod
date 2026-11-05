@@ -47,7 +47,7 @@ export function Summary({ label, value, badge, minis, foot, seed = 5, children, 
 /** Tinted rounded-square icon used at the start of list rows and cards. */
 export function IconTile({ name, color = TINTS[0], size = 40 }: { name: IconName; color?: string; size?: number }) {
   return (
-    <View style={{ width: size, height: size, borderRadius: size * 0.33, backgroundColor: color + '22', borderWidth: 1, borderColor: color + '33', alignItems: 'center', justifyContent: 'center' }}>
+    <View style={{ width: size, height: size, borderRadius: size * 0.33, backgroundColor: C.card2, alignItems: 'center', justifyContent: 'center' }}>
       <Icon name={name} color={color} size={Math.round(size * 0.5)} />
     </View>
   );

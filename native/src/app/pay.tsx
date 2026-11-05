@@ -7,6 +7,7 @@ import { date, money } from '../lib/format';
 import { C, S } from '../lib/theme';
 import { lang, t } from '../lib/i18n';
 import { B, Card, Divider, Empty, ErrorBox, H2, ListRow, Loading, Muted, Pill, Row } from '../ui/kit';
+import { PoweredBy } from '../ui/Brand';
 import { IconTile, Section, Summary, shortDay, tint } from '../ui/Summary';
 import { Icon } from '../ui/Icon';
 
@@ -72,6 +73,7 @@ export default function PayScreen() {
           <Card onPress={open}><Row><IconTile name="globe" color={tint(1)} /><B style={{ flex: 1 }}>{t('Full pay stubs and tax slips on the website')}</B><Icon name="chevron" color={C.faint} size={18} /></Row></Card>
         </>
       )}
-    </ScrollView>
+      <PoweredBy />
+      </ScrollView>
   );
 }

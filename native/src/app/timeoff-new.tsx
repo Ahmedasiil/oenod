@@ -5,6 +5,7 @@ import { post } from '../lib/api';
 import { todayKey } from '../lib/format';
 import { C, R, S } from '../lib/theme';
 import { Button, Field, Muted, H2 } from '../ui/kit';
+import { PoweredBy } from '../ui/Brand';
 import { IconTile, tint } from '../ui/Summary';
 import { Pressy } from '../ui/Motion';
 import type { IconName } from '../ui/Icon';
@@ -57,6 +58,7 @@ export default function NewTimeOff() {
         {error ? <Text style={{ color: C.bad, fontWeight: '600' }}>{error}</Text> : null}
         <Button title={t('Send request')} icon="check" onPress={send} busy={busy} />
         <Muted style={{ textAlign: 'center' }}>{t('Your manager is notified and can approve it from the app or the website.')}</Muted>
+        <PoweredBy />
       </ScrollView>
     </KeyboardAvoidingView>
   );

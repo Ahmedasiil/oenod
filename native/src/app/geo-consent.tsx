@@ -7,6 +7,7 @@ import { answerConsent } from '../lib/geo';
 import { C, R, S } from '../lib/theme';
 import { t } from '../lib/i18n';
 import { B, Button, Card, ErrorBox, Loading, Muted, Row } from '../ui/kit';
+import { PoweredBy } from '../ui/Brand';
 import { IconTile, tint } from '../ui/Summary';
 import { Icon } from '../ui/Icon';
 
@@ -57,6 +58,7 @@ export default function GeoConsent() {
           <Button title={t('Not now')} kind="secondary" onPress={() => router.back()} />
         </>
       ) : null}
-    </ScrollView>
+      <PoweredBy />
+      </ScrollView>
   );
 }

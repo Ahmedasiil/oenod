@@ -7,6 +7,7 @@ import { C, R, S } from '../lib/theme';
 import { locale, t } from '../lib/i18n';
 import type { MySchedule } from '../lib/types';
 import { B, Button, Card, ErrorBox, Field, Loading, Muted, Row } from '../ui/kit';
+import { PoweredBy } from '../ui/Brand';
 
 type Mode = 'any' | 'off' | 'hours';
 type DayRow = { mode: Mode; start: string; end: string };
@@ -78,6 +79,7 @@ export default function Availability() {
         ))}
         {error ? <Text style={{ color: C.bad, fontWeight: '600' }}>{error}</Text> : null}
         <Button title={t('Save availability')} icon="check" onPress={save} busy={busy} />
+        <PoweredBy />
       </ScrollView>
     </KeyboardAvoidingView>
   );

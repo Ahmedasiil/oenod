@@ -28,20 +28,20 @@ function Gate() {
   }, [ready, signedIn]);
   if (!ready) return <Splash />;
   return (
-    <Stack screenOptions={{ headerShown: false, animation: 'slide_from_right', contentStyle: { backgroundColor: C.bg }, headerBackButtonDisplayMode: 'minimal', headerTitleStyle: { fontWeight: '700' } }}>
+    <Stack screenOptions={{ headerShown: false, animation: 'slide_from_right', contentStyle: { backgroundColor: C.bg }, headerBackButtonDisplayMode: 'minimal', headerTitleStyle: { fontWeight: '800', fontSize: 17 } }}>
       <Stack.Protected guard={signedIn}>
         <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="employee/[id]" options={{ headerShown: true, title: t('Team member'), headerTintColor: C.white, headerStyle: { backgroundColor: C.head }, headerShadowVisible: false }} />
-        <Stack.Screen name="notifications" options={{ headerShown: true, title: t('Notifications'), headerTintColor: C.white, headerStyle: { backgroundColor: C.head }, headerShadowVisible: false }} />
-        <Stack.Screen name="timeoff-new" options={{ presentation: 'modal', headerShown: true, title: t('Request time off'), headerTintColor: C.white, headerStyle: { backgroundColor: C.head }, headerShadowVisible: false }} />
-        <Stack.Screen name="shift/[id]" options={{ headerShown: true, title: t('Shift'), headerTintColor: C.white, headerStyle: { backgroundColor: C.head }, headerShadowVisible: false }} />
-        <Stack.Screen name="availability" options={{ headerShown: true, title: t('My availability'), headerTintColor: C.white, headerStyle: { backgroundColor: C.head }, headerShadowVisible: false }} />
-        <Stack.Screen name="pay" options={{ headerShown: true, title: t('My pay'), headerTintColor: C.white, headerStyle: { backgroundColor: C.head }, headerShadowVisible: false }} />
-        <Stack.Screen name="wallet" options={{ headerShown: true, title: t('Wallet'), headerTintColor: C.white, headerStyle: { backgroundColor: C.head }, headerShadowVisible: false }} />
-        <Stack.Screen name="feed" options={{ headerShown: true, title: t('Team news'), headerTintColor: C.white, headerStyle: { backgroundColor: C.head }, headerShadowVisible: false }} />
-        <Stack.Screen name="geo-consent" options={{ presentation: 'modal', headerShown: true, title: t('Site attendance'), headerTintColor: C.white, headerStyle: { backgroundColor: C.head }, headerShadowVisible: false }} />
-        <Stack.Screen name="delete-account" options={{ presentation: 'modal', headerShown: true, title: t('Delete my account'), headerTintColor: C.white, headerStyle: { backgroundColor: C.head }, headerShadowVisible: false }} />
-        <Stack.Screen name="timesheet" options={{ headerShown: true, title: t('My hours'), headerTintColor: C.white, headerStyle: { backgroundColor: C.head }, headerShadowVisible: false }} />
+        <Stack.Screen name="employee/[id]" options={{ headerShown: true, title: t('Team member'), headerTintColor: C.ink, headerStyle: { backgroundColor: C.bg }, headerShadowVisible: false }} />
+        <Stack.Screen name="notifications" options={{ headerShown: true, title: t('Notifications'), headerTintColor: C.ink, headerStyle: { backgroundColor: C.bg }, headerShadowVisible: false }} />
+        <Stack.Screen name="timeoff-new" options={{ presentation: 'modal', headerShown: true, title: t('Request time off'), headerTintColor: C.ink, headerStyle: { backgroundColor: C.bg }, headerShadowVisible: false }} />
+        <Stack.Screen name="shift/[id]" options={{ headerShown: true, title: t('Shift'), headerTintColor: C.ink, headerStyle: { backgroundColor: C.bg }, headerShadowVisible: false }} />
+        <Stack.Screen name="availability" options={{ headerShown: true, title: t('My availability'), headerTintColor: C.ink, headerStyle: { backgroundColor: C.bg }, headerShadowVisible: false }} />
+        <Stack.Screen name="pay" options={{ headerShown: true, title: t('My pay'), headerTintColor: C.ink, headerStyle: { backgroundColor: C.bg }, headerShadowVisible: false }} />
+        <Stack.Screen name="wallet" options={{ headerShown: true, title: t('Wallet'), headerTintColor: C.ink, headerStyle: { backgroundColor: C.bg }, headerShadowVisible: false }} />
+        <Stack.Screen name="feed" options={{ headerShown: true, title: t('Team news'), headerTintColor: C.ink, headerStyle: { backgroundColor: C.bg }, headerShadowVisible: false }} />
+        <Stack.Screen name="geo-consent" options={{ presentation: 'modal', headerShown: true, title: t('Site attendance'), headerTintColor: C.ink, headerStyle: { backgroundColor: C.bg }, headerShadowVisible: false }} />
+        <Stack.Screen name="delete-account" options={{ presentation: 'modal', headerShown: true, title: t('Delete my account'), headerTintColor: C.ink, headerStyle: { backgroundColor: C.bg }, headerShadowVisible: false }} />
+        <Stack.Screen name="timesheet" options={{ headerShown: true, title: t('My hours'), headerTintColor: C.ink, headerStyle: { backgroundColor: C.bg }, headerShadowVisible: false }} />
       </Stack.Protected>
       <Stack.Protected guard={!signedIn}>
         <Stack.Screen name="welcome" options={{ contentStyle: { backgroundColor: C.navy } }} />
@@ -57,7 +57,7 @@ export default function RootLayout() {
       <AuthProvider>
       <LangProvider>
       <AppearanceProvider>
-        <StatusBar style="light" />
+        <StatusBar style={C.dark ? "light" : "dark"} />
         <Gate />
       </AppearanceProvider>
       </LangProvider>

@@ -8,7 +8,7 @@ import { C, S } from '../../lib/theme';
 import { Avatar, B, Button, Card, Divider, ErrorBox, H2, ListRow, Loading, Muted, Pill, Row } from '../../ui/kit';
 import { t } from '../../lib/i18n';
 import { DateTile, IconTile, Mini, tint } from '../../ui/Summary';
-import { HeroCard } from '../../ui/Brand';
+import { HeroCard, PoweredBy } from '../../ui/Brand';
 import { Rise } from '../../ui/Motion';
 
 export default function Employee() {
@@ -54,6 +54,7 @@ export default function Employee() {
           <View key={r.id}>{i ? <Divider /> : null}<ListRow left={<IconTile name="clock" color={tint(r.status === 'approved' ? 2 : 0)} size={36} />} title={`${day(r.clock_in)}, ${time(r.clock_in)}–${r.clock_out ? time(r.clock_out) : t('now')}`} sub={label(r.status)} right={<B>{hm(r.minutes ?? minutesBetween(r.clock_in, r.clock_out))}</B>} /></View>
         )) : <Muted>{t('No time recorded yet.')}</Muted>}
       </Card>
-    </ScrollView>
+      <PoweredBy />
+      </ScrollView>
   );
 }

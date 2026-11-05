@@ -7,6 +7,7 @@ import { useLoad } from '../lib/useLoad';
 import { day, time } from '../lib/format';
 import { C, S } from '../lib/theme';
 import { Card, Divider, Empty, ErrorBox, H2, ListRow, Loading, Pill, Row } from '../ui/kit';
+import { PoweredBy } from '../ui/Brand';
 import { Icon, type IconName } from '../ui/Icon';
 import { IconTile, Summary, tint } from '../ui/Summary';
 import { t } from '../lib/i18n';
@@ -45,6 +46,7 @@ export default function Notifications() {
         </Card>
         </>
       )}
-    </ScrollView>
+      <PoweredBy />
+      </ScrollView>
   );
 }

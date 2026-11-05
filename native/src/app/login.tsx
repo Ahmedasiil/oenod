@@ -8,7 +8,7 @@ import { C, S } from '../lib/theme';
 import { Button, Field } from '../ui/kit';
 import { t } from '../lib/i18n';
 import { router } from 'expo-router';
-import { Backdrop, Wordmark } from '../ui/Brand';
+import { Backdrop, Wordmark, PoweredBy } from '../ui/Brand';
 import { Icon } from '../ui/Icon';
 import { secure } from '../lib/secure';
 import { SEEN } from './welcome';
@@ -71,7 +71,7 @@ export default function Login() {
           <Wordmark width={190} />
           <Text style={{ color: C.mist, fontSize: 16, marginTop: 10, textAlign: 'center' }}>{t('Run your whole business from your phone.')}</Text>
         </View>
-        <View style={{ backgroundColor: C.dark ? 'rgba(8,12,42,0.78)' : C.card, borderWidth: 1, borderColor: C.dark ? 'rgba(255,255,255,0.14)' : 'transparent', borderRadius: 28, shadowColor: '#000', shadowOpacity: C.dark ? 0 : 0.3, shadowRadius: 30, shadowOffset: { width: 0, height: 14 }, padding: S.xl, gap: S.lg }}>
+        <View style={{ backgroundColor: C.dark ? 'rgba(18,20,30,0.88)' : C.card, borderWidth: 1, borderColor: C.dark ? 'rgba(255,255,255,0.07)' : 'transparent', borderRadius: 30, shadowColor: '#000', shadowOpacity: C.dark ? 0 : 0.3, shadowRadius: 30, shadowOffset: { width: 0, height: 14 }, padding: S.xl, gap: S.lg }}>
           <View style={{ gap: 4 }}>
             <Text style={{ fontSize: 24, fontWeight: '800', color: C.ink, letterSpacing: -0.4 }}>{t(pending2fa ? 'Two-step check' : 'Welcome back')}</Text>
             {!pending2fa ? <Text style={{ color: C.sub, fontSize: 14 }}>{t('Owners and employees sign in here. OENOD opens the right home for you.')}</Text> : null}
@@ -97,7 +97,7 @@ export default function Login() {
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}><View style={{ flex: 1, height: 1, backgroundColor: C.line }} /><Text style={{ color: C.sub, fontSize: 13 }}>{t('or')}</Text><View style={{ flex: 1, height: 1, backgroundColor: C.line }} /></View>
               {shown.map((p) => (
                 <Pressable key={p} onPress={() => social(p)} disabled={busy} accessibilityRole="button"
-                  style={({ pressed }) => ({ borderWidth: 1, borderColor: p === 'apple' ? (C.dark ? C.white : '#000') : C.line, backgroundColor: p === 'apple' ? (C.dark ? C.white : '#000') : C.field, borderRadius: 16, minHeight: 54, justifyContent: 'center', alignItems: 'center', opacity: pressed || busy ? 0.7 : 1 })}>
+                  style={({ pressed }) => ({ borderWidth: 1, borderColor: p === 'apple' ? (C.dark ? C.white : '#000') : C.line, backgroundColor: p === 'apple' ? (C.dark ? C.white : '#000') : C.field, borderRadius: 999, minHeight: 54, justifyContent: 'center', alignItems: 'center', opacity: pressed || busy ? 0.7 : 1 })}>
                   <Text style={{ color: p === 'apple' ? (C.dark ? '#000' : C.white) : C.ink, fontWeight: '700', fontSize: 16 }}>{t('Continue with {p}', { p: LABEL[p] || p })}</Text>
                 </Pressable>
               ))}
@@ -112,13 +112,14 @@ export default function Login() {
         <View style={{ alignItems: 'center', marginTop: S.xl, gap: 8 }}>
           <Text style={{ color: C.mist }}>{t('New to OENOD?')}</Text>
           <Pressable onPress={() => open('/#/signup')} accessibilityRole="link" style={{ padding: 6 }}>
-            <Text style={{ color: C.white, fontWeight: '700', fontSize: 16 }}>{t('Start your free trial')}</Text>
+            <Text style={{ color: '#A9BAFF', fontWeight: '700', fontSize: 16 }}>{t('Start your free trial')}</Text>
           </Pressable>
         </View>
         <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 6, marginTop: S.lg }}>
           <Icon name="shield" size={14} color={C.mist} />
           <Text style={{ color: C.mist, fontSize: 12 }}>{t('Your sign-in is encrypted and kept in your phone’s secure keychain.')}</Text>
         </View>
+        <PoweredBy dark />
       </ScrollView>
     </KeyboardAvoidingView>
     </Backdrop>

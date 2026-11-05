@@ -7,8 +7,8 @@ import { get, post } from '../../lib/api';
 import { useLoad } from '../../lib/useLoad';
 import { greeting, hm, minutesBetween, money, time, day } from '../../lib/format';
 import { C, S } from '../../lib/theme';
-import { Avatar, B, Button, Card, Empty, ErrorBox, H2, ListRow, Loading, Muted, Pill, Row, Screen, Stat } from '../../ui/kit';
-import { IconTile, Mini, TINTS, tint } from '../../ui/Summary';
+import { Avatar, B, Button, Card, Divider, Empty, ErrorBox, H2, ListRow, Loading, Muted, Pill, Row, Screen, Stat } from '../../ui/kit';
+import { DateTile, IconTile, tint } from '../../ui/Summary';
 import { Icon, IconName } from '../../ui/Icon';
 import { HeroCard } from '../../ui/Brand';
 import { Pressy, Rise, useCountUp } from '../../ui/Motion';
@@ -76,12 +76,12 @@ function ClockCard({ clock, onChange }: { clock: Clock; onChange: (c: Clock) => 
     : null;
 
   return (
-    <HeroCard seed={5}>
+    <View style={{ gap: 12 }}>
       <Row style={{ justifyContent: 'space-between' }}>
         <Text style={{ color: '#C9D3EA', fontWeight: '600' }}>{t('Time clock')}</Text>
         {open ? <Pill text={t(onBreak ? 'On break' : 'Clocked in')} kind={onBreak ? 'warn' : 'good'} /> : <Pill text={t('Clocked out')} kind="plain" />}
       </Row>
-      <Text style={{ color: C.white, fontSize: 48, fontWeight: '800', letterSpacing: -1.8 }} accessibilityLiveRegion="polite">
+      <Text style={{ color: '#FFFFFF', fontSize: 46, fontWeight: '800', letterSpacing: -1.8 }} accessibilityLiveRegion="polite">
         {open ? hm(worked) : hm(clock.today_minutes)}
       </Text>
       <Text style={{ color: '#C9D3EA' }}>
@@ -93,7 +93,7 @@ function ClockCard({ clock, onChange }: { clock: Clock; onChange: (c: Clock) => 
         <Button title={t('End break')} icon="coffee" kind="light" onPress={() => act('resume')} busy={busy === 'resume'} />
       ) : (
         <Row>
-          <Button title={t('Break')} icon="coffee" kind="secondary" onPress={() => act('break')} busy={busy === 'break'} style={{ flex: 1 }} />
+          <Button title={t('Break')} icon="coffee" kind="glass" onPress={() => act('break')} busy={busy === 'break'} style={{ flex: 1 }} />
           <Button title={t('Clock out')} icon="logout" kind="danger" onPress={() => act('out')} busy={busy === 'out'} style={{ flex: 1 }} />
         </Row>
       )}
@@ -108,81 +108,111 @@ function ClockCard({ clock, onChange }: { clock: Clock; onChange: (c: Clock) => 
           {t('Next shift: {d}', { d: `${day(clock.next_shift.starts_at)}, ${time(clock.next_shift.starts_at)}–${time(clock.next_shift.ends_at)}` })}{clock.next_shift.role ? ` · ${clock.next_shift.role}` : ''}
         </Text>
       ) : null}
-    </HeroCard>
+    </View>
   );
 }
 
 const ROLE_LABEL: Record<string, string> = { owner: 'Owner', admin: 'Admin', manager: 'Manager' };
 
-type Quick = { icon: IconName; label: string; go: () => void; tint?: string };
-function QuickGrid({ items }: { items: Quick[] }) {
+type Quick = { icon: IconName; label: string; go: () => void };
+
+/** Four glass action squares inside the navy top panel. */
+function Actions({ items }: { items: Quick[] }) {
   return (
-    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: S.md }}>
+    <View style={{ flexDirection: 'row', gap: 10 }}>
       {items.map((q, n) => (
-        <Rise key={q.label} delay={120 + n * 45} style={{ width: '30%', flexGrow: 1 }}>
-        <Pressy onPress={q.go} accessibilityRole="button" accessibilityLabel={q.label}
-          style={{ width: '100%', backgroundColor: C.card, borderRadius: 20, paddingVertical: 16, paddingHorizontal: 10, alignItems: 'center', gap: 10, borderWidth: 1, borderColor: C.line }}>
-          <View style={{ width: 46, height: 46, borderRadius: 15, backgroundColor: TINTS[n % 6] + '22', borderWidth: 1, borderColor: TINTS[n % 6] + '33', alignItems: 'center', justifyContent: 'center' }}>
-            <Icon name={q.icon} color={TINTS[n % 6]} size={22} />
-          </View>
-          <Text style={{ color: C.ink, fontWeight: '600', fontSize: 13, textAlign: 'center' }} numberOfLines={2}>{q.label}</Text>
-        </Pressy>
+        <Rise key={q.label} delay={80 + n * 50} style={{ flex: 1 }}>
+          <Pressy onPress={q.go} accessibilityRole="button" accessibilityLabel={q.label}
+            style={{ backgroundColor: 'rgba(255,255,255,0.10)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', borderRadius: 20, paddingVertical: 14, alignItems: 'center', gap: 8 }}>
+            <Icon name={q.icon} color="#FFFFFF" size={24} />
+            <Text style={{ color: '#FFFFFF', fontWeight: '600', fontSize: 12 }} numberOfLines={1}>{q.label}</Text>
+          </Pressy>
         </Rise>
       ))}
     </View>
   );
 }
 
-function Owner({ quick }: { quick: Quick[] }) {
-  const d = useLoad(() => get('/api/dashboard'));
-  const sales = useCountUp(Number(d.data?.sales_today || 0));
+/** A plain list of extra tools, each with a tinted icon square. */
+function MoreList({ items }: { items: Quick[] }) {
+  return (
+    <Card style={{ paddingVertical: S.xs }}>
+      {items.map((q, i) => (
+        <View key={q.label}>
+          {i ? <Divider /> : null}
+          <ListRow title={q.label} left={<IconTile name={q.icon} color={tint(i + 1)} />} onPress={q.go} />
+        </View>
+      ))}
+    </Card>
+  );
+}
+
+function OwnerHero({ x }: { x: any }) {
+  const sales = useCountUp(Number(x?.sales_today || 0));
+  if (!x) return null;
+  const growth = x.sales_prev_week ? Math.round(((x.sales_week - x.sales_prev_week) / x.sales_prev_week) * 100) : null;
+  return (
+    <View style={{ gap: 4 }}>
+      <Row style={{ justifyContent: 'space-between' }}>
+        <Text style={{ color: 'rgba(255,255,255,0.7)', fontWeight: '600', fontSize: 15 }}>{t('Sales today')}</Text>
+        {growth == null ? null : <Pill text={t('{p}% vs last week', { p: `${growth >= 0 ? '+' : ''}${growth}` })} kind={growth >= 0 ? 'good' : 'warn'} />}
+      </Row>
+      <Text style={{ color: '#FFFFFF', fontSize: 46, fontWeight: '800', letterSpacing: -1.8 }}>{money(sales)}</Text>
+      <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13 }}>{t('This week')}: {money(x.sales_week)} · {t('Team')}: {String(x.headcount ?? '—')}</Text>
+    </View>
+  );
+}
+
+function OwnerBody({ d, more }: { d: ReturnType<typeof useLoad<any>>; more: Quick[] }) {
   if (d.loading && !d.data) return <Loading />;
   if (!d.data) return d.error ? <ErrorBox text={d.error} onRetry={d.reload} /> : null;
   const x = d.data;
-  const growth = x.sales_prev_week ? Math.round(((x.sales_week - x.sales_prev_week) / x.sales_prev_week) * 100) : null;
   return (
     <>
-      <Rise><HeroCard seed={9}>
-        <Row style={{ justifyContent: 'space-between' }}>
-          <Text style={{ color: C.mist, fontWeight: '600' }}>{t('Sales today')}</Text>
-          {growth == null ? null : <Pill text={t('{p}% vs last week', { p: `${growth >= 0 ? '+' : ''}${growth}` })} kind={growth >= 0 ? 'good' : 'warn'} />}
-        </Row>
-        <Text style={{ color: C.white, fontSize: 44, fontWeight: '800', letterSpacing: -1.6 }}>{money(sales)}</Text>
-        <Row style={{ gap: 8 }}>
-          <Mini label={t('Orders')} value={String(x.orders_today ?? 0)} />
-          <Mini label={t('Labor')} value={x.labor_pct == null ? '—' : `${Math.round(x.labor_pct)}%`} />
-          <Mini label={t('Working now')} value={String((x.on_clock || []).length)} />
-        </Row>
-        <Text style={{ color: C.mist, fontSize: 13 }}>{t('This week')}: {money(x.sales_week)} · {t('Team')}: {String(x.headcount ?? '—')}</Text>
-      </HeroCard></Rise>
       {x.pending_timeoff ? (
         <Card onPress={() => router.navigate('/timeoff')} style={{ borderColor: C.warnLine, backgroundColor: C.warnSoft }}>
           <Row><Icon name="sun" color={C.warn} /><B style={{ flex: 1 }}>{x.pending_timeoff === 1 ? t('1 time-off request to review') : t('{n} time-off requests to review', { n: x.pending_timeoff })}</B><Icon name="chevron" color={C.warn} size={18} /></Row>
         </Card>
       ) : null}
-      <H2>{t('Quick actions')}</H2>
-      <QuickGrid items={quick} />
-      <Rise delay={420} style={{ gap: S.md }}>
-      <H2>{t('Working now')}</H2>
-      <Card>
-        {(x.on_clock || []).length ? x.on_clock.map((o: any) => (
-          <ListRow key={o.id} title={`${o.first_name} ${o.last_name}`} sub={`${o.job_title || t('Team')} · ${t('since {t}', { t: time(o.clock_in) })}${o.break_started_at ? ' · ' + t('on break') : ''}`}
-            left={<Avatar name={`${o.first_name} ${o.last_name}`} color={o.color} />} onPress={() => router.push(`/employee/${o.employee_id}`)} />
-        )) : <Muted>{t('Nobody is clocked in right now.')}</Muted>}
-      </Card>
-      <H2>{t('Shifts today')}</H2>
-      <Card>
-        {(x.shifts_today || []).length ? x.shifts_today.map((s: any, i: number) => (
-          <ListRow key={i} title={`${s.first_name} ${s.last_name}`} sub={`${time(s.starts_at)}–${time(s.ends_at)}${s.role ? ' · ' + s.role : ''}`} left={<Avatar name={`${s.first_name} ${s.last_name}`} color={s.color} size={36} />} />
-        )) : <Muted>{t('No shifts scheduled today.')}</Muted>}
-      </Card>
+      <Rise delay={120}>
+        <Row style={{ gap: 10 }}>
+          <Stat label={t('Orders')} value={String(x.orders_today ?? 0)} />
+          <Stat label={t('Labor')} value={x.labor_pct == null ? '—' : `${Math.round(x.labor_pct)}%`} />
+          <Stat label={t('Working now')} value={String((x.on_clock || []).length)} />
+        </Row>
       </Rise>
-      {(x.low_stock || []).length ? (
-        <>
-          <H2>{t('Low stock')}</H2>
-          <Card>{x.low_stock.slice(0, 6).map((p: any, i: number) => <ListRow key={i} title={p.name} sub={t('{n} left · reorder at {r}', { n: Number(p.stock_qty ?? 0), r: Number(p.reorder_level ?? 0) })} />)}</Card>
-        </>
-      ) : null}
+      <Rise delay={220} style={{ gap: S.md }}>
+        <H2 action={t('See all')} onAction={() => router.navigate('/team')}>{t('Working now')}</H2>
+        <Card style={{ paddingVertical: S.xs }}>
+          {(x.on_clock || []).length ? x.on_clock.map((o: any, i: number) => (
+            <View key={o.id}>{i ? <Divider /> : null}
+              <ListRow title={`${o.first_name} ${o.last_name}`} sub={`${o.job_title || t('Team')} · ${t('since {t}', { t: time(o.clock_in) })}`}
+                left={<Avatar name={`${o.first_name} ${o.last_name}`} color={o.color} />}
+                right={<Pill text={o.break_started_at ? t('Break') : t('In')} kind={o.break_started_at ? 'warn' : 'good'} />}
+                onPress={() => router.push(`/employee/${o.employee_id}`)} />
+            </View>
+          )) : <Muted style={{ paddingVertical: S.md }}>{t('Nobody is clocked in right now.')}</Muted>}
+        </Card>
+        <H2 action={t('See all')} onAction={() => router.navigate('/schedule')}>{t('Shifts today')}</H2>
+        <Card style={{ paddingVertical: S.xs }}>
+          {(x.shifts_today || []).length ? x.shifts_today.map((s: any, i: number) => (
+            <View key={i}>{i ? <Divider /> : null}
+              <ListRow title={`${s.first_name} ${s.last_name}`} sub={s.role || undefined} left={<Avatar name={`${s.first_name} ${s.last_name}`} color={s.color} size={40} />}
+                right={<Text style={{ color: C.ink, fontWeight: '700' }}>{time(s.starts_at)}–{time(s.ends_at)}</Text>} />
+            </View>
+          )) : <Muted style={{ paddingVertical: S.md }}>{t('No shifts scheduled today.')}</Muted>}
+        </Card>
+        <H2>{t('More tools')}</H2>
+        <MoreList items={more} />
+        {(x.low_stock || []).length ? (
+          <>
+            <H2>{t('Low stock')}</H2>
+            <Card style={{ paddingVertical: S.xs }}>{x.low_stock.slice(0, 6).map((p: any, i: number) => (
+              <View key={i}>{i ? <Divider /> : null}<ListRow title={p.name} left={<IconTile name="briefcase" color={C.warn} />} sub={t('{n} left · reorder at {r}', { n: Number(p.stock_qty ?? 0), r: Number(p.reorder_level ?? 0) })} /></View>
+            ))}</Card>
+          </>
+        ) : null}
+      </Rise>
     </>
   );
 }
@@ -191,59 +221,85 @@ export default function Home() {
   const { session, isManager } = useAuth();
   const hasEmployee = !!session?.employee;
   const c = useLoad<Clock | null>(() => (hasEmployee ? get<Clock>('/api/me/clock') : Promise.resolve(null)), [hasEmployee]);
+  const dash = useLoad<any>(() => (isManager ? get('/api/dashboard') : Promise.resolve(null)), [isManager]);
   const first = (session?.user?.name || '').split(' ')[0];
   const unread = session?.notifications || 0;
   const role = session?.user?.role || '';
   const who = isManager ? t(ROLE_LABEL[role] || 'Manager') : hasEmployee ? t('Employee') : t('Member');
   const company = session?.company?.name || 'OENOD';
-  const ownerQuick: Quick[] = [
+  const ownerActions: Quick[] = [
     { icon: 'calendar', label: t('Schedule'), go: () => router.navigate('/schedule') },
     { icon: 'users', label: t('Team'), go: () => router.navigate('/team') },
     { icon: 'sun', label: t('Time off'), go: () => router.navigate('/timeoff') },
     { icon: 'cash', label: t('Wallet'), go: () => router.push('/wallet') },
+  ];
+  const ownerMore: Quick[] = [
     { icon: 'news', label: t('Team news'), go: () => router.push('/feed') },
     { icon: 'bell', label: t('Notifications'), go: () => router.push('/notifications') },
   ];
-  const staffQuick: Quick[] = [
-    { icon: 'calendar', label: t('My shifts'), go: () => router.navigate('/schedule') },
-    { icon: 'clock', label: t('My hours'), go: () => router.push('/timesheet') },
-    { icon: 'cash', label: t('Pay stubs'), go: () => router.push('/pay') },
+  const staffActions: Quick[] = [
+    { icon: 'calendar', label: t('Shifts'), go: () => router.navigate('/schedule') },
+    { icon: 'clock', label: t('Hours'), go: () => router.push('/timesheet') },
+    { icon: 'cash', label: t('Pay'), go: () => router.push('/pay') },
     { icon: 'sun', label: t('Time off'), go: () => router.navigate('/timeoff') },
-    { icon: 'check', label: t('Availability'), go: () => router.push('/availability') },
-    { icon: 'news', label: t('Team news'), go: () => router.push('/feed') },
   ];
+  const staffMore: Quick[] = [
+    { icon: 'check', label: t('My availability'), go: () => router.push('/availability') },
+    { icon: 'news', label: t('Team news'), go: () => router.push('/feed') },
+    { icon: 'cash', label: t('Wallet'), go: () => router.push('/wallet') },
+  ];
+  const hero = isManager ? (<><OwnerHero x={dash.data} /><Actions items={ownerActions} /></>)
+    : hasEmployee ? (<>{c.data ? <ClockCard clock={c.data} onChange={(x) => c.setData(x)} /> : null}<Actions items={staffActions} /></>)
+    : undefined;
   return (
     <Screen
       eyebrow={new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }).toUpperCase()}
       title={`${greeting()}${first ? ', ' + first : ''}`}
       subtitle={`${who} · ${company}`}
-      refreshing={c.refreshing}
-      onRefresh={c.refresh}
+      hero={hero}
+      refreshing={c.refreshing || dash.refreshing}
+      onRefresh={() => { c.refresh(); dash.refresh(); }}
       right={
         <View style={{ flexDirection: 'row', gap: 10 }}>
-        <Pressable onPress={() => router.push('/notifications')} accessibilityRole="button" accessibilityLabel={`${t('Notifications')}${unread ? ` (${unread})` : ''}`} style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.1)', alignItems: 'center', justifyContent: 'center' }}>
-          <Icon name="bell" color={C.white} size={22} />
-          {unread ? <View style={{ position: 'absolute', top: 4, right: 4, minWidth: 18, height: 18, borderRadius: 9, backgroundColor: C.bad, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: C.white, fontSize: 11, fontWeight: '800' }}>{unread > 9 ? '9+' : unread}</Text></View> : null}
+        <Pressable onPress={() => router.push('/notifications')} accessibilityRole="button" accessibilityLabel={`${t('Notifications')}${unread ? ` (${unread})` : ''}`} style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: hero ? 'rgba(255,255,255,0.12)' : C.card2, alignItems: 'center', justifyContent: 'center' }}>
+          <Icon name="bell" color={hero ? '#FFFFFF' : C.ink} size={22} />
+          {unread ? <View style={{ position: 'absolute', top: 4, right: 4, minWidth: 18, height: 18, borderRadius: 9, backgroundColor: C.bad, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: '800' }}>{unread > 9 ? '9+' : unread}</Text></View> : null}
         </Pressable>
-        <Pressable onPress={() => router.navigate('/me')} accessibilityRole="button" accessibilityLabel={t('Me')} style={{ borderRadius: 22, borderWidth: 2, borderColor: 'rgba(255,255,255,0.35)' }}>
-          <Avatar name={session?.user?.name || '?'} size={40} color="#4F6BFF" />
+        <Pressable onPress={() => router.navigate('/me')} accessibilityRole="button" accessibilityLabel={t('Me')} style={{ borderRadius: 16, overflow: 'hidden' }}>
+          <View style={{ width: 44, height: 44, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.14)', alignItems: 'center', justifyContent: 'center' }}>
+            <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 16 }}>{(session?.user?.name || '?').split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase()}</Text>
+          </View>
         </Pressable>
         </View>
       }
     >
       {isManager ? (
         <>
-          <Owner quick={ownerQuick} />
-          {hasEmployee && c.data ? (<><H2>{t('My time clock')}</H2><ClockCard clock={c.data} onChange={(x) => c.setData(x)} /></>) : null}
+          <OwnerBody d={dash} more={ownerMore} />
+          {hasEmployee && c.data ? (<><H2>{t('My time clock')}</H2><HeroCard seed={5}><ClockCard clock={c.data} onChange={(x) => c.setData(x)} /></HeroCard></>) : null}
         </>
       ) : hasEmployee ? (
         <>
-          {c.data ? <Rise><ClockCard clock={c.data} onChange={(x) => c.setData(x)} /></Rise> : c.error ? <ErrorBox text={c.error} onRetry={c.reload} /> : <Loading />}
-          <H2>{t('Quick actions')}</H2>
-          <QuickGrid items={staffQuick} />
-          <Card onPress={() => router.push('/wallet')}>
-            <Row><View style={{ width: 42, height: 42, borderRadius: 13, backgroundColor: 'rgba(52,211,153,0.14)', alignItems: 'center', justifyContent: 'center' }}><Icon name="cash" color={C.good} /></View><View style={{ flex: 1 }}><B>{t('Wallet')}</B><Muted>{t('Get paid and transfer money to your bank')}</Muted></View><Icon name="chevron" color={C.faint} size={18} /></Row>
-          </Card>
+          {!c.data ? (c.error ? <ErrorBox text={c.error} onRetry={c.reload} /> : <Loading />) : null}
+          {c.data?.next_shift ? (
+            <Rise delay={120}>
+              <H2 action={t('See all')} onAction={() => router.navigate('/schedule')}>{t('Next shift')}</H2>
+              <Card onPress={() => router.navigate('/schedule')} style={{ marginTop: S.md }}>
+                <Row>
+                  <DateTile iso={c.data.next_shift.starts_at} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ color: C.ink, fontSize: 17, fontWeight: '800' }}>{time(c.data.next_shift.starts_at)} – {time(c.data.next_shift.ends_at)}</Text>
+                    <Muted>{[c.data.next_shift.role, c.data.next_shift.location].filter(Boolean).join(' · ') || t('Shift')}</Muted>
+                  </View>
+                  <Icon name="chevron" color={C.faint} size={18} />
+                </Row>
+              </Card>
+            </Rise>
+          ) : null}
+          <Rise delay={200} style={{ gap: S.md }}>
+            <H2>{t('More tools')}</H2>
+            <MoreList items={staffMore} />
+          </Rise>
         </>
       ) : (
         <>

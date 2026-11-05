@@ -8,6 +8,7 @@ import { C, R, S } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import type { MySchedule } from '../../lib/types';
 import { Avatar, B, Button, Card, ErrorBox, Field, H2, ListRow, Loading, Muted, Pill, Row } from '../../ui/kit';
+import { PoweredBy } from '../../ui/Brand';
 import { IconTile, Summary, tint } from '../../ui/Summary';
 
 const say = (title: string, msg: string) => (Platform.OS === 'web' ? window.alert(msg) : Alert.alert(title, msg));
@@ -91,6 +92,7 @@ export default function ShiftDetail() {
       ) : null}
       {error ? <Text style={{ color: C.bad, fontWeight: '600' }}>{error}</Text> : null}
       <Button title={t('Back')} kind="ghost" onPress={() => router.back()} />
-    </ScrollView>
+      <PoweredBy />
+      </ScrollView>
   );
 }

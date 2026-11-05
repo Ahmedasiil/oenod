@@ -5,7 +5,7 @@ import { Animated, Easing, NativeScrollEvent, NativeSyntheticEvent, Platform, Pr
 import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Backdrop, GradientButton, Wordmark } from '../ui/Brand';
+import { Backdrop, GradientButton, PoweredBy, Wordmark } from '../ui/Brand';
 import { Icon, IconName } from '../ui/Icon';
 import { BASE } from '../lib/api';
 import { C } from '../lib/theme';
@@ -15,7 +15,21 @@ import { secure } from '../lib/secure';
 export const SEEN = 'oenod.welcomed';
 const native = Platform.OS !== 'web';
 
-const glass = { backgroundColor: 'rgba(255,255,255,0.07)', borderColor: 'rgba(255,255,255,0.14)', borderWidth: 1 } as const;
+const glass = { backgroundColor: 'rgba(255,255,255,0.06)', borderColor: 'rgba(255,255,255,0.08)', borderWidth: 1 } as const;
+
+/** Clean list with a small light dot and a hairline between rows. */
+function Dots({ items }: { items: string[] }) {
+  return (
+    <View style={{ marginTop: 6 }}>
+      {items.map((x, n) => (
+        <View key={x} style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 15, borderTopWidth: n ? 1 : 0, borderColor: 'rgba(255,255,255,0.08)' }}>
+          <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: '#A9BAFF', shadowColor: '#6F86FF', shadowOpacity: 0.9, shadowRadius: 6, shadowOffset: { width: 0, height: 0 } }} />
+          <Text style={{ color: '#E6E9F5', fontSize: 15, fontWeight: '600' }}>{x}</Text>
+        </View>
+      ))}
+    </View>
+  );
+}
 
 function Float({ icon, tint, label, value, delay = 0, style }: { icon: IconName; tint: string; label: string; value: string; delay?: number; style?: any }) {
   const v = useRef(new Animated.Value(0)).current;
@@ -58,20 +72,20 @@ function Eyebrow({ text }: { text: string }) {
 }
 
 function Label({ text }: { text: string }) {
-  return <Text style={{ color: C.sky, fontWeight: '800', fontSize: 12, letterSpacing: 1.6 }}>{text}</Text>;
+  return <Text style={{ color: '#A9BAFF', fontWeight: '800', fontSize: 12, letterSpacing: 1.8 }}>{text}</Text>;
 }
 
 function Title({ a, b }: { a: string; b: string }) {
   return (
-    <Text style={{ color: C.white, fontSize: 40, fontWeight: '800', letterSpacing: -1.4, lineHeight: 44 }} accessibilityRole="header">
-      {a} <Text style={{ color: C.sky }}>{b}</Text>
+    <Text style={{ color: '#FFFFFF', fontSize: 44, fontWeight: '800', letterSpacing: -1.6, lineHeight: 48 }} accessibilityRole="header">
+      {a} <Text style={{ color: '#A9BAFF' }}>{b}</Text>
     </Text>
   );
 }
 
 function StatGrid({ cells }: { cells: [string, string][] }) {
   return (
-    <View style={[{ borderRadius: 22, overflow: 'hidden', flexDirection: 'row', flexWrap: 'wrap' }, glass, { backgroundColor: 'rgba(7,11,34,0.6)' }]}>
+    <View style={[{ borderRadius: 22, overflow: 'hidden', flexDirection: 'row', flexWrap: 'wrap' }, glass]}>
       {cells.map(([v, l], i) => (
         <View key={l} style={{ width: '50%', paddingVertical: 18, paddingHorizontal: 14, alignItems: 'center', borderColor: 'rgba(255,255,255,0.10)', borderRightWidth: i % 2 === 0 ? 1 : 0, borderBottomWidth: i < 2 ? 1 : 0 }}>
           <Text style={{ color: C.white, fontSize: 28, fontWeight: '800', letterSpacing: -0.8 }}>{v}</Text>
@@ -84,7 +98,7 @@ function StatGrid({ cells }: { cells: [string, string][] }) {
 
 function ClockPreview() {
   return (
-    <View style={[{ borderRadius: 22, padding: 18, gap: 12 }, glass, { backgroundColor: 'rgba(7,11,34,0.6)' }]}>
+    <View style={[{ borderRadius: 22, padding: 18, gap: 12 }, glass]}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <Text style={{ color: C.sub, fontWeight: '600' }}>{t('Time clock')}</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: C.goodSoft, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4 }}>
@@ -116,7 +130,7 @@ export default function Welcome() {
 
   return (
     <Backdrop>
-      <View style={{ flex: 1, paddingTop: insets.top + 8, paddingBottom: insets.bottom + 16 }}>
+      <View style={{ flex: 1, paddingTop: insets.top + 8, paddingBottom: insets.bottom + 4 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 24, height: 48 }}>
           <Wordmark width={112} />
           <Pressable onPress={() => router.push('/login')} accessibilityRole="button" style={[{ borderRadius: 999, paddingHorizontal: 16, paddingVertical: 9 }, glass]}>
@@ -126,33 +140,25 @@ export default function Welcome() {
 
         <ScrollView ref={ref} horizontal pagingEnabled showsHorizontalScrollIndicator={false} onMomentumScrollEnd={onScroll} onScroll={onScroll} scrollEventThrottle={64} style={{ flex: 1 }} contentContainerStyle={{ alignItems: 'stretch' }}>
           <View style={[page, { justifyContent: 'center' }]}>
-            <Eyebrow text={t('OENOD AI is built into every screen')} />
+            <Label text={t('OENOD AI is built into every screen').toUpperCase()} />
             <Title a={t('Run your entire company')} b={t('from your phone.')} />
-            <Text style={{ color: C.mist, fontSize: 17, lineHeight: 25 }}>{t('People, time clock, schedules, pay and your wallet in one app. One login for owners and their whole team.')}</Text>
-            <View style={{ gap: 10, marginTop: 6 }}>
-              <Float icon="check" tint={C.good} label={t('Just now')} value={t('Timesheets approved')} />
-              <Float icon="bell" tint={C.sky} label={t('Live alert')} value={t('Sara clocked in')} delay={900} style={{ alignSelf: 'flex-end' }} />
-            </View>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', columnGap: 16, rowGap: 8, marginTop: 4 }}>
-              <Check text={t('Bank-grade security')} /><Check text={t('10 languages')} /><Check text={t('Face ID')} />
-            </View>
+            <Text style={{ color: '#8F96AE', fontSize: 16, lineHeight: 24 }}>{t('People, time clock, schedules, pay and your wallet in one app. One login for owners and their whole team.')}</Text>
+            <Dots items={[t('Bank-grade security'), t('10 languages'), t('Face ID'), t('Shifts and schedule')]} />
           </View>
 
           <View style={[page, { justifyContent: 'center' }]}>
             <Label text={t('OWNER ACCOUNT')} />
             <Title a={t('Your business,')} b={t('live.')} />
-            <Text style={{ color: C.mist, fontSize: 17, lineHeight: 25 }}>{t('See sales, labour and who is working right now. Approve time off and run your team from anywhere.')}</Text>
+            <Text style={{ color: '#8F96AE', fontSize: 16, lineHeight: 24 }}>{t('See sales, labour and who is working right now. Approve time off and run your team from anywhere.')}</Text>
             <StatGrid cells={[['$2,848', t('sales today')], ['24%', t('labour cost')], ['3', t('working now')], ['2', t('requests to approve')]]} />
           </View>
 
           <View style={[page, { justifyContent: 'center' }]}>
             <Label text={t('EMPLOYEE ACCOUNT')} />
             <Title a={t('Your day,')} b={t('in one tap.')} />
-            <Text style={{ color: C.mist, fontSize: 17, lineHeight: 25 }}>{t('Employees clock in, see their shifts, request time off and get paid, all from their phone.')}</Text>
+            <Text style={{ color: '#8F96AE', fontSize: 16, lineHeight: 24 }}>{t('Employees clock in, see their shifts, request time off and get paid, all from their phone.')}</Text>
             <ClockPreview />
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', columnGap: 16, rowGap: 8 }}>
-              <Check text={t('Shifts and schedule')} /><Check text={t('Pay stubs')} /><Check text={t('Time off')} />
-            </View>
+            <Dots items={[t('Shifts and schedule'), t('Pay stubs'), t('Time off')]} />
           </View>
         </ScrollView>
 
@@ -160,10 +166,11 @@ export default function Welcome() {
           <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 8, marginBottom: 6 }} accessibilityLabel={t('Page {n} of {m}', { n: i + 1, m: pages })}>
             {[0, 1, 2].map((n) => <View key={n} style={{ height: 6, width: n === i ? 24 : 6, borderRadius: 3, backgroundColor: n === i ? C.white : 'rgba(255,255,255,0.28)' }} />)}
           </View>
-          <GradientButton title={last ? t('Sign in') : t('Continue')} iconRight="arrow" onPress={next} />
+          <GradientButton light title={last ? t('Sign in') : t('Continue')} iconRight="arrow" onPress={next} />
           <Pressable onPress={() => WebBrowser.openBrowserAsync(BASE + '/#/signup')} accessibilityRole="link" style={{ alignItems: 'center', padding: 6 }}>
-            <Text style={{ color: C.mist, fontSize: 15 }}>{t('New business?')} <Text style={{ color: C.white, fontWeight: '700' }}>{t('Start your 14-day free trial')}</Text></Text>
+            <Text style={{ color: '#8F96AE', fontSize: 15 }}>{t('New business?')} <Text style={{ color: '#A9BAFF', fontWeight: '700' }}>{t('Start your 14-day free trial')}</Text></Text>
           </Pressable>
+          <PoweredBy dark />
         </View>
       </View>
     </Backdrop>
