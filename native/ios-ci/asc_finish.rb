@@ -109,6 +109,10 @@ end
 
 # 6. Submit for review (only when asked)
 if ENV['SUBMIT'] == 'true'
+  _, rd = call(:get, "/v1/appStoreVersions/#{ver['id']}/appStoreReviewDetail")
+  ra = rd.dig('data', 'attributes') || {}
+  puts "RESULT review-signin: required=#{ra['demoAccountRequired'] ? 'yes' : 'no'} user=#{ra['demoAccountName'].to_s.empty? ? 'missing' : 'set'} password=#{ra['demoAccountPassword'].to_s.empty? ? 'MISSING' : 'set'}"
+  abort('RESULT submitted-for-review: not sent, the demo sign-in is incomplete') if !ra['demoAccountRequired'] || ra['demoAccountName'].to_s.empty? || ra['demoAccountPassword'].to_s.empty?
   c, rs = call(:post, '/v1/reviewSubmissions', { data: { type: 'reviewSubmissions', attributes: { platform: 'IOS' },
                                                         relationships: { app: { data: { type: 'apps', id: app_id } } } } })
   if [200, 201].include?(c)
