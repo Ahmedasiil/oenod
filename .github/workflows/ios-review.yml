@@ -1,6 +1,8 @@
 name: Finish App Store setup and submit
 # Age rating, content rights, free price, all countries, attaches the build, and submits when asked.
 on:
+  push:
+    branches: [ios-review, ios-submit]
   workflow_dispatch:
     inputs:
       build_number: { description: 'Build number to attach', default: '350', required: true }
@@ -14,8 +16,8 @@ jobs:
       APPLE_KEY_ID: ${{ secrets.APPLE_KEY_ID }}
       APPLE_ISSUER_ID: ${{ secrets.APPLE_ISSUER_ID }}
       APPLE_KEY_P8: ${{ secrets.APPLE_KEY_P8 }}
-      BUILD_NUMBER: ${{ inputs.build_number }}
-      SUBMIT: ${{ inputs.submit }}
+      BUILD_NUMBER: ${{ inputs.build_number || '350' }}
+      SUBMIT: ${{ inputs.submit || (github.ref_name == 'ios-submit' && 'true') || 'false' }}
     steps:
       - uses: actions/checkout@v4
       - name: Finish setup
