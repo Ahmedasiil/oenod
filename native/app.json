@@ -31,7 +31,7 @@
     },
     "android": {
       "package": "com.oenod.app",
-      "versionCode": 350,
+      "versionCode": 351,
       "adaptiveIcon": {
         "backgroundColor": "#000C58",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -43,12 +43,17 @@
         "ACCESS_FINE_LOCATION",
         "CAMERA",
         "USE_BIOMETRIC",
-        "ACCESS_BACKGROUND_LOCATION",
-        "FOREGROUND_SERVICE",
-        "FOREGROUND_SERVICE_LOCATION",
         "POST_NOTIFICATIONS"
       ],
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "blockedPermissions": [
+        "android.permission.ACCESS_BACKGROUND_LOCATION",
+        "android.permission.FOREGROUND_SERVICE_LOCATION",
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -73,15 +78,16 @@
         {
           "locationWhenInUsePermission": "OENOD uses your location to confirm you are at your workplace when you clock in. If your workplace uses site attendance, it keeps sharing your location with your managers while you are clocked in, never on breaks or after you clock out.",
           "locationAlwaysAndWhenInUsePermission": "OENOD uses your location to confirm you are at your workplace when you clock in. If your workplace uses site attendance, it keeps sharing your location with your managers while you are clocked in, never on breaks or after you clock out.",
-          "isAndroidBackgroundLocationEnabled": true,
-          "isAndroidForegroundServiceEnabled": true,
+          "isAndroidBackgroundLocationEnabled": false,
+          "isAndroidForegroundServiceEnabled": false,
           "isIosBackgroundLocationEnabled": true
         }
       ],
       [
         "expo-camera",
         {
-          "cameraPermission": "OENOD uses the camera to scan QR badges."
+          "cameraPermission": "OENOD uses the camera to scan QR badges.",
+          "recordAudioAndroidPermission": false
         }
       ],
       [
