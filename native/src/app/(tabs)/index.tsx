@@ -10,6 +10,7 @@ import { C, S } from '../../lib/theme';
 import { Avatar, B, Button, Card, Empty, ErrorBox, H2, ListRow, Loading, Muted, Pill, Row, Screen, Stat } from '../../ui/kit';
 import { Icon, IconName } from '../../ui/Icon';
 import { HeroCard } from '../../ui/Brand';
+import { Pressy, Rise, useCountUp } from '../../ui/Motion';
 import { t } from '../../lib/i18n';
 import { currentFix, syncTracking, waitForConsent, type GeoMe } from '../../lib/geo';
 
@@ -118,13 +119,15 @@ function QuickGrid({ items }: { items: Quick[] }) {
   return (
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: S.md }}>
       {items.map((q, n) => (
-        <Pressable key={q.label} onPress={q.go} accessibilityRole="button"
-          style={({ pressed }) => [{ width: '30%', flexGrow: 1, backgroundColor: C.card, borderRadius: 20, paddingVertical: 16, paddingHorizontal: 10, alignItems: 'center', gap: 10, borderWidth: 1, borderColor: C.line }, pressed && { transform: [{ scale: 0.97 }], backgroundColor: C.card2 }]}>
+        <Rise key={q.label} delay={120 + n * 45} style={{ width: '30%', flexGrow: 1 }}>
+        <Pressy onPress={q.go} accessibilityRole="button" accessibilityLabel={q.label}
+          style={{ width: '100%', backgroundColor: C.card, borderRadius: 20, paddingVertical: 16, paddingHorizontal: 10, alignItems: 'center', gap: 10, borderWidth: 1, borderColor: C.line }}>
           <View style={{ width: 46, height: 46, borderRadius: 15, backgroundColor: TINTS[n % 6] + '22', borderWidth: 1, borderColor: TINTS[n % 6] + '33', alignItems: 'center', justifyContent: 'center' }}>
             <Icon name={q.icon} color={TINTS[n % 6]} size={22} />
           </View>
           <Text style={{ color: C.ink, fontWeight: '600', fontSize: 13, textAlign: 'center' }} numberOfLines={2}>{q.label}</Text>
-        </Pressable>
+        </Pressy>
+        </Rise>
       ))}
     </View>
   );
@@ -141,32 +144,34 @@ function Mini({ label, value }: { label: string; value: string }) {
 
 function Owner({ quick }: { quick: Quick[] }) {
   const d = useLoad(() => get('/api/dashboard'));
+  const sales = useCountUp(Number(d.data?.sales_today || 0));
   if (d.loading && !d.data) return <Loading />;
   if (!d.data) return d.error ? <ErrorBox text={d.error} onRetry={d.reload} /> : null;
   const x = d.data;
   const growth = x.sales_prev_week ? Math.round(((x.sales_week - x.sales_prev_week) / x.sales_prev_week) * 100) : null;
   return (
     <>
-      <HeroCard seed={9}>
+      <Rise><HeroCard seed={9}>
         <Row style={{ justifyContent: 'space-between' }}>
           <Text style={{ color: C.mist, fontWeight: '600' }}>{t('Sales today')}</Text>
           {growth == null ? null : <Pill text={t('{p}% vs last week', { p: `${growth >= 0 ? '+' : ''}${growth}` })} kind={growth >= 0 ? 'good' : 'warn'} />}
         </Row>
-        <Text style={{ color: C.white, fontSize: 44, fontWeight: '800', letterSpacing: -1.6 }}>{money(x.sales_today)}</Text>
+        <Text style={{ color: C.white, fontSize: 44, fontWeight: '800', letterSpacing: -1.6 }}>{money(sales)}</Text>
         <Row style={{ gap: 8 }}>
           <Mini label={t('Orders')} value={String(x.orders_today ?? 0)} />
           <Mini label={t('Labor')} value={x.labor_pct == null ? '—' : `${Math.round(x.labor_pct)}%`} />
           <Mini label={t('Working now')} value={String((x.on_clock || []).length)} />
         </Row>
         <Text style={{ color: C.mist, fontSize: 13 }}>{t('This week')}: {money(x.sales_week)} · {t('Team')}: {String(x.headcount ?? '—')}</Text>
-      </HeroCard>
+      </HeroCard></Rise>
       {x.pending_timeoff ? (
-        <Card onPress={() => router.navigate('/timeoff')} style={{ borderColor: 'rgba(251,191,36,0.3)', backgroundColor: C.warnSoft }}>
+        <Card onPress={() => router.navigate('/timeoff')} style={{ borderColor: C.warnLine, backgroundColor: C.warnSoft }}>
           <Row><Icon name="sun" color={C.warn} /><B style={{ flex: 1 }}>{x.pending_timeoff === 1 ? t('1 time-off request to review') : t('{n} time-off requests to review', { n: x.pending_timeoff })}</B><Icon name="chevron" color={C.warn} size={18} /></Row>
         </Card>
       ) : null}
       <H2>{t('Quick actions')}</H2>
       <QuickGrid items={quick} />
+      <Rise delay={420} style={{ gap: S.md }}>
       <H2>{t('Working now')}</H2>
       <Card>
         {(x.on_clock || []).length ? x.on_clock.map((o: any) => (
@@ -180,6 +185,7 @@ function Owner({ quick }: { quick: Quick[] }) {
           <ListRow key={i} title={`${s.first_name} ${s.last_name}`} sub={`${time(s.starts_at)}–${time(s.ends_at)}${s.role ? ' · ' + s.role : ''}`} left={<Avatar name={`${s.first_name} ${s.last_name}`} color={s.color} size={36} />} />
         )) : <Muted>{t('No shifts scheduled today.')}</Muted>}
       </Card>
+      </Rise>
       {(x.low_stock || []).length ? (
         <>
           <H2>{t('Low stock')}</H2>
@@ -223,10 +229,15 @@ export default function Home() {
       refreshing={c.refreshing}
       onRefresh={c.refresh}
       right={
+        <View style={{ flexDirection: 'row', gap: 10 }}>
         <Pressable onPress={() => router.push('/notifications')} accessibilityRole="button" accessibilityLabel={`${t('Notifications')}${unread ? ` (${unread})` : ''}`} style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.1)', alignItems: 'center', justifyContent: 'center' }}>
           <Icon name="bell" color={C.white} size={22} />
           {unread ? <View style={{ position: 'absolute', top: 4, right: 4, minWidth: 18, height: 18, borderRadius: 9, backgroundColor: C.bad, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: C.white, fontSize: 11, fontWeight: '800' }}>{unread > 9 ? '9+' : unread}</Text></View> : null}
         </Pressable>
+        <Pressable onPress={() => router.navigate('/me')} accessibilityRole="button" accessibilityLabel={t('Me')} style={{ borderRadius: 22, borderWidth: 2, borderColor: 'rgba(255,255,255,0.35)' }}>
+          <Avatar name={session?.user?.name || '?'} size={40} color="#4F6BFF" />
+        </Pressable>
+        </View>
       }
     >
       {isManager ? (
@@ -236,7 +247,7 @@ export default function Home() {
         </>
       ) : hasEmployee ? (
         <>
-          {c.data ? <ClockCard clock={c.data} onChange={(x) => c.setData(x)} /> : c.error ? <ErrorBox text={c.error} onRetry={c.reload} /> : <Loading />}
+          {c.data ? <Rise><ClockCard clock={c.data} onChange={(x) => c.setData(x)} /></Rise> : c.error ? <ErrorBox text={c.error} onRetry={c.reload} /> : <Loading />}
           <H2>{t('Quick actions')}</H2>
           <QuickGrid items={staffQuick} />
           <Card onPress={() => router.push('/wallet')}>

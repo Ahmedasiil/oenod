@@ -5,6 +5,7 @@ import { useAuth } from '../../lib/auth';
 import { C } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { Icon, IconName } from '../../ui/Icon';
+import { TabBar } from '../../ui/TabBar';
 
 const icon = (name: IconName) => ({ color }: { color: unknown }) => <Icon name={name} color={String(color ?? C.faint)} size={24} />;
 
@@ -15,12 +16,15 @@ export default function TabsLayout() {
   const insets = useSafeAreaInsets();
   return (
     <Tabs
+      tabBar={(p) => <TabBar {...p} />}
       screenOptions={{
+        animation: 'shift',
         headerShown: false,
-        tabBarActiveTintColor: C.white,
+        tabBarActiveTintColor: C.tabOn,
         tabBarInactiveTintColor: C.faint,
         tabBarLabelStyle: { fontSize: 12, fontWeight: '600', lineHeight: 18 },
-        tabBarStyle: { borderTopColor: 'rgba(255,255,255,0.08)', borderTopWidth: 1, height: 66 + insets.bottom, paddingTop: 6, backgroundColor: '#060920', elevation: 0 },
+        tabBarStyle: { borderTopColor: C.line, borderTopWidth: 1, height: 66 + insets.bottom, paddingTop: 6, backgroundColor: C.tabBg, elevation: 0 },
+        sceneStyle: { backgroundColor: C.bg },
       }}
     >
       <Tabs.Screen name="index" options={{ title: t('Home'), tabBarIcon: icon('home') }} />

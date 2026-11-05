@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
-import { Stack } from 'expo-router';
+import { Stack, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { AppState } from 'react-native';
 import { Splash } from '../ui/Brand';
+import { AppearanceProvider, takeReturnTo } from '../lib/appearance';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider, useAuth } from '../lib/auth';
 import { C } from '../lib/theme';
@@ -20,22 +21,27 @@ function Gate() {
     const sub = AppState.addEventListener('change', (st) => { if (st === 'active') syncTracking(); });
     return () => sub.remove();
   }, [ready, signedIn, hasEmployee]);
+  useEffect(() => {
+    if (!ready || !signedIn) return;
+    const r = takeReturnTo();
+    if (r) setTimeout(() => router.navigate(r as any), 0);
+  }, [ready, signedIn]);
   if (!ready) return <Splash />;
   return (
-    <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: C.bg } }}>
+    <Stack screenOptions={{ headerShown: false, animation: 'slide_from_right', contentStyle: { backgroundColor: C.bg }, headerBackButtonDisplayMode: 'minimal', headerTitleStyle: { fontWeight: '700' } }}>
       <Stack.Protected guard={signedIn}>
         <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="employee/[id]" options={{ headerShown: true, title: t('Team member'), headerTintColor: C.white, headerStyle: { backgroundColor: C.bg }, headerShadowVisible: false }} />
-        <Stack.Screen name="notifications" options={{ headerShown: true, title: t('Notifications'), headerTintColor: C.white, headerStyle: { backgroundColor: C.bg }, headerShadowVisible: false }} />
-        <Stack.Screen name="timeoff-new" options={{ presentation: 'modal', headerShown: true, title: t('Request time off'), headerTintColor: C.white, headerStyle: { backgroundColor: C.bg }, headerShadowVisible: false }} />
-        <Stack.Screen name="shift/[id]" options={{ headerShown: true, title: t('Shift'), headerTintColor: C.white, headerStyle: { backgroundColor: C.bg }, headerShadowVisible: false }} />
-        <Stack.Screen name="availability" options={{ headerShown: true, title: t('My availability'), headerTintColor: C.white, headerStyle: { backgroundColor: C.bg }, headerShadowVisible: false }} />
-        <Stack.Screen name="pay" options={{ headerShown: true, title: t('My pay'), headerTintColor: C.white, headerStyle: { backgroundColor: C.bg }, headerShadowVisible: false }} />
-        <Stack.Screen name="wallet" options={{ headerShown: true, title: t('Wallet'), headerTintColor: C.white, headerStyle: { backgroundColor: C.bg }, headerShadowVisible: false }} />
-        <Stack.Screen name="feed" options={{ headerShown: true, title: t('Team news'), headerTintColor: C.white, headerStyle: { backgroundColor: C.bg }, headerShadowVisible: false }} />
-        <Stack.Screen name="geo-consent" options={{ presentation: 'modal', headerShown: true, title: t('Site attendance'), headerTintColor: C.white, headerStyle: { backgroundColor: C.bg }, headerShadowVisible: false }} />
-        <Stack.Screen name="delete-account" options={{ presentation: 'modal', headerShown: true, title: t('Delete my account'), headerTintColor: C.white, headerStyle: { backgroundColor: C.bg }, headerShadowVisible: false }} />
-        <Stack.Screen name="timesheet" options={{ headerShown: true, title: t('My hours'), headerTintColor: C.white, headerStyle: { backgroundColor: C.bg }, headerShadowVisible: false }} />
+        <Stack.Screen name="employee/[id]" options={{ headerShown: true, title: t('Team member'), headerTintColor: C.white, headerStyle: { backgroundColor: C.head }, headerShadowVisible: false }} />
+        <Stack.Screen name="notifications" options={{ headerShown: true, title: t('Notifications'), headerTintColor: C.white, headerStyle: { backgroundColor: C.head }, headerShadowVisible: false }} />
+        <Stack.Screen name="timeoff-new" options={{ presentation: 'modal', headerShown: true, title: t('Request time off'), headerTintColor: C.white, headerStyle: { backgroundColor: C.head }, headerShadowVisible: false }} />
+        <Stack.Screen name="shift/[id]" options={{ headerShown: true, title: t('Shift'), headerTintColor: C.white, headerStyle: { backgroundColor: C.head }, headerShadowVisible: false }} />
+        <Stack.Screen name="availability" options={{ headerShown: true, title: t('My availability'), headerTintColor: C.white, headerStyle: { backgroundColor: C.head }, headerShadowVisible: false }} />
+        <Stack.Screen name="pay" options={{ headerShown: true, title: t('My pay'), headerTintColor: C.white, headerStyle: { backgroundColor: C.head }, headerShadowVisible: false }} />
+        <Stack.Screen name="wallet" options={{ headerShown: true, title: t('Wallet'), headerTintColor: C.white, headerStyle: { backgroundColor: C.head }, headerShadowVisible: false }} />
+        <Stack.Screen name="feed" options={{ headerShown: true, title: t('Team news'), headerTintColor: C.white, headerStyle: { backgroundColor: C.head }, headerShadowVisible: false }} />
+        <Stack.Screen name="geo-consent" options={{ presentation: 'modal', headerShown: true, title: t('Site attendance'), headerTintColor: C.white, headerStyle: { backgroundColor: C.head }, headerShadowVisible: false }} />
+        <Stack.Screen name="delete-account" options={{ presentation: 'modal', headerShown: true, title: t('Delete my account'), headerTintColor: C.white, headerStyle: { backgroundColor: C.head }, headerShadowVisible: false }} />
+        <Stack.Screen name="timesheet" options={{ headerShown: true, title: t('My hours'), headerTintColor: C.white, headerStyle: { backgroundColor: C.head }, headerShadowVisible: false }} />
       </Stack.Protected>
       <Stack.Protected guard={!signedIn}>
         <Stack.Screen name="welcome" options={{ contentStyle: { backgroundColor: C.navy } }} />
@@ -50,8 +56,10 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <AuthProvider>
       <LangProvider>
+      <AppearanceProvider>
         <StatusBar style="light" />
         <Gate />
+      </AppearanceProvider>
       </LangProvider>
       </AuthProvider>
     </SafeAreaProvider>

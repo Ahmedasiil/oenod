@@ -1,11 +1,12 @@
 import React from 'react';
 import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, TextInputProps, View, ViewStyle, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { C, R, S } from '../lib/theme';
+import { C, R, S, onPalette } from '../lib/theme';
 import { initials } from '../lib/format';
 import { Icon, IconName } from './Icon';
 import { t } from '../lib/i18n';
 import { Constellation, GradientButton, HeroGradient } from './Brand';
+import { Pressy } from './Motion';
 
 export function Screen({ title, eyebrow, subtitle, right, children, refreshing, onRefresh, scroll = true }: {
   title?: string; eyebrow?: string; subtitle?: string; right?: React.ReactNode; children: React.ReactNode; refreshing?: boolean; onRefresh?: () => void; scroll?: boolean;
@@ -30,8 +31,8 @@ export function Screen({ title, eyebrow, subtitle, right, children, refreshing, 
     <View style={st.screen}>
       {head}
       <ScrollView
-        contentContainerStyle={{ padding: S.lg, paddingBottom: S.xl * 2, gap: S.md }}
-        refreshControl={onRefresh ? <RefreshControl refreshing={!!refreshing} onRefresh={onRefresh} tintColor={C.sky} /> : undefined}
+        contentContainerStyle={{ padding: S.lg, paddingBottom: 130, gap: S.md }}
+        refreshControl={onRefresh ? <RefreshControl refreshing={!!refreshing} onRefresh={onRefresh} tintColor={C.link} /> : undefined}
       >
         {children}
       </ScrollView>
@@ -41,7 +42,7 @@ export function Screen({ title, eyebrow, subtitle, right, children, refreshing, 
 
 export const Card = ({ children, style, onPress }: { children: React.ReactNode; style?: ViewStyle | ViewStyle[]; onPress?: () => void }) =>
   onPress ? (
-    <Pressable onPress={onPress} style={({ pressed }) => [st.card, style, pressed && { opacity: 0.85 }]}>{children}</Pressable>
+    <Pressy onPress={onPress} accessibilityRole="button" style={[st.card, style] as any}>{children}</Pressy>
   ) : <View style={[st.card, style]}>{children}</View>;
 
 export const H2 = ({ children, right }: { children: React.ReactNode; right?: React.ReactNode }) => (
@@ -54,9 +55,9 @@ export function Button({ title, onPress, kind = 'primary', icon, busy, disabled,
   title: string; onPress: () => void; kind?: 'primary' | 'secondary' | 'danger' | 'light' | 'ghost'; icon?: IconName; busy?: boolean; disabled?: boolean; style?: ViewStyle;
 }) {
   if (kind === 'primary') return <GradientButton title={title} onPress={onPress} icon={icon} busy={busy} disabled={disabled} style={style} />;
-  const bg = { primary: C.blue, secondary: 'rgba(255,255,255,0.07)', danger: '#E5484D', light: C.white, ghost: 'transparent' }[kind];
-  const fg = { primary: C.white, secondary: C.ink, danger: C.white, light: C.navy, ghost: C.sky }[kind];
-  const border = kind === 'secondary' ? 'rgba(255,255,255,0.16)' : 'transparent';
+  const bg = { primary: C.blue, secondary: C.field, danger: '#E5484D', light: C.white, ghost: 'transparent' }[kind];
+  const fg = { primary: C.white, secondary: C.ink, danger: C.white, light: C.navy, ghost: C.link }[kind];
+  const border = kind === 'secondary' ? C.line : 'transparent';
   return (
     <Pressable
       accessibilityRole="button"
@@ -86,7 +87,7 @@ export function Field({ label, error, ...p }: TextInputProps & { label: string; 
 }
 
 export const Pill = ({ text, kind = 'info' }: { text: string; kind?: 'good' | 'warn' | 'bad' | 'info' | 'plain' }) => {
-  const m = { good: [C.goodSoft, C.good], warn: [C.warnSoft, C.warn], bad: [C.badSoft, C.bad], info: [C.blueSoft, C.blue], plain: ['rgba(255,255,255,0.08)', C.sub] }[kind];
+  const m = { good: [C.goodSoft, C.good], warn: [C.warnSoft, C.warn], bad: [C.badSoft, C.bad], info: [C.blueSoft, C.blue], plain: [C.seg, C.sub] }[kind];
   return <View style={[st.pill, { backgroundColor: m[0] }]}><Text style={[st.pillT, { color: m[1] }]}>{text}</Text></View>;
 };
 
@@ -99,7 +100,7 @@ export const Avatar = ({ name, color, size = 40 }: { name: string; color?: strin
 export const Row = ({ children, style }: { children: React.ReactNode; style?: ViewStyle }) => <View style={[{ flexDirection: 'row', alignItems: 'center', gap: S.md }, style]}>{children}</View>;
 
 export const ListRow = ({ title, sub, left, right, onPress }: { title: string; sub?: string; left?: React.ReactNode; right?: React.ReactNode; onPress?: () => void }) => (
-  <Pressable onPress={onPress} disabled={!onPress} accessibilityRole={onPress ? 'button' : undefined} style={({ pressed }) => [st.lrow, pressed && onPress ? { backgroundColor: 'rgba(255,255,255,0.04)' } : null]}>
+  <Pressable onPress={onPress} disabled={!onPress} accessibilityRole={onPress ? 'button' : undefined} style={({ pressed }) => [st.lrow, pressed && onPress ? { backgroundColor: C.card2 } : null]}>
     {left}
     <View style={{ flex: 1, minWidth: 0 }}>
       <Text style={st.b} numberOfLines={1}>{title}</Text>
@@ -122,7 +123,7 @@ export const Empty = ({ icon = 'check', title, sub }: { icon?: IconName; title: 
 export const Loading = () => <View style={{ padding: S.xl * 2, alignItems: 'center' }}><ActivityIndicator color={C.blue} size="large" /></View>;
 
 export const ErrorBox = ({ text, onRetry }: { text: string; onRetry?: () => void }) => (
-  <Card style={{ borderColor: 'rgba(248,113,113,0.3)', backgroundColor: C.badSoft }}>
+  <Card style={{ borderColor: C.badLine, backgroundColor: C.badSoft }}>
     <Text style={{ color: C.bad, fontWeight: '600' }}>{text}</Text>
     {onRetry ? <Button title={t('Try again')} kind="secondary" onPress={onRetry} style={{ marginTop: S.md }} /> : null}
   </Card>
@@ -136,10 +137,11 @@ export const Stat = ({ label, value, sub }: { label: string; value: string; sub?
   </Card>
 );
 
-export const st = StyleSheet.create({
+export const st: Record<string, any> = {};
+onPalette(() => { Object.assign(st, StyleSheet.create({
   screen: { flex: 1, backgroundColor: C.bg },
   head: { backgroundColor: C.navy, overflow: 'hidden', paddingHorizontal: S.lg, paddingBottom: S.xl, borderBottomLeftRadius: 28, borderBottomRightRadius: 28, flexDirection: 'row', alignItems: 'flex-end', gap: S.md },
-  h1: { color: C.white, fontSize: 28, fontWeight: '800', letterSpacing: -0.8 },
+  h1: { color: C.white, fontSize: 26, fontWeight: '800', letterSpacing: -0.7 },
   headSub: { color: C.mist, fontSize: 14, marginTop: 4, fontWeight: '500' },
   h2Row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: S.sm },
   h2: { fontSize: 13, fontWeight: '800', color: C.sub, letterSpacing: 1.2, textTransform: 'uppercase' },
@@ -153,4 +155,4 @@ export const st = StyleSheet.create({
   pill: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999, alignSelf: 'flex-start' },
   pillT: { fontSize: 12, fontWeight: '700' },
   lrow: { flexDirection: 'row', alignItems: 'center', gap: S.md, paddingVertical: S.md, minHeight: 56 },
-});
+})); });

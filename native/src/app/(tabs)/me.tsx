@@ -13,10 +13,15 @@ import { Icon } from '../../ui/Icon';
 import { QR } from '../../ui/QR';
 import { LANGS, t, useLang } from '../../lib/i18n';
 import { QuickCard } from '../../ui/QuickCard';
+import { useAppearance, type Mode } from '../../lib/appearance';
+import { Pressable } from 'react-native';
+import type { IconName } from '../../ui/Icon';
 
 export default function Me() {
   const { session, signOut } = useAuth();
   const { lang, setLang } = useLang();
+  const look = useAppearance();
+  const MODES: [Mode, string, IconName][] = [['system', t('Automatic'), 'device'], ['light', t('Light'), 'sun'], ['dark', t('Dark'), 'moon']];
   const pickLang = async (code: typeof lang) => {
     if (code === lang) return;
     const restart = await setLang(code);
@@ -66,6 +71,21 @@ export default function Me() {
           </Row>
         ) : null}
       </Card>
+
+      <H2>{t('Appearance')}</H2>
+      <View style={{ flexDirection: 'row', backgroundColor: C.seg, borderRadius: 16, padding: 4, gap: 4 }} accessibilityRole="radiogroup">
+        {MODES.map(([m, l, ic]) => {
+          const on = look.mode === m;
+          return (
+            <Pressable key={m} onPress={() => look.setMode(m)} accessibilityRole="radio" accessibilityState={{ checked: on }}
+              style={{ flex: 1, alignItems: 'center', gap: 6, paddingVertical: 12, borderRadius: 12, backgroundColor: on ? C.segOn : 'transparent', borderWidth: on ? 1 : 0, borderColor: C.line }}>
+              <Icon name={ic} size={20} color={on ? C.link : C.sub} />
+              <Text style={{ color: on ? C.ink : C.sub, fontWeight: '700', fontSize: 13 }}>{l}</Text>
+            </Pressable>
+          );
+        })}
+      </View>
+      <Muted style={{ fontSize: 13 }}>{t('Automatic follows your phone’s light or dark setting.')}</Muted>
 
       <H2>{t('Language')}</H2>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>

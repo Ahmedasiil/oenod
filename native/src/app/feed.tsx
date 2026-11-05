@@ -25,7 +25,7 @@ type Feed = {
 };
 type Kind = 'post' | 'shoutout' | 'announcement' | 'poll';
 const say = (title: string, msg: string) => (Platform.OS === 'web' ? window.alert(msg) : Alert.alert(title, msg));
-const input = { backgroundColor: C.field, borderRadius: R.md, borderWidth: 1, borderColor: C.line, paddingHorizontal: 14, paddingVertical: 10, fontSize: 16, color: C.ink, minWidth: 0 } as const;
+const inputStyle = () => ({ backgroundColor: C.field, borderRadius: R.md, borderWidth: 1, borderColor: C.line, paddingHorizontal: 14, paddingVertical: 10, fontSize: 16, color: C.ink, minWidth: 0 } as const);
 
 function Chip({ on, label, onPress }: { on: boolean; label: string; onPress: () => void }) {
   return (
@@ -105,7 +105,7 @@ function PostCard({ p, badges, onChange }: { p: Post; badges: Record<string, str
         <View key={c.id} style={{ backgroundColor: C.bg, borderRadius: R.sm, padding: 10 }}><B style={{ fontSize: 14 }}>{c.author}</B><Text style={{ color: C.ink }}>{c.body}</Text></View>
       ))}
       <Row>
-        <TextInput value={reply} onChangeText={setReply} placeholder={t('Write a comment')} placeholderTextColor={C.faint} style={[input, { flex: 1 }]} maxLength={1000} accessibilityLabel={t('Write a comment')} />
+        <TextInput value={reply} onChangeText={setReply} placeholder={t('Write a comment')} placeholderTextColor={C.faint} style={[inputStyle(), { flex: 1 }]} maxLength={1000} accessibilityLabel={t('Write a comment')} />
         <Button title={t('Send')} kind="secondary" onPress={() => act('c', async () => { await post(`/api/feed/${p.id}/comment`, { body: reply.trim() }); setReply(''); })} busy={busy === 'c'} disabled={!reply.trim()} style={{ minHeight: 44, paddingHorizontal: 14, flexShrink: 0 }} />
       </Row>
     </Card>
@@ -141,7 +141,7 @@ export default function FeedScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: C.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={{ padding: S.lg, gap: S.md, paddingBottom: 48 }} keyboardShouldPersistTaps="handled">
-        {x?.to_ack ? <Card style={{ backgroundColor: C.warnSoft, borderColor: 'rgba(251,191,36,0.3)' }}><B>{t('{n} announcements need your confirmation', { n: x.to_ack })}</B></Card> : null}
+        {x?.to_ack ? <Card style={{ backgroundColor: C.warnSoft, borderColor: C.warnLine }}><B>{t('{n} announcements need your confirmation', { n: x.to_ack })}</B></Card> : null}
         <Card style={{ gap: S.sm }}>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>{kinds.map(([k, l]) => <Chip key={k} on={kind === k} label={l} onPress={() => setKind(k)} />)}</View>
           {kind === 'shoutout' ? (
@@ -152,10 +152,10 @@ export default function FeedScreen() {
             </>
           ) : null}
           <TextInput value={body} onChangeText={setBody} placeholder={t(kind === 'poll' ? 'Ask a question' : 'Share news or thank a teammate')} placeholderTextColor={C.faint} multiline maxLength={5000}
-            style={[input, { minHeight: 80, textAlignVertical: 'top' }]} accessibilityLabel={t('Message')} />
+            style={[inputStyle(), { minHeight: 80, textAlignVertical: 'top' }]} accessibilityLabel={t('Message')} />
           {kind === 'poll' ? (
             <>
-              {opts.map((o, i) => <TextInput key={i} value={o} onChangeText={(v) => setOpts(opts.map((y, j) => (j === i ? v : y)))} placeholder={t('Choice {n}', { n: i + 1 })} placeholderTextColor={C.faint} style={input} maxLength={120} />)}
+              {opts.map((o, i) => <TextInput key={i} value={o} onChangeText={(v) => setOpts(opts.map((y, j) => (j === i ? v : y)))} placeholder={t('Choice {n}', { n: i + 1 })} placeholderTextColor={C.faint} style={inputStyle()} maxLength={120} />)}
               {opts.length < 8 ? <Button title={t('Add a choice')} icon="plus" kind="ghost" onPress={() => setOpts([...opts, ''])} /> : null}
             </>
           ) : null}
