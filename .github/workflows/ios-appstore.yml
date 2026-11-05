@@ -1,7 +1,7 @@
 name: Send iPhone app to App Store Connect
 # Runs when the apps-build branch is pushed to the ios-store branch, once the four Apple secrets are saved in this repository:
 # APPLE_KEY_ID, APPLE_ISSUER_ID, APPLE_TEAM_ID and APPLE_KEY_P8 (the whole .p8 file).
-# It builds, signs (automatic signing through the App Store Connect API key) and uploads the build to App Store Connect.
+# It registers the bundle ID, signs with a temporary distribution certificate (fastlane, API key only) and uploads the build to App Store Connect.
 on:
   push:
     branches: [ios-store]
@@ -23,6 +23,11 @@ jobs:
             if [ -z "${!v}" ]; then echo "::error::Missing repository secret $v"; exit 1; fi
           done
       - uses: actions/checkout@v4
+      - name: Install fastlane
+        run: which fastlane || brew install fastlane
+      - name: Register the bundle ID and check the app record
+        working-directory: native/ios-ci
+        run: fastlane ios prepare
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
       - name: Install
@@ -31,39 +36,11 @@ jobs:
       - name: Generate iOS project and pods
         working-directory: native
         run: npx expo prebuild --platform ios
-      - name: Save the API key for this run only
-        run: |
-          mkdir -p "$RUNNER_TEMP/keys"
-          printf '%s' "$APPLE_KEY_P8" > "$RUNNER_TEMP/keys/AuthKey.p8"
-          chmod 600 "$RUNNER_TEMP/keys/AuthKey.p8"
-      - name: Archive (signed for the App Store)
-        working-directory: native/ios
-        run: |
-          WS=$(ls -d *.xcworkspace | head -1)
-          SCHEME=$(basename "$WS" .xcworkspace)
-          set -o pipefail
-          xcodebuild -workspace "$WS" -scheme "$SCHEME" -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
-            -archivePath "$RUNNER_TEMP/OENOD.xcarchive" archive \
-            CODE_SIGN_STYLE=Automatic DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
-            -allowProvisioningUpdates \
-            -authenticationKeyPath "$RUNNER_TEMP/keys/AuthKey.p8" -authenticationKeyID "$APPLE_KEY_ID" -authenticationKeyIssuerID "$APPLE_ISSUER_ID" | tail -60
-      - name: Upload to App Store Connect
-        run: |
-          cat > "$RUNNER_TEMP/ExportOptions.plist" <<EOF
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0"><dict>
-            <key>method</key><string>app-store-connect</string>
-            <key>destination</key><string>upload</string>
-            <key>teamID</key><string>${APPLE_TEAM_ID}</string>
-            <key>signingStyle</key><string>automatic</string>
-            <key>uploadSymbols</key><true/>
-          </dict></plist>
-          EOF
-          set -o pipefail
-          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/OENOD.xcarchive" -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
-            -exportPath "$RUNNER_TEMP/export" -allowProvisioningUpdates \
-            -authenticationKeyPath "$RUNNER_TEMP/keys/AuthKey.p8" -authenticationKeyID "$APPLE_KEY_ID" -authenticationKeyIssuerID "$APPLE_ISSUER_ID" | tail -60
+      - name: Sign, archive and upload to App Store Connect
+        working-directory: native/ios-ci
+        env:
+          FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT: '120'
+        run: fastlane ios release
       - name: Remove the key
         if: always()
         run: rm -rf "$RUNNER_TEMP/keys"
