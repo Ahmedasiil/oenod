@@ -42,7 +42,7 @@ export default function ShiftDetail() {
     target ? t('Your teammate and your manager were asked. You keep the shift until your manager approves.') : t('Your manager was asked. You keep the shift until it is approved.'));
 
   return (
-    <ScrollView style={{ backgroundColor: C.bg }} contentContainerStyle={{ padding: S.lg, gap: S.md, paddingBottom: 48 }} keyboardShouldPersistTaps="handled">
+    <ScrollView style={{ backgroundColor: C.bg }} contentContainerStyle={{ width: '100%', maxWidth: 760, alignSelf: 'center', padding: S.lg, gap: S.md, paddingBottom: 48 }} keyboardShouldPersistTaps="handled">
       <Summary seed={15} label={longDay(s.starts_at)} value={`${time(s.starts_at)} – ${time(s.ends_at)}`}
         badge={s.confirm === 'confirmed' ? <Pill text={t('Confirmed')} kind="good" /> : s.confirm === 'declined' ? <Pill text={t("Can't work")} kind="bad" /> : <Pill text={t('Not confirmed yet')} kind="warn" />}
         minis={[[t('Paid time'), hm(s.minutes ?? minutesBetween(s.starts_at, s.ends_at) - (s.break_minutes || 0))], [t('Role'), s.role || '—'], [t('Location'), s.location || '—']]}

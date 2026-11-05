@@ -19,6 +19,7 @@ export function Screen({ title, eyebrow, subtitle, right, children, refreshing, 
   const { width } = useWindowDimensions();
   const [hh, setHh] = React.useState(160);
   const isHero = !!hero;
+  const padH = Math.max(S.lg, (width - 760) / 2 + S.lg); // iPad: keep content in a readable centre column
   useFocusEffect(React.useCallback(() => { setStatusBarStyle(isHero || C.dark ? 'light' : 'dark'); return () => setStatusBarStyle(C.dark ? 'light' : 'dark'); }, [isHero]));
   const titleRow = title ? (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: S.md }}>
@@ -31,13 +32,13 @@ export function Screen({ title, eyebrow, subtitle, right, children, refreshing, 
     </View>
   ) : null;
   const head = hero ? (
-    <View style={[st.panel, { paddingTop: insets.top + S.md }]} onLayout={(e) => setHh(e.nativeEvent.layout.height)}>
+    <View style={[st.panel, { paddingTop: insets.top + S.md, paddingHorizontal: padH }]} onLayout={(e) => setHh(e.nativeEvent.layout.height)}>
       <HeroGradient width={width} height={hh} id="sp" fade={false} />
       {titleRow}
       {hero}
     </View>
   ) : title ? (
-    <View style={[st.head, { paddingTop: insets.top + S.lg }]} onLayout={(e) => setHh(e.nativeEvent.layout.height)}>
+    <View style={[st.head, { paddingTop: insets.top + S.lg, paddingHorizontal: padH }]} onLayout={(e) => setHh(e.nativeEvent.layout.height)}>
       <CornerGlow width={width} height={hh + 60} color={C.dark ? '#3D5BFF' : '#7C93FF'} opacity={C.dark ? 0.32 : 0.22} />
       {titleRow}
     </View>
@@ -47,7 +48,7 @@ export function Screen({ title, eyebrow, subtitle, right, children, refreshing, 
     <View style={st.screen}>
       {head}
       <ScrollView
-        contentContainerStyle={{ padding: S.lg, paddingTop: hero ? S.xl : S.sm, paddingBottom: 120, gap: S.md }}
+        contentContainerStyle={{ width: '100%', maxWidth: 760, alignSelf: 'center', padding: S.lg, paddingTop: hero ? S.xl : S.sm, paddingBottom: 120, gap: S.md }}
         refreshControl={onRefresh ? <RefreshControl refreshing={!!refreshing} onRefresh={onRefresh} tintColor={C.link} /> : undefined}
       >
         {children}

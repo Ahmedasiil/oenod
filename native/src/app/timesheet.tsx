@@ -18,7 +18,7 @@ export default function Timesheet() {
   const week = entries.filter((e) => new Date(e.clock_in.replace(' ', 'T') + 'Z').getTime() >= weekAgo).reduce((a, e) => a + (e.minutes || 0), 0);
   const month = entries.reduce((a, e) => a + (e.minutes || 0), 0);
   return (
-    <ScrollView style={{ backgroundColor: C.bg }} contentContainerStyle={{ padding: S.lg, gap: S.md, paddingBottom: 48 }}>
+    <ScrollView style={{ backgroundColor: C.bg }} contentContainerStyle={{ width: '100%', maxWidth: 760, alignSelf: 'center', padding: S.lg, gap: S.md, paddingBottom: 48 }}>
       {d.loading && !d.data ? <Loading /> : d.error && !d.data ? <ErrorBox text={d.error} onRetry={d.reload} /> : (
         <>
           <Summary seed={14} label={t('Last 7 days')} value={hm(week)}

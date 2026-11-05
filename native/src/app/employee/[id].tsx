@@ -19,7 +19,7 @@ export default function Employee() {
   const e = d.data;
   const tel = e.phone ? String(e.phone).replace(/[^\d+]/g, '') : '';
   return (
-    <ScrollView style={{ backgroundColor: C.bg }} contentContainerStyle={{ padding: S.lg, gap: S.md, paddingBottom: 48 }}>
+    <ScrollView style={{ backgroundColor: C.bg }} contentContainerStyle={{ width: '100%', maxWidth: 760, alignSelf: 'center', padding: S.lg, gap: S.md, paddingBottom: 48 }}>
       <Rise><HeroCard seed={16} style={{ alignItems: 'center' }}>
         <View style={{ borderRadius: 44, padding: 3, backgroundColor: 'rgba(255,255,255,0.18)' }}><Avatar name={e.name} color={e.color} size={76} /></View>
         <Text style={{ fontSize: 22, fontWeight: '800', color: C.white }}>{e.name}</Text>

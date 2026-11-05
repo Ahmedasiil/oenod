@@ -56,7 +56,7 @@ export default function Availability() {
   const modes: [Mode, string][] = [['any', t('Any time')], ['hours', t('Only these hours')], ['off', t('Not available')]];
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: C.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView contentContainerStyle={{ padding: S.lg, gap: S.md, paddingBottom: 48 }} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={{ width: '100%', maxWidth: 760, alignSelf: 'center', padding: S.lg, gap: S.md, paddingBottom: 48 }} keyboardShouldPersistTaps="handled">
         <Muted>{t('Your manager sees this when building the schedule.')}</Muted>
         {ORDER.map((wd) => (
           <Card key={wd} style={{ gap: S.sm }}>

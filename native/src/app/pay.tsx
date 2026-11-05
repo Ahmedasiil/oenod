@@ -24,7 +24,7 @@ export default function PayScreen() {
   const x = d.data;
   const open = () => WebBrowser.openBrowserAsync(`${BASE}/?lang=${lang()}#/my-pay`);
   return (
-    <ScrollView style={{ backgroundColor: C.bg }} contentContainerStyle={{ padding: S.lg, gap: S.md, paddingBottom: 48 }}>
+    <ScrollView style={{ backgroundColor: C.bg }} contentContainerStyle={{ width: '100%', maxWidth: 760, alignSelf: 'center', padding: S.lg, gap: S.md, paddingBottom: 48 }}>
       {d.loading && !x ? <Loading /> : d.error && !x ? <ErrorBox text={d.error} onRetry={d.reload} /> : (
         <>
           <Summary seed={13} label={t('Last pay')} value={x?.lines[0] ? money(n(x.lines[0].net) || n(x.lines[0].gross), 2) : '—'}

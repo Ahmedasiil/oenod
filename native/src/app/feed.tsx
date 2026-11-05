@@ -141,7 +141,7 @@ export default function FeedScreen() {
   ];
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: C.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView contentContainerStyle={{ padding: S.lg, gap: S.md, paddingBottom: 48 }} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={{ width: '100%', maxWidth: 760, alignSelf: 'center', padding: S.lg, gap: S.md, paddingBottom: 48 }} keyboardShouldPersistTaps="handled">
         {x?.to_ack ? <Card style={{ backgroundColor: C.warnSoft, borderColor: C.warnLine }}><B>{t('{n} announcements need your confirmation', { n: x.to_ack })}</B></Card> : null}
         <Card style={{ gap: S.sm }}>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>{kinds.map(([k, l]) => <Chip key={k} on={kind === k} label={l} onPress={() => setKind(k)} />)}</View>

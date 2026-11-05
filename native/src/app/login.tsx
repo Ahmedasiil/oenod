@@ -66,7 +66,7 @@ export default function Login() {
           <Icon name="back" color={C.white} />
         </Pressable>
       ) : null}
-      <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: S.xl, paddingTop: insets.top + 56, paddingBottom: insets.bottom + S.xl }} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', width: '100%', maxWidth: 520, alignSelf: 'center', padding: S.xl, paddingTop: insets.top + 56, paddingBottom: insets.bottom + S.xl }} keyboardShouldPersistTaps="handled">
         <View style={{ alignItems: 'center', marginBottom: 28 }}>
           <Wordmark width={190} />
           <Text style={{ color: C.mist, fontSize: 16, marginTop: 10, textAlign: 'center' }}>{t('Run your whole business from your phone.')}</Text>

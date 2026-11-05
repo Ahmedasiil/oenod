@@ -7,7 +7,7 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "supportsTablet": false,
+      "supportsTablet": true,
       "bundleIdentifier": "com.oenod.app",
       "buildNumber": "350",
       "associatedDomains": [
@@ -22,7 +22,8 @@
         "NSLocationAlwaysAndWhenInUseUsageDescription": "OENOD uses your location to confirm you are at your workplace when you clock in. If your workplace uses site attendance, it keeps sharing your location with your managers while you are clocked in, never on breaks or after you clock out.",
         "UIBackgroundModes": [
           "location"
-        ]
+        ],
+        "UIRequiresFullScreen": true
       },
       "config": {
         "usesNonExemptEncryption": false

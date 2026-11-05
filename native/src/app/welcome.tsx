@@ -126,7 +126,8 @@ export default function Welcome() {
     ref.current?.scrollTo({ x: width * (i + 1), animated: true });
     setI(i + 1);
   };
-  const page = { width, paddingHorizontal: 24, paddingTop: 12, gap: 18 } as const;
+  const side = Math.max(24, (width - 560) / 2); // iPad: centre column
+  const page = { width, paddingHorizontal: side, paddingTop: 12, gap: 18 } as const;
 
   return (
     <Backdrop>
@@ -162,7 +163,7 @@ export default function Welcome() {
           </View>
         </ScrollView>
 
-        <View style={{ paddingHorizontal: 24, gap: 14 }}>
+        <View style={{ paddingHorizontal: side, gap: 14 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 8, marginBottom: 6 }} accessibilityLabel={t('Page {n} of {m}', { n: i + 1, m: pages })}>
             {[0, 1, 2].map((n) => <View key={n} style={{ height: 6, width: n === i ? 24 : 6, borderRadius: 3, backgroundColor: n === i ? C.white : 'rgba(255,255,255,0.28)' }} />)}
           </View>

@@ -23,7 +23,7 @@ export default function Notifications() {
     if (d.data?.unread) post('/api/notifications/read').then(() => reload()).catch(() => {});
   }, [d.data?.unread, reload]);
   return (
-    <ScrollView style={{ backgroundColor: C.bg }} contentContainerStyle={{ padding: S.lg, gap: S.md, paddingBottom: 48 }}>
+    <ScrollView style={{ backgroundColor: C.bg }} contentContainerStyle={{ width: '100%', maxWidth: 760, alignSelf: 'center', padding: S.lg, gap: S.md, paddingBottom: 48 }}>
       {d.loading && !d.data ? <Loading /> : d.error && !d.data ? <ErrorBox text={d.error} onRetry={d.reload} /> : (
         <>
         <Summary seed={17} label={t('Unread')} value={String(d.data?.unread ?? 0)}
