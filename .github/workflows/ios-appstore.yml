@@ -82,6 +82,13 @@ jobs:
           for v in APPLE_KEY_ID APPLE_ISSUER_ID APPLE_KEY_P8; do
             if [ -z "${!v}" ]; then echo "::error::Missing repository secret $v"; exit 1; fi
           done
+      - name: Check the key format (prints yes/no only, never the values)
+        run: |
+          [[ "$APPLE_KEY_ID" =~ ^[A-Z0-9]{10}$ ]] && echo "Key ID looks right: yes" || echo "::error::Key ID is not 10 capital letters/numbers (length ${#APPLE_KEY_ID})"
+          [[ "$APPLE_ISSUER_ID" =~ ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$ ]] && echo "Issuer ID looks right: yes" || echo "::error::Issuer ID is not a UUID (length ${#APPLE_ISSUER_ID})"
+          printf '%s' "$APPLE_KEY_P8" | head -1 | grep -q -- '-----BEGIN PRIVATE KEY-----' && echo "P8 starts right: yes" || echo "::error::P8 does not start with -----BEGIN PRIVATE KEY-----"
+          printf '%s' "$APPLE_KEY_P8" | grep -q -- '-----END PRIVATE KEY-----' && echo "P8 ends right: yes" || echo "::error::P8 is missing the END line"
+          printf '%s\n' "$APPLE_KEY_P8" | openssl pkey -noout 2>/dev/null && echo "P8 is a valid key: yes" || echo "::error::P8 text is not a valid private key"
       - uses: actions/checkout@v4
       - name: Save the API key for this run only
         run: |
