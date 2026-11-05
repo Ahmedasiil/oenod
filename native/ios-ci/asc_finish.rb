@@ -34,7 +34,7 @@ _, ard = call(:get, "/v1/appInfos/#{info['id']}/ageRatingDeclaration")
 if (d = ard['data'])
   attrs = {}
   d['attributes'].each do |k, v|
-    next if k =~ /override|kidsAgeBand|ageRating$|Url$|developerAgeRating/i
+    next if k =~ /override|kidsAgeBand|ageRating$|Url$|developerAgeRating|grac|korea|classification/i
     if k == 'messagingAndChat' then attrs[k] = true
     elsif v.is_a?(String) || (v.nil? && k !~ /^(is|has|unrestricted|gambling$|lootBox|messaging|userGenerated|advertising|parental|ageAssurance|healthOrWellness)/)
       attrs[k] = 'NONE'
