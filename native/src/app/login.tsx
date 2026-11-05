@@ -71,7 +71,7 @@ export default function Login() {
           <Wordmark width={190} />
           <Text style={{ color: C.mist, fontSize: 16, marginTop: 10, textAlign: 'center' }}>{t('Run your whole business from your phone.')}</Text>
         </View>
-        <View style={{ backgroundColor: C.white, borderRadius: 26, padding: S.xl, gap: S.lg, shadowColor: '#000', shadowOpacity: 0.25, shadowRadius: 30, shadowOffset: { width: 0, height: 14 }, elevation: 8 }}>
+        <View style={{ backgroundColor: 'rgba(8,12,42,0.78)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.14)', borderRadius: 28, padding: S.xl, gap: S.lg }}>
           <View style={{ gap: 4 }}>
             <Text style={{ fontSize: 24, fontWeight: '800', color: C.ink, letterSpacing: -0.4 }}>{t(pending2fa ? 'Two-step check' : 'Welcome back')}</Text>
             {!pending2fa ? <Text style={{ color: C.sub, fontSize: 14 }}>{t('Owners and employees sign in here. OENOD opens the right home for you.')}</Text> : null}
@@ -94,18 +94,18 @@ export default function Login() {
           ) : null}
           {!pending2fa && shown.length ? (
             <View style={{ gap: S.sm }}>
-              <Text style={{ color: C.sub, textAlign: 'center', fontSize: 13 }}>{t('or')}</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}><View style={{ flex: 1, height: 1, backgroundColor: C.line }} /><Text style={{ color: C.sub, fontSize: 13 }}>{t('or')}</Text><View style={{ flex: 1, height: 1, backgroundColor: C.line }} /></View>
               {shown.map((p) => (
                 <Pressable key={p} onPress={() => social(p)} disabled={busy} accessibilityRole="button"
-                  style={({ pressed }) => ({ borderWidth: 1, borderColor: p === 'apple' ? '#000' : C.line, backgroundColor: p === 'apple' ? '#000' : C.white, borderRadius: 12, paddingVertical: 13, alignItems: 'center', opacity: pressed || busy ? 0.7 : 1 })}>
-                  <Text style={{ color: p === 'apple' ? C.white : C.ink, fontWeight: '700', fontSize: 16 }}>{t('Continue with {p}', { p: LABEL[p] || p })}</Text>
+                  style={({ pressed }) => ({ borderWidth: 1, borderColor: p === 'apple' ? C.white : 'rgba(255,255,255,0.16)', backgroundColor: p === 'apple' ? C.white : 'rgba(255,255,255,0.06)', borderRadius: 16, minHeight: 54, justifyContent: 'center', alignItems: 'center', opacity: pressed || busy ? 0.7 : 1 })}>
+                  <Text style={{ color: p === 'apple' ? '#000' : C.ink, fontWeight: '700', fontSize: 16 }}>{t('Continue with {p}', { p: LABEL[p] || p })}</Text>
                 </Pressable>
               ))}
             </View>
           ) : null}
           {!pending2fa ? (
             <Pressable onPress={() => open('/#/forgot')} accessibilityRole="link" style={{ alignSelf: 'center', padding: 6 }}>
-              <Text style={{ color: C.blue, fontWeight: '600' }}>{t('Forgot your password?')}</Text>
+              <Text style={{ color: C.sky, fontWeight: '600' }}>{t('Forgot your password?')}</Text>
             </Pressable>
           ) : null}
         </View>

@@ -1,18 +1,24 @@
 import React from 'react';
-import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, TextInputProps, View, ViewStyle } from 'react-native';
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, TextInputProps, View, ViewStyle, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { C, R, S } from '../lib/theme';
 import { initials } from '../lib/format';
 import { Icon, IconName } from './Icon';
 import { t } from '../lib/i18n';
+import { Constellation, GradientButton, HeroGradient } from './Brand';
 
-export function Screen({ title, subtitle, right, children, refreshing, onRefresh, scroll = true }: {
-  title?: string; subtitle?: string; right?: React.ReactNode; children: React.ReactNode; refreshing?: boolean; onRefresh?: () => void; scroll?: boolean;
+export function Screen({ title, eyebrow, subtitle, right, children, refreshing, onRefresh, scroll = true }: {
+  title?: string; eyebrow?: string; subtitle?: string; right?: React.ReactNode; children: React.ReactNode; refreshing?: boolean; onRefresh?: () => void; scroll?: boolean;
 }) {
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+  const [hh, setHh] = React.useState(140);
   const head = title ? (
-    <View style={[st.head, { paddingTop: insets.top + S.md }]}>
+    <View style={[st.head, { paddingTop: insets.top + S.md }]} onLayout={(e) => setHh(e.nativeEvent.layout.height)}>
+      <HeroGradient width={width} height={hh} id="sh" fade={false} />
+      <Constellation width={width} height={hh} density={1.1} seed={11} />
       <View style={{ flex: 1 }}>
+        {eyebrow ? <Text style={{ color: C.sky, fontSize: 12, fontWeight: '700', letterSpacing: 1.4, marginBottom: 6 }}>{eyebrow}</Text> : null}
         <Text style={st.h1} accessibilityRole="header">{title}</Text>
         {subtitle ? <Text style={st.headSub}>{subtitle}</Text> : null}
       </View>
@@ -25,7 +31,7 @@ export function Screen({ title, subtitle, right, children, refreshing, onRefresh
       {head}
       <ScrollView
         contentContainerStyle={{ padding: S.lg, paddingBottom: S.xl * 2, gap: S.md }}
-        refreshControl={onRefresh ? <RefreshControl refreshing={!!refreshing} onRefresh={onRefresh} tintColor={C.blue} /> : undefined}
+        refreshControl={onRefresh ? <RefreshControl refreshing={!!refreshing} onRefresh={onRefresh} tintColor={C.sky} /> : undefined}
       >
         {children}
       </ScrollView>
@@ -47,9 +53,10 @@ export const B = ({ children, style }: { children: React.ReactNode; style?: any 
 export function Button({ title, onPress, kind = 'primary', icon, busy, disabled, style }: {
   title: string; onPress: () => void; kind?: 'primary' | 'secondary' | 'danger' | 'light' | 'ghost'; icon?: IconName; busy?: boolean; disabled?: boolean; style?: ViewStyle;
 }) {
-  const bg = { primary: C.blue, secondary: C.white, danger: C.bad, light: C.white, ghost: 'transparent' }[kind];
-  const fg = { primary: C.white, secondary: C.ink, danger: C.white, light: C.navy, ghost: C.blue }[kind];
-  const border = kind === 'secondary' ? C.line : 'transparent';
+  if (kind === 'primary') return <GradientButton title={title} onPress={onPress} icon={icon} busy={busy} disabled={disabled} style={style} />;
+  const bg = { primary: C.blue, secondary: 'rgba(255,255,255,0.07)', danger: '#E5484D', light: C.white, ghost: 'transparent' }[kind];
+  const fg = { primary: C.white, secondary: C.ink, danger: C.white, light: C.navy, ghost: C.sky }[kind];
+  const border = kind === 'secondary' ? 'rgba(255,255,255,0.16)' : 'transparent';
   return (
     <Pressable
       accessibilityRole="button"
@@ -79,7 +86,7 @@ export function Field({ label, error, ...p }: TextInputProps & { label: string; 
 }
 
 export const Pill = ({ text, kind = 'info' }: { text: string; kind?: 'good' | 'warn' | 'bad' | 'info' | 'plain' }) => {
-  const m = { good: [C.goodSoft, C.good], warn: [C.warnSoft, C.warn], bad: [C.badSoft, C.bad], info: [C.blueSoft, C.blue], plain: ['#EEF0F4', C.sub] }[kind];
+  const m = { good: [C.goodSoft, C.good], warn: [C.warnSoft, C.warn], bad: [C.badSoft, C.bad], info: [C.blueSoft, C.blue], plain: ['rgba(255,255,255,0.08)', C.sub] }[kind];
   return <View style={[st.pill, { backgroundColor: m[0] }]}><Text style={[st.pillT, { color: m[1] }]}>{text}</Text></View>;
 };
 
@@ -92,7 +99,7 @@ export const Avatar = ({ name, color, size = 40 }: { name: string; color?: strin
 export const Row = ({ children, style }: { children: React.ReactNode; style?: ViewStyle }) => <View style={[{ flexDirection: 'row', alignItems: 'center', gap: S.md }, style]}>{children}</View>;
 
 export const ListRow = ({ title, sub, left, right, onPress }: { title: string; sub?: string; left?: React.ReactNode; right?: React.ReactNode; onPress?: () => void }) => (
-  <Pressable onPress={onPress} disabled={!onPress} accessibilityRole={onPress ? 'button' : undefined} style={({ pressed }) => [st.lrow, pressed && onPress ? { backgroundColor: '#F7F8FB' } : null]}>
+  <Pressable onPress={onPress} disabled={!onPress} accessibilityRole={onPress ? 'button' : undefined} style={({ pressed }) => [st.lrow, pressed && onPress ? { backgroundColor: 'rgba(255,255,255,0.04)' } : null]}>
     {left}
     <View style={{ flex: 1, minWidth: 0 }}>
       <Text style={st.b} numberOfLines={1}>{title}</Text>
@@ -115,7 +122,7 @@ export const Empty = ({ icon = 'check', title, sub }: { icon?: IconName; title: 
 export const Loading = () => <View style={{ padding: S.xl * 2, alignItems: 'center' }}><ActivityIndicator color={C.blue} size="large" /></View>;
 
 export const ErrorBox = ({ text, onRetry }: { text: string; onRetry?: () => void }) => (
-  <Card style={{ borderColor: '#F3C9C9', backgroundColor: C.badSoft }}>
+  <Card style={{ borderColor: 'rgba(248,113,113,0.3)', backgroundColor: C.badSoft }}>
     <Text style={{ color: C.bad, fontWeight: '600' }}>{text}</Text>
     {onRetry ? <Button title={t('Try again')} kind="secondary" onPress={onRetry} style={{ marginTop: S.md }} /> : null}
   </Card>
@@ -131,18 +138,18 @@ export const Stat = ({ label, value, sub }: { label: string; value: string; sub?
 
 export const st = StyleSheet.create({
   screen: { flex: 1, backgroundColor: C.bg },
-  head: { backgroundColor: C.navy, paddingHorizontal: S.lg, paddingBottom: S.xl, borderBottomLeftRadius: 28, borderBottomRightRadius: 28, flexDirection: 'row', alignItems: 'flex-end', gap: S.md },
-  h1: { color: C.white, fontSize: 26, fontWeight: '800', letterSpacing: -0.3 },
+  head: { backgroundColor: C.navy, overflow: 'hidden', paddingHorizontal: S.lg, paddingBottom: S.xl, borderBottomLeftRadius: 28, borderBottomRightRadius: 28, flexDirection: 'row', alignItems: 'flex-end', gap: S.md },
+  h1: { color: C.white, fontSize: 28, fontWeight: '800', letterSpacing: -0.8 },
   headSub: { color: C.mist, fontSize: 14, marginTop: 4, fontWeight: '500' },
   h2Row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: S.sm },
-  h2: { fontSize: 17, fontWeight: '700', color: C.ink },
-  card: { backgroundColor: C.card, borderRadius: 20, padding: S.lg, borderWidth: StyleSheet.hairlineWidth, borderColor: C.line, shadowColor: '#000C58', shadowOpacity: 0.06, shadowRadius: 14, shadowOffset: { width: 0, height: 4 }, elevation: 2 },
+  h2: { fontSize: 13, fontWeight: '800', color: C.sub, letterSpacing: 1.2, textTransform: 'uppercase' },
+  card: { backgroundColor: C.card, borderRadius: 20, padding: S.lg, borderWidth: StyleSheet.hairlineWidth, borderColor: C.line, },
   muted: { color: C.sub, fontSize: 14, lineHeight: 20 },
   b: { color: C.ink, fontSize: 16, fontWeight: '600' },
   btn: { minHeight: 54, borderRadius: 16, paddingHorizontal: S.lg, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderWidth: 1 },
   btnT: { fontSize: 16, fontWeight: '700' },
   label: { fontSize: 14, fontWeight: '600', color: C.ink },
-  input: { minHeight: 52, borderRadius: 14, borderWidth: 1, borderColor: C.line, backgroundColor: '#F8F9FC', paddingHorizontal: 14, fontSize: 16, color: C.ink },
+  input: { minHeight: 52, borderRadius: 14, borderWidth: 1, borderColor: C.line, backgroundColor: C.field, paddingHorizontal: 14, fontSize: 16, color: C.ink },
   pill: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999, alignSelf: 'flex-start' },
   pillT: { fontSize: 12, fontWeight: '700' },
   lrow: { flexDirection: 'row', alignItems: 'center', gap: S.md, paddingVertical: S.md, minHeight: 56 },

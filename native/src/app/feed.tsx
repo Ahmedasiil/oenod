@@ -25,7 +25,7 @@ type Feed = {
 };
 type Kind = 'post' | 'shoutout' | 'announcement' | 'poll';
 const say = (title: string, msg: string) => (Platform.OS === 'web' ? window.alert(msg) : Alert.alert(title, msg));
-const input = { backgroundColor: C.white, borderRadius: R.md, borderWidth: 1, borderColor: C.line, paddingHorizontal: 14, paddingVertical: 10, fontSize: 16, color: C.ink, minWidth: 0 } as const;
+const input = { backgroundColor: C.field, borderRadius: R.md, borderWidth: 1, borderColor: C.line, paddingHorizontal: 14, paddingVertical: 10, fontSize: 16, color: C.ink, minWidth: 0 } as const;
 
 function Chip({ on, label, onPress }: { on: boolean; label: string; onPress: () => void }) {
   return (
@@ -141,7 +141,7 @@ export default function FeedScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: C.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={{ padding: S.lg, gap: S.md, paddingBottom: 48 }} keyboardShouldPersistTaps="handled">
-        {x?.to_ack ? <Card style={{ backgroundColor: C.warnSoft, borderColor: '#F4D9B5' }}><B>{t('{n} announcements need your confirmation', { n: x.to_ack })}</B></Card> : null}
+        {x?.to_ack ? <Card style={{ backgroundColor: C.warnSoft, borderColor: 'rgba(251,191,36,0.3)' }}><B>{t('{n} announcements need your confirmation', { n: x.to_ack })}</B></Card> : null}
         <Card style={{ gap: S.sm }}>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>{kinds.map(([k, l]) => <Chip key={k} on={kind === k} label={l} onPress={() => setKind(k)} />)}</View>
           {kind === 'shoutout' ? (

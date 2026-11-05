@@ -254,10 +254,10 @@ export default function WalletScreen() {
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: C.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={{ padding: S.lg, gap: S.md, paddingBottom: 48 }} keyboardShouldPersistTaps="handled">
         {companyAdmin ? (
-          <View style={{ flexDirection: 'row', backgroundColor: '#E8EBF2', borderRadius: R.md, padding: 4 }} accessibilityRole="tablist">
+          <View style={{ flexDirection: 'row', backgroundColor: C.seg, borderRadius: R.md, padding: 4 }} accessibilityRole="tablist">
             {([['company', session?.company?.name || t('Company wallet')], ['me', t('My wallet')]] as const).map(([v, l]) => (
               <Pressable key={v} onPress={() => setWhich(v)} accessibilityRole="tab" accessibilityState={{ selected: which === v }}
-                style={{ flex: 1, paddingVertical: 10, borderRadius: R.sm, alignItems: 'center', backgroundColor: which === v ? C.white : 'transparent' }}>
+                style={{ flex: 1, paddingVertical: 10, borderRadius: R.sm, alignItems: 'center', backgroundColor: which === v ? C.segOn : 'transparent' }}>
                 <Text style={{ fontWeight: '700', color: which === v ? C.ink : C.sub }} numberOfLines={1}>{l}</Text>
               </Pressable>
             ))}

@@ -19,10 +19,10 @@ const say = (title: string, msg: string) => (Platform.OS === 'web' ? window.aler
 
 function Segmented({ value, onChange, options }: { value: string; onChange: (v: string) => void; options: [string, string][] }) {
   return (
-    <View style={{ flexDirection: 'row', backgroundColor: '#E8EBF2', borderRadius: R.md, padding: 4 }} accessibilityRole="tablist">
+    <View style={{ flexDirection: 'row', backgroundColor: C.seg, borderRadius: R.md, padding: 4 }} accessibilityRole="tablist">
       {options.map(([v, l]) => (
         <Pressable key={v} onPress={() => onChange(v)} accessibilityRole="tab" accessibilityState={{ selected: value === v }}
-          style={{ flex: 1, paddingVertical: 10, borderRadius: R.sm, alignItems: 'center', backgroundColor: value === v ? C.white : 'transparent' }}>
+          style={{ flex: 1, paddingVertical: 10, borderRadius: R.sm, alignItems: 'center', backgroundColor: value === v ? C.segOn : 'transparent' }}>
           <Text style={{ fontWeight: '700', color: value === v ? C.ink : C.sub }}>{l}</Text>
         </Pressable>
       ))}

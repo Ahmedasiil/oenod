@@ -23,7 +23,7 @@ export default function Team() {
   return (
     <Screen title={t('Team')} subtitle={d.data ? t('{n} people · {w} working now', { n: list.length, w: working }) : t('Your people')} refreshing={d.refreshing} onRefresh={d.refresh}>
       <TextInput value={q} onChangeText={setQ} placeholder={t('Search by name, role or location')} placeholderTextColor={C.faint} accessibilityLabel={t('Search team')}
-        style={{ backgroundColor: C.white, borderRadius: R.md, borderWidth: 1, borderColor: C.line, paddingHorizontal: 14, minHeight: 48, fontSize: 16, color: C.ink }} />
+        style={{ backgroundColor: C.field, borderRadius: R.md, borderWidth: 1, borderColor: C.line, paddingHorizontal: 14, minHeight: 48, fontSize: 16, color: C.ink }} />
       {d.loading && !d.data ? <Loading /> : d.error && !d.data ? <ErrorBox text={d.error} onRetry={d.reload} /> : (
         <Card style={{ paddingVertical: S.xs }}>
           {list.length ? list.map((e, i) => (

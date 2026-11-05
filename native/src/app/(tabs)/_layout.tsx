@@ -17,10 +17,10 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: C.blue,
+        tabBarActiveTintColor: C.white,
         tabBarInactiveTintColor: C.faint,
         tabBarLabelStyle: { fontSize: 12, fontWeight: '600', lineHeight: 18 },
-        tabBarStyle: { borderTopColor: 'transparent', height: 66 + insets.bottom, paddingTop: 6, backgroundColor: C.white, shadowColor: '#000C58', shadowOpacity: 0.08, shadowRadius: 18, shadowOffset: { width: 0, height: -4 }, elevation: 12 },
+        tabBarStyle: { borderTopColor: 'rgba(255,255,255,0.08)', borderTopWidth: 1, height: 66 + insets.bottom, paddingTop: 6, backgroundColor: '#060920', elevation: 0 },
       }}
     >
       <Tabs.Screen name="index" options={{ title: t('Home'), tabBarIcon: icon('home') }} />
