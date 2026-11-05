@@ -1,0 +1,22 @@
+name: Finish App Store setup and submit
+# Age rating, content rights, free price, all countries, attaches the build, and submits when asked.
+on:
+  workflow_dispatch:
+    inputs:
+      build_number: { description: 'Build number to attach', default: '350', required: true }
+      submit: { description: 'Send for review (true/false)', default: 'false', required: true }
+permissions:
+  contents: read
+jobs:
+  finish:
+    runs-on: macos-latest
+    env:
+      APPLE_KEY_ID: ${{ secrets.APPLE_KEY_ID }}
+      APPLE_ISSUER_ID: ${{ secrets.APPLE_ISSUER_ID }}
+      APPLE_KEY_P8: ${{ secrets.APPLE_KEY_P8 }}
+      BUILD_NUMBER: ${{ inputs.build_number }}
+      SUBMIT: ${{ inputs.submit }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Finish setup
+        run: gem list -i jwt >/dev/null || gem install jwt; ruby native/ios-ci/asc_finish.rb
