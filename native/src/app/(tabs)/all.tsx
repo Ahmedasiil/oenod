@@ -1,7 +1,7 @@
 // Everything: every OENOD tool in the same five suites as the website. Tools built into the app
 // open natively; the rest open the full oenod.com tool inside the app, already signed in.
 import React, { useMemo, useState } from 'react';
-import { Pressable, Text, TextInput, View, useWindowDimensions } from 'react-native';
+import { Pressable, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { BASE } from '../../lib/api';
@@ -94,28 +94,31 @@ export default function Everything() {
   };
   const u = session?.user;
   return (
-    <Screen eyebrow={t('{n} tools in 5 suites', { n: count }).toUpperCase()} title={t('Everything')}
-      right={<Pressable onPress={() => router.navigate('/me')} accessibilityRole="button" accessibilityLabel={t('Me')}><Avatar name={u?.name || '?'} size={42} /></Pressable>}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 48, paddingHorizontal: 14, borderRadius: 16, backgroundColor: C.card, borderWidth: 1, borderColor: C.line }}>
-        <Icon name="grid" size={18} color={C.faint} />
-        <TextInput value={q} onChangeText={setQ} placeholder={t('Search tools')} placeholderTextColor={C.faint} style={{ flex: 1, color: C.ink, fontSize: 16, paddingVertical: 12 }} accessibilityLabel={t('Search tools')} autoCorrect={false} />
+    <Screen eyebrow={t('{n} tools in 5 suites', { n: count })} title={t('Everything')}
+      right={<Pressable onPress={() => router.navigate('/me')} accessibilityRole="button" accessibilityLabel={t('Me')}><Avatar name={u?.name || '?'} size={36} /></Pressable>}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 46, paddingHorizontal: 14, borderRadius: 14, backgroundColor: C.dark ? C.card2 : '#EDF0F7' }}>
+        <View style={{ flexShrink: 0 }}><Icon name="search" size={18} color={C.faint} duo={false} /></View>
+        <TextInput value={q} onChangeText={setQ} placeholder={t('Search tools')} placeholderTextColor={C.faint} style={{ flex: 1, minWidth: 0, color: C.ink, fontSize: 15, paddingVertical: 11 }} accessibilityLabel={t('Search tools')} autoCorrect={false} />
         {q ? <Pressable onPress={() => setQ('')} hitSlop={8} accessibilityLabel={t('Clear')}><Icon name="x" size={18} color={C.faint} /></Pressable> : null}
       </View>
       {groups.map((g, gi) => (
-        <Rise key={g.name} delay={gi * 60} style={{ gap: 12, marginTop: 10 }}>
+        <Rise key={g.name} delay={gi * 60} style={{ gap: 10, marginTop: 8 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: g.color }} />
-            <Text accessibilityRole="header" style={{ color: C.ink, fontSize: 17, fontWeight: '800', letterSpacing: -0.3 }}>{t(g.name)}</Text>
+            <View style={{ width: 8, height: 8, borderRadius: 3, backgroundColor: g.color }} />
+            <Text accessibilityRole="header" style={{ color: C.ink, fontSize: 13, fontWeight: '700' }}>{t(g.name)}</Text>
+            <Text style={{ color: C.faint, fontSize: 12 }}>{g.tools.length}</Text>
           </View>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', rowGap: 16 }}>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: -4 }}>
             {g.tools.map((x) => (
-              <Pressable key={x.name} onPress={() => go(x)} accessibilityRole="button" accessibilityLabel={t(x.name)}
-                style={({ pressed }) => ({ width: `${100 / cols}%`, alignItems: 'center', gap: 7, opacity: pressed ? 0.7 : 1, transform: [{ scale: pressed ? 0.96 : 1 }] })}>
-                <View style={{ width: 54, height: 54, borderRadius: 17, alignItems: 'center', justifyContent: 'center', backgroundColor: C.dark ? g.soft[1] : g.soft[0] }}>
-                  <Icon name={x.icon} size={25} color={g.color} />
-                </View>
-                <Text numberOfLines={2} style={{ color: C.ink, fontSize: 12, fontWeight: '600', textAlign: 'center', paddingHorizontal: 2 }}>{t(x.name)}</Text>
-              </Pressable>
+              <View key={x.name} style={{ width: `${100 / cols}%`, padding: 4 }}>
+                <Pressable onPress={() => go(x)} accessibilityRole="button" accessibilityLabel={t(x.name)}
+                  style={({ pressed }) => ({ alignItems: 'center', gap: 7, paddingTop: 12, paddingBottom: 10, paddingHorizontal: 2, borderRadius: 16, backgroundColor: C.card, borderWidth: StyleSheet.hairlineWidth, borderColor: C.line, opacity: pressed ? 0.75 : 1, transform: [{ scale: pressed ? 0.97 : 1 }] })}>
+                  <View style={{ width: 36, height: 36, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: C.dark ? g.soft[1] : g.soft[0] }}>
+                    <Icon name={x.icon} size={19} color={g.color} />
+                  </View>
+                  <Text numberOfLines={2} style={{ color: C.ink, fontSize: 11, fontWeight: '600', textAlign: 'center', minHeight: 26 }}>{t(x.name)}</Text>
+                </Pressable>
+              </View>
             ))}
           </View>
         </Rise>

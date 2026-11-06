@@ -6,7 +6,7 @@ import { secure } from './secure';
 
 export type Mode = 'system' | 'light' | 'dark';
 const KEY = 'oenod.appearance';
-const Ctx = createContext<{ mode: Mode; dark: boolean; setMode: (m: Mode) => void }>({ mode: 'system', dark: true, setMode: () => {} });
+const Ctx = createContext<{ mode: Mode; dark: boolean; setMode: (m: Mode) => void }>({ mode: 'light', dark: false, setMode: () => {} });
 export const useAppearance = () => useContext(Ctx);
 
 // Screen to reopen after the app redraws in the new colours.
@@ -17,7 +17,7 @@ export const takeReturnTo = () => { const r = returnTo; returnTo = null; return 
 
 export function AppearanceProvider({ children }: { children: React.ReactNode }) {
   const system = useColorScheme();
-  const [mode, set] = useState<Mode>('system');
+  const [mode, set] = useState<Mode>('light'); // 3.6: the approved look is light screens under a night header
   const [loaded, setLoaded] = useState(false);
   useEffect(() => {
     secure.get(KEY).then((v) => { if (v === 'light' || v === 'dark' || v === 'system') set(v); }).catch(() => {}).finally(() => setLoaded(true));

@@ -34,7 +34,7 @@ export const LIGHT: typeof DARK = {
   dark: false,
 };
 
-export const C = { ...DARK };
+export const C = { ...LIGHT };
 
 const redraw: (() => void)[] = [];
 /** Modules that build styles from C register here, so they rebuild when the mode changes. */

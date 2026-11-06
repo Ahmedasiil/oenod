@@ -6,7 +6,7 @@ import { t } from '../../lib/i18n';
 import { Icon, IconName } from '../../ui/Icon';
 import { TabBar } from '../../ui/TabBar';
 
-const icon = (name: IconName) => ({ color }: { color: unknown }) => <Icon name={name} color={String(color ?? C.faint)} size={23} />;
+const icon = (name: IconName) => ({ color }: { color: unknown }) => <Icon name={name} color={String(color ?? C.faint)} size={22} duo={false} />;
 
 // Five tabs, like the website's five suites: Today, Schedule, OENOD AI (centre orb), Money, Everything.
 // Time off, Team and Me stay reachable from Today, Everything and the avatar.

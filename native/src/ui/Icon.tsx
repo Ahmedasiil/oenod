@@ -2,7 +2,7 @@
 import React from 'react';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 
-export type IconName = 'home' | 'calendar' | 'sun' | 'users' | 'user' | 'bell' | 'clock' | 'check' | 'x' | 'chevron' | 'back' | 'phone' | 'mail' | 'pin' | 'logout' | 'globe' | 'qr' | 'plus' | 'coffee' | 'cash' | 'chart' | 'briefcase' | 'shield' | 'spark' | 'arrow' | 'face' | 'news' | 'moon' | 'device' | 'video' | 'grid' | 'chat' | 'wallet' | 'send' | 'link';
+export type IconName = 'home' | 'calendar' | 'sun' | 'users' | 'user' | 'bell' | 'clock' | 'check' | 'x' | 'chevron' | 'back' | 'phone' | 'mail' | 'pin' | 'logout' | 'globe' | 'qr' | 'plus' | 'coffee' | 'cash' | 'chart' | 'briefcase' | 'shield' | 'spark' | 'arrow' | 'face' | 'news' | 'moon' | 'device' | 'video' | 'grid' | 'chat' | 'wallet' | 'send' | 'link' | 'search';
 
 export function Icon({ name, size = 22, color = '#0B1220', stroke = 1.9, duo = true }: { name: IconName; size?: number; color?: string; stroke?: number; duo?: boolean }) {
   const p = { stroke: color, strokeWidth: stroke, fill: 'none', strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
@@ -21,6 +21,7 @@ export function Icon({ name, size = 22, color = '#0B1220', stroke = 1.9, duo = t
       {name === 'x' && <Path {...p} d="M6.5 6.5l11 11M17.5 6.5l-11 11" />}
       {name === 'chevron' && <Path {...p} d="M9.5 5.5 16 12l-6.5 6.5" />}
       {name === 'back' && <Path {...p} d="M14.5 5.5 8 12l6.5 6.5" />}
+      {name === 'search' && <><Circle {...f} cx={11} cy={11} r={6.5} /><Circle {...p} cx={11} cy={11} r={6.5} /><Path {...p} d="m16 16 4.5 4.5" /></>}
       {name === 'phone' && <><Path {...f} d="M5 3h4l2 5-2.5 1.5a11 11 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2z" /><Path {...p} d="M5 3h4l2 5-2.5 1.5a11 11 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2z" /></>}
       {name === 'mail' && <><Rect {...f} x={3} y={5} width={18} height={14} rx={3} /><Rect {...p} x={3} y={5} width={18} height={14} rx={3} /><Path {...p} d="m3.5 7.5 8.5 6 8.5-6" /></>}
       {name === 'pin' && <><Path {...f} d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z" /><Path {...p} d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z" /><Circle {...p} cx={12} cy={9.5} r={2.5} /></>}

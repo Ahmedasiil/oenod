@@ -1,5 +1,7 @@
 import React, { useMemo, useState } from 'react';
-import { Alert, Platform, Pressable, Text, View } from 'react-native';
+import { Alert, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { openTool } from '../web';
+import { Rise } from '../../ui/Motion';
 import { router } from 'expo-router';
 import { useAuth } from '../../lib/auth';
 import { get, post } from '../../lib/api';
@@ -22,11 +24,11 @@ const say = (title: string, msg: string) => (Platform.OS === 'web' ? window.aler
 
 function Segmented({ value, onChange, options }: { value: string; onChange: (v: string) => void; options: [string, string][] }) {
   return (
-    <View style={{ flexDirection: 'row', backgroundColor: C.seg, borderRadius: R.md, padding: 4 }} accessibilityRole="tablist">
+    <View style={{ flexDirection: 'row', backgroundColor: C.dark ? C.card2 : '#F5F7FB', borderRadius: 10, padding: 3 }} accessibilityRole="tablist">
       {options.map(([v, l]) => (
         <Pressable key={v} onPress={() => onChange(v)} accessibilityRole="tab" accessibilityState={{ selected: value === v }}
-          style={{ flex: 1, paddingVertical: 10, borderRadius: R.sm, alignItems: 'center', backgroundColor: value === v ? C.segOn : 'transparent' }}>
-          <Text style={{ fontWeight: '700', color: value === v ? C.ink : C.sub }}>{l}</Text>
+          style={{ flex: 1, paddingVertical: 7, borderRadius: 8, alignItems: 'center', backgroundColor: value === v ? C.card : 'transparent' }}>
+          <Text style={{ fontWeight: '600', fontSize: 13, color: value === v ? C.ink : C.faint }}>{l}</Text>
         </Pressable>
       ))}
     </View>
@@ -126,73 +128,135 @@ function Requests({ list, onDone }: { list: Req[]; onDone: () => void }) {
   );
 }
 
-function Everyone() {
+/** Mon..Sun of the week holding ymd. */
+const weekOf = (ymd: string) => { const d = new Date(ymd + 'T12:00:00'); const off = (d.getDay() + 6) % 7; return Array.from({ length: 7 }, (_, i) => addDays(ymd, i - off)); };
+const weekNo = (ymd: string) => { const d = new Date(ymd + 'T12:00:00'); const j = new Date(d.getFullYear(), 0, 1); return Math.ceil(((+d - +j) / 864e5 + j.getDay() + 1) / 7); };
+
+/** The 7-day strip under the header: the picked day is ink, days with shifts get a dot. */
+function WeekStrip({ days, sel, set, has, onPrev, onNext }: { days: string[]; sel: string; set: (d: string) => void; has: Set<string>; onPrev: () => void; onNext: () => void }) {
+  const today = todayKey();
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, paddingTop: 10 }}>
+      <Pressable onPress={onPrev} hitSlop={10} accessibilityLabel={t('Previous week')} style={{ width: 22, alignItems: 'center' }}><Icon name="back" size={16} color={C.faint} duo={false} /></Pressable>
+      {days.map((d) => {
+        const on = d === sel;
+        const dt = new Date(d + 'T12:00:00');
+        return (
+          <Pressable key={d} onPress={() => set(d)} accessibilityRole="button" accessibilityState={{ selected: on }}
+            style={{ flex: 1, alignItems: 'center', paddingVertical: 8, borderRadius: 14, gap: 4, backgroundColor: on ? (C.dark ? '#FFFFFF' : '#0A1230') : 'transparent' }}>
+            <Text style={{ fontSize: 11, fontWeight: '600', color: on ? (C.dark ? '#4A5372' : '#9AA5C8') : C.faint }}>{dt.toLocaleDateString(locale(), { weekday: 'short' }).slice(0, 3)}</Text>
+            <Text style={{ fontSize: 16, fontWeight: on || d === today ? '800' : '600', color: on ? (C.dark ? '#0A1230' : '#FFFFFF') : d === today ? C.blue : C.ink }}>{dt.getDate()}</Text>
+            <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: has.has(d) ? (on ? '#AFC3FF' : C.blue) : 'transparent' }} />
+          </Pressable>
+        );
+      })}
+      <Pressable onPress={onNext} hitSlop={10} accessibilityLabel={t('Next week')} style={{ width: 22, alignItems: 'center' }}><Icon name="chevron" size={16} color={C.faint} duo={false} /></Pressable>
+    </View>
+  );
+}
+
+/** Dark AI card: a short tip about the picked day. */
+function AiTip({ text, onOpen }: { text: string; onOpen: () => void }) {
+  return (
+    <View style={{ borderRadius: 20, padding: 16, backgroundColor: '#0B1B3F', overflow: 'hidden', gap: 12 }}>
+      <View style={{ flexDirection: 'row', gap: 12, alignItems: 'flex-start' }}>
+        <View style={{ width: 34, height: 34, borderRadius: 11, backgroundColor: '#3D5BF5', alignItems: 'center', justifyContent: 'center' }}><Icon name="spark" size={18} color="#FFFFFF" duo={false} /></View>
+        <View style={{ flex: 1, gap: 3 }}>
+          <Text style={{ color: '#AFC3FF', fontSize: 12, fontWeight: '600' }}>{t('OENOD AI')}</Text>
+          <Text style={{ color: '#FFFFFF', fontSize: 14, lineHeight: 20 }}>{text}</Text>
+        </View>
+      </View>
+      <View style={{ flexDirection: 'row', gap: 8 }}>
+        <Pressable onPress={onOpen} accessibilityRole="button" style={{ height: 34, paddingHorizontal: 14, borderRadius: 11, backgroundColor: '#FFFFFF', justifyContent: 'center' }}><Text style={{ color: '#0A1230', fontWeight: '700', fontSize: 13 }}>{t('Open schedule')}</Text></Pressable>
+        <Pressable onPress={() => router.push('/ai')} accessibilityRole="button" style={{ height: 34, paddingHorizontal: 14, borderRadius: 11, borderWidth: 1, borderColor: 'rgba(255,255,255,0.22)', justifyContent: 'center' }}><Text style={{ color: '#FFFFFF', fontWeight: '600', fontSize: 13 }}>{t('Ask AI')}</Text></Pressable>
+      </View>
+    </View>
+  );
+}
+
+/** One shift: time column, avatar, name and role, status pill. */
+function ShiftRow({ s }: { s: Shift }) {
+  const now = Date.now();
+  const live = +new Date(s.starts_at) <= now && +new Date(s.ends_at) > now;
+  const name = s.first_name ? `${s.first_name} ${s.last_name || ''}`.trim() : t('Open shift');
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12, borderRadius: 18, backgroundColor: C.card, borderWidth: StyleSheet.hairlineWidth, borderColor: C.line }}>
+      <View style={{ width: 66 }}>
+        <Text style={{ color: C.ink, fontWeight: '700', fontSize: 13.5 }} numberOfLines={1} adjustsFontSizeToFit>{time(s.starts_at)}</Text>
+        <Text style={{ color: C.faint, fontSize: 11 }} numberOfLines={1} adjustsFontSizeToFit>{t('to {t}', { t: time(s.ends_at) })}</Text>
+      </View>
+      {s.first_name ? <Avatar name={name} color={s.color} size={36} /> : <View style={{ width: 36, height: 36, borderRadius: 12, borderWidth: 1.5, borderStyle: 'dashed', borderColor: C.faint, alignItems: 'center', justifyContent: 'center' }}><Icon name="plus" size={16} color={C.faint} duo={false} /></View>}
+      <View style={{ flex: 1, minWidth: 0 }}>
+        <Text style={{ color: C.ink, fontWeight: '600', fontSize: 14 }} numberOfLines={1}>{name}</Text>
+        <Text style={{ color: C.faint, fontSize: 12.5 }} numberOfLines={1}>{[s.role, s.location].filter(Boolean).join(' · ') || hm(minutesBetween(s.starts_at, s.ends_at) - (s.break_minutes || 0))}</Text>
+      </View>
+      {!s.published ? <Pill text={t('Draft')} kind="warn" /> : !s.employee_id ? <Pill text={t('Open')} kind="warn" /> : live ? <Pill text={t('On now')} kind="good" /> : <Pill text={hm(minutesBetween(s.starts_at, s.ends_at) - (s.break_minutes || 0))} kind="info" />}
+    </View>
+  );
+}
+
+function Everyone({ sel, from, onLoaded }: { sel: string; from: string; onLoaded: (days: Set<string>) => void }) {
   const { isManager } = useAuth();
-  const [from, setFrom] = useState(todayKey());
   const to = addDays(from, 6);
   const d = useLoad(async () => {
     const r = await get<{ shifts: Shift[]; hours: number }>(`/api/shifts?from=${from}&to=${to}`);
     const q = isManager ? await get<{ requests: Req[] }>('/api/schedule').catch(() => ({ requests: [] as Req[] })) : { requests: [] as Req[] };
-    return { shifts: r.shifts.filter((s) => s.published || isManager), requests: q.requests || [] };
+    const shifts = (r.shifts || []).filter((s) => s.published || isManager);
+    onLoaded(new Set(shifts.map((s) => dayKey(s.starts_at))));
+    return { shifts, requests: q.requests || [] };
   }, [from, isManager]);
-  const groups = useMemo(() => {
-    const m = new Map<string, Shift[]>();
-    for (const s of d.data?.shifts || []) { const k = dayKey(s.starts_at); if (!m.has(k)) m.set(k, []); m.get(k)!.push(s); }
-    return [...m.entries()];
-  }, [d.data]);
-  const today = todayKey();
-  const total = (d.data?.shifts || []).reduce((a, s) => a + minutesBetween(s.starts_at, s.ends_at) - (s.break_minutes || 0), 0);
-  const fmt = (ymd: string) => new Date(ymd + 'T12:00:00').toLocaleDateString(locale(), { month: 'short', day: 'numeric' });
+  const list = useMemo(() => (d.data?.shifts || []).filter((s) => dayKey(s.starts_at) === sel).sort((a, b) => a.starts_at.localeCompare(b.starts_at)), [d.data, sel]);
+  const weekMin = (d.data?.shifts || []).reduce((a, s) => a + minutesBetween(s.starts_at, s.ends_at) - (s.break_minutes || 0), 0);
+  const open = list.filter((s) => !s.employee_id).length;
+  const drafts = (d.data?.shifts || []).filter((s) => !s.published).length;
+  const tip = open === 1 ? t('1 open shift on this day still needs someone. Post it so your team can pick it up.') : open ? t('{n} open shifts on this day still need someone. Post them so your team can pick them up.', { n: open })
+    : drafts ? t('{n} shifts this week are drafts. Publish the schedule so your team gets notified.', { n: drafts })
+    : list.length ? t('{n} people are working, {h} scheduled in total this week.', { n: new Set(list.map((s) => s.employee_id)).size, h: hm(weekMin) })
+    : t('Nobody is scheduled on this day yet.');
+  const dayName = new Date(sel + 'T12:00:00').toLocaleDateString(locale(), { weekday: 'long' });
+  if (d.loading && !d.data) return <Loading />;
+  if (d.error && !d.data) return <ErrorBox text={d.error} onRetry={d.reload} />;
   return (
     <>
-      <Summary seed={6} label={`${fmt(from)} – ${fmt(to)}`} value={hm(total)}
-        badge={(d.data?.requests || []).length ? <Pill text={d.data!.requests.length === 1 ? t('1 request') : t('{n} requests', { n: d.data!.requests.length })} kind="warn" /> : undefined}
-        minis={[[t('Shifts'), String(d.data?.shifts.length ?? 0)], [t('People'), String(new Set((d.data?.shifts || []).map((s) => s.employee_id).filter(Boolean)).size)], [t('Open shifts'), String((d.data?.shifts || []).filter((s) => !s.employee_id).length)]]}>
-        <Row style={{ gap: 8 }}>
-          <Pressable onPress={() => setFrom(addDays(from, -7))} accessibilityRole="button" accessibilityLabel={t('Previous week')} style={WK}><Icon name="back" color={C.white} size={18} /><Text style={WKT}>{t('Previous week')}</Text></Pressable>
-          <Pressable onPress={() => setFrom(addDays(from, 7))} accessibilityRole="button" accessibilityLabel={t('Next week')} style={WK}><Text style={WKT}>{t('Next week')}</Text><Icon name="chevron" color={C.white} size={18} /></Pressable>
-        </Row>
-      </Summary>
-      {d.loading && !d.data ? <Loading /> : d.error && !d.data ? <ErrorBox text={d.error} onRetry={d.reload} /> : (
-        <>
-          <Requests list={d.data?.requests || []} onDone={d.reload} />
-          {!groups.length ? <Card><Empty icon="calendar" title={t('No shifts yet')} sub={t('No shifts in this week.')} /></Card> : (
-            <>
-              {groups.map(([k, list]) => (
-                <Section key={k} i={0}>
-                  <H2 right={k === today ? <Pill text={t('Today')} /> : undefined}>{longDay(list[0].starts_at)}</H2>
-                  {list.map((s) => (
-                    <Card key={s.id}>
-                      <Row>
-                        {s.first_name ? <Avatar name={`${s.first_name} ${s.last_name}`} color={s.color} size={40} /> : <IconTile name="plus" color={tint(2)} />}
-                        <View style={{ flex: 1 }}>
-                          <Text style={{ fontSize: 18, fontWeight: '800', color: C.ink }}>{time(s.starts_at)} – {time(s.ends_at)}</Text>
-                          <Muted>{[s.first_name ? `${s.first_name} ${s.last_name}` : t('Open shift'), s.role, s.location].filter(Boolean).join(' · ')}</Muted>
-                          {s.notes ? <Muted style={{ marginTop: 4 }}>{s.notes}</Muted> : null}
-                        </View>
-                        <Muted>{hm(minutesBetween(s.starts_at, s.ends_at) - (s.break_minutes || 0))}</Muted>
-                      </Row>
-                      {!s.published ? <View style={{ marginTop: 8 }}><Pill text={t('Draft, not published')} kind="warn" /></View> : null}
-                    </Card>
-                  ))}
-                </Section>
-              ))}
-            </>
-          )}
-        </>
-      )}
+      {isManager ? <Rise><AiTip text={tip} onOpen={() => openTool('/schedule', t('Schedule'))} /></Rise> : null}
+      <Requests list={d.data?.requests || []} onDone={d.reload} />
+      <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
+        <Text style={{ flex: 1, color: C.ink, fontSize: 16, fontWeight: '700' }} accessibilityRole="header">{`${dayName} · ${list.length === 1 ? t('1 shift') : t('{n} shifts', { n: list.length })}`}</Text>
+        <Text style={{ color: C.faint, fontSize: 12.5 }}>{t('{h} this week', { h: hm(weekMin) })}</Text>
+      </View>
+      {list.length ? <View style={{ gap: 8 }}>{list.map((s) => <ShiftRow key={s.id} s={s} />)}</View>
+        : <Card><Empty icon="calendar" title={t('No shifts on this day')} sub={isManager ? t('Tap Add shift to plan this day.') : t('Nobody is scheduled on this day.')} /></Card>}
     </>
   );
 }
 
 export default function Schedule() {
   const { isManager, session } = useAuth();
-  const [view, setView] = useState<'mine' | 'all'>(session?.employee ? 'mine' : 'all');
+  const [view, setView] = useState<'mine' | 'all'>(session?.employee && !isManager ? 'mine' : 'all');
   const [k, setK] = useState(0);
+  const [sel, setSel] = useState(todayKey());
+  const [has, setHas] = useState<Set<string>>(new Set());
+  const days = weekOf(sel);
+  const dt = new Date(sel + 'T12:00:00');
+  const eyebrow = `${dt.toLocaleDateString(locale(), { month: 'long' })}, ${t('week {n}', { n: weekNo(sel) })}`;
+  const below = (
+    <View style={{ gap: 10 }}>
+      {session?.employee ? <Segmented value={view} onChange={(v) => setView(v as any)} options={[['all', t('Everyone')], ['mine', t('My shifts')]]} /> : null}
+      {view === 'all' ? <WeekStrip days={days} sel={sel} set={setSel} has={has} onPrev={() => setSel(addDays(sel, -7))} onNext={() => setSel(addDays(sel, 7))} /> : null}
+    </View>
+  );
+  const fab = isManager && view === 'all' ? (
+    <Pressable onPress={() => openTool('/schedule', t('Schedule'))} accessibilityRole="button" accessibilityLabel={t('Add shift')}
+      style={({ pressed }) => ({ height: 50, paddingHorizontal: 18, borderRadius: 16, flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: C.dark ? '#FFFFFF' : '#0A1230', opacity: pressed ? 0.85 : 1, shadowColor: '#0A1230', shadowOpacity: 0.25, shadowRadius: 14, shadowOffset: { width: 0, height: 6 }, elevation: 6 })}>
+      <Icon name="plus" size={18} color={C.dark ? '#0A1230' : '#FFFFFF'} duo={false} />
+      <Text style={{ color: C.dark ? '#0A1230' : '#FFFFFF', fontWeight: '700', fontSize: 14 }}>{t('Add shift')}</Text>
+    </Pressable>
+  ) : undefined;
   return (
-    <Screen title={t('Schedule')} subtitle={t(view === 'mine' ? 'Your upcoming shifts' : 'Everyone, this week')} refreshing={false} onRefresh={() => setK((x) => x + 1)}>
-      {isManager && session?.employee ? <Segmented value={view} onChange={(v) => setView(v as any)} options={[['mine', t('My shifts')], ['all', t('Everyone')]]} /> : null}
-      {view === 'mine' ? <Mine key={k} /> : <Everyone key={k} />}
+    <Screen eyebrow={eyebrow} title={t('Schedule')} below={below} fab={fab} refreshing={false} onRefresh={() => setK((x) => x + 1)}
+      right={<Pressable onPress={() => openTool('/schedule', t('Schedule'))} accessibilityLabel={t('Search')} style={{ width: 40, height: 40, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: C.dark ? C.card2 : '#F5F7FB' }}><Icon name="search" size={19} color={C.ink} duo={false} /></Pressable>}>
+      {view === 'mine' ? <Mine key={k} /> : <Everyone key={`${k}-${days[0]}`} sel={sel} from={days[0]} onLoaded={setHas} />}
+      {isManager && view === 'all' ? <View style={{ height: 60 }} /> : null}
     </Screen>
   );
 }

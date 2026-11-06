@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Platform, Pressable, Text, View } from 'react-native';
+import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import * as WebBrowser from 'expo-web-browser';
+import Svg, { Defs, LinearGradient as SvgGrad, Path, Rect, Stop } from 'react-native-svg';
+import { Logo } from '../../ui/Logo';
+import { BASE } from '../../lib/api';
+import { openTool } from '../web';
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { useAuth } from '../../lib/auth';
@@ -9,9 +14,7 @@ import { greeting, hm, minutesBetween, money, time, day } from '../../lib/format
 import { C, S } from '../../lib/theme';
 import { Avatar, B, Button, Card, Divider, Empty, ErrorBox, H2, ListRow, Loading, Muted, Pill, Row, Screen, Stat } from '../../ui/kit';
 import { DateTile, IconTile, tint } from '../../ui/Summary';
-import { AiOrb } from '../../ui/TabBar';
 import { Icon, IconName } from '../../ui/Icon';
-import { HeroCard } from '../../ui/Brand';
 import { Pressy, Rise, useCountUp } from '../../ui/Motion';
 import { t } from '../../lib/i18n';
 import { currentFix, syncTracking, waitForConsent, type GeoMe } from '../../lib/geo';
@@ -116,17 +119,74 @@ function ClockCard({ clock, onChange }: { clock: Clock; onChange: (c: Clock) => 
 const ROLE_LABEL: Record<string, string> = { owner: 'Owner', admin: 'Admin', manager: 'Manager' };
 
 type Quick = { icon: IconName; label: string; go: () => void };
+const glass = { borderRadius: 20, padding: 16, backgroundColor: 'rgba(255,255,255,0.06)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)' } as const;
 
-/** Four glass action squares inside the navy top panel. */
-function Actions({ items }: { items: Quick[] }) {
+/** Thin sales line with a soft fill, drawn from the last 14 days. */
+function Sparkline({ values }: { values: number[] }) {
+  const [w, setW] = useState(300);
+  const h = 46;
+  const max = Math.max(1, ...values), min = Math.min(...values);
+  const pts = values.map((v, i) => [(i / Math.max(1, values.length - 1)) * w, h - 4 - ((v - min) / Math.max(1, max - min)) * (h - 10)]);
+  const line = pts.map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(' ');
   return (
-    <View style={{ flexDirection: 'row', gap: 10 }}>
+    <View onLayout={(e) => setW(e.nativeEvent.layout.width)} style={{ height: h, marginTop: 10 }}>
+      {values.length > 1 ? (
+        <Svg width={w} height={h}>
+          <Defs><SvgGrad id="spk" x1="0" y1="0" x2="0" y2="1"><Stop offset="0" stopColor="#AFC3FF" stopOpacity={0.35} /><Stop offset="1" stopColor="#AFC3FF" stopOpacity={0} /></SvgGrad></Defs>
+          <Path d={`${line} L${w} ${h} L0 ${h}Z`} fill="url(#spk)" />
+          <Path d={line} stroke="#AFC3FF" strokeWidth={2} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+        </Svg>
+      ) : null}
+    </View>
+  );
+}
+
+function LivePill() {
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, height: 22, paddingHorizontal: 9, borderRadius: 999, backgroundColor: 'rgba(23,166,115,0.16)' }}>
+      <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#5BE0A8' }} />
+      <Text style={{ color: '#5BE0A8', fontSize: 11.5, fontWeight: '600' }}>{t('Live')}</Text>
+    </View>
+  );
+}
+
+function SalesGlass({ x }: { x: any }) {
+  const sales = useCountUp(Number(x?.sales_today || 0));
+  if (!x) return <View style={[glass, { height: 170, justifyContent: 'center' }]}><Loading /></View>;
+  const growth = x.sales_prev_week ? Math.round(((x.sales_week - x.sales_prev_week) / x.sales_prev_week) * 100) : null;
+  const mini: [string, string][] = [[String(x.orders_today ?? 0), t('Orders')], [x.labor_pct == null ? '—' : `${Math.round(x.labor_pct)}%`, t('Labour')], [String((x.on_clock || []).length), t('Working now')]];
+  return (
+    <View style={glass}>
+      <Row><Text style={{ color: '#9AA5C8', fontSize: 13, flex: 1 }}>{t("Today's sales")}</Text><LivePill /></Row>
+      <View style={{ flexDirection: 'row', alignItems: 'flex-end', marginTop: 8 }}>
+        <Text style={{ color: '#FFFFFF', fontSize: 34, fontWeight: '800', letterSpacing: -1, flex: 1 }} numberOfLines={1}>{money(sales)}</Text>
+        {growth == null ? null : <Text style={{ color: growth >= 0 ? '#5BE0A8' : '#F2B33D', fontWeight: '600', fontSize: 13, marginBottom: 5 }}>{t('{p}% vs last week', { p: `${growth >= 0 ? '+' : ''}${growth}` })}</Text>}
+      </View>
+      <Sparkline values={(x.series || []).map((d: any) => Number(d.total || 0))} />
+      <View style={{ flexDirection: 'row', gap: 8, marginTop: 12 }}>
+        {mini.map(([v, l]) => (
+          <View key={l} style={{ flex: 1, borderRadius: 14, padding: 10, backgroundColor: 'rgba(255,255,255,0.05)' }}>
+            <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '700' }}>{v}</Text>
+            <Text style={{ color: '#9AA5C8', fontSize: 11.5 }} numberOfLines={1}>{l}</Text>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+}
+
+/** Four white quick-action buttons. */
+function QuickRow({ items }: { items: Quick[] }) {
+  return (
+    <View style={{ flexDirection: 'row', gap: 8 }}>
       {items.map((q, n) => (
-        <Rise key={q.label} delay={80 + n * 50} style={{ flex: 1 }}>
+        <Rise key={q.label} delay={60 + n * 40} style={{ flex: 1 }}>
           <Pressy onPress={q.go} accessibilityRole="button" accessibilityLabel={q.label}
-            style={{ backgroundColor: 'rgba(255,255,255,0.10)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', borderRadius: 20, paddingVertical: 14, alignItems: 'center', gap: 8 }}>
-            <Icon name={q.icon} color="#FFFFFF" size={24} />
-            <Text style={{ color: '#FFFFFF', fontWeight: '600', fontSize: 12 }} numberOfLines={1}>{q.label}</Text>
+            style={{ backgroundColor: C.card, borderWidth: 1, borderColor: C.line, borderRadius: 18, paddingTop: 12, paddingBottom: 10, alignItems: 'center', gap: 7 }}>
+            <View style={{ width: 38, height: 38, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: C.dark ? 'rgba(175,195,255,0.12)' : '#EEF1FF' }}>
+              <Icon name={q.icon} color={C.dark ? '#AFC3FF' : '#000C58'} size={20} duo={false} />
+            </View>
+            <Text style={{ color: C.ink, fontWeight: '600', fontSize: 11.5 }} numberOfLines={1}>{q.label}</Text>
           </Pressy>
         </Rise>
       ))}
@@ -134,100 +194,126 @@ function Actions({ items }: { items: Quick[] }) {
   );
 }
 
-/** A plain list of extra tools, each with a tinted icon square. */
-function MoreList({ items }: { items: Quick[] }) {
+function CardHead({ title, right, icon }: { title: string; right?: React.ReactNode; icon?: React.ReactNode }) {
   return (
-    <Card style={{ paddingVertical: S.xs }}>
-      {items.map((q, i) => (
-        <View key={q.label}>
-          {i ? <Divider /> : null}
-          <ListRow title={q.label} left={<IconTile name={q.icon} color={tint(i + 1)} />} onPress={q.go} />
-        </View>
-      ))}
-    </Card>
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+      {icon}
+      <Text style={{ flex: 1, color: C.ink, fontSize: 15, fontWeight: '700', letterSpacing: -0.1 }} accessibilityRole="header">{title}</Text>
+      {right}
+    </View>
   );
 }
+const Lnk = ({ text, go }: { text: string; go: () => void }) => <Pressable onPress={go} hitSlop={8} accessibilityRole="link"><Text style={{ color: C.blue, fontWeight: '600', fontSize: 13 }}>{text}</Text></Pressable>;
 
-function OwnerHero({ x }: { x: any }) {
-  const sales = useCountUp(Number(x?.sales_today || 0));
-  if (!x) return null;
-  const growth = x.sales_prev_week ? Math.round(((x.sales_week - x.sales_prev_week) / x.sales_prev_week) * 100) : null;
+function SparkTile() {
   return (
-    <View style={{ gap: 4 }}>
-      <Row style={{ justifyContent: 'space-between' }}>
-        <Text style={{ color: 'rgba(255,255,255,0.7)', fontWeight: '600', fontSize: 15 }}>{t('Sales today')}</Text>
-        {growth == null ? null : <Pill text={t('{p}% vs last week', { p: `${growth >= 0 ? '+' : ''}${growth}` })} kind={growth >= 0 ? 'good' : 'warn'} />}
-      </Row>
-      <Text style={{ color: '#FFFFFF', fontSize: 46, fontWeight: '800', letterSpacing: -1.8 }}>{money(sales)}</Text>
-      <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13 }}>{t('This week')}: {money(x.sales_week)} · {t('Team')}: {String(x.headcount ?? '—')}</Text>
+    <View style={{ width: 28, height: 28, borderRadius: 9, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' }}>
+      <Svg width={28} height={28} style={{ position: 'absolute' }}><Defs><SvgGrad id="st" x1="0" y1="0" x2="1" y2="1"><Stop offset="0" stopColor="#3D5BF5" /><Stop offset="1" stopColor="#6B5CF6" /></SvgGrad></Defs><Rect width={28} height={28} fill="url(#st)" /></Svg>
+      <View style={{ zIndex: 1 }}><Icon name="spark" size={16} color="#FFFFFF" duo={false} /></View>
     </View>
   );
 }
 
-function OwnerBody({ d, more }: { d: ReturnType<typeof useLoad<any>>; more: Quick[] }) {
-  if (d.loading && !d.data) return <Loading />;
-  if (!d.data) return d.error ? <ErrorBox text={d.error} onRetry={d.reload} /> : null;
-  const x = d.data;
+/** OENOD AI's morning brief from live data, shown as short bullets. */
+function Brief() {
+  const [text, setText] = useState<string | null>(null);
+  const [err, setErr] = useState('');
+  useEffect(() => { get<{ brief: string }>('/api/ai/brief').then((r) => setText(r.brief)).catch((e) => setErr(e?.message || '')); }, []);
+  const lines = (text || '').split('\n').map((l) => l.replace(/^\s*([-*•]|\d+\.)\s*/, '').trim()).filter(Boolean).slice(0, 4);
+  const hour = new Date().getHours();
   return (
-    <>
-      {x.pending_timeoff ? (
-        <Card onPress={() => router.navigate('/timeoff')} style={{ borderColor: C.warnLine, backgroundColor: C.warnSoft }}>
-          <Row><Icon name="sun" color={C.warn} /><B style={{ flex: 1 }}>{x.pending_timeoff === 1 ? t('1 time-off request to review') : t('{n} time-off requests to review', { n: x.pending_timeoff })}</B><Icon name="chevron" color={C.warn} size={18} /></Row>
-        </Card>
-      ) : null}
-      <Rise delay={120}>
-        <Row style={{ gap: 10 }}>
-          <Stat label={t('Orders')} value={String(x.orders_today ?? 0)} />
-          <Stat label={t('Labor')} value={x.labor_pct == null ? '—' : `${Math.round(x.labor_pct)}%`} />
-          <Stat label={t('Working now')} value={String((x.on_clock || []).length)} />
-        </Row>
-      </Rise>
-      <Rise delay={170}>
-        <Pressy onPress={() => router.navigate('/ai')} accessibilityRole="button" accessibilityLabel={t('Ask OENOD AI')}
-          style={{ flexDirection: 'row', alignItems: 'center', gap: 14, padding: 16, borderRadius: 20, backgroundColor: C.card, borderWidth: 1, borderColor: C.line }}>
-          <AiOrb size={44} still />
-          <View style={{ flex: 1 }}>
-            <Text style={{ color: C.ink, fontWeight: '800', fontSize: 16 }}>{t('Your AI brief is ready')}</Text>
-            <Text style={{ color: C.sub, fontSize: 13.5, marginTop: 2 }}>{t('OENOD AI read today’s numbers. Tap to see what matters.')}</Text>
-          </View>
-          <Icon name="chevron" color={C.faint} size={18} />
-        </Pressy>
-      </Rise>
-      <Rise delay={220} style={{ gap: S.md }}>
-        <H2 action={t('See all')} onAction={() => router.navigate('/team')}>{t('Working now')}</H2>
-        <Card style={{ paddingVertical: S.xs }}>
-          {(x.on_clock || []).length ? x.on_clock.map((o: any, i: number) => (
-            <View key={o.id}>{i ? <Divider /> : null}
-              <ListRow title={`${o.first_name} ${o.last_name}`} sub={`${o.job_title || t('Team')} · ${t('since {t}', { t: time(o.clock_in) })}`}
-                left={<Avatar name={`${o.first_name} ${o.last_name}`} color={o.color} />}
-                right={<Pill text={o.break_started_at ? t('Break') : t('In')} kind={o.break_started_at ? 'warn' : 'good'} />}
-                onPress={() => router.push(`/employee/${o.employee_id}`)} />
+    <Card>
+      <CardHead icon={<SparkTile />} title={t(hour < 12 ? 'Morning brief' : hour < 17 ? 'Afternoon brief' : 'Evening brief')} right={<Lnk text={t('Ask')} go={() => router.navigate('/ai')} />} />
+      {text ? (
+        <View style={{ gap: 9 }}>
+          {lines.map((l, i) => (
+            <View key={i} style={{ flexDirection: 'row', gap: 9 }}>
+              <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: C.blue, marginTop: 7 }} />
+              <Text style={{ flex: 1, color: C.ink, fontSize: 13.5, lineHeight: 19 }}>
+                {l.split(/(\*\*[^*]+\*\*)/g).map((p, n) => p.startsWith('**') ? <Text key={n} style={{ fontWeight: '700' }}>{p.slice(2, -2)}</Text> : <Text key={n} style={{ color: C.sub }}>{p}</Text>)}
+              </Text>
             </View>
-          )) : <Muted style={{ paddingVertical: S.md }}>{t('Nobody is clocked in right now.')}</Muted>}
-        </Card>
-        <H2 action={t('See all')} onAction={() => router.navigate('/schedule')}>{t('Shifts today')}</H2>
-        <Card style={{ paddingVertical: S.xs }}>
-          {(x.shifts_today || []).length ? x.shifts_today.map((s: any, i: number) => (
-            <View key={i}>{i ? <Divider /> : null}
-              <ListRow title={`${s.first_name} ${s.last_name}`} sub={s.role || undefined} left={<Avatar name={`${s.first_name} ${s.last_name}`} color={s.color} size={40} />}
-                right={<Text style={{ color: C.ink, fontWeight: '700' }}>{time(s.starts_at)}–{time(s.ends_at)}</Text>} />
-            </View>
-          )) : <Muted style={{ paddingVertical: S.md }}>{t('No shifts scheduled today.')}</Muted>}
-        </Card>
-        <H2>{t('More tools')}</H2>
-        <MoreList items={more} />
-        {(x.low_stock || []).length ? (
-          <>
-            <H2>{t('Low stock')}</H2>
-            <Card style={{ paddingVertical: S.xs }}>{x.low_stock.slice(0, 6).map((p: any, i: number) => (
-              <View key={i}>{i ? <Divider /> : null}<ListRow title={p.name} left={<IconTile name="briefcase" color={C.warn} />} sub={t('{n} left · reorder at {r}', { n: Number(p.stock_qty ?? 0), r: Number(p.reorder_level ?? 0) })} /></View>
-            ))}</Card>
-          </>
-        ) : null}
-      </Rise>
-    </>
+          ))}
+        </View>
+      ) : err ? <Muted>{err}</Muted> : <Muted>{t('OENOD AI is reading today’s numbers…')}</Muted>}
+    </Card>
   );
 }
+
+const AV = ['#17A673', '#D98A1C', '#C2417A', '#0E8FB0', '#3D5BF5', '#6B5CF6'];
+function OnShift({ list, total }: { list: any[]; total: number }) {
+  return (
+    <Card onPress={() => router.navigate('/team')}>
+      <CardHead title={t('On shift now')} right={<Pill text={total ? t('{a} of {b}', { a: list.length, b: total }) : String(list.length)} kind="good" />} />
+      {list.length ? (
+        <Row>
+          <View style={{ flexDirection: 'row' }}>
+            {list.slice(0, 6).map((o: any, i: number) => (
+              <View key={o.id} style={{ marginLeft: i ? -9 : 0, borderRadius: 19, borderWidth: 2.5, borderColor: C.card }}>
+                <Avatar name={`${o.first_name} ${o.last_name}`} color={o.color || AV[i % AV.length]} size={34} />
+              </View>
+            ))}
+          </View>
+          <View style={{ flex: 1 }} />
+          <Lnk text={t('See all')} go={() => router.navigate('/team')} />
+        </Row>
+      ) : <Muted>{t('Nobody is clocked in right now.')}</Muted>}
+    </Card>
+  );
+}
+
+type Todo = { key: string; text: string; note?: string; go: () => void };
+function Todos({ items }: { items: Todo[] }) {
+  const [done, setDone] = useState<string[]>([]);
+  if (!items.length) return null;
+  return (
+    <Card>
+      <CardHead title={t('Your to-dos')} right={<Text style={{ color: C.faint, fontSize: 12 }}>{t('{a} of {b} done', { a: done.length, b: items.length })}</Text>} />
+      {items.map((x, i) => {
+        const on = done.includes(x.key);
+        return (
+          <View key={x.key} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10, borderTopWidth: i ? StyleSheet.hairlineWidth : 0, borderColor: C.line }}>
+            <Pressable onPress={() => setDone(on ? done.filter((k) => k !== x.key) : [...done, x.key])} accessibilityRole="checkbox" accessibilityState={{ checked: on }} hitSlop={8}
+              style={{ width: 22, height: 22, borderRadius: 7, borderWidth: 1.8, borderColor: on ? '#17A673' : '#C5CBDD', backgroundColor: on ? '#17A673' : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
+              {on ? <Icon name="check" size={15} color="#FFFFFF" duo={false} /> : null}
+            </Pressable>
+            <Pressable onPress={x.go} style={{ flex: 1 }} accessibilityRole="link">
+              <Text style={{ color: on ? C.faint : C.ink, fontSize: 14, textDecorationLine: on ? 'line-through' : 'none' }}>{x.text}</Text>
+            </Pressable>
+            {x.note ? <Text style={{ color: C.faint, fontSize: 12 }}>{x.note}</Text> : null}
+          </View>
+        );
+      })}
+    </Card>
+  );
+}
+
+const SUITES: [string, IconName, string, string][] = [
+  ['People', 'users', '#3D5BF5', 'Team, schedule, payroll'], ['Money', 'wallet', '#17A673', 'Wallet, invoices, books'],
+  ['Customers', 'chat', '#C2417A', 'CRM, reviews, Ava'], ['Operations', 'briefcase', '#D98A1C', 'Stock, POS, cameras'], ['AI & platform', 'spark', '#6B5CF6', 'AI, Meet, docs'],
+];
+function Suites() {
+  return (
+    <View style={{ gap: 10 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 2 }}>
+        <Text style={{ flex: 1, color: C.ink, fontSize: 15, fontWeight: '700' }} accessibilityRole="header">{t('Your suites')}</Text>
+        <Lnk text={t('All tools')} go={() => router.navigate('/all')} />
+      </View>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginHorizontal: -S.lg }} contentContainerStyle={{ paddingHorizontal: S.lg, gap: 8 }}>
+        {SUITES.map(([n, ic, col, sub]) => (
+          <Pressy key={n} onPress={() => router.navigate('/all')} accessibilityRole="button" accessibilityLabel={t(n)}
+            style={{ width: 132, borderRadius: 18, padding: 14, gap: 8, backgroundColor: C.card, borderWidth: 1, borderColor: C.line }}>
+            <View style={{ width: 34, height: 34, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: col }}><Icon name={ic} size={18} color="#FFFFFF" duo={false} /></View>
+            <Text style={{ color: C.ink, fontWeight: '700', fontSize: 13.5 }}>{t(n)}</Text>
+            <Text style={{ color: C.faint, fontSize: 11.5, lineHeight: 15 }}>{t(sub)}</Text>
+          </Pressy>
+        ))}
+      </ScrollView>
+    </View>
+  );
+}
+
+const openMeet = () => WebBrowser.openBrowserAsync(`${BASE}/#/meet`, { presentationStyle: WebBrowser.WebBrowserPresentationStyle.FULL_SCREEN, controlsColor: '#3D5BF5' });
 
 export default function Home() {
   const { session, isManager } = useAuth();
@@ -237,86 +323,102 @@ export default function Home() {
   const first = (session?.user?.name || '').split(' ')[0];
   const unread = session?.notifications || 0;
   const role = session?.user?.role || '';
-  const who = isManager ? t(ROLE_LABEL[role] || 'Manager') : hasEmployee ? t('Employee') : t('Member');
-  const company = session?.company?.name || 'OENOD';
-  const ownerActions: Quick[] = [
+  const company = session?.company?.name || '';
+  const x = dash.data;
+  const quick: Quick[] = [
+    hasEmployee ? { icon: 'clock', label: t('Clock in'), go: () => router.push('/timesheet') } : { icon: 'users', label: t('Team'), go: () => router.navigate('/team') },
     { icon: 'calendar', label: t('Schedule'), go: () => router.navigate('/schedule') },
-    { icon: 'users', label: t('Team'), go: () => router.navigate('/team') },
-    { icon: 'sun', label: t('Time off'), go: () => router.navigate('/timeoff') },
-    { icon: 'cash', label: t('Wallet'), go: () => router.push('/wallet') },
+    { icon: 'send', label: t('Pay'), go: () => router.navigate('/money') },
+    { icon: 'video', label: t('Meet'), go: openMeet },
   ];
-  const ownerMore: Quick[] = [
-    { icon: 'news', label: t('Team news'), go: () => router.push('/feed') },
-    { icon: 'bell', label: t('Notifications'), go: () => router.push('/notifications') },
-  ];
-  const staffActions: Quick[] = [
-    { icon: 'calendar', label: t('Shifts'), go: () => router.navigate('/schedule') },
-    { icon: 'clock', label: t('Hours'), go: () => router.push('/timesheet') },
-    { icon: 'cash', label: t('Pay'), go: () => router.push('/pay') },
-    { icon: 'sun', label: t('Time off'), go: () => router.navigate('/timeoff') },
-  ];
-  const staffMore: Quick[] = [
-    { icon: 'check', label: t('My availability'), go: () => router.push('/availability') },
-    { icon: 'news', label: t('Team news'), go: () => router.push('/feed') },
-    { icon: 'cash', label: t('Wallet'), go: () => router.push('/wallet') },
-  ];
-  const hero = isManager ? (<><OwnerHero x={dash.data} /><Actions items={ownerActions} /></>)
-    : hasEmployee ? (<>{c.data ? <ClockCard clock={c.data} onChange={(x) => c.setData(x)} /> : null}<Actions items={staffActions} /></>)
+  const todos: Todo[] = [];
+  if (x?.pending_timeoff) todos.push({ key: 'to', text: x.pending_timeoff === 1 ? t('Approve 1 time-off request') : t('Approve {n} time-off requests', { n: x.pending_timeoff }), go: () => router.navigate('/timeoff') });
+  if (x?.overdue_count) todos.push({ key: 'inv', text: t('Follow up on {n} overdue invoices', { n: x.overdue_count }), note: money(x.overdue_amount), go: () => openTool('/invoices', t('Invoices')) });
+  for (const p of (x?.low_stock || []).slice(0, 2)) todos.push({ key: 'ls' + p.name, text: t('Order {p}, {n} left', { p: p.name, n: Number(p.stock_qty ?? 0) }), note: t('Low'), go: () => openTool('/inventory', t('Inventory')) });
+  if (x?.to_approve) todos.push({ key: 'ta', text: t('Approve {n} timesheets', { n: x.to_approve }), go: () => openTool('/time', t('Time clock')) });
+
+  const hero = isManager ? <SalesGlass x={x} />
+    : hasEmployee ? (c.data ? <View style={glass}><ClockCard clock={c.data} onChange={(v) => c.setData(v)} /></View> : <View style={[glass, { height: 150, justifyContent: 'center' }]}><Loading /></View>)
     : undefined;
+  const top = (
+    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 14 }}>
+      <Logo width={55} color="#FFFFFF" />
+      <View style={{ flex: 1 }} />
+      <Pressable onPress={() => router.push('/notifications')} accessibilityRole="button" accessibilityLabel={`${t('Notifications')}${unread ? ` (${unread})` : ''}`} style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}>
+        <Icon name="bell" color="#FFFFFF" size={21} duo={false} />
+        {unread ? <View style={{ position: 'absolute', top: 9, right: 10, width: 8, height: 8, borderRadius: 4, backgroundColor: '#FF6B6B', borderWidth: 2, borderColor: '#050B24' }} /> : null}
+      </Pressable>
+      <Pressable onPress={() => router.navigate('/me')} accessibilityRole="button" accessibilityLabel={t('Me')} style={{ marginLeft: 6 }}>
+        <Avatar name={session?.user?.name || '?'} size={34} />
+      </Pressable>
+    </View>
+  );
+  const dateLine = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+  const who = isManager ? t(ROLE_LABEL[role] || 'Manager') : hasEmployee ? t('Employee') : t('Member');
   return (
     <Screen
-      eyebrow={new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }).toUpperCase()}
+      top={top}
+      eyebrow={company ? `${dateLine} · ${company}` : `${dateLine} · ${who}`}
       title={`${greeting()}${first ? ', ' + first : ''}`}
-      subtitle={`${who} · ${company}`}
-      hero={hero}
+      hero={hero ?? <View />}
       refreshing={c.refreshing || dash.refreshing}
       onRefresh={() => { c.refresh(); dash.refresh(); }}
-      right={
-        <View style={{ flexDirection: 'row', gap: 10 }}>
-        <Pressable onPress={() => router.push('/notifications')} accessibilityRole="button" accessibilityLabel={`${t('Notifications')}${unread ? ` (${unread})` : ''}`} style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: hero ? 'rgba(255,255,255,0.12)' : C.card2, alignItems: 'center', justifyContent: 'center' }}>
-          <Icon name="bell" color={hero ? '#FFFFFF' : C.ink} size={22} />
-          {unread ? <View style={{ position: 'absolute', top: 4, right: 4, minWidth: 18, height: 18, borderRadius: 9, backgroundColor: C.bad, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: '800' }}>{unread > 9 ? '9+' : unread}</Text></View> : null}
-        </Pressable>
-        <Pressable onPress={() => router.navigate('/me')} accessibilityRole="button" accessibilityLabel={t('Me')} style={{ borderRadius: 22, overflow: 'hidden' }}>
-          <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#3D5BF5', borderWidth: 2, borderColor: 'rgba(255,255,255,0.25)', alignItems: 'center', justifyContent: 'center' }}>
-            <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 16 }}>{(session?.user?.name || '?').split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase()}</Text>
-          </View>
-        </Pressable>
-        </View>
-      }
     >
       {isManager ? (
         <>
-          <OwnerBody d={dash} more={ownerMore} />
-          {hasEmployee && c.data ? (<><H2>{t('My time clock')}</H2><HeroCard seed={5}><ClockCard clock={c.data} onChange={(x) => c.setData(x)} /></HeroCard></>) : null}
+          {dash.error && !x ? <ErrorBox text={dash.error} onRetry={dash.reload} /> : null}
+          <Rise><Brief /></Rise>
+          <QuickRow items={quick} />
+          {x ? <Rise delay={120}><OnShift list={x.on_clock || []} total={(x.shifts_today || []).length || Number(x.headcount || 0)} /></Rise> : null}
+          <Rise delay={160}><Todos items={todos} /></Rise>
+          {x && (x.shifts_today || []).length ? (
+            <Rise delay={200}>
+              <Card style={{ paddingBottom: 6 }}>
+                <CardHead title={t('Shifts today')} right={<Lnk text={t('See all')} go={() => router.navigate('/schedule')} />} />
+                {x.shifts_today.slice(0, 5).map((s: any, i: number) => (
+                  <View key={i}>{i ? <Divider /> : null}
+                    <ListRow title={`${s.first_name} ${s.last_name}`} sub={s.role || undefined} left={<Avatar name={`${s.first_name} ${s.last_name}`} color={s.color} size={36} />}
+                      right={<Text style={{ color: C.ink, fontWeight: '700', fontSize: 13 }}>{time(s.starts_at)}–{time(s.ends_at)}</Text>} />
+                  </View>
+                ))}
+              </Card>
+            </Rise>
+          ) : null}
+          <Rise delay={240}><Suites /></Rise>
         </>
       ) : hasEmployee ? (
         <>
-          {!c.data ? (c.error ? <ErrorBox text={c.error} onRetry={c.reload} /> : <Loading />) : null}
+          {c.error && !c.data ? <ErrorBox text={c.error} onRetry={c.reload} /> : null}
+          <QuickRow items={quick} />
           {c.data?.next_shift ? (
             <Rise delay={120}>
-              <H2 action={t('See all')} onAction={() => router.navigate('/schedule')}>{t('Next shift')}</H2>
-              <Card onPress={() => router.navigate('/schedule')} style={{ marginTop: S.md }}>
+              <Card onPress={() => router.navigate('/schedule')}>
+                <CardHead title={t('Next shift')} right={<Lnk text={t('See all')} go={() => router.navigate('/schedule')} />} />
                 <Row>
                   <DateTile iso={c.data.next_shift.starts_at} />
                   <View style={{ flex: 1 }}>
-                    <Text style={{ color: C.ink, fontSize: 17, fontWeight: '800' }}>{time(c.data.next_shift.starts_at)} – {time(c.data.next_shift.ends_at)}</Text>
+                    <Text style={{ color: C.ink, fontSize: 16, fontWeight: '800' }}>{time(c.data.next_shift.starts_at)} – {time(c.data.next_shift.ends_at)}</Text>
                     <Muted>{[c.data.next_shift.role, c.data.next_shift.location].filter(Boolean).join(' · ') || t('Shift')}</Muted>
                   </View>
-                  <Icon name="chevron" color={C.faint} size={18} />
                 </Row>
               </Card>
             </Rise>
           ) : null}
-          <Rise delay={200} style={{ gap: S.md }}>
-            <H2>{t('More tools')}</H2>
-            <MoreList items={staffMore} />
+          <Rise delay={160}>
+            <Card style={{ paddingVertical: 4 }}>
+              <ListRow title={t('My availability')} left={<IconTile name="check" color={tint(1)} size={36} />} onPress={() => router.push('/availability')} />
+              <Divider />
+              <ListRow title={t('Team news')} left={<IconTile name="news" color={tint(2)} size={36} />} onPress={() => router.push('/feed')} />
+              <Divider />
+              <ListRow title={t('Time off')} left={<IconTile name="sun" color={tint(3)} size={36} />} onPress={() => router.navigate('/timeoff')} />
+            </Card>
           </Rise>
+          <Rise delay={200}><Suites /></Rise>
         </>
       ) : (
         <>
           <Card onPress={() => router.push('/wallet')}>
-            <Row><IconTile name="cash" color={tint(0)} /><View style={{ flex: 1 }}><B>{t('Wallet')}</B><Muted>{t('Get paid and transfer money to your bank')}</Muted></View><Icon name="chevron" color={C.faint} size={18} /></Row>
+            <Row><IconTile name="wallet" color={tint(0)} /><View style={{ flex: 1 }}><B>{t('Wallet')}</B><Muted>{t('Get paid and transfer money to your bank')}</Muted></View><Icon name="chevron" color={C.faint} size={18} /></Row>
           </Card>
           <Card>
             <Empty icon="user" title={t('Your OENOD account')} sub={t('Your digital business card and badge are under Me. When an employer adds you to their team, your shifts and time clock show up here.')} />

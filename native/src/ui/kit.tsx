@@ -7,34 +7,56 @@ import { C, R, S, onPalette } from '../lib/theme';
 import { initials } from '../lib/format';
 import { Icon, IconName } from './Icon';
 import { t } from '../lib/i18n';
-import { CornerGlow, GradientButton, HeroGradient, PoweredBy } from './Brand';
+import { GradientButton, HeroGradient, PoweredBy } from './Brand';
 import { Pressy } from './Motion';
+import { Logo } from './Logo';
+import Svg, { Circle } from 'react-native-svg';
 
-export function Screen({ title, eyebrow, subtitle, right, children, refreshing, onRefresh, scroll = true, hero, back }: {
+/** Faint dot grid that fades out downward, like the website's night bands. */
+function DotGrid({ width, height }: { width: number; height: number }) {
+  const dots = React.useMemo(() => {
+    const out: { x: number; y: number; o: number }[] = [];
+    for (let y = 11; y < height; y += 22) for (let x = 11; x < width; x += 22) out.push({ x, y, o: Math.max(0, 0.13 * (1 - y / height)) });
+    return out;
+  }, [width, height]);
+  return (
+    <Svg pointerEvents="none" style={StyleSheet.absoluteFill} width={width} height={height}>
+      {dots.map((d, i) => (d.o > 0.01 ? <Circle key={i} cx={d.x} cy={d.y} r={1} fill="#AFC3FF" fillOpacity={d.o} /> : null))}
+    </Svg>
+  );
+}
+
+export function Screen({ title, eyebrow, subtitle, right, children, refreshing, onRefresh, scroll = true, hero, back, top, below, fab }: {
   title?: string; eyebrow?: string; subtitle?: string; right?: React.ReactNode; children: React.ReactNode; refreshing?: boolean; onRefresh?: () => void; scroll?: boolean;
   /** Content shown inside the full-width night top panel, under the title. */
   hero?: React.ReactNode;
   /** Show a back button (screens opened on top of the tabs). */
   back?: boolean;
+  /** Row shown above the title inside the header (Today: logo, bell, avatar). */
+  top?: React.ReactNode;
+  /** Full-width strip under a light header (Schedule: the week strip). */
+  below?: React.ReactNode;
+  /** Floating action button above the tab bar. */
+  fab?: React.ReactNode;
 }) {
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const [hh, setHh] = React.useState(160);
   const y = React.useRef(new Animated.Value(0)).current;
   const isHero = !!hero;
-  const padH = Math.max(S.lg, (width - 760) / 2 + S.lg); // iPad: keep content in a readable centre column
+  const padH = Math.max(S.lg + 4, (width - 760) / 2 + S.lg);
   useFocusEffect(React.useCallback(() => { setStatusBarStyle(isHero || C.dark ? 'light' : 'dark'); return () => setStatusBarStyle(C.dark ? 'light' : 'dark'); }, [isHero]));
-  const onHero = isHero;
+  const goBack = () => (router.canGoBack() ? router.back() : router.replace('/'));
   const backBtn = back ? (
-    <Pressable onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))} accessibilityRole="button" accessibilityLabel={t('Back')} hitSlop={8}
-      style={{ width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: onHero ? 'rgba(255,255,255,0.10)' : C.card, borderWidth: onHero ? 0 : StyleSheet.hairlineWidth, borderColor: C.line }}>
-      <Icon name="back" size={20} color={onHero ? '#FFFFFF' : C.ink} />
+    <Pressable onPress={goBack} accessibilityRole="button" accessibilityLabel={t('Back')} hitSlop={8} style={{ flexDirection: 'row', alignItems: 'center', gap: 2, alignSelf: 'flex-start' }}>
+      <Icon name="back" size={20} color={isHero ? '#FFFFFF' : C.blue} />
+      <Text style={{ color: isHero ? '#FFFFFF' : C.blue, fontWeight: '600', fontSize: 15 }}>{t('Back')}</Text>
     </Pressable>
   ) : null;
   const titleRow = title ? (
-    <View style={{ gap: S.md }}>
-      {back ? <View style={{ flexDirection: 'row' }}>{backBtn}</View> : null}
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: S.md }}>
+    <View style={{ gap: S.sm }}>
+      {backBtn}
+      <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: S.md }}>
         <View style={{ flex: 1 }}>
           {eyebrow ? <Text style={[st.eyebrow, hero ? { color: '#AFC3FF' } : null]}>{eyebrow}</Text> : null}
           <Text style={[st.h1, hero ? { color: '#FFFFFF', fontSize: 28 } : null]} accessibilityRole="header">{title}</Text>
@@ -45,26 +67,33 @@ export function Screen({ title, eyebrow, subtitle, right, children, refreshing, 
     </View>
   ) : null;
   const head = hero ? (
-    <View style={[st.panel, { paddingTop: insets.top + S.md, paddingHorizontal: padH }]} onLayout={(e) => setHh(e.nativeEvent.layout.height)}>
+    <View style={[st.panel, { paddingTop: insets.top + (top ? S.sm : S.lg), paddingHorizontal: padH }]} onLayout={(e) => setHh(e.nativeEvent.layout.height)}>
       <HeroGradient width={width} height={hh} id="sp" fade={false} />
+      <DotGrid width={width} height={Math.min(hh, 260)} />
+      {top}
       {titleRow}
       {hero}
     </View>
   ) : title ? (
-    <View style={[st.head, { paddingTop: insets.top + S.lg, paddingHorizontal: padH }]} onLayout={(e) => setHh(e.nativeEvent.layout.height)}>
-      <CornerGlow width={width} height={hh + 60} color={C.dark ? '#3D5BF5' : '#7C93FF'} opacity={C.dark ? 0.3 : 0.18} />
-      {titleRow}
+    <View onLayout={(e) => setHh(e.nativeEvent.layout.height)}>
+      <View style={[st.head, { paddingTop: insets.top + S.lg, paddingHorizontal: padH }]}>
+        {top}
+        {titleRow}
+      </View>
+      {below}
     </View>
   ) : null;
   // The big header steps down into a slim floating bar once it scrolls away.
-  const at = Math.max(40, hh - insets.top - 30);
+  const at = Math.max(40, hh - insets.top - 40);
   const slimO = y.interpolate({ inputRange: [at - 30, at], outputRange: [0, 1], extrapolate: 'clamp' });
   const slimY = y.interpolate({ inputRange: [at - 30, at], outputRange: [-14, 0], extrapolate: 'clamp' });
+  const dark = isHero || C.dark;
   const slim = title ? (
     <Animated.View pointerEvents="box-none" style={{ position: 'absolute', top: insets.top + 6, left: 0, right: 0, alignItems: 'center', opacity: slimO, transform: [{ translateY: slimY }], zIndex: 5 }}>
-      <View style={[st.slim, { width: Math.min(width - 24, 736) }]}>
-        {back ? <Pressable onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))} accessibilityRole="button" accessibilityLabel={t('Back')} hitSlop={8}><Icon name="back" size={20} color={C.ink} /></Pressable> : null}
-        <Text style={{ flex: 1, color: C.ink, fontSize: 16, fontWeight: '700', letterSpacing: -0.2 }} numberOfLines={1}>{title}</Text>
+      <View style={[st.slim, { width: Math.min(width - 24, 736) }, dark ? { backgroundColor: 'rgba(8,15,44,0.95)', borderColor: 'rgba(255,255,255,0.09)' } : { backgroundColor: 'rgba(255,255,255,0.97)', borderColor: 'rgba(10,18,48,0.08)' }]}>
+        {back ? <Pressable onPress={goBack} accessibilityRole="button" accessibilityLabel={t('Back')} hitSlop={8}><Icon name="back" size={20} color={dark ? '#FFFFFF' : C.ink} /></Pressable> : <Logo width={48} color={dark ? '#FFFFFF' : '#0A1230'} />}
+        <View style={{ width: 1, height: 16, backgroundColor: dark ? 'rgba(255,255,255,0.2)' : 'rgba(10,18,48,0.15)' }} />
+        <Text style={{ flex: 1, color: dark ? '#FFFFFF' : C.ink, fontSize: 15, fontWeight: '700' }} numberOfLines={1}>{title}</Text>
       </View>
     </Animated.View>
   ) : null;
@@ -75,16 +104,16 @@ export function Screen({ title, eyebrow, subtitle, right, children, refreshing, 
         scrollEventThrottle={16}
         onScroll={Animated.event([{ nativeEvent: { contentOffset: { y } } }], { useNativeDriver: Platform.OS !== 'web' })}
         contentContainerStyle={{ paddingBottom: insets.bottom + 120 }}
-        style={hero ? { backgroundColor: C.bg } : undefined}
         refreshControl={onRefresh ? <RefreshControl refreshing={!!refreshing} onRefresh={onRefresh} tintColor={hero ? '#FFFFFF' : C.link} progressViewOffset={insets.top} /> : undefined}
       >
         {head}
-        <View style={{ width: '100%', maxWidth: 760, alignSelf: 'center', padding: S.lg, paddingTop: hero ? S.xl : S.sm, gap: S.md }}>
+        <View style={{ width: '100%', maxWidth: 760, alignSelf: 'center', paddingHorizontal: S.lg, paddingTop: 18, gap: 14 }}>
           {children}
           <PoweredBy />
         </View>
       </Animated.ScrollView>
       {slim}
+      {fab ? <View pointerEvents="box-none" style={{ position: 'absolute', right: Math.max(20, (width - 760) / 2 + 20), bottom: insets.bottom + 96 }}>{fab}</View> : null}
     </View>
   );
 }
@@ -193,14 +222,14 @@ export const Stat = ({ label, value, sub }: { label: string; value: string; sub?
 export const st: Record<string, any> = {};
 onPalette(() => { Object.assign(st, StyleSheet.create({
   screen: { flex: 1, backgroundColor: C.bg },
-  head: { overflow: 'hidden', paddingHorizontal: S.lg, paddingBottom: S.md },
-  panel: { overflow: 'hidden', paddingHorizontal: S.lg, paddingBottom: S.xl, gap: S.lg, borderBottomLeftRadius: 32, borderBottomRightRadius: 32, backgroundColor: '#050B24' },
-  slim: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 48, paddingHorizontal: 16, borderRadius: 999, backgroundColor: C.dark ? 'rgba(12,21,54,0.94)' : 'rgba(255,255,255,0.96)', borderWidth: StyleSheet.hairlineWidth, borderColor: C.line, shadowColor: '#0A1230', shadowOpacity: 0.14, shadowRadius: 18, shadowOffset: { width: 0, height: 8 }, elevation: 8 },
-  eyebrow: { color: C.link, fontSize: 11, fontWeight: '700', letterSpacing: 1.6, marginBottom: 6 },
+  head: { overflow: 'hidden', paddingHorizontal: S.lg, paddingBottom: 14, backgroundColor: C.dark ? C.bg : '#FFFFFF' },
+  panel: { overflow: 'hidden', paddingHorizontal: S.lg, paddingBottom: 24, gap: 18, backgroundColor: '#050B24' },
+  slim: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 48, paddingHorizontal: 14, borderRadius: 16, backgroundColor: C.dark ? 'rgba(12,21,54,0.94)' : 'rgba(255,255,255,0.96)', borderWidth: StyleSheet.hairlineWidth, borderColor: C.line, shadowColor: '#0A1230', shadowOpacity: 0.14, shadowRadius: 18, shadowOffset: { width: 0, height: 8 }, elevation: 8 },
+  eyebrow: { color: C.faint, fontSize: 13, fontWeight: '500', marginBottom: 2 },
   h1: { color: C.ink, fontSize: 30, fontWeight: '800', letterSpacing: -0.9 },
   headSub: { color: C.sub, fontSize: 15, marginTop: 4, fontWeight: '500' },
-  h2Row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: S.md, gap: S.sm },
-  h2: { fontSize: 19, fontWeight: '800', color: C.ink, letterSpacing: -0.4, flexShrink: 1 },
+  h2Row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: S.sm, gap: S.sm, paddingHorizontal: 2 },
+  h2: { fontSize: 16, fontWeight: '700', color: C.ink, letterSpacing: -0.2, flexShrink: 1 },
   card: { backgroundColor: C.card, borderRadius: 20, padding: S.lg, borderWidth: StyleSheet.hairlineWidth, borderColor: C.line, shadowColor: '#0A1230', shadowOpacity: C.dark ? 0 : 0.05, shadowRadius: 12, shadowOffset: { width: 0, height: 4 } },
   muted: { color: C.sub, fontSize: 14, lineHeight: 20 },
   b: { color: C.ink, fontSize: 16, fontWeight: '700' },
