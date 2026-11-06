@@ -16,7 +16,7 @@ let win;
 function create() {
   win = new BrowserWindow({
     width: 1360, height: 860, minWidth: 380, minHeight: 600, show: false, title: CFG.appName,
-    backgroundColor: '#000C58', icon: path.join(__dirname, 'build', 'icon.png'),
+    backgroundColor: '#050B24', icon: path.join(__dirname, 'build', 'icon.png'),
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
     webPreferences: { contextIsolation: true, nodeIntegration: false, sandbox: true, webSecurity: true, spellcheck: true },
   });

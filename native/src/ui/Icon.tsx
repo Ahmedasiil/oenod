@@ -2,7 +2,7 @@
 import React from 'react';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 
-export type IconName = 'home' | 'calendar' | 'sun' | 'users' | 'user' | 'bell' | 'clock' | 'check' | 'x' | 'chevron' | 'back' | 'phone' | 'mail' | 'pin' | 'logout' | 'globe' | 'qr' | 'plus' | 'coffee' | 'cash' | 'chart' | 'briefcase' | 'shield' | 'spark' | 'arrow' | 'face' | 'news' | 'moon' | 'device';
+export type IconName = 'home' | 'calendar' | 'sun' | 'users' | 'user' | 'bell' | 'clock' | 'check' | 'x' | 'chevron' | 'back' | 'phone' | 'mail' | 'pin' | 'logout' | 'globe' | 'qr' | 'plus' | 'coffee' | 'cash' | 'chart' | 'briefcase' | 'shield' | 'spark' | 'arrow' | 'face' | 'news' | 'moon' | 'device' | 'video' | 'grid' | 'chat' | 'wallet' | 'send' | 'link';
 
 export function Icon({ name, size = 22, color = '#0B1220', stroke = 1.9, duo = true }: { name: IconName; size?: number; color?: string; stroke?: number; duo?: boolean }) {
   const p = { stroke: color, strokeWidth: stroke, fill: 'none', strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
@@ -39,6 +39,12 @@ export function Icon({ name, size = 22, color = '#0B1220', stroke = 1.9, duo = t
       {name === 'news' && <><Rect {...f} x={3} y={4} width={18} height={16} rx={3} /><Rect {...p} x={3} y={4} width={18} height={16} rx={3} /><Path {...p} d="M7 8.5h5M7 12h10M7 15.5h7" /></>}
       {name === 'moon' && <><Path {...f} d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" /><Path {...p} d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" /></>}
       {name === 'device' && <><Rect {...f} x={6} y={2.5} width={12} height={19} rx={3} /><Rect {...p} x={6} y={2.5} width={12} height={19} rx={3} /><Path {...p} d="M10.5 18.5h3" /></>}
+      {name === 'video' && <><Rect {...f} x={2.5} y={6} width={13} height={12} rx={3} /><Rect {...p} x={2.5} y={6} width={13} height={12} rx={3} /><Path {...p} d="m15.5 10.5 6-3.5v10l-6-3.5" /></>}
+      {name === 'grid' && <><Rect {...f} x={3.5} y={3.5} width={7} height={7} rx={2} /><Rect {...p} x={3.5} y={3.5} width={7} height={7} rx={2} /><Rect {...p} x={13.5} y={3.5} width={7} height={7} rx={2} /><Rect {...p} x={3.5} y={13.5} width={7} height={7} rx={2} /><Rect {...p} x={13.5} y={13.5} width={7} height={7} rx={2} /></>}
+      {name === 'chat' && <><Path {...f} d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4H6.5" /><Path {...p} d="M6.5 16A2.5 2.5 0 0 1 4 13.5v-8A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4" /><Path {...p} d="M8.5 8.5h7M8.5 11.5h4.5" /></>}
+      {name === 'wallet' && <><Rect {...f} x={3} y={6} width={18} height={14} rx={3} /><Path {...p} d="M17 6V4.5A1.5 1.5 0 0 0 15.2 3L5 5.2A2.5 2.5 0 0 0 3 7.6V17a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3V9a3 3 0 0 0-3-3H5" /><Path {...p} d="M16.5 13h.01" /></>}
+      {name === 'send' && <><Path {...f} d="M21 3 3 10.5l7 3 3 7z" /><Path {...p} d="M21 3 3 10.5l7 3 3 7zM21 3 10 13.5" /></>}
+      {name === 'link' && <Path {...p} d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1" />}
     </Svg>
   );
 }

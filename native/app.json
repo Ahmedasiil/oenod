@@ -2,28 +2,35 @@
   "expo": {
     "name": "OENOD",
     "slug": "oenod",
-    "version": "3.5.0",
+    "version": "3.6.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.oenod.app",
-      "buildNumber": "351",
+      "buildNumber": "360",
       "associatedDomains": [
         "applinks:oenod.com",
         "webcredentials:oenod.com"
       ],
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "OENOD uses your location to confirm you are at your workplace when you clock in. If your workplace uses site attendance, it keeps sharing your location with your managers while you are clocked in, never on breaks or after you clock out.",
-        "NSCameraUsageDescription": "OENOD uses the camera to scan QR badges.",
+        "NSCameraUsageDescription": "OENOD uses the camera to scan QR badges and for video meetings.",
         "NSFaceIDUsageDescription": "OENOD uses Face ID to unlock the app quickly.",
         "ITSAppUsesNonExemptEncryption": false,
         "NSLocationAlwaysAndWhenInUseUsageDescription": "OENOD uses your location to confirm you are at your workplace when you clock in. If your workplace uses site attendance, it keeps sharing your location with your managers while you are clocked in, never on breaks or after you clock out.",
         "UIBackgroundModes": [
           "location"
         ],
-        "UIRequiresFullScreen": true
+        "UIRequiresFullScreen": true,
+        "NSMicrophoneUsageDescription": "OENOD uses the microphone for video meetings in OENOD Meet.",
+        "UISupportedInterfaceOrientations~ipad": [
+          "UIInterfaceOrientationPortrait",
+          "UIInterfaceOrientationPortraitUpsideDown",
+          "UIInterfaceOrientationLandscapeLeft",
+          "UIInterfaceOrientationLandscapeRight"
+        ]
       },
       "config": {
         "usesNonExemptEncryption": false
@@ -31,7 +38,7 @@
     },
     "android": {
       "package": "com.oenod.app",
-      "versionCode": 351,
+      "versionCode": 360,
       "adaptiveIcon": {
         "backgroundColor": "#000C58",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -86,7 +93,7 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "OENOD uses the camera to scan QR badges.",
+          "cameraPermission": "OENOD uses the camera to scan QR badges and for video meetings.",
           "recordAudioAndroidPermission": false
         }
       ],
@@ -105,7 +112,7 @@
       ]
     ],
     "scheme": "oenod",
-    "backgroundColor": "#0B1B3F",
+    "backgroundColor": "#050B24",
     "extra": {
       "apiUrl": "https://oenod.com"
     },

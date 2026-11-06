@@ -27,7 +27,7 @@ export default function Team() {
   const live = all.filter((e) => e.open_entry).length;
 
   return (
-    <Screen title={t('Team')} subtitle={d.data ? t('{n} people · {w} working now', { n: list.length, w: working }) : t('Your people')} refreshing={d.refreshing} onRefresh={d.refresh}>
+    <Screen back title={t('Team')} subtitle={d.data ? t('{n} people · {w} working now', { n: list.length, w: working }) : t('Your people')} refreshing={d.refreshing} onRefresh={d.refresh}>
       {d.data ? <Summary seed={8} label={t('Team members')} value={String(all.length)}
         badge={live ? <Pill text={t('{n} working now', { n: live })} kind="good" /> : undefined}
         minis={[[t('Working now'), String(live - onBreak)], [t('On break'), String(onBreak)], [t('On leave'), String(onLeave)]]} /> : null}

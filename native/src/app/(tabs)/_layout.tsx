@@ -1,37 +1,33 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../lib/auth';
 import { C } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { Icon, IconName } from '../../ui/Icon';
 import { TabBar } from '../../ui/TabBar';
 
-const icon = (name: IconName) => ({ color }: { color: unknown }) => <Icon name={name} color={String(color ?? C.faint)} size={24} />;
+const icon = (name: IconName) => ({ color }: { color: unknown }) => <Icon name={name} color={String(color ?? C.faint)} size={23} />;
 
+// Five tabs, like the website's five suites: Today, Schedule, OENOD AI (centre orb), Money, Everything.
+// Time off, Team and Me stay reachable from Today, Everything and the avatar.
 export default function TabsLayout() {
   const { isManager, session } = useAuth();
   const hasEmployee = !!session?.employee;
-  // Taller bar so Hindi, Punjabi, Urdu and Arabic labels are not cut off.
-  const insets = useSafeAreaInsets();
+  const hasCompany = !!session?.company;
   return (
     <Tabs
       tabBar={(p) => <TabBar {...p} />}
-      screenOptions={{
-        animation: 'shift',
-        headerShown: false,
-        tabBarActiveTintColor: C.tabOn,
-        tabBarInactiveTintColor: C.faint,
-        tabBarLabelStyle: { fontSize: 12, fontWeight: '600', lineHeight: 18 },
-        tabBarStyle: { borderTopColor: C.line, borderTopWidth: 1, height: 66 + insets.bottom, paddingTop: 6, backgroundColor: C.tabBg, elevation: 0 },
-        sceneStyle: { backgroundColor: C.bg },
-      }}
+      backBehavior="history"
+      screenOptions={{ animation: 'shift', headerShown: false, sceneStyle: { backgroundColor: C.bg } }}
     >
-      <Tabs.Screen name="index" options={{ title: t('Home'), tabBarIcon: icon('home') }} />
+      <Tabs.Screen name="index" options={{ title: t('Today'), tabBarIcon: icon('home') }} />
       <Tabs.Screen name="schedule" options={{ title: t('Schedule'), tabBarIcon: icon('calendar'), href: hasEmployee || isManager ? undefined : null }} />
-      <Tabs.Screen name="timeoff" options={{ title: t('Time off'), tabBarIcon: icon('sun'), href: hasEmployee || isManager ? undefined : null }} />
-      <Tabs.Screen name="team" options={{ title: t('Team'), tabBarIcon: icon('users'), href: isManager ? undefined : null }} />
-      <Tabs.Screen name="me" options={{ title: t('Me'), tabBarIcon: icon('user') }} />
+      <Tabs.Screen name="ai" options={{ title: t('OENOD AI'), tabBarIcon: icon('spark') }} />
+      <Tabs.Screen name="money" options={{ title: t('Money'), tabBarIcon: icon('wallet'), href: hasCompany || hasEmployee ? undefined : null }} />
+      <Tabs.Screen name="all" options={{ title: t('Everything'), tabBarIcon: icon('grid') }} />
+      <Tabs.Screen name="timeoff" options={{ title: t('Time off'), href: null }} />
+      <Tabs.Screen name="team" options={{ title: t('Team'), href: null }} />
+      <Tabs.Screen name="me" options={{ title: t('Me'), href: null }} />
     </Tabs>
   );
 }

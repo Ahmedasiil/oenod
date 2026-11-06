@@ -3,14 +3,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, NativeScrollEvent, NativeSyntheticEvent, Platform, Pressable, ScrollView, Text, View, useWindowDimensions } from 'react-native';
 import { router } from 'expo-router';
-import * as WebBrowser from 'expo-web-browser';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Backdrop, GradientButton, PoweredBy, Wordmark } from '../ui/Brand';
 import { Icon, IconName } from '../ui/Icon';
-import { BASE } from '../lib/api';
 import { C } from '../lib/theme';
 import { t } from '../lib/i18n';
 import { secure } from '../lib/secure';
+import { GlassBtn } from '../ui/AuthKit';
 
 export const SEEN = 'oenod.welcomed';
 const native = Platform.OS !== 'web';
@@ -23,8 +22,8 @@ function Dots({ items }: { items: string[] }) {
     <View style={{ marginTop: 6 }}>
       {items.map((x, n) => (
         <View key={x} style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 15, borderTopWidth: n ? 1 : 0, borderColor: 'rgba(255,255,255,0.08)' }}>
-          <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: '#A9BAFF', shadowColor: '#6F86FF', shadowOpacity: 0.9, shadowRadius: 6, shadowOffset: { width: 0, height: 0 } }} />
-          <Text style={{ color: '#E6E9F5', fontSize: 15, fontWeight: '600' }}>{x}</Text>
+          <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: '#AFC3FF', shadowColor: '#3D5BF5', shadowOpacity: 0.9, shadowRadius: 6, shadowOffset: { width: 0, height: 0 } }} />
+          <Text style={{ color: '#E8ECFA', fontSize: 15, fontWeight: '600' }}>{x}</Text>
         </View>
       ))}
     </View>
@@ -43,7 +42,7 @@ function Float({ icon, tint, label, value, delay = 0, style }: { icon: IconName;
   }, [v, delay]);
   const y = v.interpolate({ inputRange: [0, 1], outputRange: [0, -6] });
   return (
-    <Animated.View style={[{ flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 18, paddingVertical: 12, paddingHorizontal: 14, alignSelf: 'flex-start', transform: [{ translateY: y }] }, glass, { backgroundColor: 'rgba(10,14,48,0.72)' }, style]}>
+    <Animated.View style={[{ flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 18, paddingVertical: 12, paddingHorizontal: 14, alignSelf: 'flex-start', transform: [{ translateY: y }] }, glass, { backgroundColor: 'rgba(8,15,44,0.78)' }, style]}>
       <View style={{ width: 36, height: 36, borderRadius: 11, backgroundColor: tint + '26', alignItems: 'center', justifyContent: 'center' }}><Icon name={icon} size={19} color={tint} /></View>
       <View>
         <Text style={{ color: C.sub, fontSize: 12 }}>{label}</Text>
@@ -72,13 +71,13 @@ function Eyebrow({ text }: { text: string }) {
 }
 
 function Label({ text }: { text: string }) {
-  return <Text style={{ color: '#A9BAFF', fontWeight: '800', fontSize: 12, letterSpacing: 1.8 }}>{text}</Text>;
+  return <Text style={{ color: '#AFC3FF', fontWeight: '800', fontSize: 12, letterSpacing: 1.8 }}>{text}</Text>;
 }
 
 function Title({ a, b }: { a: string; b: string }) {
   return (
     <Text style={{ color: '#FFFFFF', fontSize: 44, fontWeight: '800', letterSpacing: -1.6, lineHeight: 48 }} accessibilityRole="header">
-      {a} <Text style={{ color: '#A9BAFF' }}>{b}</Text>
+      {a} <Text style={{ color: '#AFC3FF' }}>{b}</Text>
     </Text>
   );
 }
@@ -122,7 +121,7 @@ export default function Welcome() {
   const last = i === pages - 1;
   const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => setI(Math.round(e.nativeEvent.contentOffset.x / width));
   const next = () => {
-    if (last) { router.push('/login'); return; }
+    if (last) { router.push('/signup'); return; }
     ref.current?.scrollTo({ x: width * (i + 1), animated: true });
     setI(i + 1);
   };
@@ -133,7 +132,7 @@ export default function Welcome() {
     <Backdrop>
       <View style={{ flex: 1, paddingTop: insets.top + 8, paddingBottom: insets.bottom + 4 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 24, height: 48 }}>
-          <Wordmark width={112} />
+          <Wordmark width={104} />
           <Pressable onPress={() => router.push('/login')} accessibilityRole="button" style={[{ borderRadius: 999, paddingHorizontal: 16, paddingVertical: 9 }, glass]}>
             <Text style={{ color: C.white, fontWeight: '700', fontSize: 14 }}>{t('Sign in')}</Text>
           </Pressable>
@@ -143,21 +142,21 @@ export default function Welcome() {
           <View style={[page, { justifyContent: 'center' }]}>
             <Label text={t('OENOD AI is built into every screen').toUpperCase()} />
             <Title a={t('Run your entire company')} b={t('from your phone.')} />
-            <Text style={{ color: '#8F96AE', fontSize: 16, lineHeight: 24 }}>{t('People, time clock, schedules, pay and your wallet in one app. One login for owners and their whole team.')}</Text>
+            <Text style={{ color: '#9AA5C8', fontSize: 16, lineHeight: 24 }}>{t('People, time clock, schedules, pay and your wallet in one app. One login for owners and their whole team.')}</Text>
             <Dots items={[t('Bank-grade security'), t('10 languages'), t('Face ID'), t('Shifts and schedule')]} />
           </View>
 
           <View style={[page, { justifyContent: 'center' }]}>
             <Label text={t('OWNER ACCOUNT')} />
             <Title a={t('Your business,')} b={t('live.')} />
-            <Text style={{ color: '#8F96AE', fontSize: 16, lineHeight: 24 }}>{t('See sales, labour and who is working right now. Approve time off and run your team from anywhere.')}</Text>
+            <Text style={{ color: '#9AA5C8', fontSize: 16, lineHeight: 24 }}>{t('See sales, labour and who is working right now. Approve time off and run your team from anywhere.')}</Text>
             <StatGrid cells={[['$2,848', t('sales today')], ['24%', t('labour cost')], ['3', t('working now')], ['2', t('requests to approve')]]} />
           </View>
 
           <View style={[page, { justifyContent: 'center' }]}>
             <Label text={t('EMPLOYEE ACCOUNT')} />
             <Title a={t('Your day,')} b={t('in one tap.')} />
-            <Text style={{ color: '#8F96AE', fontSize: 16, lineHeight: 24 }}>{t('Employees clock in, see their shifts, request time off and get paid, all from their phone.')}</Text>
+            <Text style={{ color: '#9AA5C8', fontSize: 16, lineHeight: 24 }}>{t('Employees clock in, see their shifts, request time off and get paid, all from their phone.')}</Text>
             <ClockPreview />
             <Dots items={[t('Shifts and schedule'), t('Pay stubs'), t('Time off')]} />
           </View>
@@ -167,9 +166,15 @@ export default function Welcome() {
           <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 8, marginBottom: 6 }} accessibilityLabel={t('Page {n} of {m}', { n: i + 1, m: pages })}>
             {[0, 1, 2].map((n) => <View key={n} style={{ height: 6, width: n === i ? 24 : 6, borderRadius: 3, backgroundColor: n === i ? C.white : 'rgba(255,255,255,0.28)' }} />)}
           </View>
-          <GradientButton light title={last ? t('Sign in') : t('Continue')} iconRight="arrow" onPress={next} />
-          <Pressable onPress={() => WebBrowser.openBrowserAsync(BASE + '/#/signup')} accessibilityRole="link" style={{ alignItems: 'center', padding: 6 }}>
-            <Text style={{ color: '#8F96AE', fontSize: 15 }}>{t('New business?')} <Text style={{ color: '#A9BAFF', fontWeight: '700' }}>{t('Start your 14-day free trial')}</Text></Text>
+          {last ? (
+            <>
+              <GradientButton light title={t('Create a free account')} iconRight="arrow" onPress={() => router.push('/signup')} />
+              <GlassBtn title={t('I already have an account')} onPress={() => router.push('/login')} />
+            </>
+          ) : <GradientButton light title={t('Continue')} iconRight="arrow" onPress={next} />}
+          <Pressable onPress={() => router.push('/guest')} accessibilityRole="link" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, padding: 6 }}>
+            <Icon name="video" size={18} color="#AFC3FF" />
+            <Text style={{ color: '#AFC3FF', fontWeight: '700', fontSize: 15 }}>{t('Join a meeting as a guest')}</Text>
           </Pressable>
           <PoweredBy dark />
         </View>

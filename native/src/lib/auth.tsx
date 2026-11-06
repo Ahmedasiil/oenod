@@ -20,6 +20,7 @@ type Ctx = {
   session: Session | null;
   pending2fa: boolean;
   signIn: (email: string, password: string) => Promise<void>;
+  signUp: (d: { name: string; email: string; password: string; company?: string; industry?: string; personal?: boolean }) => Promise<void>;
   verify2fa: (code: string) => Promise<void>;
   signOut: () => Promise<void>;
   reload: () => Promise<void>;
@@ -101,6 +102,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     offerQuick(r?.user?.role);
   }, [apply, offerQuick]);
 
+  // New account from the app: a business (owner + free trial) or a personal account.
+  const signUp = useCallback(async (d: { name: string; email: string; password: string; company?: string; industry?: string; personal?: boolean }) => {
+    await refreshSession();
+    const body: any = d.personal
+      ? { type: 'personal', name: d.name.trim(), email: d.email.trim(), password: d.password, accept_terms: true }
+      : { name: d.name.trim(), email: d.email.trim(), password: d.password, company: (d.company || '').trim(), industry: d.industry || '', plan: 'growth', accept_terms: true };
+    const r = await api('POST', '/api/auth/signup', body);
+    if (Platform.OS !== 'web' && !(await quickName())) await saveCred({ email: d.email.trim(), password: d.password });
+    apply(r);
+  }, [apply]);
+
   const signInQuick = useCallback(async () => {
     const r = await quickLogin();
     if (r?.user) { apply(r); return true; }
@@ -141,9 +153,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const value = useMemo<Ctx>(() => ({
-    ready, session, pending2fa, signIn, verify2fa, signOut, reload, providers, signInWith, signInQuick, quick, refreshQuick,
+    ready, session, pending2fa, signIn, signUp, verify2fa, signOut, reload, providers, signInWith, signInQuick, quick, refreshQuick,
     isManager: MANAGER_ROLES.includes(session?.user?.role || ''),
-  }), [ready, session, pending2fa, signIn, verify2fa, signOut, reload, providers, signInWith, signInQuick, quick, refreshQuick]);
+  }), [ready, session, pending2fa, signIn, signUp, verify2fa, signOut, reload, providers, signInWith, signInQuick, quick, refreshQuick]);
 
   return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;
 }

@@ -9,6 +9,7 @@ import { greeting, hm, minutesBetween, money, time, day } from '../../lib/format
 import { C, S } from '../../lib/theme';
 import { Avatar, B, Button, Card, Divider, Empty, ErrorBox, H2, ListRow, Loading, Muted, Pill, Row, Screen, Stat } from '../../ui/kit';
 import { DateTile, IconTile, tint } from '../../ui/Summary';
+import { AiOrb } from '../../ui/TabBar';
 import { Icon, IconName } from '../../ui/Icon';
 import { HeroCard } from '../../ui/Brand';
 import { Pressy, Rise, useCountUp } from '../../ui/Motion';
@@ -181,6 +182,17 @@ function OwnerBody({ d, more }: { d: ReturnType<typeof useLoad<any>>; more: Quic
           <Stat label={t('Working now')} value={String((x.on_clock || []).length)} />
         </Row>
       </Rise>
+      <Rise delay={170}>
+        <Pressy onPress={() => router.navigate('/ai')} accessibilityRole="button" accessibilityLabel={t('Ask OENOD AI')}
+          style={{ flexDirection: 'row', alignItems: 'center', gap: 14, padding: 16, borderRadius: 20, backgroundColor: C.card, borderWidth: 1, borderColor: C.line }}>
+          <AiOrb size={44} still />
+          <View style={{ flex: 1 }}>
+            <Text style={{ color: C.ink, fontWeight: '800', fontSize: 16 }}>{t('Your AI brief is ready')}</Text>
+            <Text style={{ color: C.sub, fontSize: 13.5, marginTop: 2 }}>{t('OENOD AI read today’s numbers. Tap to see what matters.')}</Text>
+          </View>
+          <Icon name="chevron" color={C.faint} size={18} />
+        </Pressy>
+      </Rise>
       <Rise delay={220} style={{ gap: S.md }}>
         <H2 action={t('See all')} onAction={() => router.navigate('/team')}>{t('Working now')}</H2>
         <Card style={{ paddingVertical: S.xs }}>
@@ -265,8 +277,8 @@ export default function Home() {
           <Icon name="bell" color={hero ? '#FFFFFF' : C.ink} size={22} />
           {unread ? <View style={{ position: 'absolute', top: 4, right: 4, minWidth: 18, height: 18, borderRadius: 9, backgroundColor: C.bad, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: '800' }}>{unread > 9 ? '9+' : unread}</Text></View> : null}
         </Pressable>
-        <Pressable onPress={() => router.navigate('/me')} accessibilityRole="button" accessibilityLabel={t('Me')} style={{ borderRadius: 16, overflow: 'hidden' }}>
-          <View style={{ width: 44, height: 44, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.14)', alignItems: 'center', justifyContent: 'center' }}>
+        <Pressable onPress={() => router.navigate('/me')} accessibilityRole="button" accessibilityLabel={t('Me')} style={{ borderRadius: 22, overflow: 'hidden' }}>
+          <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#3D5BF5', borderWidth: 2, borderColor: 'rgba(255,255,255,0.25)', alignItems: 'center', justifyContent: 'center' }}>
             <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 16 }}>{(session?.user?.name || '?').split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase()}</Text>
           </View>
         </Pressable>

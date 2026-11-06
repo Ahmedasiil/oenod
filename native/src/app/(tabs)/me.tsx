@@ -44,7 +44,7 @@ export default function Me() {
   };
 
   return (
-    <Screen title={t('Me')} subtitle={u?.email} refreshing={p.refreshing} onRefresh={p.refresh}>
+    <Screen back title={t('Me')} subtitle={u?.email} refreshing={p.refreshing} onRefresh={p.refresh}>
       <Rise><HeroCard seed={11}>
         <Row>
           <View style={{ borderRadius: 34, padding: 3, backgroundColor: 'rgba(255,255,255,0.18)' }}><Avatar name={u?.name || '?'} size={60} /></View>

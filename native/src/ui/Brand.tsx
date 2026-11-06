@@ -5,16 +5,15 @@ import { ActivityIndicator, Animated, Easing, Image, Platform, Pressable, StyleS
 import Svg, { Circle, Defs, Line, LinearGradient, RadialGradient, Rect, Stop } from 'react-native-svg';
 import { C } from '../lib/theme';
 import { Icon, IconName } from './Icon';
+import { Logo } from './Logo';
+import Svg2, { Path as P2 } from 'react-native-svg';
 
 const native = Platform.OS !== 'web';
 // Unique gradient ids, so two screens on the stack never share one.
 const useSvgId = (p: string) => p + useId().replace(/[^a-zA-Z0-9]/g, '');
 
-export function Wordmark({ width = 200 }: { width?: number }) {
-  return (
-    <Image source={require('../../assets/wordmark.png')} style={{ width, height: width * 0.27 }} resizeMode="contain"
-      accessibilityRole="header" accessibilityLabel="OENOD" />
-  );
+export function Wordmark({ width = 200, color = '#FFFFFF' }: { width?: number; color?: string }) {
+  return <View accessibilityRole="header" accessibilityLabel="OENOD"><Logo width={width} color={color} /></View>;
 }
 
 function useLoop(ms: number, delay = 0) {
@@ -78,21 +77,21 @@ export function HeroGradient({ width, height, fade = true }: { width: number; he
     <Svg pointerEvents="none" style={StyleSheet.absoluteFill} width={width} height={height}>
       <Defs>
         <LinearGradient id={`${id}a`} x1="1" y1="0" x2="0" y2="1">
-          <Stop offset="0" stopColor="#1B2DB0" />
-          <Stop offset="0.5" stopColor="#0A1675" />
-          <Stop offset="1" stopColor="#000A47" />
+          <Stop offset="0" stopColor="#0B1B3F" />
+          <Stop offset="0.55" stopColor="#071030" />
+          <Stop offset="1" stopColor="#050B24" />
         </LinearGradient>
         <RadialGradient id={`${id}g`} cx="88%" cy="0%" r="70%">
-          <Stop offset="0" stopColor="#6F86FF" stopOpacity={0.55} />
-          <Stop offset="1" stopColor="#6F86FF" stopOpacity={0} />
+          <Stop offset="0" stopColor="#3D5BF5" stopOpacity={0.55} />
+          <Stop offset="1" stopColor="#3D5BF5" stopOpacity={0} />
         </RadialGradient>
         <RadialGradient id={`${id}v`} cx="0%" cy="100%" r="60%">
-          <Stop offset="0" stopColor="#7A5CFF" stopOpacity={0.28} />
-          <Stop offset="1" stopColor="#7A5CFF" stopOpacity={0} />
+          <Stop offset="0" stopColor="#6B5CF6" stopOpacity={0.32} />
+          <Stop offset="1" stopColor="#6B5CF6" stopOpacity={0} />
         </RadialGradient>
         <LinearGradient id={`${id}b`} x1="0" y1="0" x2="0" y2="1">
-          <Stop offset="0.5" stopColor="#07080F" stopOpacity={0} />
-          <Stop offset="1" stopColor="#07080F" stopOpacity={fade ? 1 : 0} />
+          <Stop offset="0.5" stopColor="#050B24" stopOpacity={0} />
+          <Stop offset="1" stopColor="#050B24" stopOpacity={fade ? 1 : 0} />
         </LinearGradient>
       </Defs>
       <Rect x={0} y={0} width={width} height={height} fill={`url(#${id}a)`} />
@@ -130,12 +129,12 @@ export function Backdrop({ children }: { children?: React.ReactNode }) {
   const ax = a.interpolate({ inputRange: [0, 1], outputRange: [-big * 0.45, -big * 0.3] });
   const by = b.interpolate({ inputRange: [0, 1], outputRange: [height - big * 0.45, height - big * 0.55] });
   return (
-    <View style={{ flex: 1, backgroundColor: '#07080F', overflow: 'hidden' }}>
+    <View style={{ flex: 1, backgroundColor: '#050B24', overflow: 'hidden' }}>
       <Animated.View pointerEvents="none" style={{ position: 'absolute', transform: [{ translateX: ax }, { translateY: by }] }}>
-        <Glow size={big} color="#2440FF" opacity={0.55} id="ga" />
+        <Glow size={big} color="#3D5BF5" opacity={0.5} id="ga" />
       </Animated.View>
       <Animated.View pointerEvents="none" style={{ position: 'absolute', top: -big * 0.55, left: width - big * 0.4 }}>
-        <Glow size={big} color="#6A4DFF" opacity={0.22} id="gb" />
+        <Glow size={big} color="#6B5CF6" opacity={0.26} id="gb" />
       </Animated.View>
       {children}
     </View>
@@ -147,7 +146,7 @@ export function GradientButton({ title, onPress, icon, busy, disabled, style, ic
   title: string; onPress: () => void; icon?: IconName; iconRight?: IconName; busy?: boolean; disabled?: boolean; style?: ViewStyle; light?: boolean;
 }) {
   const bg = light ? '#FFFFFF' : C.btn;
-  const fg = light ? '#07080F' : C.btnInk;
+  const fg = light ? '#0A1230' : C.btnInk;
   return (
     <Pressable accessibilityRole="button" accessibilityState={{ disabled: !!(disabled || busy) }} onPress={onPress} disabled={disabled || busy}
       style={({ pressed }) => [{ minHeight: 56, borderRadius: 999, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8, paddingHorizontal: 22,
@@ -201,23 +200,41 @@ export function HeroCard({ children, style, seed = 3 }: { children: React.ReactN
   const [sz, setSz] = React.useState({ w: 340, h: 220 });
   return (
     <View onLayout={(e) => setSz({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}
-      style={[{ borderRadius: 28, padding: 22, gap: 14, overflow: 'hidden', backgroundColor: '#0A1675',
-        shadowColor: '#0A1675', shadowOpacity: C.dark ? 0.0 : 0.25, shadowRadius: 20, shadowOffset: { width: 0, height: 10 }, elevation: C.dark ? 0 : 6 }, style]}>
+      style={[{ borderRadius: 28, padding: 22, gap: 14, overflow: 'hidden', backgroundColor: '#050B24',
+        shadowColor: '#050B24', shadowOpacity: C.dark ? 0.0 : 0.25, shadowRadius: 20, shadowOffset: { width: 0, height: 10 }, elevation: C.dark ? 0 : 6 }, style]}>
       <HeroGradient width={sz.w} height={sz.h} id={`hc${seed}`} fade={false} />
       {children}
     </View>
   );
 }
 
-/** Small brand badge shown at the bottom of every screen. */
-export function PoweredBy({ dark }: { dark?: boolean }) {
-  const onDark = dark ?? C.dark;
+/** The red maple leaf for the Proudly Canadian mark. */
+export function MapleLeaf({ size = 12 }: { size?: number }) {
   return (
-    <View style={{ alignItems: 'center', paddingVertical: 18 }} accessibilityLabel="Powered by OENOD INC.">
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14, paddingVertical: 7, borderRadius: 999,
-        backgroundColor: onDark ? 'rgba(255,255,255,0.05)' : '#FFFFFF', borderWidth: 1, borderColor: onDark ? 'rgba(255,255,255,0.08)' : '#E6E8EF' }}>
-        <Image source={require('../../assets/icon.png')} style={{ width: 18, height: 18, borderRadius: 5 }} />
-        <Text style={{ color: onDark ? '#8F96AE' : '#5B6276', fontSize: 12, fontWeight: '600' }}>Powered by <Text style={{ color: onDark ? '#FFFFFF' : '#000C58', fontWeight: '800' }}>OENOD INC.</Text></Text>
+    <Svg2 width={size} height={size} viewBox="0 0 24 24" accessibilityElementsHidden importantForAccessibility="no">
+      <P2 fill="#E0362A" d="M12 1.8l1.7 3.4 2-.8-.7 4.6 2.7-2.6.7 1.7 2.9-.5-1 2.9 1.3.6-4.6 3.7.6 1.7-4.5-.8V22h-2.2v-4.3l-4.5.8.6-1.7-4.6-3.7 1.3-.6-1-2.9 2.9.5.7-1.7 2.7 2.6-.7-4.6 2 .8z" />
+    </Svg2>
+  );
+}
+
+/** Brand line at the bottom of every screen: POWERED BY [OENOD logo] | [maple leaf] PROUDLY CANADIAN. */
+export function PoweredBy({ dark, rule = true }: { dark?: boolean; rule?: boolean }) {
+  const onDark = dark ?? C.dark;
+  const mute = onDark ? '#9AA5C8' : '#7A829C';
+  const strong = onDark ? '#FFFFFF' : '#0A1230';
+  const lab = { color: mute, fontSize: 10, fontWeight: '600' as const, letterSpacing: 1.5 };
+  return (
+    <View accessible accessibilityLabel="Powered by OENOD. Proudly Canadian."
+      style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12, marginTop: 14, paddingTop: 16, paddingBottom: 6,
+        borderTopWidth: rule ? StyleSheet.hairlineWidth : 0, borderTopColor: onDark ? 'rgba(255,255,255,0.12)' : '#E4E7F0', alignSelf: 'stretch' }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+        <Text style={lab}>POWERED BY</Text>
+        <Logo width={46} color={strong} />
+      </View>
+      <View style={{ width: 1, height: 12, backgroundColor: onDark ? 'rgba(255,255,255,0.2)' : '#D5D9E5' }} />
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+        <MapleLeaf size={12} />
+        <Text style={lab}>PROUDLY <Text style={{ color: strong, fontWeight: '800' }}>CANADIAN</Text></Text>
       </View>
     </View>
   );

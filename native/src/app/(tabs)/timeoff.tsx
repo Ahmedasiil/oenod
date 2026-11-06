@@ -61,7 +61,7 @@ export default function TimeOff() {
   const upcoming = (isManager ? team : mine).filter((r) => r.status === 'approved' && r.ends_on >= new Date().toISOString().slice(0, 10)).length;
 
   return (
-    <Screen title={t('Time off')} subtitle={t('Vacation, sick days and personal time')} refreshing={d.refreshing} onRefresh={d.refresh}>
+    <Screen back title={t('Time off')} subtitle={t('Vacation, sick days and personal time')} refreshing={d.refreshing} onRefresh={d.refresh}>
       {d.loading && !d.data ? <Loading /> : d.error && !d.data ? <ErrorBox text={d.error} onRetry={d.reload} /> : (
         <>
           <Summary seed={7} label={isManager ? t('To review') : t('Days off this year')} value={String(isManager ? pending.length : usedDays)}

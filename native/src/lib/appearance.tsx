@@ -11,6 +11,8 @@ export const useAppearance = () => useContext(Ctx);
 
 // Screen to reopen after the app redraws in the new colours.
 let returnTo: string | null = null;
+/** Open this screen right after the next sign-in (used to show setup after a new account). */
+export const setReturnTo = (r: string) => { returnTo = r; };
 export const takeReturnTo = () => { const r = returnTo; returnTo = null; return r; };
 
 export function AppearanceProvider({ children }: { children: React.ReactNode }) {
