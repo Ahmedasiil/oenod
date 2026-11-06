@@ -6,7 +6,7 @@ import Svg, { Circle, Defs, Line, LinearGradient, RadialGradient, Rect, Stop } f
 import { C } from '../lib/theme';
 import { Icon, IconName } from './Icon';
 import { Logo } from './Logo';
-import Svg2, { Path as P2 } from 'react-native-svg';
+import Svg2, { Circle as Ci2, Defs as Defs2, LinearGradient as LG2, Path as P2, Rect as R2, Stop as St2 } from 'react-native-svg';
 
 const native = Platform.OS !== 'web';
 // Unique gradient ids, so two screens on the stack never share one.
@@ -200,10 +200,14 @@ export function HeroCard({ children, style, seed = 3 }: { children: React.ReactN
   const [sz, setSz] = React.useState({ w: 340, h: 220 });
   return (
     <View onLayout={(e) => setSz({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}
-      style={[{ borderRadius: 28, padding: 22, gap: 14, overflow: 'hidden', backgroundColor: '#050B24',
-        shadowColor: '#050B24', shadowOpacity: C.dark ? 0.0 : 0.25, shadowRadius: 20, shadowOffset: { width: 0, height: 10 }, elevation: C.dark ? 0 : 6 }, style]}>
-      <HeroGradient width={sz.w} height={sz.h} id={`hc${seed}`} fade={false} />
-      {children}
+      style={[{ borderRadius: 22, padding: 18, overflow: 'hidden', backgroundColor: '#000C58' }, style]}>
+      <Svg2 width={sz.w} height={sz.h} style={{ position: 'absolute', left: 0, top: 0 }}>
+        <Defs2><LG2 id={`hc${seed}`} x1="0" y1="0" x2="1" y2="1"><St2 offset="0" stopColor="#000C58" /><St2 offset="0.6" stopColor="#1B2A8F" /><St2 offset="1" stopColor="#3D5BF5" /></LG2></Defs2>
+        <R2 width={sz.w} height={sz.h} fill={`url(#hc${seed})`} />
+        <Ci2 cx={sz.w - 50} cy={40} r={100} stroke="rgba(255,255,255,0.14)" fill="none" />
+        <Ci2 cx={sz.w - 50} cy={40} r={130} stroke="rgba(255,255,255,0.05)" strokeWidth={30} fill="none" />
+      </Svg2>
+      <View style={{ gap: 14, zIndex: 1, alignItems: (StyleSheet.flatten(style) as any)?.alignItems }}>{children}</View>
     </View>
   );
 }

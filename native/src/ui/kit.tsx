@@ -48,9 +48,9 @@ export function Screen({ title, eyebrow, subtitle, right, children, refreshing, 
   useFocusEffect(React.useCallback(() => { setStatusBarStyle(isHero || C.dark ? 'light' : 'dark'); return () => setStatusBarStyle(C.dark ? 'light' : 'dark'); }, [isHero]));
   const goBack = () => (router.canGoBack() ? router.back() : router.replace('/'));
   const backBtn = back ? (
-    <Pressable onPress={goBack} accessibilityRole="button" accessibilityLabel={t('Back')} hitSlop={8} style={{ flexDirection: 'row', alignItems: 'center', gap: 2, alignSelf: 'flex-start' }}>
-      <Icon name="back" size={20} color={isHero ? '#FFFFFF' : C.blue} />
-      <Text style={{ color: isHero ? '#FFFFFF' : C.blue, fontWeight: '600', fontSize: 15 }}>{t('Back')}</Text>
+    <Pressable onPress={goBack} accessibilityRole="button" accessibilityLabel={t('Back')} hitSlop={8}
+      style={{ width: 38, height: 38, borderRadius: 13, alignItems: 'center', justifyContent: 'center', alignSelf: 'flex-start', marginBottom: 4, backgroundColor: isHero ? 'rgba(255,255,255,0.12)' : (C.dark ? C.card2 : '#F5F7FB') }}>
+      <Icon name="back" size={20} color={isHero ? '#FFFFFF' : C.ink} duo={false} />
     </Pressable>
   ) : null;
   const titleRow = title ? (

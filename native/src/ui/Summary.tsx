@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, View, type ViewStyle } from 'react-native';
 import { C } from '../lib/theme';
-import { HeroCard } from './Brand';
+import Svg, { Circle, Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 import { Rise } from './Motion';
 import { Icon, type IconName } from './Icon';
 import { Row } from './kit';
@@ -14,32 +14,40 @@ export const TINTS = ['#7C93FF', '#A78BFA', '#34D399', '#FBBF24', '#38BDF8', '#F
 export const shortDay = (iso?: string | null) => { if (!iso) return '—'; const d = iso.length <= 10 ? new Date(iso + 'T12:00:00') : utc(iso); return d ? d.toLocaleDateString(locale(), { weekday: 'short', day: 'numeric' }) : '—'; };
 export const tint = (n: number) => TINTS[((n % TINTS.length) + TINTS.length) % TINTS.length];
 
-/** Small glass stat tile that sits inside a HeroCard. */
+/** Small glass stat tile that sits inside the navy summary card. */
 export function Mini({ label, value }: { label: string; value: string }) {
   return (
-    <View style={{ flex: 1, minWidth: 0, backgroundColor: 'rgba(7,11,34,0.35)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', borderRadius: 14, padding: 12 }}>
-      <Text style={{ color: C.mist, fontSize: 12, fontWeight: '600' }} numberOfLines={2}>{label}</Text>
-      <Text style={{ color: C.white, fontSize: value.length > 11 ? 13 : value.length > 7 ? 15 : 18, fontWeight: '800', marginTop: 2 }} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{value}</Text>
+    <View style={{ flex: 1, minWidth: 0, backgroundColor: 'rgba(255,255,255,0.10)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.16)', borderRadius: 12, paddingVertical: 9, paddingHorizontal: 11 }}>
+      <Text style={{ color: '#FFFFFF', fontSize: value.length > 11 ? 13 : value.length > 7 ? 14.5 : 17, fontWeight: '700' }} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{value}</Text>
+      <Text style={{ color: '#9AA5C8', fontSize: 11.5, marginTop: 1 }} numberOfLines={1}>{label}</Text>
     </View>
   );
 }
 
-/** The gradient summary card every screen opens with: label, big number, badge, and up to 3 mini stats. */
-export function Summary({ label, value, badge, minis, foot, seed = 5, children, style }: {
+/** The navy summary card screens open with (same look as the wallet card): label, big number, badge, up to 3 mini stats. */
+export function Summary({ label, value, badge, minis, foot, children, style }: {
   label: string; value?: string; badge?: React.ReactNode; minis?: [string, string][]; foot?: string; seed?: number; children?: React.ReactNode; style?: ViewStyle;
 }) {
+  const [sz, setSz] = React.useState({ w: 340, h: 180 });
   return (
     <Rise>
-      <HeroCard seed={seed} style={style}>
-        <Row style={{ justifyContent: 'space-between' }}>
-          <Text style={{ color: C.mist, fontWeight: '600', flexShrink: 1 }} numberOfLines={1}>{label}</Text>
+      <View onLayout={(e) => setSz({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}
+        style={[{ borderRadius: 22, padding: 18, gap: 12, overflow: 'hidden', backgroundColor: '#000C58' }, style]}>
+        <Svg width={sz.w} height={sz.h} style={{ position: 'absolute', left: 0, top: 0 }}>
+          <Defs><LinearGradient id="sumg" x1="0" y1="0" x2="1" y2="1"><Stop offset="0" stopColor="#000C58" /><Stop offset="0.6" stopColor="#1B2A8F" /><Stop offset="1" stopColor="#3D5BF5" /></LinearGradient></Defs>
+          <Rect width={sz.w} height={sz.h} fill="url(#sumg)" />
+          <Circle cx={sz.w - 50} cy={40} r={100} stroke="rgba(255,255,255,0.14)" fill="none" />
+          <Circle cx={sz.w - 50} cy={40} r={130} stroke="rgba(255,255,255,0.05)" strokeWidth={30} fill="none" />
+        </Svg>
+        <Row style={{ justifyContent: 'space-between', zIndex: 1 }}>
+          <Text style={{ color: '#AFC3FF', fontWeight: '600', fontSize: 13, flexShrink: 1 }} numberOfLines={1}>{label}</Text>
           {badge}
         </Row>
-        {value != null ? <Text style={{ color: C.white, fontSize: value.length > 18 ? 27 : value.length > 14 ? 30 : value.length > 10 ? 34 : 40, fontWeight: '800', letterSpacing: -1.2 }} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>{value}</Text> : null}
-        {children}
-        {minis?.length ? <Row style={{ gap: 8 }}>{minis.map(([l, v]) => <Mini key={l} label={l} value={v} />)}</Row> : null}
-        {foot ? <Text style={{ color: C.mist, fontSize: 13 }}>{foot}</Text> : null}
-      </HeroCard>
+        {value != null ? <Text style={{ zIndex: 1, color: '#FFFFFF', fontSize: value.length > 18 ? 26 : value.length > 14 ? 29 : value.length > 10 ? 32 : 36, fontWeight: '800', letterSpacing: -1 }} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>{value}</Text> : null}
+        {children ? <View style={{ zIndex: 1 }}>{children}</View> : null}
+        {minis?.length ? <Row style={{ gap: 8, zIndex: 1 }}>{minis.map(([l, v]) => <Mini key={l} label={l} value={v} />)}</Row> : null}
+        {foot ? <Text style={{ color: '#9AA5C8', fontSize: 13, zIndex: 1 }}>{foot}</Text> : null}
+      </View>
     </Rise>
   );
 }
