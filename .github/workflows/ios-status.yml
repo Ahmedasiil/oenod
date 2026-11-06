@@ -1,0 +1,17 @@
+name: App Store review status (read-only)
+on:
+  push:
+    branches: [ios-status]
+permissions:
+  contents: read
+jobs:
+  status:
+    runs-on: ubuntu-latest
+    env:
+      APPLE_KEY_ID: ${{ secrets.APPLE_KEY_ID }}
+      APPLE_ISSUER_ID: ${{ secrets.APPLE_ISSUER_ID }}
+      APPLE_KEY_P8: ${{ secrets.APPLE_KEY_P8 }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Status
+        run: gem list -i jwt >/dev/null || sudo gem install jwt; ruby native/ios-ci/asc_status.rb
