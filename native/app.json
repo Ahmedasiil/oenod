@@ -3,7 +3,7 @@
     "name": "OENOD",
     "slug": "oenod",
     "version": "3.6.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "ios": {
@@ -109,7 +109,8 @@
         {
           "color": "#0B1B3F"
         }
-      ]
+      ],
+      "expo-screen-orientation"
     ],
     "scheme": "oenod",
     "backgroundColor": "#050B24",

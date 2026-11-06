@@ -3,6 +3,7 @@ import { Stack, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { AppState } from 'react-native';
 import { Splash } from '../ui/Brand';
+import { useOrientationRule } from '../lib/orientation';
 import { AppearanceProvider, takeReturnTo } from '../lib/appearance';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider, useAuth } from '../lib/auth';
@@ -58,6 +59,7 @@ function Gate() {
 }
 
 export default function RootLayout() {
+  useOrientationRule();
   return (
     <SafeAreaProvider>
       <AuthProvider>
