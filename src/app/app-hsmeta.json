@@ -1,0 +1,23 @@
+{
+  "uid": "oenod_connect",
+  "type": "app",
+  "config": {
+    "description": "OENOD keeps your HubSpot contacts and your OENOD customers in sync, so your team works from one up-to-date customer list.",
+    "name": "OENOD",
+    "distribution": "marketplace",
+    "auth": {
+      "type": "oauth",
+      "redirectUrls": ["https://oenod.com/api/connect/callback"],
+      "requiredScopes": ["oauth", "crm.objects.contacts.read", "crm.objects.contacts.write"],
+      "optionalScopes": [],
+      "conditionallyRequiredScopes": []
+    },
+    "permittedUrls": { "fetch": ["https://api.hubapi.com"], "iframe": [], "img": [] },
+    "support": {
+      "supportEmail": "info@oenod.com",
+      "documentationUrl": "https://oenod.com",
+      "supportUrl": "https://oenod.com",
+      "supportPhone": "+17807790459"
+    }
+  }
+}

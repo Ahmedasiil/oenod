@@ -1,0 +1,18 @@
+name: Upload OENOD app to HubSpot
+on:
+  push:
+    branches:
+      - "hubspot-app"
+  workflow_dispatch:
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Upload to HubSpot
+        uses: HubSpot/hubspot-project-actions/project-upload@v1.1.0
+        with:
+          account_id: 343881106
+          personal_access_key: ${{ secrets.HUBSPOT_PERSONAL_ACCESS_KEY }}
+          cli_version: "8.18.0"
