@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>WKRunsIndependentlyOfCompanionApp</key>
+	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>OENOD uses your location only when you tap Clock in, to confirm you are at your workplace.</string>
+</dict>
+</plist>

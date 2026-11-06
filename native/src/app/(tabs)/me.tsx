@@ -115,6 +115,8 @@ export default function Me() {
       <Card style={{ paddingVertical: S.xs }}>
         <ListRow title={t('Wallet')} sub={t('Get paid and transfer money to your bank')} left={<IconTile name="cash" color={tint(0)} />} onPress={() => router.push('/wallet')} />
         <Divider />
+        <ListRow title={t('Connect a watch')} sub={t('Apple Watch or Wear OS: clock in from your wrist')} left={<IconTile name="clock" color={tint(5)} />} onPress={() => router.push('/watch')} />
+        <Divider />
         <ListRow title={t('Open the full OENOD website')} sub={t('Payroll, POS, invoices, reports and everything else')} left={<IconTile name="globe" color={tint(1)} />} onPress={() => open('/#/')} />
         <Divider />
         <ListRow title={t('Edit my card and resume')} left={<IconTile name="user" color={tint(2)} />} onPress={() => open('/#/profile')} />

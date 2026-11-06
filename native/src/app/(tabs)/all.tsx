@@ -63,6 +63,7 @@ const SUITES: Suite[] = [
     { name: 'OENOD AI', icon: 'spark', app: '/ai', who: 'all' },
     { name: 'Meet', icon: 'video', web: '/meet', browser: true, who: 'team' },
     { name: 'Join a meeting', icon: 'link', app: '/guest', who: 'all' },
+    { name: 'Connect a watch', icon: 'clock', app: '/watch', who: 'all' },
     { name: 'Team chat', icon: 'chat', web: '/chat', who: 'team' },
     { name: 'Team news', icon: 'news', app: '/feed', who: 'team' },
     { name: 'Docs', icon: 'news', web: '/docs', who: 'mgr' },

@@ -33,6 +33,8 @@ jobs:
           mkdir -p out
           cp native/android/app/build/outputs/bundle/release/*.aab out/OENOD-native-unsigned.aab
           cp native/android/app/build/outputs/apk/release/*.apk out/OENOD-native-unsigned.apk
+          cp native/android/wear/build/outputs/bundle/release/*.aab out/OENOD-wear-unsigned.aab
+          cp native/android/wear/build/outputs/apk/release/*.apk out/OENOD-wear-unsigned.apk
           ls -la out
       - uses: actions/upload-artifact@v4
         with: { name: native-android, path: out/ }
@@ -55,7 +57,7 @@ jobs:
           WS=$(ls -d *.xcworkspace | head -1)
           SCHEME=$(basename "$WS" .xcworkspace)
           set -o pipefail
-          xcodebuild -workspace "$WS" -scheme "$SCHEME" -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO build | tail -40
+          xcodebuild -workspace "$WS" -scheme "$SCHEME" -configuration Release -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO build | tail -40
       - name: Package source for Xcode
         run: |
           cd native && rm -rf ios/build ios/Pods android && cd ..

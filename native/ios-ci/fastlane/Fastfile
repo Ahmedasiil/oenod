@@ -4,6 +4,7 @@
 # (apps already uploaded or on the App Store are not affected by revoking it).
 default_platform(:ios)
 BUNDLE = 'com.oenod.app'
+WATCH = 'com.oenod.app.watchkitapp' # 3.6.0: Apple Watch app (native/targets/watch)
 
 platform :ios do
   def api
@@ -32,6 +33,12 @@ platform :ios do
         UI.important("RESULT capability #{cap}: could not add (#{e.message})")
       end
     end
+    if Spaceship::ConnectAPI::BundleId.find(WATCH)
+      UI.message('RESULT watch bundle-id: already registered')
+    else
+      Spaceship::ConnectAPI::BundleId.create(name: 'OENOD Watch', platform: 'IOS', identifier: WATCH)
+      UI.success('RESULT watch bundle-id: registered com.oenod.app.watchkitapp now')
+    end
     app = Spaceship::ConnectAPI::App.find(BUNDLE)
     if app
       UI.success('RESULT app-record: found')
@@ -53,14 +60,19 @@ platform :ios do
       get_provisioning_profile(api_key: api, app_identifier: BUNDLE, force: true, output_path: ENV['RUNNER_TEMP'],
                                cert_id: cert_id, provisioning_name: "OENOD App Store #{Time.now.utc.strftime('%Y%m%d%H%M')}")
       profile = lane_context[SharedValues::SIGH_NAME]
+      get_provisioning_profile(api_key: api, app_identifier: WATCH, force: true, output_path: ENV['RUNNER_TEMP'],
+                               cert_id: cert_id, provisioning_name: "OENOD Watch App Store #{Time.now.utc.strftime('%Y%m%d%H%M')}")
+      watch_profile = lane_context[SharedValues::SIGH_NAME]
       ws = Dir['../../ios/*.xcworkspace'].first
       proj = Dir['../../ios/*.xcodeproj'].reject { |p| p.include?('Pods') }.first
       scheme = File.basename(ws, '.xcworkspace')
       update_code_signing_settings(path: File.expand_path(proj), use_automatic_signing: false, team_id: ENV['APPLE_TEAM_ID'],
                                    targets: [scheme], code_sign_identity: 'Apple Distribution', profile_name: profile, bundle_identifier: BUNDLE)
+      update_code_signing_settings(path: File.expand_path(proj), use_automatic_signing: false, team_id: ENV['APPLE_TEAM_ID'],
+                                   targets: ['OENODWatch'], code_sign_identity: 'Apple Distribution', profile_name: watch_profile, bundle_identifier: WATCH)
       build_app(workspace: File.expand_path(ws), scheme: scheme, configuration: 'Release', export_method: 'app-store',
                 clean: true, output_directory: ENV['RUNNER_TEMP'], output_name: 'OENOD.ipa', xcargs: "DEVELOPMENT_TEAM=#{ENV['APPLE_TEAM_ID']}",
-                export_options: { provisioningProfiles: { BUNDLE => profile }, signingStyle: 'manual', teamID: ENV['APPLE_TEAM_ID'] })
+                export_options: { provisioningProfiles: { BUNDLE => profile, WATCH => watch_profile }, signingStyle: 'manual', teamID: ENV['APPLE_TEAM_ID'] })
       upload_to_testflight(api_key: api, ipa: File.join(ENV['RUNNER_TEMP'], 'OENOD.ipa'), skip_waiting_for_build_processing: true,
                            skip_submission: true)
       UI.success('RESULT upload: done. The build shows in App Store Connect in about 15 minutes.')

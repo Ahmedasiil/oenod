@@ -1,0 +1,19 @@
+// OENOD for Wear OS: clock in and out, next shift, today's sales. Paired with a 6-digit code.
+// Copied into android/wear by plugins/withWear.js during prebuild.
+apply plugin: "com.android.application"
+apply plugin: "org.jetbrains.kotlin.android"
+
+android {
+    namespace "com.oenod.app.wear"
+    compileSdk rootProject.ext.compileSdkVersion
+    defaultConfig {
+        applicationId "com.oenod.app"   // same listing as the phone app (Wear OS form factor)
+        minSdk 30                       // Wear OS 3+
+        targetSdk rootProject.ext.targetSdkVersion
+        versionCode 1360                // must differ from the phone build (360)
+        versionName "3.6.0"
+    }
+    buildTypes { release { minifyEnabled false } }
+    compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+    kotlinOptions { jvmTarget = "17" }
+}

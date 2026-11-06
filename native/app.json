@@ -34,7 +34,8 @@
       },
       "config": {
         "usesNonExemptEncryption": false
-      }
+      },
+      "appleTeamId": "9R7RL2AH43"
     },
     "android": {
       "package": "com.oenod.app",
@@ -110,7 +111,9 @@
           "color": "#0B1B3F"
         }
       ],
-      "expo-screen-orientation"
+      "expo-screen-orientation",
+      "@bacons/apple-targets",
+      "./plugins/withWear"
     ],
     "scheme": "oenod",
     "backgroundColor": "#050B24",
