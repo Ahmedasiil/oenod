@@ -1,7 +1,7 @@
 {
   "name": "oenod-desktop",
   "productName": "OENOD",
-  "version": "3.6.0",
+  "version": "3.7.0",
   "private": true,
   "description": "OENOD for Windows, Mac and Linux.",
   "author": "OENOD Inc.",
@@ -12,7 +12,8 @@
     "build:win": "npm run prebuild && electron-builder --win nsis",
     "build:mac": "npm run prebuild && electron-builder --mac dmg",
     "build:all": "npm run prebuild && electron-builder --win nsis --mac dmg",
-    "build:linux": "npm run prebuild && electron-builder --linux AppImage"
+    "build:linux": "npm run prebuild && electron-builder --linux AppImage",
+    "test:remote": "node test/remote-unit.js"
   },
   "devDependencies": {
     "electron": "^45.2.1",
@@ -23,9 +24,15 @@
     "productName": "OENOD",
     "files": [
       "main.js",
+      "preload.js",
+      "remote.js",
+      "remote/**",
       "offline.html",
       "oenod.app.json",
-      "build/icon.png"
+      "build/icon.png",
+      "node_modules/@nut-tree-fork/**",
+      "node_modules/bindings/**",
+      "node_modules/file-uri-to-path/**"
     ],
     "extraMetadata": {
       "main": "main.js"
@@ -67,8 +74,11 @@
       "artifactName": "OENOD-${version}.dmg",
       "extendInfo": {
         "NSCameraUsageDescription": "OENOD uses the camera to scan QR badges and for OENOD Meet video calls.",
-        "NSMicrophoneUsageDescription": "OENOD uses the microphone for OENOD Meet video calls."
-      }
+        "NSMicrophoneUsageDescription": "OENOD uses the microphone for OENOD Meet video calls.",
+        "NSAppleEventsUsageDescription": "OENOD Remote uses this only while you allow someone to help you.",
+        "NSScreenCaptureUsageDescription": "OENOD Remote shares your screen only after you press Allow."
+      },
+      "x64ArchFiles": "Contents/Resources/app.asar.unpacked/node_modules/@nut-tree-fork/libnut-darwin/**/*.node"
     },
     "linux": {
       "target": [
@@ -79,6 +89,14 @@
       "artifactName": "OENOD-${version}.AppImage",
       "maintainer": "OENOD Inc. <info@oenod.com>"
     },
-    "publish": null
+    "publish": null,
+    "asarUnpack": [
+      "node_modules/@nut-tree-fork/**/*.node"
+    ]
+  },
+  "dependencies": {
+    "@nut-tree-fork/libnut-darwin": "2.7.5",
+    "@nut-tree-fork/libnut-linux": "2.7.5",
+    "@nut-tree-fork/libnut-win32": "2.7.5"
   }
 }

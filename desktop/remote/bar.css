@@ -1,0 +1,14 @@
+body{background:#000C58;color:#fff;overflow:hidden;user-select:none}
+.b{display:flex;flex-direction:column;height:100%}
+.b-top{display:flex;align-items:center;gap:8px;padding:0 10px 0 14px;height:64px;-webkit-app-region:drag;border-bottom:1px solid rgba(255,255,255,.1)}
+.dot{width:10px;height:10px;border-radius:50%;background:#FF4D5E;box-shadow:0 0 0 4px rgba(255,77,94,.25);flex:none}
+.b-t{flex:1;min-width:0}.b-t b{display:block;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.b-t small{display:block;font-size:11.5px;opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bb{-webkit-app-region:no-drag;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#fff;border-radius:9px;padding:7px 11px;font-weight:700;font-size:12.5px;cursor:pointer;white-space:nowrap}
+.bb:hover{border-color:rgba(255,255,255,.45)}.bb.on{background:#F0B35A;color:#1A1200;border-color:#F0B35A}
+.bb.stop{background:#C0283A;border-color:#C0283A}
+#n{background:#2B47FF;border-radius:99px;padding:0 6px;margin-left:3px}
+.b-chat{flex:1;display:flex;flex-direction:column;min-height:0;padding:8px 10px;gap:8px;background:#0A0F2E}
+.msgs{flex:1;overflow:auto;display:flex;flex-direction:column;gap:5px;font-size:13px;user-select:text}
+.msgs div{background:rgba(255,255,255,.08);border-radius:8px;padding:5px 8px}.msgs div.me{background:rgba(43,71,255,.4);align-self:flex-end}
+.msgs div.sys{background:transparent;opacity:.7;font-size:12px;padding:0 2px}
+#cf{display:flex;gap:6px}#cf input{flex:1;min-width:0;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#fff;border-radius:8px;padding:7px 9px}

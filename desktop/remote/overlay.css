@@ -1,0 +1,3 @@
+html,body{margin:0;height:100%;background:transparent;overflow:hidden;pointer-events:none}
+.fr{position:fixed;inset:0;border:4px solid #FF2E43;box-shadow:inset 0 0 0 1px rgba(0,0,0,.25)}
+canvas{position:fixed;inset:0;width:100%;height:100%}

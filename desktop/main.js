@@ -1,7 +1,9 @@
 // OENOD desktop app (Windows and Mac). Opens the OENOD web app in a locked-down window.
 // No Node.js access is given to web content, other sites open in the normal browser, and
 // only the configured OENOD domain can load inside the app.
+// OENOD Remote (remote.js) lets someone help on this computer, only after the person here presses Allow.
 const { app, BrowserWindow, shell, Menu, session } = require('electron');
+const remote = require('./remote');
 const path = require('path');
 const fs = require('fs');
 
@@ -18,7 +20,7 @@ function create() {
     width: 1360, height: 860, minWidth: 380, minHeight: 600, show: false, title: CFG.appName,
     backgroundColor: '#050B24', icon: path.join(__dirname, 'build', 'icon.png'),
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
-    webPreferences: { contextIsolation: true, nodeIntegration: false, sandbox: true, webSecurity: true, spellcheck: true },
+    webPreferences: { contextIsolation: true, nodeIntegration: false, sandbox: true, webSecurity: true, spellcheck: true, preload: path.join(__dirname, 'preload.js') },
   });
   win.once('ready-to-show', () => win.show());
   win.webContents.setWindowOpenHandler(({ url }) => {
@@ -43,6 +45,7 @@ app.whenReady().then(() => {
     { role: 'help', submenu: [{ label: 'OENOD website', click: () => shell.openExternal(HOME.origin + '/#/welcome') }] },
   ]));
   create();
+  remote.init({ home: HOME, isMain: (wc) => !!win && !win.isDestroyed() && wc === win.webContents });
   app.on('activate', () => { if (!BrowserWindow.getAllWindows().length) create(); });
 });
 app.on('second-instance', () => { if (win) { if (win.isMinimized()) win.restore(); win.focus(); } });

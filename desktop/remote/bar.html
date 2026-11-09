@@ -1,0 +1,17 @@
+<!doctype html><html><head><meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'">
+<link rel="stylesheet" href="ui.css"><link rel="stylesheet" href="bar.css"><title>OENOD Remote</title></head>
+<body><div class="b">
+  <div class="b-top">
+    <span class="dot" aria-hidden="true"></span>
+    <div class="b-t"><b id="who">Connecting…</b><small id="info"></small></div>
+    <button class="bb" id="acc" hidden>Allow control in Settings</button>
+    <button class="bb" id="pause" hidden>Pause control</button>
+    <button class="bb" id="chat">Chat <span id="n" hidden></span></button>
+    <button class="bb stop" id="stop" title="Stop (Ctrl+Alt+Esc)">Stop</button>
+  </div>
+  <div class="b-chat" id="cbox" hidden>
+    <div class="msgs" id="msgs" aria-live="polite"></div>
+    <form id="cf"><input id="ci" maxlength="500" placeholder="Message" aria-label="Message" autocomplete="off"><button class="bb">Send</button></form>
+  </div>
+</div><script src="bar.js"></script></body></html>
