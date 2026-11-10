@@ -28,7 +28,7 @@ function Tick({ label, delay }: { label: string; delay: number }) {
         <Text style={{ color: done ? A.ink : A.sub, fontSize: 15, fontWeight: '600' }}>{label}</Text>
       </View>
       <View style={{ height: 3, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.08)', overflow: 'hidden', marginLeft: 32 }}>
-        <Animated.View style={{ height: 3, backgroundColor: '#5B76FF', width: v.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }) }} />
+        <Animated.View style={{ height: 3, backgroundColor: '#8EA0FF', width: v.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }) }} />
       </View>
     </View>
   );

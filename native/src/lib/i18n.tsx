@@ -11,6 +11,7 @@ import hi from '../i18n/hi.json';
 import pt from '../i18n/pt.json';
 import ur from '../i18n/ur.json';
 import v36 from '../i18n/v36.json';
+import v37 from '../i18n/v37.json';
 import { secure } from './secure';
 import { useAuth } from './auth';
 import { post } from './api';
@@ -1156,7 +1157,8 @@ Object.assign(es, {"Delete my account": "Eliminar mi cuenta", "Permanently remov
 Object.assign(ar, {"Delete my account": "حذف حسابي", "Permanently remove your login and personal information": "إزالة تسجيل الدخول ومعلوماتك الشخصية نهائيًا", "This cannot be undone": "لا يمكن التراجع عن هذا", "We delete your login, your name and email, your phone sign-in keys, your public business card and your resumes. You are signed out everywhere.": "نحذف تسجيل دخولك واسمك وبريدك الإلكتروني ومفاتيح تسجيل الدخول على الهاتف وبطاقة عملك العامة وسيرك الذاتية. سيتم تسجيل خروجك من كل مكان.", "Your employer keeps the work records the law requires, such as hours worked, pay stubs and tax slips, but they are no longer linked to a login.": "يحتفظ صاحب العمل بالسجلات التي يفرضها القانون، مثل ساعات العمل وقسائم الرواتب والإقرارات الضريبية، لكنها لم تعد مرتبطة بحساب.", "First, one more step": "أولًا، خطوة أخرى", "Type DELETE to confirm": "اكتب DELETE للتأكيد", "Account deleted": "تم حذف الحساب", "Your account and your personal information were deleted.": "تم حذف حسابك ومعلوماتك الشخصية."});
 // App 3.6 phrases (new design, watches, sign up).
 Object.assign(fr, v36.fr); Object.assign(es, v36.es); Object.assign(ar, v36.ar);
-const DICTS: Record<Lang, Dict> = { en: {}, fr, ar, es, zh: { ...zh, ...v36.zh }, pa: { ...pa, ...v36.pa }, tl: { ...tl, ...v36.tl }, hi: { ...hi, ...v36.hi }, pt: { ...pt, ...v36.pt }, ur: { ...ur, ...v36.ur } };
+Object.assign(fr, v37.fr); Object.assign(es, v37.es); Object.assign(ar, v37.ar);
+const DICTS: Record<Lang, Dict> = { en: {}, fr, ar, es, zh: { ...zh, ...v36.zh, ...v37.zh }, pa: { ...pa, ...v36.pa, ...v37.pa }, tl: { ...tl, ...v36.tl, ...v37.tl }, hi: { ...hi, ...v36.hi, ...v37.hi }, pt: { ...pt, ...v36.pt, ...v37.pt }, ur: { ...ur, ...v36.ur, ...v37.ur } };
 
 let current: Lang = 'en';
 export const lang = () => current;

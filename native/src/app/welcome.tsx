@@ -1,184 +1,160 @@
-// First screen for anyone signed out, in the oenod.com website style: three short pages
-// (OENOD, owners, employees), then Sign in. OENOD recognises who signed in and opens the right home.
+// First screen for anyone signed out (3.7 "Constellation"): deep navy night, points of light
+// gather into the OENOD logo, then one clear promise and two buttons. Language at the top right.
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, NativeScrollEvent, NativeSyntheticEvent, Platform, Pressable, ScrollView, Text, View, useWindowDimensions } from 'react-native';
+import { AccessibilityInfo, Animated, Easing, Platform, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Backdrop, GradientButton, PoweredBy, Wordmark } from '../ui/Brand';
-import { Icon, IconName } from '../ui/Icon';
-import { C } from '../lib/theme';
-import { t } from '../lib/i18n';
+import Svg, { Defs, Ellipse, LinearGradient, RadialGradient, Rect, Stop } from 'react-native-svg';
+import { Icon } from '../ui/Icon';
+import { LogoBurst } from '../ui/LogoBurst';
+import { MapleLeaf } from '../ui/Brand';
+import { LANGS, t, useLang } from '../lib/i18n';
 import { secure } from '../lib/secure';
-import { GlassBtn } from '../ui/AuthKit';
 
 export const SEEN = 'oenod.welcomed';
 const native = Platform.OS !== 'web';
 
-const glass = { backgroundColor: 'rgba(255,255,255,0.06)', borderColor: 'rgba(255,255,255,0.08)', borderWidth: 1 } as const;
-
-/** Clean list with a small light dot and a hairline between rows. */
-function Dots({ items }: { items: string[] }) {
+/** The night sky: deep navy, a royal glow rising from the bottom. */
+function Night({ width, height }: { width: number; height: number }) {
   return (
-    <View style={{ marginTop: 6 }}>
-      {items.map((x, n) => (
-        <View key={x} style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 15, borderTopWidth: n ? 1 : 0, borderColor: 'rgba(255,255,255,0.08)' }}>
-          <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: '#AFC3FF', shadowColor: '#3D5BF5', shadowOpacity: 0.9, shadowRadius: 6, shadowOffset: { width: 0, height: 0 } }} />
-          <Text style={{ color: '#E8ECFA', fontSize: 15, fontWeight: '600' }}>{x}</Text>
-        </View>
-      ))}
-    </View>
+    <Svg pointerEvents="none" style={StyleSheet.absoluteFill} width={width} height={height}>
+      <Defs>
+        <LinearGradient id="wn" x1="0" y1="0" x2="0" y2="1">
+          <Stop offset="0" stopColor="#00041E" /><Stop offset="0.55" stopColor="#000A44" /><Stop offset="1" stopColor="#000C58" />
+        </LinearGradient>
+        <RadialGradient id="wb" cx="50%" cy="100%" rx="70%" ry="45%">
+          <Stop offset="0" stopColor="#0E1A7A" stopOpacity={1} /><Stop offset="1" stopColor="#0E1A7A" stopOpacity={0} />
+        </RadialGradient>
+      </Defs>
+      <Rect width={width} height={height} fill="url(#wn)" />
+      <Rect width={width} height={height} fill="url(#wb)" />
+    </Svg>
   );
 }
 
-function Float({ icon, tint, label, value, delay = 0, style }: { icon: IconName; tint: string; label: string; value: string; delay?: number; style?: any }) {
-  const v = useRef(new Animated.Value(0)).current;
+/** Three soft lights drifting slowly along the bottom (aurora). */
+function Aurora({ width, still }: { width: number; still: boolean }) {
+  const a = useRef(new Animated.Value(0)).current;
   useEffect(() => {
-    const a = Animated.loop(Animated.sequence([
-      Animated.delay(delay),
-      Animated.timing(v, { toValue: 1, duration: 2600, easing: Easing.inOut(Easing.sin), useNativeDriver: native }),
-      Animated.timing(v, { toValue: 0, duration: 2600, easing: Easing.inOut(Easing.sin), useNativeDriver: native }),
+    if (still) return;
+    const l = Animated.loop(Animated.sequence([
+      Animated.timing(a, { toValue: 1, duration: 9000, easing: Easing.inOut(Easing.sin), useNativeDriver: native }),
+      Animated.timing(a, { toValue: 0, duration: 9000, easing: Easing.inOut(Easing.sin), useNativeDriver: native }),
     ]));
-    a.start(); return () => a.stop();
-  }, [v, delay]);
-  const y = v.interpolate({ inputRange: [0, 1], outputRange: [0, -6] });
-  return (
-    <Animated.View style={[{ flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 18, paddingVertical: 12, paddingHorizontal: 14, alignSelf: 'flex-start', transform: [{ translateY: y }] }, glass, { backgroundColor: 'rgba(8,15,44,0.78)' }, style]}>
-      <View style={{ width: 36, height: 36, borderRadius: 11, backgroundColor: tint + '26', alignItems: 'center', justifyContent: 'center' }}><Icon name={icon} size={19} color={tint} /></View>
-      <View>
-        <Text style={{ color: C.sub, fontSize: 12 }}>{label}</Text>
-        <Text style={{ color: C.white, fontSize: 15, fontWeight: '700' }}>{value}</Text>
-      </View>
+    l.start(); return () => l.stop();
+  }, [a, still]);
+  const blob = (color: string, w: number, h: number, left: number, bottom: number, dx: number, dy: number, o: number, id: string) => (
+    <Animated.View key={id} pointerEvents="none" style={{ position: 'absolute', left, bottom, width: w, height: h, opacity: o,
+      transform: [{ translateX: a.interpolate({ inputRange: [0, 1], outputRange: [0, dx] }) }, { translateY: a.interpolate({ inputRange: [0, 1], outputRange: [0, dy] }) }] }}>
+      <Svg width={w} height={h}>
+        <Defs><RadialGradient id={id} cx="50%" cy="50%" r="50%"><Stop offset="0" stopColor={color} stopOpacity={0.55} /><Stop offset="1" stopColor={color} stopOpacity={0} /></RadialGradient></Defs>
+        <Ellipse cx={w / 2} cy={h / 2} rx={w / 2} ry={h / 2} fill={`url(#${id})`} />
+      </Svg>
     </Animated.View>
   );
-}
-
-function Check({ text }: { text: string }) {
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-      <Icon name="check" size={16} color={C.good} />
-      <Text style={{ color: C.mist, fontSize: 14 }}>{text}</Text>
+    <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 320, overflow: 'hidden' }}>
+      {blob('#2A3BC4', width * 1.1, 260, -width * 0.35, -90, width * 0.18, -10, 0.9, 'au1')}
+      {blob('#5B4BD6', width * 0.9, 220, width * 0.35, -110, -width * 0.16, 8, 0.55, 'au2')}
+      {blob('#1B6FD8', width * 0.8, 200, width * 0.05, -140, width * 0.1, -14, 0.5, 'au3')}
     </View>
   );
 }
 
-function Eyebrow({ text }: { text: string }) {
-  return (
-    <View style={[{ alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 8, borderRadius: 999, paddingLeft: 4, paddingRight: 12, paddingVertical: 4 }, glass]}>
-      <View style={{ backgroundColor: C.blue, borderRadius: 999, paddingHorizontal: 9, paddingVertical: 3 }}><Text style={{ color: C.white, fontSize: 12, fontWeight: '800' }}>{t('New')}</Text></View>
-      <Text style={{ color: C.mist, fontSize: 13, fontWeight: '600' }}>{text}</Text>
-    </View>
-  );
+/** Blur-rise in: fades, lifts and sharpens in after the logo lands. */
+function Rise({ children, delay, still }: { children: React.ReactNode; delay: number; still: boolean }) {
+  const v = useRef(new Animated.Value(still ? 1 : 0)).current;
+  useEffect(() => {
+    if (still) { v.setValue(1); return; }
+    Animated.timing(v, { toValue: 1, duration: 700, delay, easing: Easing.out(Easing.cubic), useNativeDriver: native }).start();
+  }, [v, delay, still]);
+  return <Animated.View style={{ opacity: v, transform: [{ translateY: v.interpolate({ inputRange: [0, 1], outputRange: [16, 0] }) }] }}>{children}</Animated.View>;
 }
 
-function Label({ text }: { text: string }) {
-  return <Text style={{ color: '#AFC3FF', fontWeight: '800', fontSize: 12, letterSpacing: 1.8 }}>{text}</Text>;
-}
-
-function Title({ a, b }: { a: string; b: string }) {
+function LangPick() {
+  const { lang, setLang } = useLang();
+  const [open, setOpen] = useState(false);
+  const name = LANGS.find((x) => x.code === lang)?.name || 'English';
   return (
-    <Text style={{ color: '#FFFFFF', fontSize: 44, fontWeight: '800', letterSpacing: -1.6, lineHeight: 48 }} accessibilityRole="header">
-      {a} <Text style={{ color: '#AFC3FF' }}>{b}</Text>
-    </Text>
-  );
-}
-
-function StatGrid({ cells }: { cells: [string, string][] }) {
-  return (
-    <View style={[{ borderRadius: 22, overflow: 'hidden', flexDirection: 'row', flexWrap: 'wrap' }, glass]}>
-      {cells.map(([v, l], i) => (
-        <View key={l} style={{ width: '50%', paddingVertical: 18, paddingHorizontal: 14, alignItems: 'center', borderColor: 'rgba(255,255,255,0.10)', borderRightWidth: i % 2 === 0 ? 1 : 0, borderBottomWidth: i < 2 ? 1 : 0 }}>
-          <Text style={{ color: C.white, fontSize: 28, fontWeight: '800', letterSpacing: -0.8 }}>{v}</Text>
-          <Text style={{ color: C.sub, fontSize: 13, textAlign: 'center', marginTop: 2 }}>{l}</Text>
+    <View style={{ alignItems: 'flex-end', zIndex: 10 }}>
+      <Pressable onPress={() => setOpen(!open)} accessibilityRole="button" accessibilityLabel={t('Language')} hitSlop={10}
+        style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 4 }}>
+        <Icon name="globe" size={15} color="rgba(221,227,255,0.75)" duo={false} />
+        <Text style={{ color: 'rgba(221,227,255,0.8)', fontSize: 13, fontWeight: '500' }}>{name}</Text>
+      </Pressable>
+      {open ? (
+        <View style={{ position: 'absolute', top: 36, right: 0, minWidth: 170, borderRadius: 16, paddingVertical: 6, backgroundColor: 'rgba(6,12,52,0.97)', borderWidth: 1, borderColor: 'rgba(185,196,255,0.22)' }}>
+          {LANGS.map((x) => (
+            <Pressable key={x.code} onPress={() => { setOpen(false); setLang(x.code).catch(() => {}); }} accessibilityRole="button"
+              style={({ pressed }) => ({ paddingVertical: 10, paddingHorizontal: 16, backgroundColor: pressed ? 'rgba(255,255,255,0.08)' : 'transparent', flexDirection: 'row', justifyContent: 'space-between', gap: 12 })}>
+              <Text style={{ color: '#FFFFFF', fontSize: 15, fontWeight: x.code === lang ? '700' : '500' }}>{x.name}</Text>
+              {x.code === lang ? <Icon name="check" size={16} color="#B9C4FF" duo={false} /> : null}
+            </Pressable>
+          ))}
         </View>
-      ))}
-    </View>
-  );
-}
-
-function ClockPreview() {
-  return (
-    <View style={[{ borderRadius: 22, padding: 18, gap: 12 }, glass]}>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Text style={{ color: C.sub, fontWeight: '600' }}>{t('Time clock')}</Text>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: C.goodSoft, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4 }}>
-          <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: C.good }} />
-          <Text style={{ color: C.good, fontSize: 12, fontWeight: '700' }}>{t('Clocked in')}</Text>
-        </View>
-      </View>
-      <Text style={{ color: C.white, fontSize: 40, fontWeight: '800', letterSpacing: -1.5 }}>3h 42m</Text>
-      <Text style={{ color: C.sub, fontSize: 13 }}>{t('Next shift: {d}', { d: 'Fri 9:00 – 5:00' })}</Text>
+      ) : null}
     </View>
   );
 }
 
 export default function Welcome() {
   const insets = useSafeAreaInsets();
-  const { width } = useWindowDimensions();
-  const ref = useRef<any>(null);
-  const [i, setI] = useState(0);
+  const { width, height } = useWindowDimensions();
+  const [still, setStill] = useState(false);
   useEffect(() => { secure.set(SEEN, '1').catch(() => {}); }, []);
-  const pages = 3;
-  const last = i === pages - 1;
-  const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => setI(Math.round(e.nativeEvent.contentOffset.x / width));
-  const next = () => {
-    if (last) { router.push('/signup'); return; }
-    ref.current?.scrollTo({ x: width * (i + 1), animated: true });
-    setI(i + 1);
-  };
-  const side = Math.max(24, (width - 560) / 2); // iPad: centre column
-  const page = { width, paddingHorizontal: side, paddingTop: 12, gap: 18 } as const;
+  useEffect(() => { AccessibilityInfo.isReduceMotionEnabled().then((r) => setStill(!!r)).catch(() => {}); }, []);
+  const side = Math.max(24, (width - 520) / 2);
+  const stage = Math.min(300, Math.max(220, height * 0.34));
+  const d = still ? 0 : 2300;
 
   return (
-    <Backdrop>
-      <View style={{ flex: 1, paddingTop: insets.top + 8, paddingBottom: insets.bottom + 4 }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 24, height: 48 }}>
-          <Wordmark width={104} />
-          <Pressable onPress={() => router.push('/login')} accessibilityRole="button" style={[{ borderRadius: 999, paddingHorizontal: 16, paddingVertical: 9 }, glass]}>
-            <Text style={{ color: C.white, fontWeight: '700', fontSize: 14 }}>{t('Sign in')}</Text>
-          </Pressable>
+    <View style={{ flex: 1, backgroundColor: '#00041E' }}>
+      <Night width={width} height={height} />
+      <Aurora width={width} still={still} />
+      <ScrollView bounces={false} contentContainerStyle={{ flexGrow: 1, paddingTop: insets.top + 8, paddingBottom: insets.bottom + 14, paddingHorizontal: side }}>
+        <LangPick />
+        <View style={{ marginHorizontal: -side }}>
+          <LogoBurst height={stage} logoWidth={Math.round(Math.min(150, width * 0.34))} still={still} />
         </View>
-
-        <ScrollView ref={ref} horizontal pagingEnabled showsHorizontalScrollIndicator={false} onMomentumScrollEnd={onScroll} onScroll={onScroll} scrollEventThrottle={64} style={{ flex: 1 }} contentContainerStyle={{ alignItems: 'stretch' }}>
-          <View style={[page, { justifyContent: 'center' }]}>
-            <Label text={t('OENOD AI is built into every screen').toUpperCase()} />
-            <Title a={t('Run your entire company')} b={t('from your phone.')} />
-            <Text style={{ color: '#9AA5C8', fontSize: 16, lineHeight: 24 }}>{t('People, time clock, schedules, pay and your wallet in one app. One login for owners and their whole team.')}</Text>
-            <Dots items={[t('Bank-grade security'), t('10 languages'), t('Face ID'), t('Shifts and schedule')]} />
+        <Rise delay={d} still={still}>
+          <Text style={{ textAlign: 'center', color: 'rgba(185,196,255,0.85)', fontSize: 11.5, fontWeight: '600', letterSpacing: 2.6, marginTop: -stage * 0.16 }}>
+            {t('ALL-IN-ONE BUSINESS PLATFORM')}
+          </Text>
+        </Rise>
+        <View style={{ flex: 1, minHeight: 24 }} />
+        <Rise delay={d + 300} still={still}>
+          <View style={{ gap: 10 }}>
+            <Text accessibilityRole="header" style={{ color: '#FFFFFF', fontSize: width < 380 ? 28 : 30, fontWeight: '700', letterSpacing: -0.8, lineHeight: width < 380 ? 33 : 36 }}>
+              {t('Run your whole company from one app.')}
+            </Text>
+            <Text style={{ color: 'rgba(221,227,255,0.74)', fontSize: 16, lineHeight: 24 }}>
+              {t('Team, schedules, payroll, invoices and Ava, together in one secure place.')}
+            </Text>
           </View>
-
-          <View style={[page, { justifyContent: 'center' }]}>
-            <Label text={t('OWNER ACCOUNT')} />
-            <Title a={t('Your business,')} b={t('live.')} />
-            <Text style={{ color: '#9AA5C8', fontSize: 16, lineHeight: 24 }}>{t('See sales, labour and who is working right now. Approve time off and run your team from anywhere.')}</Text>
-            <StatGrid cells={[['$2,848', t('sales today')], ['24%', t('labour cost')], ['3', t('working now')], ['2', t('requests to approve')]]} />
+        </Rise>
+        <Rise delay={d + 600} still={still}>
+          <View style={{ gap: 12, marginTop: 28 }}>
+            <Pressable onPress={() => router.push('/signup')} accessibilityRole="button"
+              style={({ pressed }) => ({ minHeight: 56, borderRadius: 18, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8, opacity: pressed ? 0.9 : 1, transform: [{ scale: pressed ? 0.98 : 1 }],
+                shadowColor: '#8EA0FF', shadowOpacity: 0.35, shadowRadius: 18, shadowOffset: { width: 0, height: 6 }, elevation: 6 })}>
+              <Text style={{ color: '#000C58', fontSize: 16.5, fontWeight: '700' }}>{t('Create free account')}</Text>
+              <Icon name="arrow" size={19} color="#000C58" duo={false} />
+            </Pressable>
+            <Pressable onPress={() => router.push('/login')} accessibilityRole="button"
+              style={({ pressed }) => ({ minHeight: 54, borderRadius: 18, borderWidth: 1, borderColor: 'rgba(221,227,255,0.3)', alignItems: 'center', justifyContent: 'center', backgroundColor: pressed ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)' })}>
+              <Text style={{ color: '#FFFFFF', fontSize: 16.5, fontWeight: '600' }}>{t('Sign in')}</Text>
+            </Pressable>
+            <Pressable onPress={() => router.push('/guest')} accessibilityRole="link" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 8 }}>
+              <Icon name="video" size={17} color="rgba(221,227,255,0.8)" duo={false} />
+              <Text style={{ color: 'rgba(221,227,255,0.85)', fontWeight: '600', fontSize: 14.5 }}>{t('Join a meeting as a guest')}</Text>
+            </Pressable>
           </View>
-
-          <View style={[page, { justifyContent: 'center' }]}>
-            <Label text={t('EMPLOYEE ACCOUNT')} />
-            <Title a={t('Your day,')} b={t('in one tap.')} />
-            <Text style={{ color: '#9AA5C8', fontSize: 16, lineHeight: 24 }}>{t('Employees clock in, see their shifts, request time off and get paid, all from their phone.')}</Text>
-            <ClockPreview />
-            <Dots items={[t('Shifts and schedule'), t('Pay stubs'), t('Time off')]} />
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 14 }}>
+            <Text style={{ color: 'rgba(185,196,255,0.55)', fontSize: 11.5, letterSpacing: 0.6 }}>OENOD Inc. · {t('Proudly Canadian')}</Text>
+            <MapleLeaf size={11} />
           </View>
-        </ScrollView>
-
-        <View style={{ paddingHorizontal: side, gap: 14 }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 8, marginBottom: 6 }} accessibilityLabel={t('Page {n} of {m}', { n: i + 1, m: pages })}>
-            {[0, 1, 2].map((n) => <View key={n} style={{ height: 6, width: n === i ? 24 : 6, borderRadius: 3, backgroundColor: n === i ? C.white : 'rgba(255,255,255,0.28)' }} />)}
-          </View>
-          {last ? (
-            <>
-              <GradientButton light title={t('Create a free account')} iconRight="arrow" onPress={() => router.push('/signup')} />
-              <GlassBtn title={t('I already have an account')} onPress={() => router.push('/login')} />
-            </>
-          ) : <GradientButton light title={t('Continue')} iconRight="arrow" onPress={next} />}
-          <Pressable onPress={() => router.push('/guest')} accessibilityRole="link" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, padding: 6 }}>
-            <Icon name="video" size={18} color="#AFC3FF" />
-            <Text style={{ color: '#AFC3FF', fontWeight: '700', fontSize: 15 }}>{t('Join a meeting as a guest')}</Text>
-          </Pressable>
-          <PoweredBy dark />
-        </View>
-      </View>
-    </Backdrop>
+        </Rise>
+      </ScrollView>
+    </View>
   );
 }

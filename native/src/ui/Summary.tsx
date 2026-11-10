@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, View, type ViewStyle } from 'react-native';
 import { C } from '../lib/theme';
-import Svg, { Circle, Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
+import { NavyFill } from './Brand';
 import { Rise } from './Motion';
 import { Icon, type IconName } from './Icon';
 import { Row } from './kit';
@@ -9,7 +9,7 @@ import { locale } from '../lib/i18n';
 import { utc } from '../lib/format';
 
 /** Shared tint palette, the same one the home screen tiles use. */
-export const TINTS = ['#7C93FF', '#A78BFA', '#34D399', '#FBBF24', '#38BDF8', '#F472B6'];
+export const TINTS = ['#000C58', '#0B1C86', '#1B2A9E', '#2A3BC4', '#000738', '#3346C9'];
 /** Short date like "Thu 20" for tight tiles. */
 export const shortDay = (iso?: string | null) => { if (!iso) return '—'; const d = iso.length <= 10 ? new Date(iso + 'T12:00:00') : utc(iso); return d ? d.toLocaleDateString(locale(), { weekday: 'short', day: 'numeric' }) : '—'; };
 export const tint = (n: number) => TINTS[((n % TINTS.length) + TINTS.length) % TINTS.length];
@@ -31,16 +31,12 @@ export function Summary({ label, value, badge, minis, foot, children, style }: {
   const [sz, setSz] = React.useState({ w: 340, h: 180 });
   return (
     <Rise>
+      <View style={[{ borderRadius: 27, padding: 5, backgroundColor: C.dark ? 'rgba(142,160,255,0.08)' : 'rgba(0,12,88,0.07)' }, style]}>
       <View onLayout={(e) => setSz({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}
-        style={[{ borderRadius: 22, padding: 18, gap: 12, overflow: 'hidden', backgroundColor: '#000C58' }, style]}>
-        <Svg width={sz.w} height={sz.h} style={{ position: 'absolute', left: 0, top: 0 }}>
-          <Defs><LinearGradient id="sumg" x1="0" y1="0" x2="1" y2="1"><Stop offset="0" stopColor="#000C58" /><Stop offset="0.6" stopColor="#1B2A8F" /><Stop offset="1" stopColor="#3D5BF5" /></LinearGradient></Defs>
-          <Rect width={sz.w} height={sz.h} fill="url(#sumg)" />
-          <Circle cx={sz.w - 50} cy={40} r={100} stroke="rgba(255,255,255,0.14)" fill="none" />
-          <Circle cx={sz.w - 50} cy={40} r={130} stroke="rgba(255,255,255,0.05)" strokeWidth={30} fill="none" />
-        </Svg>
+        style={{ borderRadius: 22, padding: 18, gap: 12, overflow: 'hidden', backgroundColor: '#000C58', borderWidth: 1, borderColor: 'rgba(185,196,255,0.22)' }}>
+        <NavyFill w={sz.w} h={sz.h} />
         <Row style={{ justifyContent: 'space-between', zIndex: 1 }}>
-          <Text style={{ color: '#AFC3FF', fontWeight: '600', fontSize: 13, flexShrink: 1 }} numberOfLines={1}>{label}</Text>
+          <Text style={{ color: '#B9C4FF', fontWeight: '600', fontSize: 13, flexShrink: 1 }} numberOfLines={1}>{label}</Text>
           {badge}
         </Row>
         {value != null ? <Text style={{ zIndex: 1, color: '#FFFFFF', fontSize: value.length > 18 ? 26 : value.length > 14 ? 29 : value.length > 10 ? 32 : 36, fontWeight: '800', letterSpacing: -1 }} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>{value}</Text> : null}
@@ -48,15 +44,18 @@ export function Summary({ label, value, badge, minis, foot, children, style }: {
         {minis?.length ? <Row style={{ gap: 8, zIndex: 1 }}>{minis.map(([l, v]) => <Mini key={l} label={l} value={v} />)}</Row> : null}
         {foot ? <Text style={{ color: '#9AA5C8', fontSize: 13, zIndex: 1 }}>{foot}</Text> : null}
       </View>
+      </View>
     </Rise>
   );
 }
 
 /** Tinted rounded-square icon used at the start of list rows and cards. */
-export function IconTile({ name, color = TINTS[0], size = 40 }: { name: IconName; color?: string; size?: number }) {
+export function IconTile({ name, color, size = 40 }: { name: IconName; color?: string; size?: number }) {
+  // Navy Frame: white icon on a navy tile (light), soft navy tile with a sky icon (dark). `color` is kept for old callers.
+  void color;
   return (
-    <View style={{ width: size, height: size, borderRadius: size * 0.33, backgroundColor: C.card2, alignItems: 'center', justifyContent: 'center' }}>
-      <Icon name={name} color={color} size={Math.round(size * 0.5)} />
+    <View style={{ width: size, height: size, borderRadius: size * 0.33, backgroundColor: C.dark ? '#16205E' : '#000C58', alignItems: 'center', justifyContent: 'center' }}>
+      <Icon name={name} color={C.dark ? '#B9C4FF' : '#FFFFFF'} size={Math.round(size * 0.5)} duo={false} />
     </View>
   );
 }

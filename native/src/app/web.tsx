@@ -40,7 +40,7 @@ export default function Web() {
           <Icon name="x" size={20} color={C.sub} />
         </Pressable>
       </View>
-      <Animated.View style={{ height: 2, backgroundColor: '#3D5BF5', transform: [{ scaleX: p }], opacity: busy ? 1 : 0, alignSelf: 'stretch' }} />
+      <Animated.View style={{ height: 2, backgroundColor: '#2A3BC4', transform: [{ scaleX: p }], opacity: busy ? 1 : 0, alignSelf: 'stretch' }} />
       <WebView
         ref={ref}
         source={{ uri: url }}

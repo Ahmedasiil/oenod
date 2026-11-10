@@ -21,7 +21,7 @@ function DotGrid({ width, height }: { width: number; height: number }) {
   }, [width, height]);
   return (
     <Svg pointerEvents="none" style={StyleSheet.absoluteFill} width={width} height={height}>
-      {dots.map((d, i) => (d.o > 0.01 ? <Circle key={i} cx={d.x} cy={d.y} r={1} fill="#AFC3FF" fillOpacity={d.o} /> : null))}
+      {dots.map((d, i) => (d.o > 0.01 ? <Circle key={i} cx={d.x} cy={d.y} r={1} fill="#B9C4FF" fillOpacity={d.o} /> : null))}
     </Svg>
   );
 }
@@ -58,7 +58,7 @@ export function Screen({ title, eyebrow, subtitle, right, children, refreshing, 
       {backBtn}
       <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: S.md }}>
         <View style={{ flex: 1 }}>
-          {eyebrow ? <Text style={[st.eyebrow, hero ? { color: '#AFC3FF' } : null]}>{eyebrow}</Text> : null}
+          {eyebrow ? <Text style={[st.eyebrow, hero ? { color: '#B9C4FF' } : null]}>{eyebrow}</Text> : null}
           <Text style={[st.h1, hero ? { color: '#FFFFFF', fontSize: 28 } : null]} accessibilityRole="header">{title}</Text>
           {subtitle ? <Text style={[st.headSub, hero ? { color: '#9AA5C8' } : null]}>{subtitle}</Text> : null}
         </View>

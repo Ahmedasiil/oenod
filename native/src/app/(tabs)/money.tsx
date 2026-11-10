@@ -12,6 +12,7 @@ import { C } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { Card, Divider, ErrorBox, H2, ListRow, Loading, Muted, Pill, Row, Screen } from '../../ui/kit';
 import { IconTile } from '../../ui/Summary';
+import { NavyFill } from '../../ui/Brand';
 import { Rise, useCountUp } from '../../ui/Motion';
 import { Icon, IconName } from '../../ui/Icon';
 import { openTool } from '../web';
@@ -28,20 +29,16 @@ function WalletCard({ base }: { base: '/api/wallet' | '/api/me/wallet' }) {
   const val = bal ? money(n(bal.available), 2) : status && status !== 'active' ? t('Set up') : w.loading ? '…' : '—';
   const act = (icon: IconName, label: string) => (
     <Pressable key={label} onPress={() => router.push('/wallet')} accessibilityRole="button"
-      style={({ pressed }) => ({ flex: 1, height: 40, borderRadius: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)', backgroundColor: pressed ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.10)' })}>
+      style={({ pressed }) => ({ flex: 1, height: 40, borderRadius: 999, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)', backgroundColor: pressed ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.10)' })}>
       <Icon name={icon} size={16} color="#FFFFFF" duo={false} /><Text style={{ color: '#FFFFFF', fontSize: 12.5, fontWeight: '600' }}>{label}</Text>
     </Pressable>
   );
   return (
+    <View style={{ borderRadius: 27, padding: 5, backgroundColor: C.dark ? 'rgba(142,160,255,0.08)' : 'rgba(0,12,88,0.07)' }}>
     <Pressable onPress={() => router.push('/wallet')} accessibilityRole="button" accessibilityLabel={t('Wallet')}
       onLayout={(e) => setSz({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}
-      style={{ borderRadius: 22, padding: 18, overflow: 'hidden', backgroundColor: '#000C58' }}>
-      <Svg width={sz.w} height={sz.h} style={{ position: 'absolute' }}>
-        <Defs><SvgGrad id="wal" x1="0" y1="0" x2="1" y2="1"><Stop offset="0" stopColor="#000C58" /><Stop offset="0.6" stopColor="#1B2A8F" /><Stop offset="1" stopColor="#3D5BF5" /></SvgGrad></Defs>
-        <Rect width={sz.w} height={sz.h} fill="url(#wal)" />
-        <Circle cx={sz.w + 50 - 100} cy={40} r={100} stroke="rgba(255,255,255,0.14)" fill="none" />
-        <Circle cx={sz.w + 50 - 100} cy={40} r={130} stroke="rgba(255,255,255,0.05)" strokeWidth={30} fill="none" />
-      </Svg>
+      style={{ borderRadius: 22, padding: 18, overflow: 'hidden', backgroundColor: '#000C58', borderWidth: 1, borderColor: 'rgba(185,196,255,0.22)' }}>
+      <NavyFill w={sz.w} h={sz.h} />
       <Row style={{ gap: 8 }}>
         <Logo width={44} color="#FFFFFF" />
         <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '600' }}>{t('Wallet')}</Text>
@@ -54,6 +51,7 @@ function WalletCard({ base }: { base: '/api/wallet' | '/api/me/wallet' }) {
         {act('send', t('Send'))}{act('arrow', t('Get paid'))}{act('cash', t('Card'))}
       </View>
     </Pressable>
+    </View>
   );
 }
 
@@ -67,7 +65,7 @@ function Bars({ series }: { series: { day: string; total: number }[] }) {
         const hi = i === series.length - 1;
         return (
           <View key={s.day} style={{ flex: 1, alignItems: 'center', justifyContent: 'flex-end', gap: 6 }}>
-            <View style={{ width: '100%', height: h, borderTopLeftRadius: 8, borderTopRightRadius: 8, borderBottomLeftRadius: 4, borderBottomRightRadius: 4, backgroundColor: hi ? '#3D5BF5' : (C.dark ? 'rgba(175,195,255,0.22)' : '#DCE3FF') }} />
+            <View style={{ width: '100%', height: h, borderTopLeftRadius: 8, borderTopRightRadius: 8, borderBottomLeftRadius: 4, borderBottomRightRadius: 4, backgroundColor: hi ? '#2A3BC4' : (C.dark ? 'rgba(175,195,255,0.22)' : '#DCE3FF') }} />
             <Text style={{ color: C.faint, fontSize: 10.5, fontWeight: '600' }}>{new Date(s.day + 'T12:00:00').toLocaleDateString(undefined, { weekday: 'narrow' })}</Text>
           </View>
         );
@@ -201,10 +199,10 @@ function OwnerMoney() {
       <H2>{t('Money tools')}</H2>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
         <Tile icon="news" label={t('Invoices')} color="#17A673" go={() => openTool('/invoices', t('Invoices'))} />
-        <Tile icon="chart" label={t('Accounting')} color="#3D5BF5" go={() => openTool('/accounting', t('Accounting'))} />
+        <Tile icon="chart" label={t('Accounting')} color="#2A3BC4" go={() => openTool('/accounting', t('Accounting'))} />
         <Tile icon="cash" label={t('Sales')} color="#D98A1C" go={() => openTool('/sales', t('Sales'))} />
         <Tile icon="briefcase" label={t('Expenses')} color="#C2417A" go={() => openTool('/expenses', t('Expenses'))} />
-        <Tile icon="users" label={t('Payroll')} color="#6B5CF6" go={() => openTool('/payroll', t('Payroll'))} />
+        <Tile icon="users" label={t('Payroll')} color="#0B1C86" go={() => openTool('/payroll', t('Payroll'))} />
         <Tile icon="chart" label={t('Cash flow')} color="#0EA5E9" go={() => openTool('/cashflow', t('Cash flow'))} />
       </View>
     </Screen>
@@ -230,7 +228,7 @@ function StaffMoney() {
         {session?.employee ? (
           <Card onPress={() => router.push('/pay')}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              <IconTile name="cash" color="#3D5BF5" />
+              <IconTile name="cash" color="#2A3BC4" />
               <View style={{ flex: 1 }}><Text style={{ color: C.ink, fontWeight: '700', fontSize: 16 }}>{t('My pay')}</Text><Muted>{x?.ytd ? t('Take-home this year: {m}', { m: money(x.ytd.net) }) : t('Pay stubs and direct deposit')}</Muted></View>
               <Icon name="chevron" color={C.faint} size={18} />
             </View>
@@ -246,7 +244,7 @@ function StaffMoney() {
         {session?.employee ? (
           <Card onPress={() => router.push('/timesheet')}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              <IconTile name="clock" color="#6B5CF6" />
+              <IconTile name="clock" color="#0B1C86" />
               <View style={{ flex: 1 }}><Text style={{ color: C.ink, fontWeight: '700', fontSize: 16 }}>{t('My hours')}</Text><Muted>{t('Every punch, break and total')}</Muted></View>
               <Icon name="chevron" color={C.faint} size={18} />
             </View>

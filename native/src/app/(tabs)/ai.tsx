@@ -31,7 +31,7 @@ function Rich({ text, color }: { text: string; color: string }) {
           </Text>
         );
         if (!line.trim()) return <View key={i} style={{ height: 2 }} />;
-        return bullet ? <View key={i} style={{ flexDirection: 'row', gap: 8 }}><Text style={{ color: '#AFC3FF', fontSize: 14.5, lineHeight: 21 }}>•</Text>{txt}</View> : <View key={i}>{txt}</View>;
+        return bullet ? <View key={i} style={{ flexDirection: 'row', gap: 8 }}><Text style={{ color: '#B9C4FF', fontSize: 14.5, lineHeight: 21 }}>•</Text>{txt}</View> : <View key={i}>{txt}</View>;
       })}
     </View>
   );
@@ -40,8 +40,8 @@ function Rich({ text, color }: { text: string; color: string }) {
 function Typing() {
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, alignSelf: 'flex-start', paddingVertical: 12, paddingHorizontal: 16, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.07)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)' }}>
-      <ActivityIndicator size="small" color="#AFC3FF" />
-      <Text style={{ color: '#9AA5C8', fontSize: 14 }}>{t('OENOD AI is looking at your data…')}</Text>
+      <ActivityIndicator size="small" color="#B9C4FF" />
+      <Text style={{ color: '#9AA5C8', fontSize: 14 }}>{t('Ava is looking at your data…')}</Text>
     </View>
   );
 }
@@ -73,7 +73,7 @@ export default function Ai() {
       const r = await post<{ reply: string }>('/api/ai/chat', { messages: next, page: 'app/ai' });
       setMsgs([...next, { role: 'assistant', content: r.reply }]);
     } catch (e: any) {
-      setMsgs([...next, { role: 'assistant', content: e?.message || t('OENOD AI could not answer right now. Try again in a moment.') }]);
+      setMsgs([...next, { role: 'assistant', content: e?.message || t('Ava could not answer right now. Try again in a moment.') }]);
     } finally {
       setBusy(false);
       setTimeout(() => scroll.current?.scrollToEnd({ animated: true }), 80);
@@ -90,12 +90,12 @@ export default function Ai() {
   return (
     <View style={{ flex: 1, backgroundColor: '#050B24' }}>
       <View pointerEvents="none" style={{ position: 'absolute', top: insets.top - 20, left: 0, right: 0, alignItems: 'center' }}>
-        <Svg width={420} height={360}><Defs><RadialGradient id="aibg" cx="50%" cy="50%" r="50%"><Stop offset="0" stopColor="#3D5BF5" stopOpacity={0.35} /><Stop offset="1" stopColor="#3D5BF5" stopOpacity={0} /></RadialGradient></Defs><Rect width={420} height={360} fill="url(#aibg)" /></Svg>
+        <Svg width={420} height={360}><Defs><RadialGradient id="aibg" cx="50%" cy="50%" r="50%"><Stop offset="0" stopColor="#2A3BC4" stopOpacity={0.35} /><Stop offset="1" stopColor="#2A3BC4" stopOpacity={0} /></RadialGradient></Defs><Rect width={420} height={360} fill="url(#aibg)" /></Svg>
       </View>
       <ScrollView ref={scroll} keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: bottomBar + 80, width: '100%', maxWidth: 760, alignSelf: 'center' }}>
         <View style={{ alignItems: 'center', paddingTop: insets.top + 44, paddingHorizontal: 20 }}>
           <AiOrb size={74} />
-          <Text accessibilityRole="header" style={{ color: '#FFFFFF', fontSize: 24, fontWeight: '800', letterSpacing: -0.5, textAlign: 'center', marginTop: 18 }}>{t('Ask OENOD AI')}</Text>
+          <Text accessibilityRole="header" style={{ color: '#FFFFFF', fontSize: 24, fontWeight: '800', letterSpacing: -0.5, textAlign: 'center', marginTop: 18 }}>{t('Ask Ava')}</Text>
           <Text style={{ color: '#9AA5C8', fontSize: 13.5, lineHeight: 20, textAlign: 'center', marginTop: 6, maxWidth: 380 }}>
             {personal ? t('Your career coach for resumes, interviews and your digital business card.') : t('It knows your sales, team, schedule and customers.')}
           </Text>
@@ -124,7 +124,7 @@ export default function Ai() {
           ))}
           {busy ? <Typing /> : null}
           {msgs.length ? (
-            <Pressable onPress={() => setMsgs([])} accessibilityRole="button" style={{ alignSelf: 'center', padding: 8 }}><Text style={{ color: '#AFC3FF', fontWeight: '700' }}>{t('New conversation')}</Text></Pressable>
+            <Pressable onPress={() => setMsgs([])} accessibilityRole="button" style={{ alignSelf: 'center', padding: 8 }}><Text style={{ color: '#B9C4FF', fontWeight: '700' }}>{t('New conversation')}</Text></Pressable>
           ) : null}
           <PoweredBy dark />
         </View>
@@ -132,9 +132,9 @@ export default function Ai() {
       <View style={{ position: 'absolute', left: 0, right: 0, bottom: bottomBar, alignItems: 'center', paddingHorizontal: 16 }}>
         <View style={{ width: '100%', maxWidth: 728, flexDirection: 'row', alignItems: 'flex-end', gap: 8, padding: 5, paddingLeft: 16, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.07)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)' }}>
           <TextInput value={q} onChangeText={setQ} placeholder={t('Ask anything…')} placeholderTextColor="#7A829C" multiline maxLength={2000}
-            style={{ flex: 1, color: '#FFFFFF', fontSize: 15, paddingTop: 11, paddingBottom: 11, maxHeight: 120 }} accessibilityLabel={t('Ask OENOD AI')} onSubmitEditing={() => ask()} blurOnSubmit />
+            style={{ flex: 1, color: '#FFFFFF', fontSize: 15, paddingTop: 11, paddingBottom: 11, maxHeight: 120 }} accessibilityLabel={t('Ask Ava')} onSubmitEditing={() => ask()} blurOnSubmit />
           <Pressable onPress={() => ask()} disabled={!q.trim() || busy} accessibilityRole="button" accessibilityLabel={t('Send')}
-            style={{ width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: '#3D5BF5', opacity: q.trim() && !busy ? 1 : 0.55 }}>
+            style={{ width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: '#2A3BC4', opacity: q.trim() && !busy ? 1 : 0.55 }}>
             <Icon name="arrow" size={20} color="#FFFFFF" />
           </Pressable>
         </View>

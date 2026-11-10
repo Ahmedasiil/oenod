@@ -17,7 +17,7 @@ export function meetingId(v: string): string | null {
   return m ? m[1] : null;
 }
 
-export const openMeeting = (id: string) => WebBrowser.openBrowserAsync(`${BASE}/#/m/${id}`, { presentationStyle: WebBrowser.WebBrowserPresentationStyle.FULL_SCREEN, controlsColor: '#3D5BF5', toolbarColor: '#050B24' });
+export const openMeeting = (id: string) => WebBrowser.openBrowserAsync(`${BASE}/#/m/${id}`, { presentationStyle: WebBrowser.WebBrowserPresentationStyle.FULL_SCREEN, controlsColor: '#2A3BC4', toolbarColor: '#050B24' });
 
 export default function Guest() {
   const [v, setV] = useState('');
@@ -30,7 +30,7 @@ export default function Guest() {
   };
   return (
     <AuthPage>
-      <In><View style={{ width: 56, height: 56, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(61,91,245,0.18)', borderWidth: 1, borderColor: 'rgba(175,195,255,0.22)' }}><Icon name="video" size={28} color="#FFFFFF" /></View></In>
+      <In><View style={{ width: 56, height: 56, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(42,59,196,0.18)', borderWidth: 1, borderColor: 'rgba(175,195,255,0.22)' }}><Icon name="video" size={28} color="#FFFFFF" /></View></In>
       <In delay={60}><Heading eyebrow={t('OENOD Meet')} title={t('Join a meeting')} sub={t('No account needed. Paste the meeting link or code you were sent. You will add your name on the next screen.')} /></In>
       <In delay={120}><GField label={t('Meeting link or code')} icon="link" value={v} onChangeText={setV} autoCapitalize="none" autoCorrect={false} keyboardType="url" placeholder="https://oenod.com/#/m/…" returnKeyType="go" onSubmitEditing={go} /></In>
       <ErrorLine text={err} />

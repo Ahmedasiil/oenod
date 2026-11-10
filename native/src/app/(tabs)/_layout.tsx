@@ -22,7 +22,7 @@ export default function TabsLayout() {
     >
       <Tabs.Screen name="index" options={{ title: t('Today'), tabBarIcon: icon('home') }} />
       <Tabs.Screen name="schedule" options={{ title: t('Schedule'), tabBarIcon: icon('calendar'), href: hasEmployee || isManager ? undefined : null }} />
-      <Tabs.Screen name="ai" options={{ title: t('OENOD AI'), tabBarIcon: icon('spark') }} />
+      <Tabs.Screen name="ai" options={{ title: t('Ava'), tabBarIcon: icon('spark') }} />
       <Tabs.Screen name="money" options={{ title: t('Money'), tabBarIcon: icon('wallet'), href: hasCompany || hasEmployee ? undefined : null }} />
       <Tabs.Screen name="all" options={{ title: t('Everything'), tabBarIcon: icon('grid') }} />
       <Tabs.Screen name="timeoff" options={{ title: t('Time off'), href: null }} />

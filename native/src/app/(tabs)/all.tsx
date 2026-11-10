@@ -17,7 +17,7 @@ type Tool = { name: string; icon: IconName; app?: string; web?: string; browser?
 type Suite = { name: string; color: string; soft: [string, string]; tools: Tool[] };
 
 const SUITES: Suite[] = [
-  { name: 'People', color: '#3D5BF5', soft: ['#EEF1FF', 'rgba(61,91,245,0.16)'], tools: [
+  { name: 'People', color: '#2A3BC4', soft: ['#EEF1FF', 'rgba(42,59,196,0.16)'], tools: [
     { name: 'Team', icon: 'users', app: '/team', who: 'mgr' },
     { name: 'Schedule', icon: 'calendar', app: '/schedule', who: 'team' },
     { name: 'Time off', icon: 'sun', app: '/timeoff', who: 'team' },
@@ -59,8 +59,8 @@ const SUITES: Suite[] = [
     { name: 'Locations', icon: 'pin', web: '/locations', who: 'mgr' },
     { name: 'Reports', icon: 'chart', web: '/reports', who: 'mgr' },
   ] },
-  { name: 'AI & platform', color: '#6B5CF6', soft: ['#F0EEFF', 'rgba(107,92,246,0.18)'], tools: [
-    { name: 'OENOD AI', icon: 'spark', app: '/ai', who: 'all' },
+  { name: 'AI & platform', color: '#0B1C86', soft: ['#F0EEFF', 'rgba(107,92,246,0.18)'], tools: [
+    { name: 'Ava', icon: 'spark', app: '/ai', who: 'all' },
     { name: 'Meet', icon: 'video', web: '/meet', browser: true, who: 'team' },
     { name: 'Join a meeting', icon: 'link', app: '/guest', who: 'all' },
     { name: 'Connect a watch', icon: 'clock', app: '/watch', who: 'all' },
@@ -90,14 +90,14 @@ export default function Everything() {
   const go = (x: Tool) => {
     if (x.app) { router.navigate(x.app as any); return; }
     // Video calls open in the phone's secure browser, which handles camera and microphone itself.
-    if (x.web && x.browser) { WebBrowser.openBrowserAsync(`${BASE}/#${x.web}`, { presentationStyle: WebBrowser.WebBrowserPresentationStyle.FULL_SCREEN, controlsColor: '#3D5BF5' }); return; }
+    if (x.web && x.browser) { WebBrowser.openBrowserAsync(`${BASE}/#${x.web}`, { presentationStyle: WebBrowser.WebBrowserPresentationStyle.FULL_SCREEN, controlsColor: '#2A3BC4' }); return; }
     if (x.web) openTool(x.web, t(x.name));
   };
   const u = session?.user;
   return (
     <Screen eyebrow={t('{n} tools in 5 suites', { n: count })} title={t('Everything')}
       right={<Pressable onPress={() => router.navigate('/me')} accessibilityRole="button" accessibilityLabel={t('Me')}><Avatar name={u?.name || '?'} size={36} /></Pressable>}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 46, paddingHorizontal: 14, borderRadius: 14, backgroundColor: C.dark ? C.card2 : '#EDF0F7' }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 46, paddingHorizontal: 14, borderRadius: 999, backgroundColor: C.card, borderWidth: 1, borderColor: C.line }}>
         <View style={{ flexShrink: 0 }}><Icon name="search" size={18} color={C.faint} duo={false} /></View>
         <TextInput value={q} onChangeText={setQ} placeholder={t('Search tools')} placeholderTextColor={C.faint} style={{ flex: 1, minWidth: 0, color: C.ink, fontSize: 15, paddingVertical: 11 }} accessibilityLabel={t('Search tools')} autoCorrect={false} />
         {q ? <Pressable onPress={() => setQ('')} hitSlop={8} accessibilityLabel={t('Clear')}><Icon name="x" size={18} color={C.faint} /></Pressable> : null}
@@ -105,7 +105,7 @@ export default function Everything() {
       {groups.map((g, gi) => (
         <Rise key={g.name} delay={gi * 60} style={{ gap: 10, marginTop: 8 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <View style={{ width: 8, height: 8, borderRadius: 3, backgroundColor: g.color }} />
+            <View style={{ width: 8, height: 8, borderRadius: 3, backgroundColor: C.dark ? '#8EA0FF' : '#000C58' }} />
             <Text accessibilityRole="header" style={{ color: C.ink, fontSize: 13, fontWeight: '700' }}>{t(g.name)}</Text>
             <Text style={{ color: C.faint, fontSize: 12 }}>{g.tools.length}</Text>
           </View>
@@ -114,8 +114,8 @@ export default function Everything() {
               <View key={x.name} style={{ width: `${100 / cols}%`, padding: 4 }}>
                 <Pressable onPress={() => go(x)} accessibilityRole="button" accessibilityLabel={t(x.name)}
                   style={({ pressed }) => ({ alignItems: 'center', gap: 7, paddingTop: 12, paddingBottom: 10, paddingHorizontal: 2, borderRadius: 16, backgroundColor: C.card, borderWidth: StyleSheet.hairlineWidth, borderColor: C.line, opacity: pressed ? 0.75 : 1, transform: [{ scale: pressed ? 0.97 : 1 }] })}>
-                  <View style={{ width: 36, height: 36, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: C.dark ? g.soft[1] : g.soft[0] }}>
-                    <Icon name={x.icon} size={19} color={g.color} />
+                  <View style={{ width: 36, height: 36, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: C.dark ? '#16205E' : '#000C58' }}>
+                    <Icon name={x.icon} size={19} color={C.dark ? '#B9C4FF' : '#FFFFFF'} duo={false} />
                   </View>
                   <Text numberOfLines={2} style={{ color: C.ink, fontSize: 11, fontWeight: '600', textAlign: 'center', minHeight: 26 }}>{t(x.name)}</Text>
                 </Pressable>

@@ -77,21 +77,21 @@ export function HeroGradient({ width, height, fade = true }: { width: number; he
     <Svg pointerEvents="none" style={StyleSheet.absoluteFill} width={width} height={height}>
       <Defs>
         <LinearGradient id={`${id}a`} x1="1" y1="0" x2="0" y2="1">
-          <Stop offset="0" stopColor="#0B1B3F" />
-          <Stop offset="0.55" stopColor="#071030" />
-          <Stop offset="1" stopColor="#050B24" />
+          <Stop offset="0" stopColor="#0B1C86" />
+          <Stop offset="0.55" stopColor="#000C58" />
+          <Stop offset="1" stopColor="#000738" />
         </LinearGradient>
         <RadialGradient id={`${id}g`} cx="88%" cy="0%" r="70%">
-          <Stop offset="0" stopColor="#3D5BF5" stopOpacity={0.55} />
-          <Stop offset="1" stopColor="#3D5BF5" stopOpacity={0} />
+          <Stop offset="0" stopColor="#2A3BC4" stopOpacity={0.55} />
+          <Stop offset="1" stopColor="#2A3BC4" stopOpacity={0} />
         </RadialGradient>
         <RadialGradient id={`${id}v`} cx="0%" cy="100%" r="60%">
-          <Stop offset="0" stopColor="#6B5CF6" stopOpacity={0.32} />
-          <Stop offset="1" stopColor="#6B5CF6" stopOpacity={0} />
+          <Stop offset="0" stopColor="#0B1C86" stopOpacity={0.32} />
+          <Stop offset="1" stopColor="#0B1C86" stopOpacity={0} />
         </RadialGradient>
         <LinearGradient id={`${id}b`} x1="0" y1="0" x2="0" y2="1">
-          <Stop offset="0.5" stopColor="#050B24" stopOpacity={0} />
-          <Stop offset="1" stopColor="#050B24" stopOpacity={fade ? 1 : 0} />
+          <Stop offset="0.5" stopColor="#000738" stopOpacity={0} />
+          <Stop offset="1" stopColor="#000738" stopOpacity={fade ? 1 : 0} />
         </LinearGradient>
       </Defs>
       <Rect x={0} y={0} width={width} height={height} fill={`url(#${id}a)`} />
@@ -103,7 +103,7 @@ export function HeroGradient({ width, height, fade = true }: { width: number; he
 }
 
 /** A soft corner light used behind headers and inside summary cards. */
-export function CornerGlow({ width, height, color = '#3D5BFF', opacity = 0.35, at = 'tr' }: { width: number; height: number; color?: string; opacity?: number; at?: 'tr' | 'tl' | 'br' | 'bl' }) {
+export function CornerGlow({ width, height, color = '#2A3BC4', opacity = 0.35, at = 'tr' }: { width: number; height: number; color?: string; opacity?: number; at?: 'tr' | 'tl' | 'br' | 'bl' }) {
   const id = useSvgId('cg');
   const cx = at.includes('r') ? '100%' : '0%';
   const cy = at.includes('t') ? '0%' : '100%';
@@ -129,12 +129,12 @@ export function Backdrop({ children }: { children?: React.ReactNode }) {
   const ax = a.interpolate({ inputRange: [0, 1], outputRange: [-big * 0.45, -big * 0.3] });
   const by = b.interpolate({ inputRange: [0, 1], outputRange: [height - big * 0.45, height - big * 0.55] });
   return (
-    <View style={{ flex: 1, backgroundColor: '#050B24', overflow: 'hidden' }}>
+    <View style={{ flex: 1, backgroundColor: '#00041E', overflow: 'hidden' }}>
       <Animated.View pointerEvents="none" style={{ position: 'absolute', transform: [{ translateX: ax }, { translateY: by }] }}>
-        <Glow size={big} color="#3D5BF5" opacity={0.5} id="ga" />
+        <Glow size={big} color="#2A3BC4" opacity={0.5} id="ga" />
       </Animated.View>
       <Animated.View pointerEvents="none" style={{ position: 'absolute', top: -big * 0.55, left: width - big * 0.4 }}>
-        <Glow size={big} color="#6B5CF6" opacity={0.26} id="gb" />
+        <Glow size={big} color="#0B1C86" opacity={0.26} id="gb" />
       </Animated.View>
       {children}
     </View>
@@ -195,21 +195,42 @@ export function Splash() {
   );
 }
 
-/** The navy feature card (time clock, sales today, every screen's summary). White text in both modes. */
-export function HeroCard({ children, style, seed = 3 }: { children: React.ReactNode; style?: ViewStyle; seed?: number }) {
-  const [sz, setSz] = React.useState({ w: 340, h: 220 });
+/** Navy Frame fill: deep navy gradient, a soft corner light and a faint dot grid (ds1 look). */
+export function NavyFill({ w, h }: { w: number; h: number }) {
+  const id = useSvgId('nf');
+  const dots = useMemo(() => {
+    const out: { x: number; y: number; o: number }[] = [];
+    for (let y = 9; y < h; y += 18) for (let x = 9; x < w; x += 18) out.push({ x, y, o: Math.max(0, 0.16 * (1 - y / h) * (x / w)) });
+    return out;
+  }, [w, h]);
   return (
+    <Svg2 pointerEvents="none" width={w} height={h} style={{ position: 'absolute', left: 0, top: 0 }}>
+      <Defs2>
+        <LG2 id={`${id}a`} x1="0" y1="0" x2="1" y2="1"><St2 offset="0" stopColor="#0B1C86" /><St2 offset="0.55" stopColor="#000C58" /><St2 offset="1" stopColor="#000738" /></LG2>
+        <RadialGradient id={`${id}g`} cx="100%" cy="0%" r="70%"><Stop offset="0" stopColor="#5468FF" stopOpacity={0.42} /><Stop offset="1" stopColor="#5468FF" stopOpacity={0} /></RadialGradient>
+      </Defs2>
+      <R2 width={w} height={h} fill={`url(#${id}a)`} />
+      <R2 width={w} height={h} fill={`url(#${id}g)`} />
+      {dots.map((d, i) => (d.o > 0.015 ? <Ci2 key={i} cx={d.x} cy={d.y} r={1} fill="#B9C4FF" fillOpacity={d.o} /> : null))}
+    </Svg2>
+  );
+}
+
+/** The framed navy card (time clock, sales today, every screen's summary). A soft halo ring, then the navy card. White text in both modes. */
+export function HeroCard({ children, style, frame = true }: { children: React.ReactNode; style?: ViewStyle; seed?: number; frame?: boolean }) {
+  const [sz, setSz] = React.useState({ w: 340, h: 220 });
+  const flat = (StyleSheet.flatten(style) || {}) as ViewStyle;
+  const { margin, marginTop, marginBottom, marginHorizontal, marginVertical, flex, alignSelf, width, ...inner } = flat as any;
+  const outer: ViewStyle = { margin, marginTop, marginBottom, marginHorizontal, marginVertical, flex, alignSelf, width };
+  const card = (
     <View onLayout={(e) => setSz({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}
-      style={[{ borderRadius: 22, padding: 18, overflow: 'hidden', backgroundColor: '#000C58' }, style]}>
-      <Svg2 width={sz.w} height={sz.h} style={{ position: 'absolute', left: 0, top: 0 }}>
-        <Defs2><LG2 id={`hc${seed}`} x1="0" y1="0" x2="1" y2="1"><St2 offset="0" stopColor="#000C58" /><St2 offset="0.6" stopColor="#1B2A8F" /><St2 offset="1" stopColor="#3D5BF5" /></LG2></Defs2>
-        <R2 width={sz.w} height={sz.h} fill={`url(#hc${seed})`} />
-        <Ci2 cx={sz.w - 50} cy={40} r={100} stroke="rgba(255,255,255,0.14)" fill="none" />
-        <Ci2 cx={sz.w - 50} cy={40} r={130} stroke="rgba(255,255,255,0.05)" strokeWidth={30} fill="none" />
-      </Svg2>
-      <View style={{ gap: 14, zIndex: 1, alignItems: (StyleSheet.flatten(style) as any)?.alignItems }}>{children}</View>
+      style={[{ borderRadius: 22, padding: 18, overflow: 'hidden', backgroundColor: '#000C58', borderWidth: 1, borderColor: 'rgba(185,196,255,0.22)' }, inner]}>
+      <NavyFill w={sz.w} h={sz.h} />
+      <View style={{ gap: 14, zIndex: 1, alignItems: inner.alignItems }}>{children}</View>
     </View>
   );
+  if (!frame) return <View style={outer}>{card}</View>;
+  return <View style={[{ borderRadius: 27, padding: 5, backgroundColor: C.dark ? 'rgba(142,160,255,0.08)' : 'rgba(0,12,88,0.07)' }, outer]}>{card}</View>;
 }
 
 /** The red maple leaf for the Proudly Canadian mark. */

@@ -119,7 +119,8 @@ function ClockCard({ clock, onChange }: { clock: Clock; onChange: (c: Clock) => 
 const ROLE_LABEL: Record<string, string> = { owner: 'Owner', admin: 'Admin', manager: 'Manager' };
 
 type Quick = { icon: IconName; label: string; go: () => void };
-const glass = { borderRadius: 20, padding: 16, backgroundColor: 'rgba(255,255,255,0.06)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)' } as const;
+// Navy Frame: glass card on the navy header with a soft sky ring.
+const glass = { borderRadius: 22, padding: 16, backgroundColor: 'rgba(255,255,255,0.07)', borderWidth: 1, borderColor: 'rgba(185,196,255,0.28)' } as const;
 
 /** Thin sales line with a soft fill, drawn from the last 14 days. */
 function Sparkline({ values }: { values: number[] }) {
@@ -132,9 +133,9 @@ function Sparkline({ values }: { values: number[] }) {
     <View onLayout={(e) => setW(e.nativeEvent.layout.width)} style={{ height: h, marginTop: 10 }}>
       {values.length > 1 ? (
         <Svg width={w} height={h}>
-          <Defs><SvgGrad id="spk" x1="0" y1="0" x2="0" y2="1"><Stop offset="0" stopColor="#AFC3FF" stopOpacity={0.35} /><Stop offset="1" stopColor="#AFC3FF" stopOpacity={0} /></SvgGrad></Defs>
+          <Defs><SvgGrad id="spk" x1="0" y1="0" x2="0" y2="1"><Stop offset="0" stopColor="#B9C4FF" stopOpacity={0.35} /><Stop offset="1" stopColor="#B9C4FF" stopOpacity={0} /></SvgGrad></Defs>
           <Path d={`${line} L${w} ${h} L0 ${h}Z`} fill="url(#spk)" />
-          <Path d={line} stroke="#AFC3FF" strokeWidth={2} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          <Path d={line} stroke="#B9C4FF" strokeWidth={2} fill="none" strokeLinecap="round" strokeLinejoin="round" />
         </Svg>
       ) : null}
     </View>
@@ -183,8 +184,8 @@ function QuickRow({ items }: { items: Quick[] }) {
         <Rise key={q.label} delay={60 + n * 40} style={{ flex: 1 }}>
           <Pressy onPress={q.go} accessibilityRole="button" accessibilityLabel={q.label}
             style={{ backgroundColor: C.card, borderWidth: 1, borderColor: C.line, borderRadius: 18, paddingTop: 12, paddingBottom: 10, alignItems: 'center', gap: 7 }}>
-            <View style={{ width: 38, height: 38, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: C.dark ? 'rgba(175,195,255,0.12)' : '#EEF1FF' }}>
-              <Icon name={q.icon} color={C.dark ? '#AFC3FF' : '#000C58'} size={20} duo={false} />
+            <View style={{ width: 38, height: 38, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: C.dark ? '#16205E' : '#000C58' }}>
+              <Icon name={q.icon} color={C.dark ? '#B9C4FF' : '#FFFFFF'} size={20} duo={false} />
             </View>
             <Text style={{ color: C.ink, fontWeight: '600', fontSize: 11.5 }} numberOfLines={1}>{q.label}</Text>
           </Pressy>
@@ -208,13 +209,13 @@ const Lnk = ({ text, go }: { text: string; go: () => void }) => <Pressable onPre
 function SparkTile() {
   return (
     <View style={{ width: 28, height: 28, borderRadius: 9, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' }}>
-      <Svg width={28} height={28} style={{ position: 'absolute' }}><Defs><SvgGrad id="st" x1="0" y1="0" x2="1" y2="1"><Stop offset="0" stopColor="#3D5BF5" /><Stop offset="1" stopColor="#6B5CF6" /></SvgGrad></Defs><Rect width={28} height={28} fill="url(#st)" /></Svg>
+      <Svg width={28} height={28} style={{ position: 'absolute' }}><Defs><SvgGrad id="st" x1="0" y1="0" x2="1" y2="1"><Stop offset="0" stopColor="#0B1C86" /><Stop offset="1" stopColor="#000738" /></SvgGrad></Defs><Rect width={28} height={28} fill="url(#st)" /></Svg>
       <View style={{ zIndex: 1 }}><Icon name="spark" size={16} color="#FFFFFF" duo={false} /></View>
     </View>
   );
 }
 
-/** OENOD AI's morning brief from live data, shown as short bullets. */
+/** Ava's morning brief from live data, shown as short bullets. */
 function Brief() {
   const [text, setText] = useState<string | null>(null);
   const [err, setErr] = useState('');
@@ -223,7 +224,7 @@ function Brief() {
   const hour = new Date().getHours();
   return (
     <Card>
-      <CardHead icon={<SparkTile />} title={t(hour < 12 ? 'Morning brief' : hour < 17 ? 'Afternoon brief' : 'Evening brief')} right={<Lnk text={t('Ask')} go={() => router.navigate('/ai')} />} />
+      <CardHead icon={<SparkTile />} title={t(hour < 12 ? "Ava's morning brief" : hour < 17 ? "Ava's afternoon brief" : "Ava's evening brief")} right={<Lnk text={t('Ask')} go={() => router.navigate('/ai')} />} />
       {text ? (
         <View style={{ gap: 9 }}>
           {lines.map((l, i) => (
@@ -235,12 +236,12 @@ function Brief() {
             </View>
           ))}
         </View>
-      ) : err ? <Muted>{err}</Muted> : <Muted>{t('OENOD AI is reading today’s numbers…')}</Muted>}
+      ) : err ? <Muted>{err}</Muted> : <Muted>{t('Ava is reading today’s numbers…')}</Muted>}
     </Card>
   );
 }
 
-const AV = ['#17A673', '#D98A1C', '#C2417A', '#0E8FB0', '#3D5BF5', '#6B5CF6'];
+const AV = ['#17A673', '#D98A1C', '#C2417A', '#0E8FB0', '#2A3BC4', '#0B1C86'];
 function OnShift({ list, total }: { list: any[]; total: number }) {
   return (
     <Card onPress={() => router.navigate('/team')}>
@@ -289,8 +290,8 @@ function Todos({ items }: { items: Todo[] }) {
 }
 
 const SUITES: [string, IconName, string, string][] = [
-  ['People', 'users', '#3D5BF5', 'Team, schedule, payroll'], ['Money', 'wallet', '#17A673', 'Wallet, invoices, books'],
-  ['Customers', 'chat', '#C2417A', 'CRM, reviews, Ava'], ['Operations', 'briefcase', '#D98A1C', 'Stock, POS, cameras'], ['AI & platform', 'spark', '#6B5CF6', 'AI, Meet, docs'],
+  ['People', 'users', '#000C58', 'Team, schedule, payroll'], ['Money', 'wallet', '#000C58', 'Wallet, invoices, books'],
+  ['Customers', 'chat', '#000C58', 'CRM, reviews, Ava'], ['Operations', 'briefcase', '#000C58', 'Stock, POS, cameras'], ['AI & platform', 'spark', '#000C58', 'AI, Meet, docs'],
 ];
 function Suites() {
   return (
@@ -303,7 +304,7 @@ function Suites() {
         {SUITES.map(([n, ic, col, sub]) => (
           <Pressy key={n} onPress={() => router.navigate('/all')} accessibilityRole="button" accessibilityLabel={t(n)}
             style={{ width: 132, borderRadius: 18, padding: 14, gap: 8, backgroundColor: C.card, borderWidth: 1, borderColor: C.line }}>
-            <View style={{ width: 34, height: 34, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: col }}><Icon name={ic} size={18} color="#FFFFFF" duo={false} /></View>
+            <View style={{ width: 34, height: 34, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: C.dark ? '#16205E' : col }}><Icon name={ic} size={18} color={C.dark ? '#B9C4FF' : '#FFFFFF'} duo={false} /></View>
             <Text style={{ color: C.ink, fontWeight: '700', fontSize: 13.5 }}>{t(n)}</Text>
             <Text style={{ color: C.faint, fontSize: 11.5, lineHeight: 15 }}>{t(sub)}</Text>
           </Pressy>
@@ -313,7 +314,7 @@ function Suites() {
   );
 }
 
-const openMeet = () => WebBrowser.openBrowserAsync(`${BASE}/#/meet`, { presentationStyle: WebBrowser.WebBrowserPresentationStyle.FULL_SCREEN, controlsColor: '#3D5BF5' });
+const openMeet = () => WebBrowser.openBrowserAsync(`${BASE}/#/meet`, { presentationStyle: WebBrowser.WebBrowserPresentationStyle.FULL_SCREEN, controlsColor: '#000C58' });
 
 export default function Home() {
   const { session, isManager } = useAuth();
@@ -346,7 +347,7 @@ export default function Home() {
       <View style={{ flex: 1 }} />
       <Pressable onPress={() => router.push('/notifications')} accessibilityRole="button" accessibilityLabel={`${t('Notifications')}${unread ? ` (${unread})` : ''}`} style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}>
         <Icon name="bell" color="#FFFFFF" size={21} duo={false} />
-        {unread ? <View style={{ position: 'absolute', top: 9, right: 10, width: 8, height: 8, borderRadius: 4, backgroundColor: '#FF6B6B', borderWidth: 2, borderColor: '#050B24' }} /> : null}
+        {unread ? <View style={{ position: 'absolute', top: 9, right: 10, width: 8, height: 8, borderRadius: 4, backgroundColor: '#FF6B6B', borderWidth: 2, borderColor: '#000C58' }} /> : null}
       </Pressable>
       <Pressable onPress={() => router.navigate('/me')} accessibilityRole="button" accessibilityLabel={t('Me')} style={{ marginLeft: 6 }}>
         <Avatar name={session?.user?.name || '?'} size={34} />

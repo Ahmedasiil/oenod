@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { NavyFill } from '../../ui/Brand';
 import { Alert, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { openTool } from '../web';
 import { Rise } from '../../ui/Motion';
@@ -146,7 +147,7 @@ function WeekStrip({ days, sel, set, has, onPrev, onNext }: { days: string[]; se
             style={{ flex: 1, alignItems: 'center', paddingVertical: 8, borderRadius: 14, gap: 4, backgroundColor: on ? (C.dark ? '#FFFFFF' : '#0A1230') : 'transparent' }}>
             <Text style={{ fontSize: 11, fontWeight: '600', color: on ? (C.dark ? '#4A5372' : '#9AA5C8') : C.faint }}>{dt.toLocaleDateString(locale(), { weekday: 'short' }).slice(0, 3)}</Text>
             <Text style={{ fontSize: 16, fontWeight: on || d === today ? '800' : '600', color: on ? (C.dark ? '#0A1230' : '#FFFFFF') : d === today ? C.blue : C.ink }}>{dt.getDate()}</Text>
-            <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: has.has(d) ? (on ? '#AFC3FF' : C.blue) : 'transparent' }} />
+            <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: has.has(d) ? (on ? '#B9C4FF' : C.blue) : 'transparent' }} />
           </Pressable>
         );
       })}
@@ -155,21 +156,26 @@ function WeekStrip({ days, sel, set, has, onPrev, onNext }: { days: string[]; se
   );
 }
 
-/** Dark AI card: a short tip about the picked day. */
+/** Framed navy Ava card: a short tip about the picked day. */
 function AiTip({ text, onOpen }: { text: string; onOpen: () => void }) {
+  const [sz, setSz] = React.useState({ w: 340, h: 140 });
   return (
-    <View style={{ borderRadius: 20, padding: 16, backgroundColor: '#0B1B3F', overflow: 'hidden', gap: 12 }}>
+    <View style={{ borderRadius: 25, padding: 5, backgroundColor: C.dark ? 'rgba(142,160,255,0.08)' : 'rgba(0,12,88,0.07)' }}>
+    <View onLayout={(e) => setSz({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}
+      style={{ borderRadius: 20, padding: 16, backgroundColor: '#000C58', overflow: 'hidden', gap: 12, borderWidth: 1, borderColor: 'rgba(185,196,255,0.22)' }}>
+      <NavyFill w={sz.w} h={sz.h} />
       <View style={{ flexDirection: 'row', gap: 12, alignItems: 'flex-start' }}>
-        <View style={{ width: 34, height: 34, borderRadius: 11, backgroundColor: '#3D5BF5', alignItems: 'center', justifyContent: 'center' }}><Icon name="spark" size={18} color="#FFFFFF" duo={false} /></View>
+        <View style={{ width: 34, height: 34, borderRadius: 11, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' }}><Icon name="spark" size={18} color="#000C58" duo={false} /></View>
         <View style={{ flex: 1, gap: 3 }}>
-          <Text style={{ color: '#AFC3FF', fontSize: 12, fontWeight: '600' }}>{t('OENOD AI')}</Text>
+          <Text style={{ color: '#B9C4FF', fontSize: 12, fontWeight: '600' }}>{t('Ava tip')}</Text>
           <Text style={{ color: '#FFFFFF', fontSize: 14, lineHeight: 20 }}>{text}</Text>
         </View>
       </View>
       <View style={{ flexDirection: 'row', gap: 8 }}>
-        <Pressable onPress={onOpen} accessibilityRole="button" style={{ height: 34, paddingHorizontal: 14, borderRadius: 11, backgroundColor: '#FFFFFF', justifyContent: 'center' }}><Text style={{ color: '#0A1230', fontWeight: '700', fontSize: 13 }}>{t('Open schedule')}</Text></Pressable>
-        <Pressable onPress={() => router.push('/ai')} accessibilityRole="button" style={{ height: 34, paddingHorizontal: 14, borderRadius: 11, borderWidth: 1, borderColor: 'rgba(255,255,255,0.22)', justifyContent: 'center' }}><Text style={{ color: '#FFFFFF', fontWeight: '600', fontSize: 13 }}>{t('Ask AI')}</Text></Pressable>
+        <Pressable onPress={onOpen} accessibilityRole="button" style={{ height: 34, paddingHorizontal: 14, borderRadius: 999, backgroundColor: '#FFFFFF', justifyContent: 'center' }}><Text style={{ color: '#0A1230', fontWeight: '700', fontSize: 13 }}>{t('Open schedule')}</Text></Pressable>
+        <Pressable onPress={() => router.push('/ai')} accessibilityRole="button" style={{ height: 34, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(255,255,255,0.22)', justifyContent: 'center' }}><Text style={{ color: '#FFFFFF', fontWeight: '600', fontSize: 13 }}>{t('Ask Ava')}</Text></Pressable>
       </View>
+    </View>
     </View>
   );
 }

@@ -9,7 +9,7 @@ import { Icon, IconName } from './Icon';
 import { t } from '../lib/i18n';
 
 const native = Platform.OS !== 'web';
-export const A = { ink: '#FFFFFF', sub: '#9AA5C8', faint: '#66708F', sky: '#AFC3FF', line: 'rgba(175,195,255,0.16)', glass: 'rgba(255,255,255,0.05)', bad: '#FF8A8A', ok: '#3DD39A' };
+export const A = { ink: '#FFFFFF', sub: '#9AA5C8', faint: '#66708F', sky: '#B9C4FF', line: 'rgba(175,195,255,0.16)', glass: 'rgba(255,255,255,0.05)', bad: '#FF8A8A', ok: '#3DD39A' };
 
 /** Fades and lifts its children in, one after another by `delay`. */
 export function In({ children, delay = 0, style }: { children: React.ReactNode; delay?: number; style?: ViewStyle }) {
@@ -61,8 +61,8 @@ export function GField({ label, icon, error, secure, ...p }: TextInputProps & { 
   return (
     <View style={{ gap: 7 }}>
       <Text style={{ color: A.sub, fontSize: 13, fontWeight: '600' }}>{label}</Text>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 54, borderRadius: 16, paddingHorizontal: 14, backgroundColor: focus ? 'rgba(61,91,245,0.10)' : A.glass,
-        borderWidth: 1, borderColor: error ? A.bad : focus ? '#5B76FF' : A.line }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 54, borderRadius: 16, paddingHorizontal: 14, backgroundColor: focus ? 'rgba(42,59,196,0.10)' : A.glass,
+        borderWidth: 1, borderColor: error ? A.bad : focus ? '#8EA0FF' : A.line }}>
         {icon ? <View style={{ flexShrink: 0 }}><Icon name={icon} size={19} color={focus ? A.sky : A.faint} /></View> : null}
         <TextInput placeholderTextColor={A.faint} accessibilityLabel={label} secureTextEntry={secure && !show}
           onFocus={(e) => { setFocus(true); p.onFocus?.(e); }} onBlur={(e) => { setFocus(false); p.onBlur?.(e); }}
@@ -83,7 +83,7 @@ export function Steps({ n, of }: { n: number; of: number }) {
   return (
     <View style={{ flexDirection: 'row', gap: 6 }} accessibilityLabel={t('Step {n} of {m}', { n, m: of })}>
       {Array.from({ length: of }, (_, i) => (
-        <View key={i} style={{ flex: 1, height: 4, borderRadius: 2, backgroundColor: i < n ? '#5B76FF' : 'rgba(255,255,255,0.12)' }} />
+        <View key={i} style={{ flex: 1, height: 4, borderRadius: 2, backgroundColor: i < n ? '#8EA0FF' : 'rgba(255,255,255,0.12)' }} />
       ))}
     </View>
   );
@@ -94,13 +94,13 @@ export function Chip({ label, on, onPress, icon, sub }: { label: string; on: boo
   return (
     <Pressable onPress={onPress} accessibilityRole="checkbox" accessibilityState={{ checked: on }}
       style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 16, paddingVertical: sub ? 14 : 11, paddingHorizontal: 14,
-        backgroundColor: on ? 'rgba(61,91,245,0.18)' : A.glass, borderWidth: 1, borderColor: on ? '#5B76FF' : A.line, transform: [{ scale: pressed ? 0.98 : 1 }] })}>
-      {icon ? <View style={{ width: 36, height: 36, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? '#3D5BF5' : 'rgba(255,255,255,0.06)' }}><Icon name={icon} size={19} color="#FFFFFF" /></View> : null}
+        backgroundColor: on ? 'rgba(42,59,196,0.18)' : A.glass, borderWidth: 1, borderColor: on ? '#8EA0FF' : A.line, transform: [{ scale: pressed ? 0.98 : 1 }] })}>
+      {icon ? <View style={{ width: 36, height: 36, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? '#2A3BC4' : 'rgba(255,255,255,0.06)' }}><Icon name={icon} size={19} color="#FFFFFF" /></View> : null}
       <View style={{ flex: sub ? 1 : 0 }}>
         <Text style={{ color: A.ink, fontWeight: '700', fontSize: 15 }}>{label}</Text>
         {sub ? <Text style={{ color: A.sub, fontSize: 13, marginTop: 2 }}>{sub}</Text> : null}
       </View>
-      {sub ? <View style={{ width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, borderColor: on ? '#5B76FF' : A.line, backgroundColor: on ? '#3D5BF5' : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
+      {sub ? <View style={{ width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, borderColor: on ? '#8EA0FF' : A.line, backgroundColor: on ? '#2A3BC4' : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
         {on ? <Icon name="check" size={16} color="#FFFFFF" duo={false} /> : null}
       </View> : null}
     </Pressable>

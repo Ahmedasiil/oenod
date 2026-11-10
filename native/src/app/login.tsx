@@ -82,20 +82,23 @@ export default function Login() {
             <Text style={{ color: A.faint, fontSize: 12, fontWeight: '600', letterSpacing: 1.2 }}>{t('or').toUpperCase()}</Text>
             <View style={{ flex: 1, height: 1, backgroundColor: A.line }} />
           </View>
-          {shown.map((p) => (
-            <Pressable key={p} onPress={() => social(p)} disabled={busy} accessibilityRole="button"
-              style={({ pressed }) => ({ minHeight: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center', borderWidth: 1,
-                borderColor: p === 'apple' ? '#FFFFFF' : A.line, backgroundColor: p === 'apple' ? '#FFFFFF' : A.glass, opacity: pressed || busy ? 0.75 : 1 })}>
-              <Text style={{ color: p === 'apple' ? '#000000' : '#FFFFFF', fontWeight: '700', fontSize: 16 }}>{t('Continue with {p}', { p: LABEL[p] || p })}</Text>
-            </Pressable>
-          ))}
+          {/* 3.7: Apple, Google and Microsoft side by side on one row (Apple first, same size). */}
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            {shown.map((p) => (
+              <Pressable key={p} onPress={() => social(p)} disabled={busy} accessibilityRole="button" accessibilityLabel={t('Continue with {p}', { p: LABEL[p] || p })}
+                style={({ pressed }) => ({ flex: 1, minHeight: 52, borderRadius: 16, alignItems: 'center', justifyContent: 'center', borderWidth: 1, paddingHorizontal: 6,
+                  borderColor: p === 'apple' ? '#FFFFFF' : A.line, backgroundColor: p === 'apple' ? '#FFFFFF' : A.glass, opacity: pressed || busy ? 0.75 : 1 })}>
+                <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8} style={{ color: p === 'apple' ? '#000000' : '#FFFFFF', fontWeight: '700', fontSize: 15 }}>{shown.length > 1 ? (LABEL[p] || p) : t('Continue with {p}', { p: LABEL[p] || p })}</Text>
+              </Pressable>
+            ))}
+          </View>
         </In>
       ) : null}
       {!pending2fa ? (
         <In delay={210} style={{ gap: 14, marginTop: 4 }}>
           <Pressable onPress={() => router.push('/guest')} accessibilityRole="button"
             style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 18, backgroundColor: A.glass, borderWidth: 1, borderColor: A.line }}>
-            <View style={{ width: 38, height: 38, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(61,91,245,0.2)' }}><Icon name="video" size={20} color="#FFFFFF" /></View>
+            <View style={{ width: 38, height: 38, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFFFF' }}><Icon name="video" size={20} color="#000C58" duo={false} /></View>
             <View style={{ flex: 1 }}>
               <Text style={{ color: A.ink, fontWeight: '700', fontSize: 15 }}>{t('Join a meeting')}</Text>
               <Text style={{ color: A.sub, fontSize: 13 }}>{t('No account needed')}</Text>

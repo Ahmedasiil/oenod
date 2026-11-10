@@ -15,11 +15,11 @@ import { A, AuthPage, Chip, ErrorLine, GField, GlassBtn, Heading, In, Steps } fr
 export const SUITES_KEY = 'oenod.suites';
 const INDUSTRIES = ['Restaurant & cafe', 'Retail', 'Construction', 'Health & wellness', 'Beauty & salon', 'Professional services', 'Hospitality', 'Transport & logistics', 'Cleaning & trades', 'Other'];
 export const SUITES: { key: string; name: string; icon: IconName; color: string; sub: string }[] = [
-  { key: 'people', name: 'People', icon: 'users', color: '#3D5BF5', sub: 'Team, schedule, time clock, payroll' },
+  { key: 'people', name: 'People', icon: 'users', color: '#2A3BC4', sub: 'Team, schedule, time clock, payroll' },
   { key: 'money', name: 'Money', icon: 'wallet', color: '#17A673', sub: 'Wallet, invoices, accounting' },
   { key: 'customers', name: 'Customers', icon: 'chat', color: '#C2417A', sub: 'CRM, reviews, Ava phone line' },
   { key: 'operations', name: 'Operations', icon: 'briefcase', color: '#D98A1C', sub: 'Inventory, POS, cameras' },
-  { key: 'platform', name: 'AI & platform', icon: 'spark', color: '#6B5CF6', sub: 'OENOD AI, Meet, docs. Always on.' },
+  { key: 'platform', name: 'AI & platform', icon: 'spark', color: '#0B1C86', sub: 'OENOD AI, Meet, docs. Always on.' },
 ];
 
 const emailOk = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.trim());
@@ -102,7 +102,7 @@ export default function Signup() {
               <GField label={t('Password')} icon="shield" secure value={password} onChangeText={setPassword} autoComplete="new-password" textContentType="newPassword" error={fields.password} returnKeyType="go" onSubmitEditing={next} />
               {password ? (
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                  {[0, 1, 2].map((i) => <View key={i} style={{ flex: 1, height: 3, borderRadius: 2, backgroundColor: i < s ? (s === 3 ? A.ok : s === 2 ? '#5B76FF' : '#F2B33D') : 'rgba(255,255,255,0.12)' }} />)}
+                  {[0, 1, 2].map((i) => <View key={i} style={{ flex: 1, height: 3, borderRadius: 2, backgroundColor: i < s ? (s === 3 ? A.ok : s === 2 ? '#8EA0FF' : '#F2B33D') : 'rgba(255,255,255,0.12)' }} />)}
                   <Text style={{ color: A.sub, fontSize: 12, width: 64, textAlign: 'right' }}>{[t('Too short'), t('Weak'), t('Good'), t('Strong')][s]}</Text>
                 </View>
               ) : null}
@@ -110,7 +110,7 @@ export default function Signup() {
           </In>
           <In delay={140}>
             <Pressable onPress={() => setAgree(!agree)} accessibilityRole="checkbox" accessibilityState={{ checked: agree }} style={{ flexDirection: 'row', gap: 12, alignItems: 'flex-start' }}>
-              <View style={{ width: 22, height: 22, borderRadius: 7, borderWidth: 1.5, borderColor: agree ? '#5B76FF' : A.line, backgroundColor: agree ? '#3D5BF5' : 'transparent', alignItems: 'center', justifyContent: 'center', marginTop: 1 }}>
+              <View style={{ width: 22, height: 22, borderRadius: 7, borderWidth: 1.5, borderColor: agree ? '#8EA0FF' : A.line, backgroundColor: agree ? '#2A3BC4' : 'transparent', alignItems: 'center', justifyContent: 'center', marginTop: 1 }}>
                 {agree ? <Icon name="check" size={16} color="#FFFFFF" duo={false} /> : null}
               </View>
               <Text style={{ flex: 1, color: A.sub, fontSize: 13.5, lineHeight: 20 }}>
