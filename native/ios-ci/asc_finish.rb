@@ -111,7 +111,12 @@ end
 if ENV['SUBMIT'] == 'true'
   _, rd = call(:get, "/v1/appStoreVersions/#{ver['id']}/appStoreReviewDetail")
   ra = rd.dig('data', 'attributes') || {}
-  puts "RESULT review-signin: required=#{ra['demoAccountRequired'] ? 'yes' : 'no'} user=#{ra['demoAccountName'].to_s.empty? ? 'missing' : 'set'} password=#{ra['demoAccountPassword'].to_s.empty? ? 'MISSING' : 'set'}"
+  if !ra['demoAccountRequired'] && !ra['demoAccountName'].to_s.empty? && !ra['demoAccountPassword'].to_s.empty?
+    # the listing upload can switch "Sign-in required" off; the user name and password are still there, so switch it back on
+    c, b = call(:patch, "/v1/appStoreReviewDetails/#{rd['data']['id']}", { data: { type: 'appStoreReviewDetails', id: rd['data']['id'], attributes: { demoAccountRequired: true } } })
+    res('review-signin-required-on', c == 200, c == 200 ? '' : err(b)); ra['demoAccountRequired'] = (c == 200)
+  end
+  puts "RESULT review-signin: required=#{ra['demoAccountRequired'] ? 'yes' : 'no'} user=#{ra['demoAccountName'].to_s.empty? ? 'missing' : 'set'} pw=#{ra['demoAccountPassword'].to_s.empty? ? 'MISSING' : 'present'}"
   abort('RESULT submitted-for-review: not sent, the demo sign-in is incomplete') if !ra['demoAccountRequired'] || ra['demoAccountName'].to_s.empty? || ra['demoAccountPassword'].to_s.empty?
   c, rs = call(:post, '/v1/reviewSubmissions', { data: { type: 'reviewSubmissions', attributes: { platform: 'IOS' },
                                                         relationships: { app: { data: { type: 'apps', id: app_id } } } } })
