@@ -1,0 +1,18 @@
+name: Pull App Store submission and rename version
+on:
+  push:
+    branches: [ios-withdraw]
+permissions:
+  contents: read
+jobs:
+  withdraw:
+    runs-on: ubuntu-latest
+    env:
+      APPLE_KEY_ID: ${{ secrets.APPLE_KEY_ID }}
+      APPLE_ISSUER_ID: ${{ secrets.APPLE_ISSUER_ID }}
+      APPLE_KEY_P8: ${{ secrets.APPLE_KEY_P8 }}
+      NEW_VERSION: '3.6.0'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Withdraw and rename
+        run: gem list -i jwt >/dev/null || sudo gem install jwt; ruby native/ios-ci/asc_withdraw.rb
