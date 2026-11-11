@@ -16,6 +16,7 @@ import { Icon } from '../../ui/Icon';
 import { QR } from '../../ui/QR';
 import { LANGS, t, useLang } from '../../lib/i18n';
 import { QuickCard } from '../../ui/QuickCard';
+import { TapShare } from '../../ui/TapShare';
 import { useAppearance, type Mode } from '../../lib/appearance';
 import { Pressable } from 'react-native';
 import type { IconName } from '../../ui/Icon';
@@ -77,6 +78,7 @@ export default function Me() {
         <Muted style={{ textAlign: 'center' }}>
           {t(which === 'badge' ? 'Show this at the kiosk to clock in, or to prove you work here.' : 'Let people scan this to save your contact details.')}
         </Muted>
+        {which === 'card' && cardUrl ? <TapShare url={cardUrl} /> : null}
         {which === 'card' && cardUrl ? (
           <Row>
             <Button title={t('Share my card')} icon="globe" kind="secondary" onPress={() => Share.share({ message: cardUrl, url: cardUrl })} style={{ flex: 1 }} />

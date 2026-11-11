@@ -1,0 +1,9 @@
+<host-apdu-service xmlns:android="http://schemas.android.com/apk/res/android"
+  android:description="@string/oenod_tap_desc"
+  android:requireDeviceUnlock="false"
+  android:requireDeviceScreenOn="true">
+  <aid-group android:category="other" android:description="@string/oenod_tap_desc">
+    <!-- NFC Forum Type 4 Tag (NDEF) application -->
+    <aid-filter android:name="D2760000850101" />
+  </aid-group>
+</host-apdu-service>
