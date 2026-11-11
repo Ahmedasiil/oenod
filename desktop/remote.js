@@ -7,6 +7,9 @@
 //  - A red frame and a Stop bar stay on screen. Ctrl+Alt+Esc stops everything at once.
 //  - Files are saved to Downloads/OENOD Remote, checked against their SHA-256 and never opened.
 //  - The computer's secret is kept with the system's key store (safeStorage) and never given to any web page.
+//  - rd2: before anyone connects, joins or gets the mouse and keyboard, the person here reads a safety warning and
+//    ticks two boxes (private things closed, staying here). Every 15 minutes they are asked if they are still here;
+//    no answer ends the session. A browser share can move to this app with a one-time link (oenod://remote-help).
 const { BrowserWindow, ipcMain, session, desktopCapturer, screen, clipboard, globalShortcut, systemPreferences, safeStorage, app, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
@@ -20,6 +23,11 @@ const WORDS = ['river', 'oak', 'mint', 'cedar', 'harbor', 'maple', 'stone', 'clo
   'lotus', 'marble', 'nova', 'orchid', 'prairie', 'quill', 'ridge', 'summit', 'tiger', 'urchin', 'valley', 'walnut', 'yukon', 'zinnia', 'beacon', 'copper'];
 const MAX_FILE = 200 * 1024 * 1024;
 const RIGHT = { control: 'Mouse and keyboard', clip: 'Copy and paste', files: 'Files' };
+const AGREE_V = 'rd2-1'; // version of the safety warning the person agreed to (kept in the sealed log)
+const ASK_S = 60; // seconds an Allow pop-up stays open
+const STILL_MS = +process.env.RD_STILL_MS || 15 * 60 * 1000; // "Are you still there?" every 15 minutes
+const STILL_S = +process.env.RD_STILL_S || 60; // seconds to answer it
+const needAgree = (a) => a.kind === 'connect' || a.kind === 'join' || (a.kind === 'rights' && (a.rights || []).includes('control'));
 
 let HOME, isMain;
 const S = {
@@ -32,6 +40,7 @@ const S = {
   files: {}, // token|peer -> transfer
   fileTotal: {}, // token -> bytes announced this session
   hostWin: null, barWin: null, overlays: {}, rpcN: 0, rpc: {}, lastOpen: 0,
+  away: [], presentAt: 0, stillOpen: false, handoffUntil: 0, handoffMsg: null,
 };
 
 // ---------- input library (mouse and keyboard) ----------
@@ -151,7 +160,8 @@ function consent(a, sources) {
   return new Promise((resolve) => {
     S.consents++; releaseAll();
     const d = screen.getPrimaryDisplay().workArea;
-    const W = 460, H = Math.min(d.height - 40, a.kind === 'connect' ? 720 : a.kind === 'rights' ? 480 : 400);
+    const need = needAgree(a), secs = a.kind === 'still' ? STILL_S : ASK_S;
+    const W = 480, H = Math.min(d.height - 40, a.kind === 'still' ? 330 : a.kind === 'connect' ? 860 : need ? 720 : a.kind === 'rights' ? 480 : 400);
     const w = localWin({ width: W, height: H, x: Math.round(d.x + (d.width - W) / 2), y: Math.round(d.y + (d.height - H) / 2), alwaysOnTop: true, focusable: true, backgroundColor: '#ffffff' }, 'consent.html');
     w.setAlwaysOnTop(true, 'screen-saver');
     w.setContentProtection(true); // the helper can not see or click this pop-up
@@ -163,18 +173,25 @@ function consent(a, sources) {
       if (!w.isDestroyed()) w.close();
       resolve(x);
     };
-    const onAns = (e, x) => { if (e.sender !== w.webContents) return; finish(x && typeof x === 'object' ? x : { allow: false }); };
+    const onAns = (e, x) => {
+      if (e.sender !== w.webContents) return;
+      x = x && typeof x === 'object' ? x : { allow: false };
+      // The two safety boxes are checked here too: without both, the answer is "Don't allow".
+      if (x.allow && need && !(x.closed === true && x.stay === true)) x = { allow: false, why: 'not agreed' };
+      if (x.allow && need) x.agree = AGREE_V;
+      finish(x);
+    };
     ipcMain.on('rd:c:answer', onAns);
     w.on('closed', () => finish({ allow: false }));
     w.webContents.once('did-finish-load', () => {
       w.webContents.send('rd:c:data', {
         kind: a.kind, name: clean(a.name, 80), company: clean(a.company, 80), hq: !!a.hq, safety: a.safety, rights: (a.rights || []).filter((r) => RIGHT[r]),
-        control: canControl(), limitMax: a.limit_max || 120, age: Math.min(25, a.age || 0),
+        control: canControl(), limitMax: a.limit_max || 120, age: Math.min(secs - 20, a.age || 0), need, secs, moved: !!a.moved, os: process.platform,
         screens: sources.map((s, i) => ({ i, name: s.name || 'Screen ' + (i + 1), thumb: s.thumbnail && !s.thumbnail.isEmpty() ? s.thumbnail.toDataURL() : '' })),
       });
       w.show(); w.focus();
     });
-    setTimeout(() => finish({ allow: false, why: 'timeout' }), 31000);
+    setTimeout(() => finish({ allow: false, why: 'timeout' }), secs * 1000 + 1000);
   });
 }
 async function screens(thumbs) {
@@ -198,8 +215,9 @@ async function handleAsk(a) {
       const live = S.live.find((l) => l.s === a.s);
       const who = live?.peers.find((p) => p.id === a.p);
       const x = await consent({ ...a, safety: who?.fp ? safety(fp, who.fp) : '' }, []);
-      S.ans.push({ s: a.s, kind: 'rights', p: a.p, allow: !!x.allow, rights: Array.isArray(x.rights) ? x.rights.filter((r) => RIGHT[r]) : [] });
+      S.ans.push({ s: a.s, kind: 'rights', p: a.p, allow: !!x.allow, rights: Array.isArray(x.rights) ? x.rights.filter((r) => RIGHT[r]) : [], agree: x.agree });
       if (x.allow) await macAccess(x.rights || []);
+      setTimeout(() => S.asked.delete(key), 6000); // rd2: the helper may ask again later (after a refusal)
     } else {
       const src = a.kind === 'connect' ? await screens(true) : [];
       const x = await consent({ ...a, safety: safety(fp, a.fp) }, src);
@@ -209,7 +227,7 @@ async function handleAsk(a) {
         S.disp[a.s] = { sourceId: pick.id, display: pick.display, index: src.indexOf(pick), count: src.length };
         await macAccess(x.rights || []);
       }
-      S.ans.push({ s: a.s, kind: a.kind, p: a.p, allow: !!x.allow, rights: Array.isArray(x.rights) ? x.rights.filter((r) => RIGHT[r]) : [], limit: +x.limit || 30 });
+      S.ans.push({ s: a.s, kind: a.kind, p: a.p, allow: !!x.allow, rights: Array.isArray(x.rights) ? x.rights.filter((r) => RIGHT[r]) : [], limit: +x.limit || 30, agree: x.agree });
     }
   } catch { S.ans.push({ s: a.s, kind: a.kind, p: a.p, allow: false }); }
   kick();
@@ -263,9 +281,25 @@ function paintLocal() {
   });
   if (w.webContents.isLoading()) w.webContents.once('did-finish-load', send); else send();
 }
+// rd2: every 15 minutes the person here is asked if they are still at the computer. No answer ends everything.
+async function stillCheck() {
+  if (S.stillOpen || !S.live.length) return;
+  S.stillOpen = true;
+  const names = [...new Set(S.live.flatMap((l) => l.peers.map((p) => p.name)))].join(', ');
+  for (const l of S.live) toPeers(l.s, { t: 'still', v: 1 });
+  let x = { allow: false };
+  try { x = await consent({ kind: 'still', name: names || 'Your helper', company: '' }, []); } catch { /* treated as no answer */ }
+  S.stillOpen = false;
+  if (!S.live.length) return;
+  if (x.allow) {
+    S.presentAt = Date.now();
+    for (const l of S.live) { toPeers(l.s, { t: 'still', v: 0 }); S.ev.push({ s: l.s, e: 'presence.ok', d: 'Still at the computer' }); }
+    kick();
+  } else stopAll(x.why === 'timeout' ? 'away' : 'still-end');
+}
 function stopAll(why) {
   releaseAll();
-  for (const l of S.live) { S.stop.push(l.s); rpc('close', { s: l.s }).catch(() => {}); }
+  for (const l of S.live) { (why === 'away' ? S.away : S.stop).push(l.s); rpc('close', { s: l.s }).catch(() => {}); }
   S.live = []; paintLocal(); kick();
   if (why === 'shortcut') S.ev.length = 0;
 }
@@ -378,7 +412,7 @@ function onFile(s, p, kind, data) {
 }
 
 // ---------- the loop: one small request to oenod.com, everything else computer to computer ----------
-const mode = () => (S.helpPages.size ? 'help' : 'idle');
+const mode = () => (S.helpPages.size || S.handoffUntil > Date.now() ? 'help' : 'idle');
 function kick() {
   if (S.polling) { S.again = true; return; }
   if (S.wake) clearTimeout(S.wake);
@@ -390,13 +424,13 @@ async function loop() {
   try {
     if (!S.cred || !S.id) await open();
     if (!S.cred) throw Object.assign(new Error('no key store'), { status: 0 });
-    const body = { id: S.cred.id, secret: S.cred.secret, mode: mode(), newcode: S.newcode, ans: S.ans.splice(0), stop: S.stop.splice(0), out: S.out.splice(0, 200), fp: S.fpOut, ev: S.ev.splice(0, 20), after: S.after, screens: screen.getAllDisplays().length };
+    const body = { id: S.cred.id, secret: S.cred.secret, mode: mode(), newcode: S.newcode, ans: S.ans.splice(0), stop: S.stop.splice(0), away: S.away.splice(0), out: S.out.splice(0, 200), fp: S.fpOut, ev: S.ev.splice(0, 20), after: S.after, screens: screen.getAllDisplays().length };
     S.newcode = false; S.fpOut = {};
     let r;
     try { r = await api('/public/rd/hsync', body); }
     catch (e) {
       if (e.status === 401) { saveCred(null); S.id = null; }
-      else if (e.status !== 429) { S.ans.unshift(...body.ans); S.stop.unshift(...body.stop); S.ev.unshift(...body.ev); Object.assign(S.fpOut, body.fp); }
+      else if (e.status !== 429) { S.ans.unshift(...body.ans); S.stop.unshift(...body.stop); S.away.unshift(...body.away); S.ev.unshift(...body.ev); Object.assign(S.fpOut, body.fp); }
       throw e;
     }
     if (r.code) S.code = r.code;
@@ -418,6 +452,9 @@ async function loop() {
     for (const tok of Object.keys(S.fps)) if (!nowLive.has(tok) && !(r.asks || []).some((a) => a.s === tok) && !S.disp[tok]) delete S.fps[tok];
     if (!S.live.length && !(r.asks || []).length) S.asked.clear();
     paintLocal();
+    if (!S.live.length) S.presentAt = 0;
+    else if (!S.presentAt) S.presentAt = Date.now();
+    else if (Date.now() - S.presentAt > STILL_MS) stillCheck();
     delay = S.live.length || (r.asks || []).length || S.out.length || S.consents ? 800 : mode() === 'help' ? 1500 : S.companyDevice ? 20000 : 0;
   } catch (e) {
     if (process.env.RD_DEBUG) console.error('[rd]', e && e.stack || e);
@@ -431,6 +468,23 @@ async function loop() {
 }
 function ensureRunning() { if (!S.polling && !S.wake) loop(); }
 
+// rd2: a browser share moves to this app. The ticket came from oenod://remote-help?h=<ticket>, made by the browser
+// page on this same network a few minutes ago. The person here still has to read the warning and press Allow.
+async function handoff(ticket) {
+  if (!/^[a-f0-9]{32}$/.test(String(ticket || ''))) return;
+  S.handoffUntil = Date.now() + 3 * 60 * 1000; S.handoffMsg = { state: 'wait', text: 'Connecting you to the person helping you…' };
+  try {
+    if (!S.cred || !S.id) await open();
+    if (!S.cred) throw new Error('This computer can not keep its OENOD Remote key. Read your ID and code to them instead.');
+    const r = await api('/public/rd/handoff', { id: S.cred.id, secret: S.cred.secret, h: ticket });
+    S.handoffMsg = { state: 'ok', text: (r.name ? r.name + ' is asking' : 'Your helper is asking') + ' to connect. Read the OENOD pop-up and press Allow if you agree.' };
+  } catch (e) {
+    S.handoffMsg = { state: 'error', text: e.message || 'That link did not work. Read your ID and code to them instead.' };
+    S.handoffUntil = 0;
+  }
+  kick();
+}
+
 // ---------- wiring ----------
 function init(opts) {
   HOME = opts.home; isMain = opts.isMain;
@@ -439,7 +493,7 @@ function init(opts) {
   const fromHome = (e) => { try { return isMain(e.sender) && new URL(e.senderFrame.url).origin === HOME.origin; } catch { return false; } };
   ipcMain.handle('rd:status', (e) => {
     if (!fromHome(e)) return null;
-    return { id: S.id, code: S.helpPages.size && !S.locked ? S.code : null, code_exp: S.codeExp, locked: S.locked, live: S.live.length, control: canControl() };
+    return { id: S.id, code: S.helpPages.size && !S.locked ? S.code : null, code_exp: S.codeExp, locked: S.locked, live: S.live.length, control: canControl(), handoff: S.handoffMsg, v: 2 };
   });
   ipcMain.handle('rd:newcode', (e) => { if (!fromHome(e)) return false; S.newcode = true; kick(); return true; });
   ipcMain.handle('rd:help', async (e, on) => {
@@ -483,4 +537,4 @@ function init(opts) {
   // A computer that used Remote before comes back online by itself (needed for company computers).
   if (S.cred) ensureRunning();
 }
-module.exports = { init, _test: { keyName, safeName, safety } };
+module.exports = { init, handoff, _test: { keyName, safeName, safety, needAgree } };

@@ -1,7 +1,7 @@
 {
   "name": "oenod-desktop",
   "productName": "OENOD",
-  "version": "3.7.0",
+  "version": "3.7.1",
   "private": true,
   "description": "OENOD for Windows, Mac and Linux.",
   "author": "OENOD Inc.",
@@ -89,6 +89,14 @@
       "artifactName": "OENOD-${version}.AppImage",
       "maintainer": "OENOD Inc. <info@oenod.com>"
     },
+    "protocols": [
+      {
+        "name": "OENOD Remote",
+        "schemes": [
+          "oenod"
+        ]
+      }
+    ],
     "publish": null,
     "asarUnpack": [
       "node_modules/@nut-tree-fork/**/*.node"

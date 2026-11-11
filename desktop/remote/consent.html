@@ -5,13 +5,25 @@
   <div class="c-h"><svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 11h12v9H6zM8 11V8a4 4 0 0 1 8 0v3"/></svg>OENOD REMOTE</div>
   <div class="c-b">
     <div class="who"><div class="av" id="av">?</div><div><b id="title"></b><small id="sub"></small></div></div>
-    <div class="lbl">Safety code</div>
+    <div id="sfbox"><div class="lbl">Safety code</div>
     <div class="sf" id="sf"></div>
-    <div class="small" style="margin-top:4px">Ask them to read their code. If it is different, press Don't allow.</div>
+    <div class="small" style="margin-top:4px">Ask them to read their code. If it is different, press Don't allow.</div></div>
+    <div id="warn" class="warn" hidden>
+      <b class="w-t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l10 18H2zM12 10v5M12 18h.01"/></svg><span id="wtitle">Before you allow</span></b>
+      <ul>
+        <li>Close or hide anything with <b>passwords</b>: password managers, saved logins, notes with codes.</li>
+        <li>Close <b>banking</b>, private email and chats, and any photos or files you don't want seen.</li>
+        <li>Don't type a password while they can see your screen.</li>
+        <li><b>Stay at this computer</b> the whole time, and watch what they do.</li>
+        <li>Only allow someone you know or contacted yourself. OENOD never calls out of the blue asking to connect.</li>
+      </ul>
+      <label class="agree"><input type="checkbox" id="ag1"><span>I closed or hid my passwords and private things</span></label>
+      <label class="agree"><input type="checkbox" id="ag2"><span>I will stay at this computer until the session ends</span></label>
+    </div>
     <div id="scrbox" hidden><div class="lbl">Screen to share</div><div class="scr" id="scr"></div></div>
     <div id="rbox"><div class="lbl">They may</div><div id="rights"></div></div>
     <div id="limbox" class="row"><span>Time limit</span><select id="lim"></select></div>
-    <div class="note" id="note">A red frame and a Stop bar stay on your screen. Press Ctrl+Alt+Esc to stop at once.</div>
+    <div class="note" id="note">A red frame and a Stop bar stay on your screen. Press Ctrl+Alt+Esc to stop at once. Every 15 minutes we check you are still here.</div>
     <div class="bar"><i id="bar" style="width:100%"></i></div><div class="small" id="cd"></div>
   </div>
   <div class="f"><button class="btn" id="no">Don't allow</button><button class="btn p" id="yes">Allow</button></div>
