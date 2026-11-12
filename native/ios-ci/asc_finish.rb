@@ -118,6 +118,20 @@ if ENV['SUBMIT'] == 'true'
   end
   puts "RESULT review-signin: required=#{ra['demoAccountRequired'] ? 'yes' : 'no'} user=#{ra['demoAccountName'].to_s.empty? ? 'missing' : 'set'} pw=#{ra['demoAccountPassword'].to_s.empty? ? 'MISSING' : 'present'}"
   abort('RESULT submitted-for-review: not sent, the demo sign-in is incomplete') if !ra['demoAccountRequired'] || ra['demoAccountName'].to_s.empty? || ra['demoAccountPassword'].to_s.empty?
+  # After a rejection the version stays inside its old submission (UNRESOLVED_ISSUES): resubmit that one,
+  # like the "Resubmit to App Review" button, and cancel any empty submission an earlier try left behind.
+  _, open_subs = call(:get, "/v1/apps/#{app_id}/reviewSubmissions?limit=20")
+  subs = open_subs['data'] || []
+  subs.select { |s| s['attributes']['state'] == 'READY_FOR_REVIEW' }.each do |s|
+    _, items = call(:get, "/v1/reviewSubmissions/#{s['id']}/items")
+    next unless (items['data'] || []).empty?
+    c, b = call(:patch, "/v1/reviewSubmissions/#{s['id']}", { data: { type: 'reviewSubmissions', id: s['id'], attributes: { canceled: true } } })
+    res("empty-submission-cancel #{s['id']}", c == 200, c == 200 ? '' : err(b))
+  end
+  if (old = subs.find { |s| s['attributes']['state'] == 'UNRESOLVED_ISSUES' })
+    c, b = call(:patch, "/v1/reviewSubmissions/#{old['id']}", { data: { type: 'reviewSubmissions', id: old['id'], attributes: { submitted: true } } })
+    res("resubmitted #{old['id']}", c == 200, c == 200 ? '' : err(b)); exit(c == 200 ? 0 : 1)
+  end
   c, rs = call(:post, '/v1/reviewSubmissions', { data: { type: 'reviewSubmissions', attributes: { platform: 'IOS' },
                                                         relationships: { app: { data: { type: 'apps', id: app_id } } } } })
   if [200, 201].include?(c)
