@@ -2,7 +2,9 @@ OENOD is a workforce app for businesses: time clock, schedules, time off, pay st
 
 Demo account: sign in with the email above. It is the owner of "OENOD Demo Cafe", a sample company with 5 staff and 2 weeks of shifts, so every screen has data. Tap "Sign in" on the first screen.
 
-Location: used only to confirm the person is at their workplace when they clock in. If the employer turns on site attendance, location is shared with managers only while clocked in, never on breaks or after clocking out. Background location is used only for that.
+Location: used only while the app is open, to confirm the person is at their workplace when they clock in. If the employer turns on site attendance, location is shared with managers only while clocked in and the app is open. Version 3.7 does not use background location (UIBackgroundModes location removed).
+
+Apple Watch (3.7, fixed): 1) Sign in on the iPhone with the demo account. 2) Open OENOD on the Apple Watch and tap "Agree and connect" (terms shown there). 3) The iPhone app opens "Connect a watch" with the code filled in and the terms; tap "Allow and connect". If the iPhone screen doesn't open by itself: iPhone > Me > Connect a watch, type the 6-digit code from the watch, tap "Allow and connect". The watch connects within a few seconds.
 Camera: used only to scan QR work badges.
 Face ID: optional quick unlock.
 Account deletion: Me tab, Delete my account (also at https://oenod.com/m/delete-account).

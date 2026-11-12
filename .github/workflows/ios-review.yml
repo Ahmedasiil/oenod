@@ -5,7 +5,7 @@ on:
     branches: [ios-review, ios-submit]
   workflow_dispatch:
     inputs:
-      build_number: { description: 'Build number to attach', default: '360', required: true }
+      build_number: { description: 'Build number to attach', default: '370', required: true }
       submit: { description: 'Send for review (true/false)', default: 'false', required: true }
 permissions:
   contents: read
@@ -16,7 +16,7 @@ jobs:
       APPLE_KEY_ID: ${{ secrets.APPLE_KEY_ID }}
       APPLE_ISSUER_ID: ${{ secrets.APPLE_ISSUER_ID }}
       APPLE_KEY_P8: ${{ secrets.APPLE_KEY_P8 }}
-      BUILD_NUMBER: ${{ inputs.build_number || '360' }}
+      BUILD_NUMBER: ${{ inputs.build_number || '370' }}
       SUBMIT: ${{ inputs.submit || (github.ref_name == 'ios-submit' && 'true') || 'false' }}
     steps:
       - uses: actions/checkout@v4

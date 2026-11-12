@@ -1,8 +1,9 @@
 Un tout nouvel OENOD.
 - Un nouveau look sur chaque écran, conçu pour les téléphones, l’iPad et les téléphones pliables.
-- OENOD AI : posez vos questions sur vos ventes, votre équipe, votre horaire et vos factures, et recevez un bilan chaque matin.
+- Voici Ava, votre assistante IA : posez vos questions sur vos ventes, votre équipe, votre horaire et vos factures, et recevez un bilan chaque matin.
+- Un nouvel écran d’accueil et la connexion avec Apple, Google ou Microsoft sur une seule ligne.
 - Argent : votre portefeuille, les ventes par jour, les factures impayées et vos meilleurs vendeurs au même endroit.
 - Horaire : une vue de la semaine avec les quarts libres et des conseils rapides.
-- Nouvelle app Apple Watch : pointez votre arrivée et votre départ, voyez votre prochain quart et les ventes du jour depuis votre poignet.
+- Nouvelle app Apple Watch : pointez votre arrivée et votre départ, voyez votre prochain quart et les ventes du jour depuis votre poignet. Connectez-la d’une seule touche sur Autoriser dans l’app iPhone.
 - Créez votre compte et configurez votre entreprise directement dans l’app.
 - Rejoignez une réunion vidéo OENOD Meet en tant qu’invité, sans compte.
