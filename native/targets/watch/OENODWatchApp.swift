@@ -3,12 +3,17 @@ import SwiftUI
 @main
 struct OENODWatchApp: App {
   @StateObject private var model = WatchModel()
+  @Environment(\.scenePhase) private var phase
   var body: some Scene {
     WindowGroup {
       Group {
         if model.token == nil { PairView() } else { HomeView() }
       }
       .environmentObject(model)
+    }
+    .onChange(of: phase) { _, p in
+      // Back on screen (after typing the code on the phone): check right away instead of waiting.
+      if p == .active, model.token == nil, model.code != nil { Task { await model.checkNow() } }
     }
   }
 }
@@ -36,28 +41,50 @@ final class WatchModel: ObservableObject {
       do {
         struct Start: Decodable { let code: String; let poll: String; let expires_in: Int }
         let s: Start = try await API.call("POST", "/api/watch/start", body: ["platform": "watchos"])
-        code = s.code; poll = s.poll
+        code = s.code; poll = s.poll; fails = 0
+        PhoneLink.shared.send(code: s.code)
         pollTask = Task { await self.waitForLink(until: Date().addingTimeInterval(TimeInterval(s.expires_in))) }
       } catch { self.error = error.localizedDescription }
     }
   }
 
+  private var fails = 0
+  @Published var hint: String?
+
   private func waitForLink(until: Date) async {
-    struct Claim: Decodable { let linked: Bool; let token: String? }
     while !Task.isCancelled && Date() < until {
-      try? await Task.sleep(nanoseconds: 3_000_000_000)
-      guard let poll else { return }
-      do {
-        let c: Claim = try await API.call("POST", "/api/watch/claim", body: ["poll": poll, "name": "Apple Watch"])
-        if c.linked, let t = c.token {
-          Keychain.save(t); token = t; code = nil
-          await refresh()
-          return
-        }
-      } catch let e as APIError where e.status == 410 { code = nil; error = e.message; return }
-      catch { /* offline for a moment: keep waiting */ }
+      try? await Task.sleep(nanoseconds: 2_000_000_000)
+      if Task.isCancelled { return }
+      if await checkNow() { return }
     }
-    if !Task.isCancelled { code = nil; error = "The code expired. Tap to get a new one." }
+    if !Task.isCancelled && token == nil { code = nil; error = String(localized: "The code expired. Tap to get a new one.") }
+  }
+
+  /// One look at the server: has the phone linked our code yet? True when connected (or the code is gone).
+  @discardableResult
+  func checkNow() async -> Bool {
+    struct Claim: Decodable { let linked: Bool; let token: String? }
+    guard let poll, token == nil else { return true }
+    do {
+      let c: Claim = try await API.call("POST", "/api/watch/claim", body: ["poll": poll, "name": "Apple Watch"])
+      fails = 0; hint = nil
+      if c.linked, let t = c.token {
+        Keychain.save(t); token = t; code = nil; self.poll = nil
+        pollTask?.cancel()
+        WKHaptic.success()
+        await refresh()
+        return true
+      }
+      return false
+    } catch let e as APIError where e.status == 410 {
+      if token == nil { code = nil; error = e.message }
+      self.poll = nil; return true
+    } catch {
+      // Offline for a moment: keep trying, but say so after a few misses so nobody waits blindly.
+      fails += 1
+      if fails >= 3 { hint = String(localized: "Can't reach OENOD. Check that your iPhone or Wi-Fi is connected.") + " (" + error.localizedDescription + ")" }
+      return false
+    }
   }
 
   // MARK: data

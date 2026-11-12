@@ -118,8 +118,10 @@ export async function syncTracking(): Promise<GeoMe | null> {
   if (s !== 'ok') await ping({ status: s, background: false });
   else { const f = await currentFix(); await ping(f.lat != null ? { ...f, status: 'ok', background: false } : { status: f.location_status, background: false }); }
 
-  if (!native) {
-    // Web test build: report every ping_sec seconds while the page is open.
+  if (!native || Platform.OS === 'ios') {
+    // Web, and iPhone (3.7, App Store rule 2.5.4: no location while the app is closed): report every
+    // ping_sec seconds while the app is open. The server flags the gap when it is closed.
+    if (native) await stopTracking(); // a phone that ran the old background reports turns them off
     if (!fgTimer) fgTimer = setInterval(async () => { const f = await currentFix(); await ping(f.lat != null ? { ...f, status: 'ok', background: false } : { status: f.location_status, background: false }); }, Math.max(30, me.ping_sec || 60) * 1000);
     return me;
   }

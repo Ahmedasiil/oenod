@@ -8,7 +8,8 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider, useAuth } from '../lib/auth';
 import { C } from '../lib/theme';
 import { LangProvider, t } from '../lib/i18n';
-import { stopTracking, syncTracking } from '../lib/geo'; // also registers the background location task
+import { stopTracking, syncTracking } from '../lib/geo'; // also registers the location task (Android)
+import { onWatchPair, watchPending } from '../../modules/oenod-watchlink/src';
 
 function Gate() {
   const { ready, session } = useAuth();
@@ -21,6 +22,15 @@ function Gate() {
     const sub = AppState.addEventListener('change', (st) => { if (st === 'active') syncTracking(); });
     return () => sub.remove();
   }, [ready, signedIn, hasEmployee]);
+  // Apple Watch asks to connect (3.7): open "Connect a watch" with its code filled in, ready for Allow.
+  useEffect(() => {
+    if (!ready || !signedIn) return;
+    const open = (code: string) => setTimeout(() => router.push({ pathname: '/watch', params: { code } } as any), 0);
+    const p = watchPending(); if (p) open(p);
+    const off = onWatchPair(open);
+    const sub = AppState.addEventListener('change', (st) => { if (st === 'active') { const q = watchPending(); if (q) open(q); } });
+    return () => { off(); sub.remove(); };
+  }, [ready, signedIn]);
   useEffect(() => {
     if (!ready || !signedIn) return;
     const r = takeReturnTo();

@@ -1,21 +1,34 @@
 import SwiftUI
 
-/// First run: shows the 6-digit code to type in the phone app.
+/// First run: what the watch can do and the terms (agree once), then the 6-digit code. The code also goes
+/// to the iPhone by itself, so the person usually just taps Allow in the OENOD phone app.
 struct PairView: View {
   @EnvironmentObject var m: WatchModel
+  @AppStorage("oenod.watch.agreed") private var agreed = false
   var body: some View {
     ScrollView {
       VStack(spacing: 8) {
-        Text("OENOD").font(.system(size: 20, weight: .heavy)).foregroundStyle(.white)
-        if let code = m.code {
+        Text("OENOD").font(.system(size: 18, weight: .heavy)).foregroundStyle(.white).padding(.top, 14)
+        if !agreed {
+          Text("Clock in, see your next shift and today's sales from your wrist.")
+            .font(.caption2).foregroundStyle(.white).multilineTextAlignment(.center)
+          Text("You need an OENOD account. By connecting, you agree to the OENOD Terms of Service (oenod.com/#/terms) and Privacy Policy (oenod.com/#/privacy).")
+            .font(.system(size: 11)).foregroundStyle(mist).multilineTextAlignment(.center)
+          Text("Location is used only when you tap Clock in.")
+            .font(.system(size: 11)).foregroundStyle(mist).multilineTextAlignment(.center)
+          Button("Agree and connect") { agreed = true; m.startPairing() }.tint(brandBlue).buttonStyle(.borderedProminent)
+        } else if let code = m.code {
           Text("Connect your watch").font(.footnote).foregroundStyle(sky)
           Text("\(String(code.prefix(3))) \(String(code.suffix(3)))")
             .font(.system(size: 30, weight: .bold, design: .rounded)).monospacedDigit().foregroundStyle(.white)
             .padding(.vertical, 6).frame(maxWidth: .infinity)
             .background(RoundedRectangle(cornerRadius: 14).fill(.white.opacity(0.10)))
-          Text("On your phone, open OENOD, tap Me, then Connect a watch, and type this code.")
+          Text("Open OENOD on your iPhone and tap Allow. Or tap Me, then Connect a watch, and type this code.")
             .font(.caption2).foregroundStyle(mist).multilineTextAlignment(.center)
-          ProgressView().padding(.top, 4)
+          if let h = m.hint { Text(h).font(.system(size: 11)).foregroundStyle(.orange).multilineTextAlignment(.center) }
+          HStack(spacing: 6) { ProgressView().frame(width: 18, height: 18); Text("Waiting for your phone").font(.system(size: 11)).foregroundStyle(mist) }
+            .padding(.top, 2)
+          Button("I tapped Allow") { Task { await m.checkNow() } }.font(.footnote)
         } else {
           Text("Clock in, see your next shift and today's sales from your wrist.")
             .font(.caption2).foregroundStyle(mist).multilineTextAlignment(.center)
@@ -26,7 +39,7 @@ struct PairView: View {
     }
     .containerBackground(navy.gradient, for: .navigation)
     .background(navy.ignoresSafeArea())
-    .onAppear { if m.code == nil && m.error == nil { m.startPairing() } }
+    .onAppear { if agreed && m.code == nil && m.error == nil { m.startPairing() } }
   }
 }
 

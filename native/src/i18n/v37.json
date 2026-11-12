@@ -16,7 +16,16 @@
   "Tap to share is on": "Partage par contact activé",
   "Hold the back of your phone to another phone to open your card there.": "Approchez le dos de votre téléphone d’un autre téléphone pour y ouvrir votre carte.",
   "Turn on NFC to tap to share": "Activez le NFC pour partager par contact",
-  "Open settings and turn on NFC, then come back to this screen.": "Ouvrez les réglages, activez le NFC, puis revenez sur cet écran."
+  "Open settings and turn on NFC, then come back to this screen.": "Ouvrez les réglages, activez le NFC, puis revenez sur cet écran.",
+  "Your Apple Watch wants to connect": "Votre Apple Watch veut se connecter",
+  "Check that your watch shows the same code, then tap Allow.": "Vérifiez que votre montre affiche le même code, puis touchez Autoriser.",
+  "Your watch will be able to:": "Votre montre pourra :",
+  "Clock you in and out (with site attendance rules)": "Pointer votre arrivée et votre départ (selon les règles de présence sur site)",
+  "Show your next shift and hours today": "Afficher votre prochain quart et vos heures du jour",
+  "Show today's sales, if you are a manager": "Afficher les ventes du jour, si vous êtes gestionnaire",
+  "You can remove the watch here at any time.": "Vous pouvez retirer la montre ici à tout moment.",
+  "By connecting, you agree to the": "En vous connectant, vous acceptez les",
+  "Allow and connect": "Autoriser et connecter"
  },
  "es": {
   "Ava is looking at your data…": "Ava está revisando tus datos…",
@@ -35,7 +44,16 @@
   "Tap to share is on": "Compartir al tocar activado",
   "Hold the back of your phone to another phone to open your card there.": "Acerca la parte trasera de tu teléfono a otro teléfono para abrir tu tarjeta allí.",
   "Turn on NFC to tap to share": "Activa NFC para compartir al tocar",
-  "Open settings and turn on NFC, then come back to this screen.": "Abre los ajustes, activa NFC y vuelve a esta pantalla."
+  "Open settings and turn on NFC, then come back to this screen.": "Abre los ajustes, activa NFC y vuelve a esta pantalla.",
+  "Your Apple Watch wants to connect": "Tu Apple Watch quiere conectarse",
+  "Check that your watch shows the same code, then tap Allow.": "Comprueba que tu reloj muestre el mismo código y toca Permitir.",
+  "Your watch will be able to:": "Tu reloj podrá:",
+  "Clock you in and out (with site attendance rules)": "Registrar tu entrada y salida (con las reglas de asistencia en sitio)",
+  "Show your next shift and hours today": "Mostrar tu próximo turno y tus horas de hoy",
+  "Show today's sales, if you are a manager": "Mostrar las ventas de hoy, si eres gerente",
+  "You can remove the watch here at any time.": "Puedes quitar el reloj aquí en cualquier momento.",
+  "By connecting, you agree to the": "Al conectar, aceptas los",
+  "Allow and connect": "Permitir y conectar"
  },
  "pt": {
   "Ava is looking at your data…": "O Ava está analisando seus dados…",
@@ -54,7 +72,16 @@
   "Tap to share is on": "Compartilhar por toque ativado",
   "Hold the back of your phone to another phone to open your card there.": "Encoste a parte de trás do seu telefone em outro telefone para abrir seu cartão nele.",
   "Turn on NFC to tap to share": "Ative o NFC para compartilhar por toque",
-  "Open settings and turn on NFC, then come back to this screen.": "Abra as configurações, ative o NFC e volte para esta tela."
+  "Open settings and turn on NFC, then come back to this screen.": "Abra as configurações, ative o NFC e volte para esta tela.",
+  "Your Apple Watch wants to connect": "Seu Apple Watch quer se conectar",
+  "Check that your watch shows the same code, then tap Allow.": "Confira se o relógio mostra o mesmo código e toque em Permitir.",
+  "Your watch will be able to:": "Seu relógio poderá:",
+  "Clock you in and out (with site attendance rules)": "Registrar sua entrada e saída (com as regras de presença no local)",
+  "Show your next shift and hours today": "Mostrar seu próximo turno e as horas de hoje",
+  "Show today's sales, if you are a manager": "Mostrar as vendas de hoje, se você for gerente",
+  "You can remove the watch here at any time.": "Você pode remover o relógio aqui a qualquer momento.",
+  "By connecting, you agree to the": "Ao conectar, você aceita os",
+  "Allow and connect": "Permitir e conectar"
  },
  "ar": {
   "Ava is looking at your data…": "Ava يراجع بياناتك…",
@@ -73,7 +100,16 @@
   "Tap to share is on": "المشاركة باللمس مفعّلة",
   "Hold the back of your phone to another phone to open your card there.": "قرّب ظهر هاتفك من هاتف آخر لفتح بطاقتك عليه.",
   "Turn on NFC to tap to share": "شغّل NFC للمشاركة باللمس",
-  "Open settings and turn on NFC, then come back to this screen.": "افتح الإعدادات وشغّل NFC ثم ارجع إلى هذه الشاشة."
+  "Open settings and turn on NFC, then come back to this screen.": "افتح الإعدادات وشغّل NFC ثم ارجع إلى هذه الشاشة.",
+  "Your Apple Watch wants to connect": "ساعة Apple Watch تريد الاتصال",
+  "Check that your watch shows the same code, then tap Allow.": "تأكد أن ساعتك تعرض الرمز نفسه، ثم اضغط سماح.",
+  "Your watch will be able to:": "ستتمكن ساعتك من:",
+  "Clock you in and out (with site attendance rules)": "تسجيل دخولك وخروجك (حسب قواعد الحضور في الموقع)",
+  "Show your next shift and hours today": "عرض ورديتك التالية وساعات اليوم",
+  "Show today's sales, if you are a manager": "عرض مبيعات اليوم إذا كنت مديرًا",
+  "You can remove the watch here at any time.": "يمكنك إزالة الساعة من هنا في أي وقت.",
+  "By connecting, you agree to the": "بالاتصال، فإنك توافق على",
+  "Allow and connect": "سماح واتصال"
  },
  "ur": {
   "Ava is looking at your data…": "Ava آپ کا ڈیٹا دیکھ رہا ہے…",
@@ -92,7 +128,16 @@
   "Tap to share is on": "ٹیپ سے شیئر آن ہے",
   "Hold the back of your phone to another phone to open your card there.": "اپنے فون کی پشت دوسرے فون کے قریب لائیں تاکہ اس پر آپ کا کارڈ کھل جائے۔",
   "Turn on NFC to tap to share": "ٹیپ سے شیئر کے لیے NFC آن کریں",
-  "Open settings and turn on NFC, then come back to this screen.": "سیٹنگز کھولیں، NFC آن کریں، پھر اس اسکرین پر واپس آئیں۔"
+  "Open settings and turn on NFC, then come back to this screen.": "سیٹنگز کھولیں، NFC آن کریں، پھر اس اسکرین پر واپس آئیں۔",
+  "Your Apple Watch wants to connect": "آپ کی Apple Watch جڑنا چاہتی ہے",
+  "Check that your watch shows the same code, then tap Allow.": "دیکھیں کہ گھڑی پر یہی کوڈ ہے، پھر اجازت دیں پر ٹیپ کریں۔",
+  "Your watch will be able to:": "آپ کی گھڑی یہ کر سکے گی:",
+  "Clock you in and out (with site attendance rules)": "آپ کا کلاک اِن اور آؤٹ (سائٹ حاضری کے اصولوں کے ساتھ)",
+  "Show your next shift and hours today": "اگلی شفٹ اور آج کے گھنٹے دکھانا",
+  "Show today's sales, if you are a manager": "آج کی سیلز دکھانا، اگر آپ مینیجر ہیں",
+  "You can remove the watch here at any time.": "آپ کسی بھی وقت یہاں سے گھڑی ہٹا سکتے ہیں۔",
+  "By connecting, you agree to the": "جوڑ کر آپ اتفاق کرتے ہیں",
+  "Allow and connect": "اجازت دیں اور جوڑیں"
  },
  "zh": {
   "Ava is looking at your data…": "Ava 正在查看您的数据…",
@@ -111,7 +156,16 @@
   "Tap to share is on": "碰一碰分享已开启",
   "Hold the back of your phone to another phone to open your card there.": "将手机背面靠近另一部手机，即可在对方手机上打开你的名片。",
   "Turn on NFC to tap to share": "开启 NFC 即可碰一碰分享",
-  "Open settings and turn on NFC, then come back to this screen.": "打开设置并开启 NFC，然后回到此页面。"
+  "Open settings and turn on NFC, then come back to this screen.": "打开设置并开启 NFC，然后回到此页面。",
+  "Your Apple Watch wants to connect": "您的 Apple Watch 想要连接",
+  "Check that your watch shows the same code, then tap Allow.": "确认手表显示相同的代码，然后点按“允许”。",
+  "Your watch will be able to:": "您的手表将可以：",
+  "Clock you in and out (with site attendance rules)": "为您上下班打卡（遵守现场考勤规则）",
+  "Show your next shift and hours today": "显示您的下一个班次和今天的工时",
+  "Show today's sales, if you are a manager": "显示今天的销售额（如果您是经理）",
+  "You can remove the watch here at any time.": "您可以随时在这里移除手表。",
+  "By connecting, you agree to the": "连接即表示您同意",
+  "Allow and connect": "允许并连接"
  },
  "hi": {
   "Ava is looking at your data…": "Ava आपका डेटा देख रहा है…",
@@ -130,7 +184,16 @@
   "Tap to share is on": "टैप से शेयर चालू है",
   "Hold the back of your phone to another phone to open your card there.": "अपने फ़ोन का पिछला हिस्सा दूसरे फ़ोन से लगाएँ, आपका कार्ड वहाँ खुल जाएगा।",
   "Turn on NFC to tap to share": "टैप से शेयर करने के लिए NFC चालू करें",
-  "Open settings and turn on NFC, then come back to this screen.": "सेटिंग्स खोलें, NFC चालू करें, फिर इस स्क्रीन पर लौटें।"
+  "Open settings and turn on NFC, then come back to this screen.": "सेटिंग्स खोलें, NFC चालू करें, फिर इस स्क्रीन पर लौटें।",
+  "Your Apple Watch wants to connect": "आपकी Apple Watch जुड़ना चाहती है",
+  "Check that your watch shows the same code, then tap Allow.": "देखें कि घड़ी पर वही कोड है, फिर अनुमति दें पर टैप करें।",
+  "Your watch will be able to:": "आपकी घड़ी ये कर सकेगी:",
+  "Clock you in and out (with site attendance rules)": "आपका क्लॉक इन और आउट (साइट हाज़िरी नियमों के साथ)",
+  "Show your next shift and hours today": "आपकी अगली शिफ़्ट और आज के घंटे दिखाना",
+  "Show today's sales, if you are a manager": "आज की बिक्री दिखाना, अगर आप मैनेजर हैं",
+  "You can remove the watch here at any time.": "आप कभी भी यहाँ से घड़ी हटा सकते हैं।",
+  "By connecting, you agree to the": "जोड़कर आप सहमत हैं",
+  "Allow and connect": "अनुमति दें और जोड़ें"
  },
  "pa": {
   "Ava is looking at your data…": "Ava ਤੁਹਾਡਾ ਡਾਟਾ ਦੇਖ ਰਿਹਾ ਹੈ…",
@@ -149,7 +212,16 @@
   "Tap to share is on": "ਟੈਪ ਨਾਲ ਸ਼ੇਅਰ ਚਾਲੂ ਹੈ",
   "Hold the back of your phone to another phone to open your card there.": "ਆਪਣੇ ਫ਼ੋਨ ਦਾ ਪਿਛਲਾ ਹਿੱਸਾ ਦੂਜੇ ਫ਼ੋਨ ਨਾਲ ਲਗਾਓ, ਤੁਹਾਡਾ ਕਾਰਡ ਉੱਥੇ ਖੁੱਲ੍ਹ ਜਾਵੇਗਾ।",
   "Turn on NFC to tap to share": "ਟੈਪ ਨਾਲ ਸ਼ੇਅਰ ਲਈ NFC ਚਾਲੂ ਕਰੋ",
-  "Open settings and turn on NFC, then come back to this screen.": "ਸੈਟਿੰਗਾਂ ਖੋਲ੍ਹੋ, NFC ਚਾਲੂ ਕਰੋ, ਫਿਰ ਇਸ ਸਕ੍ਰੀਨ ਤੇ ਵਾਪਸ ਆਓ।"
+  "Open settings and turn on NFC, then come back to this screen.": "ਸੈਟਿੰਗਾਂ ਖੋਲ੍ਹੋ, NFC ਚਾਲੂ ਕਰੋ, ਫਿਰ ਇਸ ਸਕ੍ਰੀਨ ਤੇ ਵਾਪਸ ਆਓ।",
+  "Your Apple Watch wants to connect": "ਤੁਹਾਡੀ Apple Watch ਜੁੜਨਾ ਚਾਹੁੰਦੀ ਹੈ",
+  "Check that your watch shows the same code, then tap Allow.": "ਵੇਖੋ ਕਿ ਘੜੀ ਤੇ ਉਹੀ ਕੋਡ ਹੈ, ਫਿਰ ਇਜਾਜ਼ਤ ਦਿਓ ਤੇ ਟੈਪ ਕਰੋ।",
+  "Your watch will be able to:": "ਤੁਹਾਡੀ ਘੜੀ ਇਹ ਕਰ ਸਕੇਗੀ:",
+  "Clock you in and out (with site attendance rules)": "ਤੁਹਾਡਾ ਕਲਾਕ ਇਨ ਅਤੇ ਆਊਟ (ਸਾਈਟ ਹਾਜ਼ਰੀ ਨਿਯਮਾਂ ਨਾਲ)",
+  "Show your next shift and hours today": "ਅਗਲੀ ਸ਼ਿਫਟ ਅਤੇ ਅੱਜ ਦੇ ਘੰਟੇ ਦਿਖਾਉਣਾ",
+  "Show today's sales, if you are a manager": "ਅੱਜ ਦੀ ਵਿਕਰੀ ਦਿਖਾਉਣਾ, ਜੇ ਤੁਸੀਂ ਮੈਨੇਜਰ ਹੋ",
+  "You can remove the watch here at any time.": "ਤੁਸੀਂ ਕਦੇ ਵੀ ਇੱਥੋਂ ਘੜੀ ਹਟਾ ਸਕਦੇ ਹੋ।",
+  "By connecting, you agree to the": "ਜੋੜ ਕੇ ਤੁਸੀਂ ਸਹਿਮਤ ਹੋ",
+  "Allow and connect": "ਇਜਾਜ਼ਤ ਦਿਓ ਅਤੇ ਜੋੜੋ"
  },
  "tl": {
   "Ava is looking at your data…": "Tinitingnan ng Ava ang iyong data…",
@@ -168,6 +240,15 @@
   "Tap to share is on": "Naka-on ang tap para mag-share",
   "Hold the back of your phone to another phone to open your card there.": "Idikit ang likod ng phone mo sa ibang phone para mabuksan doon ang card mo.",
   "Turn on NFC to tap to share": "I-on ang NFC para mag-tap at mag-share",
-  "Open settings and turn on NFC, then come back to this screen.": "Buksan ang settings at i-on ang NFC, saka bumalik sa screen na ito."
+  "Open settings and turn on NFC, then come back to this screen.": "Buksan ang settings at i-on ang NFC, saka bumalik sa screen na ito.",
+  "Your Apple Watch wants to connect": "Gustong kumonekta ng Apple Watch mo",
+  "Check that your watch shows the same code, then tap Allow.": "Tingnan kung pareho ang code sa relo, saka i-tap ang Payagan.",
+  "Your watch will be able to:": "Kaya ng relo mo na:",
+  "Clock you in and out (with site attendance rules)": "Mag-clock in at out para sa iyo (ayon sa patakaran ng site attendance)",
+  "Show your next shift and hours today": "Ipakita ang susunod mong shift at oras ngayong araw",
+  "Show today's sales, if you are a manager": "Ipakita ang benta ngayon, kung manager ka",
+  "You can remove the watch here at any time.": "Puwede mong alisin ang relo dito anumang oras.",
+  "By connecting, you agree to the": "Sa pagkonekta, sumasang-ayon ka sa",
+  "Allow and connect": "Payagan at ikonekta"
  }
 }
