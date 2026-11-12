@@ -18,3 +18,8 @@ eq(safeName('a'.repeat(400)).length, 180);
 eq(safety('sha-256 AA', 'sha-256 BB'), safety('sha-256 BB', 'sha-256 AA'));
 assert.match(safety('sha-256 AA', 'sha-256 BB'), /^[a-z]+ · [a-z]+ · [a-z]+ · \d\d$/);
 console.log('remote unit checks: all passed');
+// rd2: who must read the safety warning and tick both boxes
+const { needAgree } = require('../remote.js')._test;
+assert.ok(needAgree({ kind: 'connect' })); assert.ok(needAgree({ kind: 'join' }));
+assert.ok(needAgree({ kind: 'rights', rights: ['control'] })); assert.ok(!needAgree({ kind: 'rights', rights: ['clip'] })); assert.ok(!needAgree({ kind: 'still' }));
+console.log('rd2 checks: all passed');

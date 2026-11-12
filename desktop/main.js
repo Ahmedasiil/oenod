@@ -15,6 +15,24 @@ const allowed = (u) => { try { const x = new URL(u); return x.protocol === 'http
 if (!app.requestSingleInstanceLock()) app.quit();
 let win;
 
+// rd2: oenod://remote-help?h=<one-time ticket> moves a browser screen share into this app (Give full control).
+// Only this one link shape is accepted; the ticket is checked by oenod.com and the person still presses Allow.
+if (process.defaultApp && process.argv.length >= 2) app.setAsDefaultProtocolClient('oenod', process.execPath, [path.resolve(process.argv[1])]);
+else app.setAsDefaultProtocolClient('oenod');
+let pendingLink = null;
+function onLink(url) {
+  let u; try { u = new URL(String(url || '')); } catch { return; }
+  if (u.protocol !== 'oenod:' || (u.hostname || u.pathname.replace(/^\/+/, '').split('/')[0]) !== 'remote-help') return;
+  const h = u.searchParams.get('h') || '';
+  if (!win || win.isDestroyed() || !app.isReady()) { pendingLink = url; return; }
+  win.loadURL(new URL('#/remote-help', HOME).href);
+  if (win.isMinimized()) win.restore(); win.show(); win.focus();
+  if (/^[a-f0-9]{32}$/.test(h)) remote.handoff(h);
+}
+const linkIn = (argv) => (argv || []).find((a) => typeof a === 'string' && a.startsWith('oenod://'));
+app.on('open-url', (e, url) => { e.preventDefault(); onLink(url); }); // Mac
+pendingLink = linkIn(process.argv) || null; // Windows and Linux, first start
+
 function create() {
   win = new BrowserWindow({
     width: 1360, height: 860, minWidth: 380, minHeight: 600, show: false, title: CFG.appName,
@@ -46,9 +64,10 @@ app.whenReady().then(() => {
   ]));
   create();
   remote.init({ home: HOME, isMain: (wc) => !!win && !win.isDestroyed() && wc === win.webContents });
+  if (pendingLink) { const l = pendingLink; pendingLink = null; win.webContents.once('did-finish-load', () => onLink(l)); }
   app.on('activate', () => { if (!BrowserWindow.getAllWindows().length) create(); });
 });
-app.on('second-instance', () => { if (win) { if (win.isMinimized()) win.restore(); win.focus(); } });
+app.on('second-instance', (e, argv) => { const l = linkIn(argv); if (l) return onLink(l); if (win) { if (win.isMinimized()) win.restore(); win.focus(); } });
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
 // Never allow web content to attach webviews.
 app.on('web-contents-created', (_, wc) => wc.on('will-attach-webview', (e) => e.preventDefault()));
