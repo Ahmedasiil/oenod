@@ -10,6 +10,7 @@ import { C } from '../lib/theme';
 import { LangProvider, t } from '../lib/i18n';
 import { stopTracking, syncTracking } from '../lib/geo'; // also registers the location task (Android)
 import { onWatchPair, watchPending } from '../../modules/oenod-watchlink/src';
+import { stopPhone, syncPhone } from '../lib/phone';
 
 function Gate() {
   const { ready, session } = useAuth();
@@ -22,6 +23,14 @@ function Gate() {
     const sub = AppState.addEventListener('change', (st) => { if (st === 'active') syncTracking(); });
     return () => sub.remove();
   }, [ready, signedIn, hasEmployee]);
+  // Business Phone (3.8, iPhone): ring company calls on this phone when the person has a phone seat.
+  useEffect(() => {
+    if (!ready) return;
+    if (!signedIn) { stopPhone(); return; }
+    syncPhone();
+    const sub = AppState.addEventListener('change', (st) => { if (st === 'active') syncPhone(); });
+    return () => sub.remove();
+  }, [ready, signedIn]);
   // Apple Watch asks to connect (3.7): open "Connect a watch" with its code filled in, ready for Allow.
   useEffect(() => {
     if (!ready || !signedIn) return;
@@ -55,6 +64,7 @@ function Gate() {
         <Stack.Screen name="timesheet" options={{ headerShown: true, title: t('My hours'), headerTintColor: C.ink, headerStyle: { backgroundColor: C.dark ? C.bg : '#FFFFFF' }, headerShadowVisible: false }} />
         <Stack.Screen name="setup" options={{ animation: 'fade', gestureEnabled: false, contentStyle: { backgroundColor: '#050B24' } }} />
         <Stack.Screen name="web" options={{ animation: 'slide_from_bottom' }} />
+        <Stack.Screen name="call" options={{ presentation: 'fullScreenModal', gestureEnabled: false, contentStyle: { backgroundColor: '#000C58' } }} />
       </Stack.Protected>
       <Stack.Protected guard={!signedIn}>
         <Stack.Screen name="welcome" options={{ contentStyle: { backgroundColor: '#050B24' } }} />

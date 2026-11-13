@@ -2,14 +2,14 @@
   "expo": {
     "name": "OENOD",
     "slug": "oenod",
-    "version": "3.7.0",
+    "version": "3.8.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.oenod.app",
-      "buildNumber": "370",
+      "buildNumber": "380",
       "associatedDomains": [
         "applinks:oenod.com",
         "webcredentials:oenod.com"
@@ -21,7 +21,7 @@
         "ITSAppUsesNonExemptEncryption": false,
         "NSLocationAlwaysAndWhenInUseUsageDescription": "OENOD uses your location to confirm you are at your workplace when you clock in. If your workplace uses site attendance, it also shares your location with your managers while you are clocked in and OENOD is open on your screen. Never on breaks, after you clock out, or while the app is closed.",
         "UIRequiresFullScreen": true,
-        "NSMicrophoneUsageDescription": "OENOD uses the microphone for video meetings in OENOD Meet.",
+        "NSMicrophoneUsageDescription": "OENOD uses the microphone for video meetings in OENOD Meet and for Business Phone calls.",
         "UISupportedInterfaceOrientations~ipad": [
           "UIInterfaceOrientationPortrait",
           "UIInterfaceOrientationPortraitUpsideDown",
@@ -36,7 +36,7 @@
     },
     "android": {
       "package": "com.oenod.app",
-      "versionCode": 370,
+      "versionCode": 380,
       "adaptiveIcon": {
         "backgroundColor": "#000C58",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -109,7 +109,8 @@
         }
       ],
       "@bacons/apple-targets",
-      "./plugins/withWear"
+      "./plugins/withWear",
+      "./plugins/withPhoneCalls"
     ],
     "scheme": "oenod",
     "backgroundColor": "#050B24",

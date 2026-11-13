@@ -17,6 +17,7 @@ import { QR } from '../../ui/QR';
 import { LANGS, t, useLang } from '../../lib/i18n';
 import { QuickCard } from '../../ui/QuickCard';
 import { TapShare } from '../../ui/TapShare';
+import { PhoneStatus } from '../../ui/PhoneStatus';
 import { useAppearance, type Mode } from '../../lib/appearance';
 import { Pressable } from 'react-native';
 import type { IconName } from '../../ui/Icon';
@@ -110,6 +111,8 @@ export default function Me() {
           <Button key={l.code} title={l.name} kind={lang === l.code ? 'primary' : 'secondary'} onPress={() => pickLang(l.code)} style={{ flexGrow: 1, flexBasis: '45%', minHeight: 48 }} />
         ))}
       </View>
+
+      <PhoneStatus />
 
       <QuickCard />
 
