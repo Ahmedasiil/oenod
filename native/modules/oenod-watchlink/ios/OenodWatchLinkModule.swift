@@ -45,12 +45,21 @@ final class WatchLink: NSObject, WCSessionDelegate {
     return p
   }
 
+  private var lastAt: Double = 0
+
+  /// Only the newest code counts, and only while it can still work (codes last 10 minutes). The watch's
+  /// last message stays stored on the phone, so an old code must never be offered again.
   private func handle(_ m: [String: Any]) {
-    guard (m["type"] as? String) == "pair", let c = m["code"] as? String,
-          c.count == 6, c.allSatisfy({ $0.isASCII && $0.isNumber }) else { return }
+    let at = (m["at"] as? Double) ?? 0
     DispatchQueue.main.async {
+      guard at >= self.lastAt else { return }
+      if (m["type"] as? String) == "done" { self.lastAt = at; self.pending = nil; return }
+      guard (m["type"] as? String) == "pair", let c = m["code"] as? String,
+            c.count == 6, c.allSatisfy({ $0.isASCII && $0.isNumber }),
+            Date().timeIntervalSince1970 - at < 540 else { return }
+      self.lastAt = at
       self.pending = c
-      self.pendingAt = Date()
+      self.pendingAt = Date(timeIntervalSince1970: at)
       self.onCode?(c)
     }
   }

@@ -4,7 +4,7 @@ Demo account: sign in with the email above. It is the owner of "OENOD Demo Cafe"
 
 Location: used only while the app is open, to confirm the person is at their workplace when they clock in. If the employer turns on site attendance, location is shared with managers only while clocked in and the app is open. Version 3.7 does not use background location (UIBackgroundModes location removed).
 
-Apple Watch (3.7, fixed): 1) Sign in on the iPhone with the demo account. 2) Open OENOD on the Apple Watch and tap "Agree and connect" (terms shown there). 3) The iPhone app opens "Connect a watch" with the code filled in and the terms; tap "Allow and connect". If the iPhone screen doesn't open by itself: iPhone > Me > Connect a watch, type the 6-digit code from the watch, tap "Allow and connect". The watch connects within a few seconds.
+Apple Watch (3.7.0 build 371, fixed): the watch now keeps its pairing code when watchOS closes and reopens the app (before, it made a new code, so the code allowed on the iPhone no longer matched), and the iPhone ignores old codes. Steps: 1) Sign in on the iPhone with the demo account. 2) Open OENOD on the Apple Watch and tap "Agree and connect". 3) The iPhone app opens "Connect a watch" with the code filled in; tap "Allow and connect". If it does not open by itself: iPhone > Me > Connect a watch, type the 6-digit code shown on the watch, tap "Allow and connect". 4) On the watch, tap "I tapped Allow" or just wait a few seconds: it shows the time clock.
 Camera: used only to scan QR work badges.
 Face ID: optional quick unlock.
 Account deletion: Me tab, Delete my account (also at https://oenod.com/m/delete-account).
