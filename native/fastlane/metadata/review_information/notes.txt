@@ -8,4 +8,4 @@ Apple Watch (3.7.0 build 371, fixed): the watch now keeps its pairing code when 
 Camera: used only to scan QR work badges.
 Face ID: optional quick unlock.
 Account deletion: Me tab, Delete my account (also at https://oenod.com/m/delete-account).
-There are no purchases inside the app. Companies sign up and manage their plan on oenod.com.
+Business model (Guideline 2.1(b) answers): 1) Users are the owners, managers and employees of businesses with an OENOD company account; employees are invited by their employer. 2) Plans are bought only on oenod.com by the business owner or admin (monthly, per person, billed to the business). The app has no purchases, prices, upgrade buttons or purchase links. 3) In the app people use the features their company plan includes: scheduling and time clock, time off, pay stubs, team chat and tasks, HR, point of sale. 4) Only those company plan features, paid by the business on oenod.com; no consumer digital content. 5) Sold to organizations only, never to single users, consumers or families (teams of up to 3 people are free).
