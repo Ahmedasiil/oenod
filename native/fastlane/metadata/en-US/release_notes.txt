@@ -1,9 +1,6 @@
-A brand-new OENOD.
-- A fresh new look on every screen, built for phones, iPad and folding phones.
-- Meet Ava, your AI assistant: ask about your sales, team, schedule and invoices, and get a morning brief.
-- A new welcome screen and sign in with Apple, Google or Microsoft on one row.
-- Money: your wallet, sales by day, unpaid invoices and best sellers in one place.
-- Schedule: a week view with open shifts and quick tips.
-- New Apple Watch app: clock in and out, see your next shift and today's sales from your wrist. Connect it with one tap on Allow in the iPhone app.
-- Create your account and set up your business right in the app.
-- Join an OENOD Meet video meeting as a guest, no account needed.
+OENOD 3.9: everything in one app.
+- Your shift goes live on your iPhone: clock in and a timer appears on your lock screen and in the Dynamic Island.
+- OENOD Meet now opens right inside the app, with your camera and microphone. No more jumping to the website or signing in again.
+- New Employee kiosk: put a phone or iPad at the door. Staff clock in and out with their PIN or badge QR. Leaving the kiosk needs Face ID.
+- Every OENOD tool now opens inside the app, already signed in, and always shows the newest version.
+- A fresh new icon and a modern navy look on every screen.

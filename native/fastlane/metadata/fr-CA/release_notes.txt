@@ -1,9 +1,6 @@
-Un tout nouvel OENOD.
-- Un nouveau look sur chaque écran, conçu pour les téléphones, l’iPad et les téléphones pliables.
-- Voici Ava, votre assistante IA : posez vos questions sur vos ventes, votre équipe, votre horaire et vos factures, et recevez un bilan chaque matin.
-- Un nouvel écran d’accueil et la connexion avec Apple, Google ou Microsoft sur une seule ligne.
-- Argent : votre portefeuille, les ventes par jour, les factures impayées et vos meilleurs vendeurs au même endroit.
-- Horaire : une vue de la semaine avec les quarts libres et des conseils rapides.
-- Nouvelle app Apple Watch : pointez votre arrivée et votre départ, voyez votre prochain quart et les ventes du jour depuis votre poignet. Connectez-la d’une seule touche sur Autoriser dans l’app iPhone.
-- Créez votre compte et configurez votre entreprise directement dans l’app.
-- Rejoignez une réunion vidéo OENOD Meet en tant qu’invité, sans compte.
+OENOD 3.9 : tout dans une seule app.
+- Votre quart en direct sur votre iPhone : pointez l’entrée et un minuteur s’affiche sur l’écran verrouillé et dans la Dynamic Island.
+- OENOD Meet s’ouvre maintenant directement dans l’app, avec la caméra et le micro. Plus besoin d’aller sur le site ni de vous reconnecter.
+- Nouvelle borne employés : placez un téléphone ou un iPad à l’entrée. Le personnel pointe avec son NIP ou le code QR de son badge. Quitter la borne demande Face ID.
+- Tous les outils OENOD s’ouvrent dans l’app, déjà connectés, et toujours dans leur version la plus récente.
+- Une nouvelle icône et un look marine moderne sur chaque écran.
