@@ -131,7 +131,7 @@ export default function Kiosk() {
                 <Pressable key={d} onPress={() => key(d)} accessibilityRole="button" accessibilityLabel={d === 'c' ? t('Delete') : d === 'ok' ? t('Clock in or out') : d}
                   style={({ pressed }) => ({ width: k, height: 62, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: d === 'ok' ? '#FFFFFF' : 'rgba(255,255,255,0.1)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.16)', transform: [{ scale: pressed ? 0.96 : 1 }] })}>
                   {d === 'c' ? <Icon name="back" size={22} color="#FFFFFF" duo={false} />
-                    : <Text style={{ color: d === 'ok' ? '#000C58' : '#FFFFFF', fontSize: d === 'ok' ? 15 : 24, fontWeight: '700' }}>{d === 'ok' ? t('Clock in/out') : d}</Text>}
+                    : <Text numberOfLines={1} adjustsFontSizeToFit style={{ color: d === 'ok' ? '#000C58' : '#FFFFFF', fontSize: d === 'ok' ? 13 : 24, fontWeight: '700', paddingHorizontal: 4 }}>{d === 'ok' ? t('Clock in/out') : d}</Text>}
                 </Pressable>
               ))}
             </View>
