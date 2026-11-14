@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import * as WebBrowser from 'expo-web-browser';
 import Svg, { Defs, LinearGradient as SvgGrad, Path, Rect, Stop } from 'react-native-svg';
 import { Logo } from '../../ui/Logo';
 import { BASE } from '../../lib/api';
@@ -18,6 +17,7 @@ import { Icon, IconName } from '../../ui/Icon';
 import { Pressy, Rise, useCountUp } from '../../ui/Motion';
 import { t } from '../../lib/i18n';
 import { currentFix, syncTracking, waitForConsent, type GeoMe } from '../../lib/geo';
+import { syncLive } from '../../lib/live';
 
 type Clock = {
   employee: { id: number; name: string; job_title: string | null; location_id: number | null } | null;
@@ -314,7 +314,7 @@ function Suites() {
   );
 }
 
-const openMeet = () => WebBrowser.openBrowserAsync(`${BASE}/#/meet`, { presentationStyle: WebBrowser.WebBrowserPresentationStyle.FULL_SCREEN, controlsColor: '#000C58' });
+const openMeet = () => openTool('/meet', 'OENOD Meet');
 
 export default function Home() {
   const { session, isManager } = useAuth();
@@ -326,6 +326,8 @@ export default function Home() {
   const role = session?.user?.role || '';
   const company = session?.company?.name || '';
   const x = dash.data;
+  // The live shift on the lock screen and in the Dynamic Island follows the time clock.
+  useEffect(() => { if (c.data) syncLive(c.data.open, c.data.next_shift?.location || company); }, [c.data?.open?.clock_in, c.data?.open?.break_started_at, !!c.data?.open]); // eslint-disable-line react-hooks/exhaustive-deps
   const quick: Quick[] = [
     hasEmployee ? { icon: 'clock', label: t('Clock in'), go: () => router.push('/timesheet') } : { icon: 'users', label: t('Team'), go: () => router.navigate('/team') },
     { icon: 'calendar', label: t('Schedule'), go: () => router.navigate('/schedule') },

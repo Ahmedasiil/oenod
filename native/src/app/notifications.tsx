@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { ScrollView, View } from 'react-native';
-import * as WebBrowser from 'expo-web-browser';
+import { openTool } from './web';
 import { useAuth } from '../lib/auth';
 import { BASE, get, post } from '../lib/api';
 import { useLoad } from '../lib/useLoad';
@@ -39,7 +39,7 @@ export default function Notifications() {
                 sub={`${n.body ? n.body + ' · ' : ''}${day(n.created_at)} ${time(n.created_at)}`}
                 left={<IconTile name={ICON[n.kind] || 'bell'} color={tint(TI[n.kind] ?? 0)} />}
                 right={<Row style={{ gap: 6 }}>{n.read_at ? null : <View style={{ width: 9, height: 9, borderRadius: 5, backgroundColor: C.blue }} />}{n.link ? <Icon name="chevron" size={18} color={C.faint} /> : null}</Row>}
-                onPress={n.link ? () => WebBrowser.openBrowserAsync(BASE + '/' + n.link!.replace(/^\//, '')) : undefined}
+                onPress={n.link ? () => openTool(n.link!.replace(/^\/?#?/, '/').replace(/^\/\//, '/'), n.title) : undefined}
               />
             </View>
           )) : <Empty icon="bell" title={t('You\'re all caught up')} sub={t('New shifts, approvals and messages show up here.')} />}

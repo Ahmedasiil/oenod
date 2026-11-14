@@ -17,7 +17,8 @@ export function meetingId(v: string): string | null {
   return m ? m[1] : null;
 }
 
-export const openMeeting = (id: string) => WebBrowser.openBrowserAsync(`${BASE}/#/m/${id}`, { presentationStyle: WebBrowser.WebBrowserPresentationStyle.FULL_SCREEN, controlsColor: '#2A3BC4', toolbarColor: '#050B24' });
+/** Meetings open inside the app (3.9): same sign-in, camera and microphone in the app's own web view. */
+export const openMeeting = (id: string, replace = false) => (replace ? router.replace : router.push)({ pathname: '/web', params: { path: `/m/${id}`, title: 'OENOD Meet' } });
 
 export default function Guest() {
   const [v, setV] = useState('');

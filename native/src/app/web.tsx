@@ -1,5 +1,7 @@
 // Opens any oenod.com tool inside the app, already signed in: the web view shares the app's
 // session cookie, so owners reach all 40+ tools without signing in a second time.
+// 3.9: nothing leaves the app (Meet runs here with camera and microphone), and pages always load
+// fresh from oenod.com, never an old saved copy.
 import React, { useRef, useState } from 'react';
 import { ActivityIndicator, Animated, Linking, Platform, Pressable, Text, View } from 'react-native';
 import { WebView as RNWebView } from 'react-native-webview';
@@ -24,7 +26,9 @@ export default function Web() {
   const [busy, setBusy] = useState(true);
   const p = useRef(new Animated.Value(0)).current;
   const route = String(path).startsWith('/') ? String(path) : '/' + path;
-  const url = `${BASE}/?lang=${lang()}&app=1#${route}`;
+  // A new stamp each time the screen opens, so the phone never shows a stale copy of the site.
+  const stamp = useRef(String(Date.now())).current;
+  const url = `${BASE}/?lang=${lang()}&app=1&v=${stamp}#${route}`;
   if (Platform.OS === 'web') { WebBrowser.openBrowserAsync(url); router.back(); return null; }
   return (
     <View style={{ flex: 1, backgroundColor: C.bg }}>
@@ -45,6 +49,10 @@ export default function Web() {
         ref={ref}
         source={{ uri: url }}
         sharedCookiesEnabled
+        cacheEnabled={false}
+        cacheMode="LOAD_NO_CACHE"
+        allowsFullscreenVideo
+        javaScriptCanOpenWindowsAutomatically={false}
         thirdPartyCookiesEnabled
         allowsBackForwardNavigationGestures
         allowsInlineMediaPlayback
@@ -60,6 +68,8 @@ export default function Web() {
         onShouldStartLoadWithRequest={(r: any) => {
           // Stay inside OENOD; send other sites (and mail/phone links) to the phone's own apps.
           if (r.url.startsWith(BASE) || r.url.startsWith('about:') || r.url.startsWith('blob:') || r.url.startsWith('data:')) return true;
+          // Links back to the website's own sign-in never leave the app either.
+          if (/^https:\/\/(www\.)?oenod\.com/.test(r.url)) return true;
           if (/^https?:/.test(r.url)) { WebBrowser.openBrowserAsync(r.url); return false; }
           Linking.openURL(r.url).catch(() => {});
           return false;

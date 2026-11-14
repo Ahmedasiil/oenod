@@ -3,7 +3,6 @@
 import React, { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { router } from 'expo-router';
-import * as WebBrowser from 'expo-web-browser';
 import { BASE } from '../../lib/api';
 import { useAuth } from '../../lib/auth';
 import { C } from '../../lib/theme';
@@ -24,6 +23,7 @@ const SUITES: Suite[] = [
     { name: 'My hours', icon: 'clock', app: '/timesheet', who: 'staff' },
     { name: 'My availability', icon: 'check', app: '/availability', who: 'staff' },
     { name: 'Time clock', icon: 'clock', web: '/time', who: 'mgr' },
+    { name: 'Employee kiosk', icon: 'clock', app: '/kiosk', who: 'mgr' },
     { name: 'Hiring', icon: 'briefcase', web: '/hiring', who: 'mgr' },
     { name: 'Onboarding', icon: 'check', web: '/onboarding', who: 'mgr' },
     { name: 'Payroll', icon: 'cash', web: '/payroll', who: 'mgr' },
@@ -61,7 +61,7 @@ const SUITES: Suite[] = [
   ] },
   { name: 'AI & platform', color: '#0B1C86', soft: ['#F0EEFF', 'rgba(107,92,246,0.18)'], tools: [
     { name: 'Ava', icon: 'spark', app: '/ai', who: 'all' },
-    { name: 'Meet', icon: 'video', web: '/meet', browser: true, who: 'team' },
+    { name: 'Meet', icon: 'video', web: '/meet', who: 'team' },
     { name: 'Join a meeting', icon: 'link', app: '/guest', who: 'all' },
     { name: 'Connect a watch', icon: 'clock', app: '/watch', who: 'all' },
     { name: 'Team chat', icon: 'chat', web: '/chat', who: 'team' },
@@ -89,8 +89,6 @@ export default function Everything() {
   const count = SUITES.reduce((a, s) => a + s.tools.filter((x) => ok(x.who)).length, 0);
   const go = (x: Tool) => {
     if (x.app) { router.navigate(x.app as any); return; }
-    // Video calls open in the phone's secure browser, which handles camera and microphone itself.
-    if (x.web && x.browser) { WebBrowser.openBrowserAsync(`${BASE}/#${x.web}`, { presentationStyle: WebBrowser.WebBrowserPresentationStyle.FULL_SCREEN, controlsColor: '#2A3BC4' }); return; }
     if (x.web) openTool(x.web, t(x.name));
   };
   const u = session?.user;

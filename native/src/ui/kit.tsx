@@ -10,6 +10,7 @@ import { t } from '../lib/i18n';
 import { GradientButton, HeroGradient, PoweredBy } from './Brand';
 import { Pressy } from './Motion';
 import { Logo } from './Logo';
+import { Bands } from './Bands';
 import Svg, { Circle } from 'react-native-svg';
 
 /** Faint dot grid that fades out downward, like the website's night bands. */
@@ -70,6 +71,7 @@ export function Screen({ title, eyebrow, subtitle, right, children, refreshing, 
     <View style={[st.panel, { paddingTop: insets.top + (top ? S.sm : S.lg), paddingHorizontal: padH }]} onLayout={(e) => setHh(e.nativeEvent.layout.height)}>
       <HeroGradient width={width} height={hh} id="sp" fade={false} />
       <DotGrid width={width} height={Math.min(hh, 260)} />
+      <Bands size={Math.min(width, 520) * 0.62} style={{ position: 'absolute', right: -Math.min(width, 520) * 0.2, top: -Math.min(width, 520) * 0.18 }} />
       {top}
       {titleRow}
       {hero}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Alert, Platform, Share, Text, View } from 'react-native';
-import * as WebBrowser from 'expo-web-browser';
+import { openTool } from '../web';
 import { router } from 'expo-router';
 import Constants from 'expo-constants';
 import { useAuth } from '../../lib/auth';
@@ -38,7 +38,7 @@ export default function Me() {
   const cardUrl: string | undefined = p.data?.card_url;
   const qrValue = which === 'badge' && session?.employee ? (badgeUrl || session.employee.qr_token) : cardUrl;
 
-  const open = (path: string) => WebBrowser.openBrowserAsync(`${BASE}/?lang=${lang}${path.replace(/^\//, '')}`);
+  const open = (path: string, title = 'OENOD') => openTool(path.replace(/^\/#/, '') || '/', title);
   const confirmOut = () => {
     if (Platform.OS === 'web') { if (window.confirm(t('Sign out of OENOD on this device?'))) signOut(); return; }
     Alert.alert(t('Sign out?'), t('You will need to sign in again.'), [{ text: t('Cancel'), style: 'cancel' }, { text: t('Sign out'), style: 'destructive', onPress: () => signOut() }]);
@@ -119,13 +119,13 @@ export default function Me() {
         <Divider />
         <ListRow title={t('Connect a watch')} sub={t('Apple Watch or Wear OS: clock in from your wrist')} left={<IconTile name="clock" color={tint(5)} />} onPress={() => router.push('/watch')} />
         <Divider />
-        <ListRow title={t('Open the full OENOD website')} sub={t('Payroll, POS, invoices, reports and everything else')} left={<IconTile name="globe" color={tint(1)} />} onPress={() => open('/#/')} />
+        <ListRow title={t('Every OENOD tool')} sub={t('Payroll, POS, invoices, reports and everything else, right here in the app')} left={<IconTile name="globe" color={tint(1)} />} onPress={() => router.navigate('/all')} />
         <Divider />
-        <ListRow title={t('Edit my card and resume')} left={<IconTile name="user" color={tint(2)} />} onPress={() => open('/#/profile')} />
+        <ListRow title={t('Edit my card and resume')} left={<IconTile name="user" color={tint(2)} />} onPress={() => open('/#/profile', t('Edit my card and resume'))} />
         <Divider />
-        <ListRow title={t('Help and support')} left={<IconTile name="mail" color={tint(3)} />} onPress={() => open('/#/help')} />
+        <ListRow title={t('Help and support')} left={<IconTile name="mail" color={tint(3)} />} onPress={() => open('/#/help', t('Help and support'))} />
         <Divider />
-        <ListRow title={t('Privacy policy')} left={<IconTile name="check" color={tint(4)} />} onPress={() => open('/#/privacy')} />
+        <ListRow title={t('Privacy policy')} left={<IconTile name="check" color={tint(4)} />} onPress={() => open('/#/privacy', t('Privacy policy'))} />
         <Divider />
         <ListRow title={t('Delete my account')} sub={t('Permanently remove your login and personal information')} left={<IconTile name="x" color={C.bad} />} onPress={() => router.push('/delete-account')} />
       </Card>

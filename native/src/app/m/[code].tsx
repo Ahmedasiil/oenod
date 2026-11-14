@@ -5,6 +5,6 @@ import Guest, { meetingId, openMeeting } from '../guest';
 
 export default function MeetingLink() {
   const { code } = useLocalSearchParams<{ code: string }>();
-  useEffect(() => { const id = meetingId(String(code || '')); if (id) openMeeting(id).finally(() => { if (router.canGoBack()) router.back(); }); }, [code]);
+  useEffect(() => { const id = meetingId(String(code || '')); if (id) openMeeting(id, true); }, [code]);
   return <Guest />;
 }

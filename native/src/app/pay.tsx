@@ -1,6 +1,6 @@
 import React from 'react';
 import { ScrollView, View } from 'react-native';
-import * as WebBrowser from 'expo-web-browser';
+import { openTool } from './web';
 import { BASE, get } from '../lib/api';
 import { useLoad } from '../lib/useLoad';
 import { date, money } from '../lib/format';
@@ -22,7 +22,7 @@ const n = (v: unknown) => Number(v || 0);
 export default function PayScreen() {
   const d = useLoad(() => get<Pay>('/api/me/pay'));
   const x = d.data;
-  const open = () => WebBrowser.openBrowserAsync(`${BASE}/?lang=${lang()}#/my-pay`);
+  const open = () => openTool('/my-pay', t('My pay'));
   return (
     <ScrollView style={{ backgroundColor: C.bg }} contentContainerStyle={{ width: '100%', maxWidth: 760, alignSelf: 'center', padding: S.lg, gap: S.md, paddingBottom: 48 }}>
       {d.loading && !x ? <Loading /> : d.error && !x ? <ErrorBox text={d.error} onRetry={d.reload} /> : (
