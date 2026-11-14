@@ -1,0 +1,18 @@
+name: Release approved iOS version to the App Store
+on:
+  push:
+    branches: [ios-release]
+permissions:
+  contents: read
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      APPLE_KEY_ID: ${{ secrets.APPLE_KEY_ID }}
+      APPLE_ISSUER_ID: ${{ secrets.APPLE_ISSUER_ID }}
+      APPLE_KEY_P8: ${{ secrets.APPLE_KEY_P8 }}
+      RELEASE_VERSION: '3.7.0'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Release
+        run: gem list -i jwt >/dev/null || sudo gem install jwt; ruby native/ios-ci/asc_release.rb
