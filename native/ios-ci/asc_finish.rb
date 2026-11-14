@@ -88,7 +88,7 @@ end
 
 # 5. Attach build to the editable version
 _, vs = call(:get, "/v1/apps/#{app_id}/appStoreVersions?filter[platform]=IOS&limit=5")
-ver = vs['data']&.find { |v| %w[PREPARE_FOR_SUBMISSION DEVELOPER_REJECTED REJECTED METADATA_REJECTED].include?(v['attributes']['appStoreState']) }
+ver = vs['data']&.find { |v| %w[READY_FOR_REVIEW PREPARE_FOR_SUBMISSION DEVELOPER_REJECTED REJECTED METADATA_REJECTED].include?(v['attributes']['appStoreState']) }
 abort('RESULT version: no editable version') unless ver
 puts "RESULT version: #{ver['attributes']['versionString']} (#{ver['attributes']['appStoreState']})"
 want = ENV['BUILD_NUMBER'].to_s

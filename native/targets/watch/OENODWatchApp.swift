@@ -33,6 +33,26 @@ final class WatchModel: ObservableObject {
   private var poll: String?
   private var pollTask: Task<Void, Never>?
 
+  /// The code being paired survives the watch app closing (watchOS often closes it while the person is on
+  /// the phone). Without this a relaunch made a new code, so the code typed or allowed on the phone never matched.
+  private enum Saved {
+    static let key = "oenod.watch.pair"
+    static func load() -> (code: String, poll: String, until: Date)? {
+      guard let d = UserDefaults.standard.dictionary(forKey: key), let c = d["code"] as? String, let p = d["poll"] as? String,
+            let u = d["until"] as? Double, Date(timeIntervalSince1970: u) > Date().addingTimeInterval(20) else { return nil }
+      return (c, p, Date(timeIntervalSince1970: u))
+    }
+    static func save(_ c: String, _ p: String, _ u: Date) { UserDefaults.standard.set(["code": c, "poll": p, "until": u.timeIntervalSince1970], forKey: key) }
+    static func clear() { UserDefaults.standard.removeObject(forKey: key) }
+  }
+
+  init() {
+    if token == nil, let s = Saved.load() {
+      code = s.code; poll = s.poll
+      pollTask = Task { await self.waitForLink(until: s.until, first: true) }
+    }
+  }
+
   // MARK: pairing
   func startPairing() {
     pollTask?.cancel()
@@ -41,9 +61,11 @@ final class WatchModel: ObservableObject {
       do {
         struct Start: Decodable { let code: String; let poll: String; let expires_in: Int }
         let s: Start = try await API.call("POST", "/api/watch/start", body: ["platform": "watchos"])
+        let until = Date().addingTimeInterval(TimeInterval(s.expires_in))
         code = s.code; poll = s.poll; fails = 0
+        Saved.save(s.code, s.poll, until)
         PhoneLink.shared.send(code: s.code)
-        pollTask = Task { await self.waitForLink(until: Date().addingTimeInterval(TimeInterval(s.expires_in))) }
+        pollTask = Task { await self.waitForLink(until: until) }
       } catch { self.error = error.localizedDescription }
     }
   }
@@ -51,13 +73,14 @@ final class WatchModel: ObservableObject {
   private var fails = 0
   @Published var hint: String?
 
-  private func waitForLink(until: Date) async {
+  private func waitForLink(until: Date, first: Bool = false) async {
+    if first, await checkNow() { return }
     while !Task.isCancelled && Date() < until {
       try? await Task.sleep(nanoseconds: 2_000_000_000)
       if Task.isCancelled { return }
       if await checkNow() { return }
     }
-    if !Task.isCancelled && token == nil { code = nil; error = String(localized: "The code expired. Tap to get a new one.") }
+    if !Task.isCancelled && token == nil { code = nil; poll = nil; Saved.clear(); error = String(localized: "The code expired. Tap to get a new one.") }
   }
 
   /// One look at the server: has the phone linked our code yet? True when connected (or the code is gone).
@@ -70,6 +93,7 @@ final class WatchModel: ObservableObject {
       fails = 0; hint = nil
       if c.linked, let t = c.token {
         Keychain.save(t); token = t; code = nil; self.poll = nil
+        Saved.clear(); PhoneLink.shared.done()
         pollTask?.cancel()
         WKHaptic.success()
         await refresh()
@@ -78,7 +102,7 @@ final class WatchModel: ObservableObject {
       return false
     } catch let e as APIError where e.status == 410 {
       if token == nil { code = nil; error = e.message }
-      self.poll = nil; return true
+      self.poll = nil; Saved.clear(); return true
     } catch {
       // Offline for a moment: keep trying, but say so after a few misses so nobody waits blindly.
       fails += 1

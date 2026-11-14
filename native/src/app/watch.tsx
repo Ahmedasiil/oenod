@@ -29,7 +29,7 @@ export default function Watch() {
   const link = async () => {
     setBusy(true);
     try { await post('/api/watch/link', { code: digits }); setCode(''); say(t('Connected'), t('Your watch is connected. It opens in a few seconds.')); setTimeout(d.reload, 4000); }
-    catch (e: any) { say(t('Not connected'), e.message); }
+    catch (e: any) { say(t('Not connected'), fromWatch && e.status === 422 ? t('This code has expired. On your watch, tap Get a code, then tap Allow here again.') : e.message); }
     finally { setBusy(false); }
   };
   const remove = (w: W) => {

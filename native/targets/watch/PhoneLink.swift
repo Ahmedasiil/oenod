@@ -16,6 +16,12 @@ final class PhoneLink: NSObject, WCSessionDelegate {
     deliver(code, s)
   }
 
+  /// Connected: tell the phone the old code is finished, so it never offers it again.
+  func done() {
+    guard WCSession.isSupported(), WCSession.default.activationState == .activated else { return }
+    try? WCSession.default.updateApplicationContext(["type": "done", "at": Date().timeIntervalSince1970])
+  }
+
   private func deliver(_ code: String, _ s: WCSession) {
     let msg: [String: Any] = ["type": "pair", "code": code, "at": Date().timeIntervalSince1970]
     try? s.updateApplicationContext(msg) // read by the phone app the next time it opens

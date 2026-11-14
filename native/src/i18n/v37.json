@@ -42,7 +42,8 @@
   "Busy": "Occupé",
   "Off": "Absent",
   "Company calls ring on this iPhone, also when it is locked.": "Les appels de l’entreprise sonnent sur cet iPhone, même verrouillé.",
-  "Company calls will not ring on this iPhone.": "Les appels de l’entreprise ne sonneront pas sur cet iPhone."
+  "Company calls will not ring on this iPhone.": "Les appels de l’entreprise ne sonneront pas sur cet iPhone.",
+  "This code has expired. On your watch, tap Get a code, then tap Allow here again.": "Ce code a expiré. Sur votre montre, touchez Obtenir un code, puis touchez Autoriser ici de nouveau."
  },
  "es": {
   "Ava is looking at your data…": "Ava está revisando tus datos…",
@@ -87,7 +88,8 @@
   "Busy": "Ocupado",
   "Off": "Desconectado",
   "Company calls ring on this iPhone, also when it is locked.": "Las llamadas de la empresa suenan en este iPhone, incluso bloqueado.",
-  "Company calls will not ring on this iPhone.": "Las llamadas de la empresa no sonarán en este iPhone."
+  "Company calls will not ring on this iPhone.": "Las llamadas de la empresa no sonarán en este iPhone.",
+  "This code has expired. On your watch, tap Get a code, then tap Allow here again.": "Este código caducó. En tu reloj, toca Obtener un código y luego vuelve a tocar Permitir aquí."
  },
  "pt": {
   "Ava is looking at your data…": "O Ava está analisando seus dados…",
@@ -132,7 +134,8 @@
   "Busy": "Ocupado",
   "Off": "Desligado",
   "Company calls ring on this iPhone, also when it is locked.": "As chamadas da empresa tocam neste iPhone, mesmo bloqueado.",
-  "Company calls will not ring on this iPhone.": "As chamadas da empresa não vão tocar neste iPhone."
+  "Company calls will not ring on this iPhone.": "As chamadas da empresa não vão tocar neste iPhone.",
+  "This code has expired. On your watch, tap Get a code, then tap Allow here again.": "Este código expirou. No seu relógio, toque em Obter um código e depois toque em Permitir aqui novamente."
  },
  "ar": {
   "Ava is looking at your data…": "Ava يراجع بياناتك…",
@@ -177,7 +180,8 @@
   "Busy": "مشغول",
   "Off": "غير متاح",
   "Company calls ring on this iPhone, also when it is locked.": "ترن مكالمات الشركة على هذا الـ iPhone حتى وهو مقفل.",
-  "Company calls will not ring on this iPhone.": "لن ترن مكالمات الشركة على هذا الـ iPhone."
+  "Company calls will not ring on this iPhone.": "لن ترن مكالمات الشركة على هذا الـ iPhone.",
+  "This code has expired. On your watch, tap Get a code, then tap Allow here again.": "انتهت صلاحية هذا الرمز. على ساعتك، اضغط الحصول على رمز، ثم اضغط سماح هنا مرة أخرى."
  },
  "ur": {
   "Ava is looking at your data…": "Ava آپ کا ڈیٹا دیکھ رہا ہے…",
@@ -222,7 +226,8 @@
   "Busy": "مصروف",
   "Off": "بند",
   "Company calls ring on this iPhone, also when it is locked.": "کمپنی کی کالیں اس iPhone پر بجتی ہیں، لاک ہونے پر بھی۔",
-  "Company calls will not ring on this iPhone.": "کمپنی کی کالیں اس iPhone پر نہیں بجیں گی۔"
+  "Company calls will not ring on this iPhone.": "کمپنی کی کالیں اس iPhone پر نہیں بجیں گی۔",
+  "This code has expired. On your watch, tap Get a code, then tap Allow here again.": "یہ کوڈ ختم ہو گیا ہے۔ اپنی گھڑی پر کوڈ حاصل کریں دبائیں، پھر یہاں دوبارہ اجازت دیں دبائیں۔"
  },
  "zh": {
   "Ava is looking at your data…": "Ava 正在查看您的数据…",
@@ -267,7 +272,8 @@
   "Busy": "忙碌",
   "Off": "关闭",
   "Company calls ring on this iPhone, also when it is locked.": "公司来电会在这部 iPhone 上响铃，锁屏时也会。",
-  "Company calls will not ring on this iPhone.": "公司来电不会在这部 iPhone 上响铃。"
+  "Company calls will not ring on this iPhone.": "公司来电不会在这部 iPhone 上响铃。",
+  "This code has expired. On your watch, tap Get a code, then tap Allow here again.": "此代码已过期。请在手表上轻点“获取代码”，然后在这里再次轻点“允许”。"
  },
  "hi": {
   "Ava is looking at your data…": "Ava आपका डेटा देख रहा है…",
@@ -312,7 +318,8 @@
   "Busy": "व्यस्त",
   "Off": "बंद",
   "Company calls ring on this iPhone, also when it is locked.": "कंपनी की कॉल इस iPhone पर बजती हैं, लॉक होने पर भी।",
-  "Company calls will not ring on this iPhone.": "कंपनी की कॉल इस iPhone पर नहीं बजेंगी।"
+  "Company calls will not ring on this iPhone.": "कंपनी की कॉल इस iPhone पर नहीं बजेंगी।",
+  "This code has expired. On your watch, tap Get a code, then tap Allow here again.": "यह कोड समाप्त हो गया है। अपनी घड़ी पर कोड पाएं टैप करें, फिर यहां दोबारा अनुमति दें टैप करें।"
  },
  "pa": {
   "Ava is looking at your data…": "Ava ਤੁਹਾਡਾ ਡਾਟਾ ਦੇਖ ਰਿਹਾ ਹੈ…",
@@ -357,7 +364,8 @@
   "Busy": "ਰੁੱਝਿਆ",
   "Off": "ਬੰਦ",
   "Company calls ring on this iPhone, also when it is locked.": "ਕੰਪਨੀ ਦੀਆਂ ਕਾਲਾਂ ਇਸ iPhone ਤੇ ਵੱਜਦੀਆਂ ਹਨ, ਲੌਕ ਹੋਣ ਤੇ ਵੀ।",
-  "Company calls will not ring on this iPhone.": "ਕੰਪਨੀ ਦੀਆਂ ਕਾਲਾਂ ਇਸ iPhone ਤੇ ਨਹੀਂ ਵੱਜਣਗੀਆਂ।"
+  "Company calls will not ring on this iPhone.": "ਕੰਪਨੀ ਦੀਆਂ ਕਾਲਾਂ ਇਸ iPhone ਤੇ ਨਹੀਂ ਵੱਜਣਗੀਆਂ।",
+  "This code has expired. On your watch, tap Get a code, then tap Allow here again.": "ਇਹ ਕੋਡ ਖਤਮ ਹੋ ਗਿਆ ਹੈ। ਆਪਣੀ ਘੜੀ 'ਤੇ ਕੋਡ ਲਓ ਦਬਾਓ, ਫਿਰ ਇੱਥੇ ਦੁਬਾਰਾ ਇਜਾਜ਼ਤ ਦਿਓ ਦਬਾਓ।"
  },
  "tl": {
   "Ava is looking at your data…": "Tinitingnan ng Ava ang iyong data…",
@@ -402,6 +410,7 @@
   "Busy": "Busy",
   "Off": "Off",
   "Company calls ring on this iPhone, also when it is locked.": "Tumutunog ang tawag ng kumpanya sa iPhone na ito, kahit naka-lock.",
-  "Company calls will not ring on this iPhone.": "Hindi tutunog ang tawag ng kumpanya sa iPhone na ito."
+  "Company calls will not ring on this iPhone.": "Hindi tutunog ang tawag ng kumpanya sa iPhone na ito.",
+  "This code has expired. On your watch, tap Get a code, then tap Allow here again.": "Nag-expire na ang code na ito. Sa iyong relo, i-tap ang Kumuha ng code, pagkatapos i-tap muli ang Payagan dito."
  }
 }
