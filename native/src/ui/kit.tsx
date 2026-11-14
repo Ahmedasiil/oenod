@@ -44,7 +44,8 @@ export function Screen({ title, eyebrow, subtitle, right, children, refreshing, 
   const { width } = useWindowDimensions();
   const [hh, setHh] = React.useState(160);
   const y = React.useRef(new Animated.Value(0)).current;
-  const isHero = !!hero;
+  // 3.9: every titled screen gets the navy band header with the layered rings, like the website.
+  const isHero = !!hero || !!title;
   const padH = Math.max(S.lg + 4, (width - 760) / 2 + S.lg);
   useFocusEffect(React.useCallback(() => { setStatusBarStyle(isHero || C.dark ? 'light' : 'dark'); return () => setStatusBarStyle(C.dark ? 'light' : 'dark'); }, [isHero]));
   const goBack = () => (router.canGoBack() ? router.back() : router.replace('/'));
@@ -59,22 +60,25 @@ export function Screen({ title, eyebrow, subtitle, right, children, refreshing, 
       {backBtn}
       <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: S.md }}>
         <View style={{ flex: 1 }}>
-          {eyebrow ? <Text style={[st.eyebrow, hero ? { color: '#B9C4FF' } : null]}>{eyebrow}</Text> : null}
-          <Text style={[st.h1, hero ? { color: '#FFFFFF', fontSize: 28 } : null]} accessibilityRole="header">{title}</Text>
-          {subtitle ? <Text style={[st.headSub, hero ? { color: '#9AA5C8' } : null]}>{subtitle}</Text> : null}
+          {eyebrow ? <Text style={[st.eyebrow, isHero ? { color: '#B9C4FF' } : null]}>{eyebrow}</Text> : null}
+          <Text style={[st.h1, isHero ? { color: '#FFFFFF', fontSize: 28 } : null]} accessibilityRole="header">{title}</Text>
+          {subtitle ? <Text style={[st.headSub, isHero ? { color: '#9AA5C8' } : null]}>{subtitle}</Text> : null}
         </View>
         {right}
       </View>
     </View>
   ) : null;
-  const head = hero ? (
-    <View style={[st.panel, { paddingTop: insets.top + (top ? S.sm : S.lg), paddingHorizontal: padH }]} onLayout={(e) => setHh(e.nativeEvent.layout.height)}>
+  const head = isHero ? (
+    <View onLayout={(e) => setHh(e.nativeEvent.layout.height)}>
+    <View style={[st.panel, { paddingTop: insets.top + (top ? S.sm : S.lg), paddingHorizontal: padH }, hero ? null : { paddingBottom: 20 }]}>
       <HeroGradient width={width} height={hh} id="sp" fade={false} />
       <DotGrid width={width} height={Math.min(hh, 260)} />
       <Bands size={Math.min(width, 520) * 0.62} style={{ position: 'absolute', right: -Math.min(width, 520) * 0.2, top: -Math.min(width, 520) * 0.18 }} />
       {top}
       {titleRow}
       {hero}
+    </View>
+    {below}
     </View>
   ) : title ? (
     <View onLayout={(e) => setHh(e.nativeEvent.layout.height)}>
@@ -225,7 +229,7 @@ export const st: Record<string, any> = {};
 onPalette(() => { Object.assign(st, StyleSheet.create({
   screen: { flex: 1, backgroundColor: C.bg },
   head: { overflow: 'hidden', paddingHorizontal: S.lg, paddingBottom: 14, backgroundColor: C.dark ? C.bg : '#FFFFFF' },
-  panel: { overflow: 'hidden', paddingHorizontal: S.lg, paddingBottom: 24, gap: 18, backgroundColor: '#050B24' },
+  panel: { overflow: 'hidden', paddingHorizontal: S.lg, paddingBottom: 24, gap: 18, backgroundColor: '#000C58', borderBottomLeftRadius: 28, borderBottomRightRadius: 28 },
   slim: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 48, paddingHorizontal: 14, borderRadius: 16, backgroundColor: C.dark ? 'rgba(12,21,54,0.94)' : 'rgba(255,255,255,0.96)', borderWidth: StyleSheet.hairlineWidth, borderColor: C.line, shadowColor: '#0A1230', shadowOpacity: 0.14, shadowRadius: 18, shadowOffset: { width: 0, height: 8 }, elevation: 8 },
   eyebrow: { color: C.faint, fontSize: 13, fontWeight: '500', marginBottom: 2 },
   h1: { color: C.ink, fontSize: 30, fontWeight: '800', letterSpacing: -0.9 },
