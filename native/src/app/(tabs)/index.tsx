@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Animated, Easing, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Animated, Easing, Platform, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { AskBar, BlackCard, Chip, GlanceGrid, HealthBar, KpiStrip, LightRow, NavyCard, QuickAccess, Sec, Suggest, type Glance, type Kpi, type QA } from '../../ui/Pro';
 import Svg, { Defs, LinearGradient as SvgGrad, Path, Rect, Stop } from 'react-native-svg';
 import { Logo } from '../../ui/Logo';
 import { BASE } from '../../lib/api';
@@ -335,119 +336,234 @@ function Suites() {
 
 const openMeet = () => openTool('/meet', 'OENOD Meet');
 
+/** Ava's briefing as numbered points, in a navy-band card (approved 3.9 look). */
+function BriefPro() {
+  const [text, setText] = useState<string | null>(null);
+  const [err, setErr] = useState('');
+  const [at] = useState(new Date());
+  useEffect(() => { get<{ brief: string }>('/api/ai/brief').then((r) => setText(r.brief)).catch((e) => setErr(e?.message || '')); }, []);
+  const lines = (text || '').split('\n').map((l) => l.replace(/^\s*([-*•]|\d+\.)\s*/, '').trim()).filter(Boolean).slice(0, 3);
+  return (
+    <NavyCard icon="spark" title={t('Your day in 30 seconds')} sub={t("Ava's briefing · updated {t}", { t: at.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) })} link={t('Ask')} onLink={() => router.navigate('/ai')}>
+      {text ? lines.map((l, i) => (
+        <View key={i} style={{ flexDirection: 'row', gap: 10, alignItems: 'flex-start', paddingVertical: 9, borderTopWidth: i ? 1 : 0, borderColor: C.line }}>
+          <View style={{ width: 22, height: 22, borderRadius: 7, alignItems: 'center', justifyContent: 'center', backgroundColor: C.dark ? '#171C44' : '#EEF1FF', marginTop: 1 }}>
+            <Text style={{ color: C.dark ? '#B9C4FF' : '#1B2A9E', fontSize: 11, fontWeight: '700' }}>{i + 1}</Text>
+          </View>
+          <Text style={{ flex: 1, color: C.ink, fontSize: 13, lineHeight: 19 }}>
+            {l.split(/(\*\*[^*]+\*\*)/g).map((p, n) => p.startsWith('**') ? <Text key={n} style={{ fontWeight: '700' }}>{p.slice(2, -2)}</Text> : <Text key={n} style={{ color: C.sub }}>{p}</Text>)}
+          </Text>
+        </View>
+      )) : <Muted style={{ paddingVertical: 8 }}>{err || t('Ava is reading today’s numbers…')}</Muted>}
+    </NavyCard>
+  );
+}
+
+type TO = { id: number; kind: string; starts_on: string; ends_on: string; status: string; first_name: string; last_name: string };
+type SR = { id: number; kind: 'swap' | 'drop' | 'claim'; name: string; target_name: string | null; starts_at: string };
+
+/** "Waiting for you": time off, shift swaps and overdue invoices, with one-tap answers. */
+function Waiting({ x, onChanged }: { x: any; onChanged: () => void }) {
+  const [to, setTo] = useState<TO[]>([]);
+  const [sr, setSr] = useState<SR[]>([]);
+  const [busy, setBusy] = useState('');
+  const load = () => {
+    get<{ requests: TO[] }>('/api/timeoff').then((r) => setTo((r.requests || []).filter((q) => q.status === 'pending'))).catch(() => {});
+    get<{ requests: SR[] }>('/api/schedule').then((r) => setSr(r.requests || [])).catch(() => {});
+  };
+  useEffect(load, []);
+  const say = (m: string) => (Platform.OS === 'web' ? window.alert(m) : Alert.alert(t('Not done'), m));
+  const run = async (key: string, fn: () => Promise<unknown>) => {
+    setBusy(key);
+    try { await fn(); if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {}); load(); onChanged(); }
+    catch (e: any) { say(e.message); } finally { setBusy(''); }
+  };
+  const rows: React.ReactNode[] = [];
+  for (const r of to.slice(0, 3)) {
+    const span = r.starts_on === r.ends_on ? day(r.starts_on) : `${day(r.starts_on)} – ${day(r.ends_on)}`;
+    rows.push(<LightRow key={'to' + r.id} first={!rows.length} kind="a" title={t('{n} · time off', { n: r.first_name })} sub={span}
+      b={{ label: t('Deny'), go: () => run('d' + r.id, () => post(`/api/timeoff/${r.id}/decide`, { status: 'denied' })) }}
+      a={{ label: t('Approve'), busy: busy === 'a' + r.id, go: () => run('a' + r.id, () => post(`/api/timeoff/${r.id}/decide`, { status: 'approved' })) }} />);
+  }
+  for (const r of sr.slice(0, 2)) {
+    const what = r.kind === 'swap' ? t('Shift swap {d}', { d: `${day(r.starts_at)} ${time(r.starts_at)}` }) : r.kind === 'claim' ? t('Open shift {d}', { d: `${day(r.starts_at)} ${time(r.starts_at)}` }) : t('Give away {d}', { d: `${day(r.starts_at)} ${time(r.starts_at)}` });
+    rows.push(<LightRow key={'sr' + r.id} first={!rows.length} kind="a" title={what} sub={r.target_name ? `${r.name} → ${r.target_name}` : r.name}
+      b={{ label: t('Deny'), go: () => run('sd' + r.id, () => post(`/api/schedule/requests/${r.id}/decide`, { decision: 'decline' })) }}
+      a={{ label: t('Approve'), busy: busy === 'sa' + r.id, go: () => run('sa' + r.id, () => post(`/api/schedule/requests/${r.id}/decide`, { decision: 'approve' })) }} />);
+  }
+  if (x?.overdue_count) rows.push(<LightRow key="inv" first={!rows.length} kind="r" title={t('{n} invoices overdue', { n: x.overdue_count })} sub={money(x.overdue_amount)}
+    a={{ label: t('Remind'), go: () => openTool('/invoices', t('Invoices')) }} />);
+  if (x?.to_approve) rows.push(<LightRow key="ts" first={!rows.length} kind="a" title={t('Approve {n} timesheets', { n: x.to_approve })} sub={t('Before payroll')}
+    a={{ label: t('Review'), go: () => openTool('/time', t('Time clock')) }} />);
+  return (
+    <NavyCard icon="bell" title={t('Waiting for you')} sub={rows.length ? t('{n} things need your OK', { n: rows.length }) : t('All caught up')} link={t('See all')} onLink={() => router.navigate('/timeoff')}>
+      {rows.length ? rows : <LightRow first kind="g" title={t('Nothing waiting')} sub={t('New requests show up here')} />}
+    </NavyCard>
+  );
+}
+
 export default function Home() {
   const { session, isManager } = useAuth();
+  const { width } = useWindowDimensions();
   const hasEmployee = !!session?.employee;
   const c = useLoad<Clock | null>(() => (hasEmployee ? get<Clock>('/api/me/clock') : Promise.resolve(null)), [hasEmployee]);
   const dash = useLoad<any>(() => (isManager ? get('/api/dashboard') : Promise.resolve(null)), [isManager]);
+  const wal = useLoad<any>(() => (isManager ? get('/api/wallet').catch(() => null) : Promise.resolve(null)), [isManager]);
   const first = (session?.user?.name || '').split(' ')[0];
   const unread = session?.notifications || 0;
-  const role = session?.user?.role || '';
   const company = session?.company?.name || '';
   const x = dash.data;
-  // The live shift on the lock screen and in the Dynamic Island follows the time clock.
+  const [now, setNow] = useState(new Date());
+  useEffect(() => { const i = setInterval(() => setNow(new Date()), 30000); return () => clearInterval(i); }, []);
   useEffect(() => { if (c.data) syncLive(c.data.open, c.data.next_shift?.location || company); }, [c.data?.open?.clock_in, c.data?.open?.break_started_at, !!c.data?.open]); // eslint-disable-line react-hooks/exhaustive-deps
-  // Managers: Meet, Kiosk, Payroll, Calls. Employees: Clock, Schedule, Meet, Time off. All open inside the app.
-  const quick: Quick[] = isManager ? [
-    { icon: 'video', label: t('Meet'), go: openMeet },
-    { icon: 'clock', label: t('Kiosk'), go: () => router.push('/kiosk') },
-    { icon: 'cash', label: t('Payroll'), go: () => openTool('/payroll', t('Payroll')) },
-    { icon: 'phone', label: t('Calls'), go: () => openTool('/calls', t('Business Phone')) },
-  ] : [
-    hasEmployee ? { icon: 'clock', label: t('Clock'), go: () => router.push('/timesheet'), live: !!c.data?.open } : { icon: 'users', label: t('Team'), go: () => router.navigate('/team') },
-    { icon: 'calendar', label: t('Schedule'), go: () => router.navigate('/schedule') },
-    { icon: 'video', label: t('Meet'), go: openMeet },
-    { icon: 'sun', label: t('Time off'), go: () => router.navigate('/timeoff') },
-  ];
-  const todos: Todo[] = [];
-  if (x?.pending_timeoff) todos.push({ key: 'to', text: x.pending_timeoff === 1 ? t('Approve 1 time-off request') : t('Approve {n} time-off requests', { n: x.pending_timeoff }), go: () => router.navigate('/timeoff') });
-  if (x?.overdue_count) todos.push({ key: 'inv', text: t('Follow up on {n} overdue invoices', { n: x.overdue_count }), note: money(x.overdue_amount), go: () => openTool('/invoices', t('Invoices')) });
-  for (const p of (x?.low_stock || []).slice(0, 2)) todos.push({ key: 'ls' + p.name, text: t('Order {p}, {n} left', { p: p.name, n: Number(p.stock_qty ?? 0) }), note: t('Low'), go: () => openTool('/inventory', t('Inventory')) });
-  if (x?.to_approve) todos.push({ key: 'ta', text: t('Approve {n} timesheets', { n: x.to_approve }), go: () => openTool('/time', t('Time clock')) });
+  const side = Math.max(S.lg + 4, (width - 760) / 2 + S.lg);
+  const ask = (q?: string) => router.navigate(q ? { pathname: '/ai', params: { q } } : '/ai');
+  const open = c.data?.open;
+  const nx = c.data?.next_shift;
 
-  const hero = isManager ? <SalesGlass x={x} />
-    : hasEmployee ? (c.data ? <View style={glass}><ClockCard clock={c.data} onChange={(v) => c.setData(v)} /></View> : <View style={[glass, { height: 150, justifyContent: 'center' }]}><Loading /></View>)
-    : undefined;
+  // Live numbers strip (owners and managers).
+  const ser: number[] = (x?.series || []).map((d: any) => Number(d.total || 0));
+  const growth = x?.sales_prev_week ? Math.round(((x.sales_week - x.sales_prev_week) / x.sales_prev_week) * 100) : null;
+  const onNow = (x?.on_clock || []).length, planned = (x?.shifts_today || []).length;
+  const kpis: Kpi[] = x ? [
+    { label: t('Sales today'), value: money(x.sales_today || 0), delta: growth == null ? undefined : `${growth >= 0 ? '+' : ''}${growth}%`, up: (growth ?? 0) >= 0, series: ser.slice(-7), go: () => openTool('/sales', t('Sales')) },
+    { label: t('Orders'), value: String(x.orders_today ?? 0), series: ser.slice(-7), go: () => openTool('/sales', t('Sales')) },
+    { label: t('Labour'), value: x.labor_pct == null ? '—' : `${Math.round(x.labor_pct)}%`, up: (x.labor_pct ?? 0) <= 30, go: () => openTool('/time', t('Time clock')) },
+    { label: t('Working now'), value: planned ? t('{a} of {b}', { a: onNow, b: planned }) : String(onNow), up: !planned || onNow >= planned, delta: planned && onNow < planned ? t('{n} not in', { n: planned - onNow }) : undefined, go: () => router.navigate('/team') },
+    ...(x.open_ar != null ? [{ label: t('Owed to you'), value: money(x.open_ar), go: () => openTool('/invoices', t('Invoices')) }] : []),
+  ] : [];
+
+  const qa: QA[] = isManager ? [
+    hasEmployee ? { label: open ? t('Clock out') : t('Clock in'), sub: open ? t('Since {t}', { t: time(open.clock_in) }) : t('Not clocked in'), icon: 'clock', go: () => router.push('/timesheet') }
+      : { label: t('Kiosk'), sub: t('Staff clock in here'), icon: 'clock', go: () => router.push('/kiosk') },
+    { label: t('Schedule'), sub: planned ? t('{n} shifts today', { n: planned }) : t('This week'), icon: 'calendar', go: () => router.navigate('/schedule') },
+    { label: t('Meet'), sub: t('Start or join'), icon: 'video', go: openMeet },
+    { label: t('Invoices'), sub: x?.overdue_count ? t('{n} overdue', { n: x.overdue_count }) : t('All paid'), icon: 'news', go: () => openTool('/invoices', t('Invoices')) },
+    { label: t('Calls'), sub: t('Business Phone'), icon: 'phone', go: () => openTool('/calls', t('Business Phone')) },
+    { label: t('Payroll'), sub: t('Review and pay'), icon: 'cash', go: () => openTool('/payroll', t('Payroll')) },
+  ] : [
+    { label: open ? t('Clock out') : t('Clock in'), sub: open ? t('Since {t}', { t: time(open.clock_in) }) : nx ? `${time(nx.starts_at)}–${time(nx.ends_at)}` : t('Not clocked in'), icon: 'clock', go: () => router.push('/timesheet') },
+    { label: t('My shifts'), sub: nx ? t('Next: {d}', { d: `${day(nx.starts_at)} ${time(nx.starts_at)}` }) : t('This week'), icon: 'calendar', go: () => router.navigate('/schedule') },
+    { label: t('Time off'), sub: t('Ask for days off'), icon: 'sun', go: () => router.navigate('/timeoff') },
+    { label: t('My pay'), sub: t('Pay stubs'), icon: 'cash', go: () => router.push('/pay') },
+    { label: t('Team chat'), sub: t('Messages'), icon: 'chat', go: () => openTool('/chat', t('Team chat')) },
+    { label: t('Meet'), sub: t('Join a meeting'), icon: 'video', go: openMeet },
+  ];
+
+  // At a glance: each area's live number and light.
+  const low = (x?.low_stock || []).length;
+  const glance: Glance[] = x ? [
+    { label: t('Schedule'), value: String(planned), hint: t('shifts today'), icon: 'calendar', go: () => router.navigate('/schedule') },
+    { label: t('Time'), value: planned ? `${onNow}/${planned}` : String(onNow), hint: t('clocked in now'), icon: 'clock', kind: planned && onNow < planned ? 'a' : 'g', go: () => openTool('/time', t('Time clock')) },
+    { label: t('Invoices'), value: String(x.overdue_count || 0), hint: x.overdue_count ? t('overdue · {m}', { m: money(x.overdue_amount) }) : t('nothing overdue'), icon: 'news', kind: x.overdue_count ? 'r' : 'g', go: () => openTool('/invoices', t('Invoices')) },
+    { label: t('Inventory'), value: String(low), hint: low ? t('low: {p}', { p: x.low_stock[0].name }) : t('stock is fine'), icon: 'briefcase', kind: low ? 'a' : 'g', go: () => openTool('/inventory', t('Inventory')) },
+    { label: t('Time off'), value: String(x.pending_timeoff || 0), hint: t('requests waiting'), icon: 'sun', kind: x.pending_timeoff ? 'a' : 'g', go: () => router.navigate('/timeoff') },
+    { label: t('Ask Ava'), value: '✦', hint: t('“How can I cut labour?”'), icon: 'spark', kind: 'ava', go: () => ask(t('How can I cut labour?')) },
+  ] : [];
+  const gN = glance.filter((g) => g.kind === 'g' || !g.kind).length, aN = glance.filter((g) => g.kind === 'a').length, rN = glance.filter((g) => g.kind === 'r').length;
+  const score = glance.length ? Math.round(100 - aN * 6 - rN * 12) : 0;
+
   const top = (
-    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 14 }}>
-      <Logo width={55} color="#FFFFFF" />
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+      <Logo width={64} color="#FFFFFF" />
       <View style={{ flex: 1 }} />
-      <Pressable onPress={() => router.push('/notifications')} accessibilityRole="button" accessibilityLabel={`${t('Notifications')}${unread ? ` (${unread})` : ''}`} style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}>
-        <Icon name="bell" color="#FFFFFF" size={21} duo={false} />
-        {unread ? <View style={{ position: 'absolute', top: 9, right: 10, width: 8, height: 8, borderRadius: 4, backgroundColor: '#FF6B6B', borderWidth: 2, borderColor: '#000C58' }} /> : null}
+      <Pressable onPress={() => router.push('/notifications')} accessibilityRole="button" accessibilityLabel={`${t('Notifications')}${unread ? ` (${unread})` : ''}`}
+        style={{ width: 38, height: 38, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.12)' }}>
+        <Icon name="bell" color="#FFFFFF" size={19} duo={false} />
+        {unread ? <View style={{ position: 'absolute', top: -4, right: -4, minWidth: 17, height: 17, paddingHorizontal: 4, borderRadius: 9, alignItems: 'center', justifyContent: 'center', backgroundColor: '#E5484D', borderWidth: 2, borderColor: '#0B1C86' }}><Text style={{ color: '#FFFFFF', fontSize: 10, fontWeight: '700' }}>{unread > 9 ? '9+' : unread}</Text></View> : null}
       </Pressable>
-      <Pressable onPress={() => router.navigate('/me')} accessibilityRole="button" accessibilityLabel={t('Me')} style={{ marginLeft: 6 }}>
-        <Avatar name={session?.user?.name || '?'} size={34} />
+      <Pressable onPress={() => router.navigate('/me')} accessibilityRole="button" accessibilityLabel={t('Me')}
+        style={{ width: 38, height: 38, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFFFF' }}>
+        <Text style={{ color: '#000C58', fontWeight: '700', fontSize: 13 }}>{(session?.user?.name || '?').split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase()}</Text>
+        {open ? <View style={{ position: 'absolute', right: -3, bottom: -3, width: 11, height: 11, borderRadius: 6, backgroundColor: '#2BD884', borderWidth: 2, borderColor: '#0B1C86' }} /> : null}
       </Pressable>
     </View>
   );
-  const dateLine = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
-  const who = isManager ? t(ROLE_LABEL[role] || 'Manager') : hasEmployee ? t('Employee') : t('Member');
+  const dateChip = `${now.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })} · ${now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
+  const hero = (
+    <View style={{ gap: 14 }}>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+        {company ? <Chip text={nx?.location ? `${company} · ${nx.location}` : company} icon="pin" /> : null}
+        <Chip text={dateChip} icon="calendar" />
+        {open ? <Chip text={t('On shift')} icon="clock" /> : null}
+      </View>
+      <Text style={{ color: '#FFFFFF', fontSize: 26, fontWeight: '700', letterSpacing: -0.4, marginTop: -2 }} accessibilityRole="header">{`${greeting()}${first ? ', ' + first : ''}`}</Text>
+      <AskBar label={t('Ask Ava anything…')} button={t('Ask')} onPress={() => ask()} />
+      <Suggest onPick={ask} items={isManager
+        ? [[t('Who is working today?'), t('Who is working today?')], [t('Sales this week'), t('How were sales this week?')], [t('Overdue invoices'), t('Which invoices are overdue?')]]
+        : [[t('When is my next shift?'), t('When is my next shift?')], [t('My hours this week'), t('How many hours did I work this week?')], [t('Ask for time off'), t('How do I ask for time off?')]]} />
+      {isManager ? (x ? <KpiStrip items={kpis} side={side} /> : <View style={{ height: 96, justifyContent: 'center' }}><Loading /></View>) : null}
+      <QuickAccess title={t('Quick access')} items={qa} />
+    </View>
+  );
+
   return (
-    <Screen
-      top={top}
-      eyebrow={company ? `${dateLine} · ${company}` : `${dateLine} · ${who}`}
-      title={`${greeting()}${first ? ', ' + first : ''}`}
-      hero={hero ?? <View />}
-      refreshing={c.refreshing || dash.refreshing}
-      onRefresh={() => { c.refresh(); dash.refresh(); }}
-    >
+    <Screen top={top} hero={hero} refreshing={c.refreshing || dash.refreshing} onRefresh={() => { c.refresh(); dash.refresh(); wal.refresh(); }}>
       {isManager ? (
         <>
           {dash.error && !x ? <ErrorBox text={dash.error} onRetry={dash.reload} /> : null}
-          <Rise><Brief /></Rise>
-          <QuickRow items={quick} />
-          {x ? <Rise delay={120}><OnShift list={x.on_clock || []} total={(x.shifts_today || []).length || Number(x.headcount || 0)} /></Rise> : null}
-          <Rise delay={160}><Todos items={todos} /></Rise>
-          {x && (x.shifts_today || []).length ? (
-            <Rise delay={200}>
-              <Card style={{ paddingBottom: 6 }}>
-                <CardHead title={t('Shifts today')} right={<Lnk text={t('See all')} go={() => router.navigate('/schedule')} />} />
-                {x.shifts_today.slice(0, 5).map((s: any, i: number) => (
-                  <View key={i}>{i ? <Divider /> : null}
-                    <ListRow title={`${s.first_name} ${s.last_name}`} sub={s.role || undefined} left={<Avatar name={`${s.first_name} ${s.last_name}`} color={s.color} size={36} />}
-                      right={<Text style={{ color: C.ink, fontWeight: '700', fontSize: 13 }}>{time(s.starts_at)}–{time(s.ends_at)}</Text>} />
-                  </View>
-                ))}
-              </Card>
-            </Rise>
+          <Rise><Waiting x={x} onChanged={dash.refresh} /></Rise>
+          <Rise delay={60}><BriefPro /></Rise>
+          {x ? (
+            <>
+              <Sec title={t('Your team today')} right={t('Live')} />
+              <Rise delay={100}>
+                <NavyCard icon="users" title={t('On shift now')} sub={planned ? t('{a} of {b} clocked in', { a: onNow, b: planned }) : t('{n} clocked in', { n: onNow })} link={t('Schedule')} onLink={() => router.navigate('/schedule')}>
+                  {(x.shifts_today || []).length ? (x.shifts_today as any[]).slice(0, 5).map((s, i) => {
+                    const on = (x.on_clock || []).some((o: any) => o.first_name === s.first_name && o.last_name === s.last_name);
+                    const late = !on && new Date(s.starts_at.replace(' ', 'T') + 'Z') < now;
+                    return <LightRow key={i} first={!i} kind={on ? 'g' : late ? 'r' : 'a'} title={`${s.first_name} ${s.last_name}`}
+                      sub={`${s.role ? s.role + ' · ' : ''}${on ? t('clocked in') : late ? t('Shift started {t} · not clocked in', { t: time(s.starts_at) }) : t('Starts {t}', { t: time(s.starts_at) })}`}
+                      right={<Text style={{ color: C.sub, fontSize: 12, fontVariant: ['tabular-nums'] }}>{time(s.starts_at)}–{time(s.ends_at)}</Text>} onPress={() => router.navigate('/team')} />;
+                  }) : (x.on_clock || []).length ? (x.on_clock as any[]).map((o, i) => <LightRow key={o.id} first={!i} kind="g" title={`${o.first_name} ${o.last_name}`} sub={t('clocked in')} />)
+                    : <LightRow first kind="a" title={t('Nobody is clocked in right now.')} />}
+                </NavyCard>
+              </Rise>
+              <Sec title={t('At a glance')} right={t('Every area, live')} />
+              <Rise delay={140}>
+                <NavyCard icon="chart" title={t('Business health')} sub={t('Score {n} · {w}', { n: score, w: score >= 80 ? t('good') : score >= 60 ? t('needs a look') : t('needs action') })} link={t('All tools')} onLink={() => router.navigate('/all')}>
+                  <HealthBar g={gN} a={aN} r={rN} />
+                  <GlanceGrid items={glance} />
+                </NavyCard>
+              </Rise>
+              <Rise delay={180}>
+                <BlackCard eyebrow={t('Available in your OENOD wallet')} value={wal.data?.balance ? money(wal.data.balance.available) : '—'}
+                  sub={wal.data?.balance?.pending ? t('{m} on the way', { m: money(wal.data.balance.pending) }) : t('Payroll, invoices and payouts in one place')}
+                  a={{ label: t('Review payroll'), go: () => openTool('/payroll', t('Payroll')) }} b={{ label: t('Timesheets'), go: () => openTool('/time', t('Time clock')) }} />
+              </Rise>
+            </>
           ) : null}
-          <Rise delay={240}><Suites /></Rise>
         </>
       ) : hasEmployee ? (
         <>
           {c.error && !c.data ? <ErrorBox text={c.error} onRetry={c.reload} /> : null}
-          <QuickRow items={quick} />
-          {c.data?.next_shift ? (
-            <Rise delay={120}>
-              <Card onPress={() => router.navigate('/schedule')}>
-                <CardHead title={t('Next shift')} right={<Lnk text={t('See all')} go={() => router.navigate('/schedule')} />} />
-                <Row>
-                  <DateTile iso={c.data.next_shift.starts_at} />
-                  <View style={{ flex: 1 }}>
-                    <Text style={{ color: C.ink, fontSize: 16, fontWeight: '800' }}>{time(c.data.next_shift.starts_at)} – {time(c.data.next_shift.ends_at)}</Text>
-                    <Muted>{[c.data.next_shift.role, c.data.next_shift.location].filter(Boolean).join(' · ') || t('Shift')}</Muted>
-                  </View>
+          <Rise>
+            <NavyCard icon="clock" title={t('Time clock')} sub={open ? t('Clocked in since {t}', { t: time(open.clock_in) }) : t('Not clocked in yet today')}>
+              {c.data ? <View style={{ backgroundColor: '#0A0B14', borderRadius: 16, padding: 14, marginTop: 6 }}><ClockCard clock={c.data} onChange={(v) => c.setData(v)} /></View> : <Loading />}
+            </NavyCard>
+          </Rise>
+          {nx ? (
+            <Rise delay={60}>
+              <NavyCard icon="calendar" title={t('Next shift')} sub={[nx.role, nx.location].filter(Boolean).join(' · ') || t('Shift')} link={t('My shifts')} onLink={() => router.navigate('/schedule')}>
+                <Row style={{ paddingVertical: 6 }}>
+                  <DateTile iso={nx.starts_at} />
+                  <Text style={{ color: C.ink, fontSize: 16, fontWeight: '800' }}>{time(nx.starts_at)} – {time(nx.ends_at)}</Text>
                 </Row>
-              </Card>
+              </NavyCard>
             </Rise>
           ) : null}
-          <Rise delay={160}>
-            <Card style={{ paddingVertical: 4 }}>
-              <ListRow title={t('My availability')} left={<IconTile name="check" color={tint(1)} size={36} />} onPress={() => router.push('/availability')} />
-              <Divider />
-              <ListRow title={t('Team news')} left={<IconTile name="news" color={tint(2)} size={36} />} onPress={() => router.push('/feed')} />
-              <Divider />
-              <ListRow title={t('Time off')} left={<IconTile name="sun" color={tint(3)} size={36} />} onPress={() => router.navigate('/timeoff')} />
-            </Card>
+          <Rise delay={100}><BriefPro /></Rise>
+          <Rise delay={140}>
+            <NavyCard icon="users" title={t('My team')} sub={t('News, availability and time off')}>
+              <LightRow first kind="g" title={t('Team news')} onPress={() => router.push('/feed')} />
+              <LightRow kind="g" title={t('My availability')} onPress={() => router.push('/availability')} />
+              <LightRow kind="g" title={t('Time off')} onPress={() => router.navigate('/timeoff')} />
+            </NavyCard>
           </Rise>
-          <Rise delay={200}><Suites /></Rise>
         </>
       ) : (
         <>
-          <Card onPress={() => router.push('/wallet')}>
-            <Row><IconTile name="wallet" color={tint(0)} /><View style={{ flex: 1 }}><B>{t('Wallet')}</B><Muted>{t('Get paid and transfer money to your bank')}</Muted></View><Icon name="chevron" color={C.faint} size={18} /></Row>
-          </Card>
+          <NavyCard icon="wallet" title={t('Wallet')} sub={t('Get paid and transfer money to your bank')} link={t('Open')} onLink={() => router.push('/wallet')} />
           <Card>
             <Empty icon="user" title={t('Your OENOD account')} sub={t('Your digital business card and badge are under Me. When an employer adds you to their team, your shifts and time clock show up here.')} />
           </Card>

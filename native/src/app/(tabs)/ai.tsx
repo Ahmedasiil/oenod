@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Keyboard, Platform, Pressable, ScrollView, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useFocusEffect } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { setStatusBarStyle } from 'expo-status-bar';
 import { useAuth } from '../../lib/auth';
 import { get, post } from '../../lib/api';
@@ -62,6 +62,10 @@ export default function Ai() {
     const b = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', () => setKb(0));
     return () => { a.remove(); b.remove(); };
   }, []);
+
+  // 3.9.1: Today's "Ask Ava" suggestions open here with the question already asked.
+  const { q: preset } = useLocalSearchParams<{ q?: string }>();
+  useEffect(() => { if (preset) { router.setParams({ q: '' } as any); ask(String(preset)); } }, [preset]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const ask = async (text?: string) => {
     const v = (text ?? q).trim();

@@ -1,5 +1,5 @@
-// Floating tab bar (3.9.1 Navy Glass Pro): a rounded black bar that hovers above the screen, a navy pill
-// that glides to the tab you pick, and Ava as a white button in the middle. Centred and capped in width on tablets.
+// Floating tab bar (approved 3.9 look): a rounded navy bar that hovers above the screen, the open tab glows
+// white, and Ava is a raised white tile in the middle. Centred and capped in width on tablets.
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Platform, Pressable, Text, View, useWindowDimensions } from 'react-native';
 import * as Haptics from 'expo-haptics';
@@ -51,10 +51,10 @@ export function AiOrb({ size = 56, still }: { size?: number; still?: boolean }) 
 /** Ava's button in the middle of the tab bar: a white circle with the navy spark and a soft ring. */
 function AiTile({ on }: { on: boolean }) {
   return (
-    <View style={{ width: 46, height: 46, borderRadius: 23, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFFFF',
-      borderWidth: 3, borderColor: 'rgba(185,196,255,0.35)', shadowColor: '#000C58', shadowOpacity: 0.45, shadowRadius: 10, shadowOffset: { width: 0, height: 6 }, elevation: 6,
+    <View style={{ width: 54, height: 54, borderRadius: 18, marginTop: -18, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFFFF',
+      borderWidth: 4, borderColor: 'rgba(142,160,255,0.25)', shadowColor: '#000C58', shadowOpacity: 0.45, shadowRadius: 10, shadowOffset: { width: 0, height: 6 }, elevation: 6,
       transform: [{ scale: on ? 1.06 : 1 }] }}>
-      <Icon name="spark" size={22} color="#000C58" duo={false} />
+      <Icon name="spark" size={24} color="#000C58" duo={false} />
     </View>
   );
 }
@@ -72,25 +72,27 @@ export function TabBar({ state, descriptors, emitter, navigateToTab, insets }: B
     if (idx >= 0) Animated.spring(x, { toValue: idx * slot, speed: 18, bounciness: 7, useNativeDriver: native }).start();
   }, [idx, slot, x]);
   const barW = Math.min(width - 24, 520);
-  const H = 62;
+  const H = 66;
   return (
     <View pointerEvents="box-none" style={{ position: 'absolute', left: 0, right: 0, bottom: Math.max(insets.bottom - 8, 14), alignItems: 'center' }}>
-      <View style={{ width: barW, height: H, borderRadius: 24, backgroundColor: '#0D0F18', borderWidth: 1, borderColor: '#1D2030',
-        shadowColor: '#000000', shadowOpacity: 0.4, shadowRadius: 22, shadowOffset: { width: 0, height: 12 }, elevation: 14, overflow: 'hidden' }}>
+      <View style={{ width: barW, height: H, borderRadius: 24, backgroundColor: '#000C58', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)',
+        shadowColor: '#000C58', shadowOpacity: 0.55, shadowRadius: 22, shadowOffset: { width: 0, height: 12 }, elevation: 14 }}>
+        <View pointerEvents="none" style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, borderRadius: 24, overflow: 'hidden' }}>
         <Svg pointerEvents="none" width={barW} height={H} style={{ position: 'absolute' }}>
-          <Defs><LinearGradient id="tbg" x1="0" y1="0" x2="0" y2="1"><Stop offset="0" stopColor="#161928" /><Stop offset="1" stopColor="#05060D" /></LinearGradient></Defs>
+          <Defs><LinearGradient id="tbg" x1="0" y1="0" x2="1" y2="0.6"><Stop offset="0" stopColor="#000C58" /><Stop offset="1" stopColor="#0B1C86" /></LinearGradient></Defs>
           <Rect x={0} y={0} width={barW} height={H} fill="url(#tbg)" />
         </Svg>
+        </View>
         <View style={{ flexDirection: 'row', flex: 1 }} onLayout={(e) => setW(e.nativeEvent.layout.width)}>
           {slot && idx >= 0 && !onAi ? (
             <Animated.View pointerEvents="none" style={{ position: 'absolute', top: 6, bottom: 6, width: slot, paddingHorizontal: 5, transform: [{ translateX: x }] }}>
-              <View style={{ flex: 1, borderRadius: 18, backgroundColor: '#000C58', borderWidth: 1, borderColor: 'rgba(185,196,255,0.22)' }} />
+              <View style={{ flex: 1, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.1)' }} />
             </Animated.View>
           ) : null}
           {routes.map((r, i) => {
             const o: any = descriptors[r.key].options;
             const on = i === idx;
-            const color = on ? '#FFFFFF' : '#7D8199';
+            const color = on ? '#FFFFFF' : '#8E98D6';
             const label = typeof o.tabBarLabel === 'string' ? o.tabBarLabel : o.title ?? r.name;
             const press = () => {
               const ev = emitter.emit({ type: 'tabPress', target: r.key, canPreventDefault: true });
