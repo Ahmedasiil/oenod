@@ -45,7 +45,7 @@ function setup() {
   try {
     voice = new Voice.Voice();
     voice.initializePushRegistry().catch(() => {});
-    voice.setCallKitConfiguration({ callKitIncludesCallsInRecents: true, callKitMaximumCallGroups: 1, callKitMaximumCallsPerCallGroup: 1 } as any).catch(() => {});
+    voice.setCallKitConfiguration({ callKitIncludesCallsInRecents: true, callKitMaximumCallGroups: 1, callKitMaximumCallsPerCallGroup: 1, callKitRingtoneSound: 'oenod_ring.caf' } as any).catch(() => {});
     voice.on(Voice.Voice.Event.CallInvite, (inv: any) => {
       const from = who(inv.getFrom?.());
       inv.on(Voice.CallInvite.Event.Accepted, (c: any) => track(c, from));
