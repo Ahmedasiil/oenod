@@ -5,6 +5,7 @@ import { useAuth } from '../lib/auth';
 import { BASE } from '../lib/api';
 import { t } from '../lib/i18n';
 import { router } from 'expo-router';
+import { openTool } from './web';
 import { GradientButton } from '../ui/Brand';
 import { A, AuthPage, ErrorLine, GField, GlassBtn, Heading, In } from '../ui/AuthKit';
 import { Icon } from '../ui/Icon';
@@ -33,7 +34,8 @@ export default function Login() {
     }
   };
 
-  const open = (path: string) => WebBrowser.openBrowserAsync(BASE + path);
+  // 3.9.1: stays inside the app (in-app view), never the browser.
+  const open = (path: string) => openTool(path.replace(/^\/#/, ''), t('OENOD'));
 
   const runQuick = async () => {
     setError(''); setBusy(true);

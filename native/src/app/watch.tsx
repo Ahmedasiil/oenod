@@ -4,6 +4,7 @@
 import React, { useEffect, useState } from 'react';
 import { Linking } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
+import { openTool } from './web';
 import { Platform, Alert, Text, TextInput, View } from 'react-native';
 import { api, BASE, get, post } from '../lib/api';
 import { useLoad } from '../lib/useLoad';
@@ -55,7 +56,7 @@ export default function Watch() {
           <Muted>{t('You can remove the watch here at any time.')}</Muted>
         </View>
         <Text style={{ color: C.faint, fontSize: 12.5, lineHeight: 18 }}>
-          {t('By connecting, you agree to the')} <Text style={{ color: C.blue, fontWeight: '700' }} onPress={() => Linking.openURL(BASE + '/#/terms')}>{t('Terms of Service')}</Text> {t('and the')} <Text style={{ color: C.blue, fontWeight: '700' }} onPress={() => Linking.openURL(BASE + '/#/privacy')}>{t('Privacy Policy')}</Text>.
+          {t('By connecting, you agree to the')} <Text style={{ color: C.blue, fontWeight: '700' }} onPress={() => openTool('/terms', t('OENOD'))}>{t('Terms of Service')}</Text> {t('and the')} <Text style={{ color: C.blue, fontWeight: '700' }} onPress={() => openTool('/privacy', t('OENOD'))}>{t('Privacy Policy')}</Text>.
         </Text>
         <Button title={t('Allow and connect')} icon="check" onPress={link} busy={busy} disabled={digits.length !== 6} />
       </Card>

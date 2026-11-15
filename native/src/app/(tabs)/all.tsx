@@ -43,6 +43,7 @@ const SUITES: Suite[] = [
   { name: 'Customers', color: '#C2417A', soft: ['#FBEAF2', 'rgba(194,65,122,0.18)'], tools: [
     { name: 'Customers', icon: 'users', web: '/customers', who: 'mgr' },
     { name: 'Reviews', icon: 'spark', web: '/reviews', who: 'mgr' },
+    { name: 'Business Phone', icon: 'phone', web: '/calls', who: 'mgr' },
     { name: 'Phone line', icon: 'phone', web: '/phone', who: 'mgr' },
     { name: 'Marketing', icon: 'news', web: '/marketing', who: 'mgr' },
     { name: 'Reservations', icon: 'calendar', web: '/reservations', who: 'mgr' },
