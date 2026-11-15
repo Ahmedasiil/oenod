@@ -83,7 +83,7 @@ export default function Kiosk() {
         <Text style={{ color: '#FFFFFF', fontSize: 64, fontWeight: '800', letterSpacing: -2 }} accessibilityRole="header">{now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</Text>
         <Text style={{ color: '#B9C4FF', fontSize: 15, marginTop: -8 }}>{now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' })}</Text>
 
-        <View style={{ flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 999, padding: 4, marginTop: 6 }}>
+        <View style={{ flexDirection: 'row', backgroundColor: 'rgba(5,6,13,0.55)', borderWidth: 1, borderColor: 'rgba(185,196,255,0.16)', borderRadius: 999, padding: 4, marginTop: 6 }}>
           {(['pin', 'qr'] as const).map((m) => (
             <Pressable key={m} onPress={() => { setMode(m); if (m === 'qr' && !perm?.granted) askPerm(); }} accessibilityRole="tab" accessibilityState={{ selected: mode === m }}
               style={{ paddingHorizontal: 18, paddingVertical: 9, borderRadius: 999, backgroundColor: mode === m ? '#FFFFFF' : 'transparent' }}>
@@ -116,7 +116,7 @@ export default function Kiosk() {
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ maxWidth: Math.min(width - 24, 640), flexGrow: 0 }} contentContainerStyle={{ gap: 8, paddingHorizontal: 4 }}>
               {emps.map((e) => (
                 <Pressable key={e.id} onPress={() => { setWho(e); setPin(''); }} accessibilityRole="button" accessibilityState={{ selected: who?.id === e.id }}
-                  style={{ paddingHorizontal: 14, paddingVertical: 10, borderRadius: 14, backgroundColor: who?.id === e.id ? '#FFFFFF' : 'rgba(255,255,255,0.1)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.16)' }}>
+                  style={{ paddingHorizontal: 14, paddingVertical: 10, borderRadius: 14, backgroundColor: who?.id === e.id ? '#FFFFFF' : 'rgba(5,6,13,0.55)', borderWidth: 1, borderColor: 'rgba(185,196,255,0.16)' }}>
                   <Text style={{ color: who?.id === e.id ? '#000C58' : '#FFFFFF', fontWeight: '600' }}>{e.name}</Text>
                 </Pressable>
               ))}
@@ -129,7 +129,7 @@ export default function Kiosk() {
             <View style={{ width: pad, flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
               {['1', '2', '3', '4', '5', '6', '7', '8', '9', 'c', '0', 'ok'].map((d) => (
                 <Pressable key={d} onPress={() => key(d)} accessibilityRole="button" accessibilityLabel={d === 'c' ? t('Delete') : d === 'ok' ? t('Clock in or out') : d}
-                  style={({ pressed }) => ({ width: k, height: 62, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: d === 'ok' ? '#FFFFFF' : 'rgba(255,255,255,0.1)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.16)', transform: [{ scale: pressed ? 0.96 : 1 }] })}>
+                  style={({ pressed }) => ({ width: k, height: 62, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: d === 'ok' ? '#FFFFFF' : pressed ? '#1A1D2B' : 'rgba(5,6,13,0.55)', borderWidth: 1, borderColor: d === 'ok' ? '#FFFFFF' : 'rgba(185,196,255,0.16)', transform: [{ scale: pressed ? 0.96 : 1 }] })}>
                   {d === 'c' ? <Icon name="back" size={22} color="#FFFFFF" duo={false} />
                     : <Text numberOfLines={1} adjustsFontSizeToFit style={{ color: d === 'ok' ? '#000C58' : '#FFFFFF', fontSize: d === 'ok' ? 13 : 24, fontWeight: '700', paddingHorizontal: 4 }}>{d === 'ok' ? t('Clock in/out') : d}</Text>}
                 </Pressable>
@@ -138,8 +138,10 @@ export default function Kiosk() {
           </>
         )}
 
-        <Pressable onPress={exit} accessibilityRole="button" hitSlop={10} style={{ marginTop: 8 }}>
-          <Text style={{ color: '#B9C4FF', textDecorationLine: 'underline' }}>{t('Exit kiosk')}</Text>
+        <Pressable onPress={exit} accessibilityRole="button" hitSlop={10}
+          style={({ pressed }) => ({ marginTop: 8, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(185,196,255,0.25)', backgroundColor: pressed ? 'rgba(255,255,255,0.08)' : 'transparent' })}>
+          <Icon name="face" size={16} color="#B9C4FF" duo={false} />
+          <Text style={{ color: '#DDE3FF', fontWeight: '600' }}>{t(Platform.OS === 'ios' ? 'Exit with Face ID' : 'Exit kiosk')}</Text>
         </Pressable>
       </ScrollView>
     </View>

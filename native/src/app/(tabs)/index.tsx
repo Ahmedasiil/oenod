@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Animated, Easing, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Svg, { Defs, LinearGradient as SvgGrad, Path, Rect, Stop } from 'react-native-svg';
 import { Logo } from '../../ui/Logo';
 import { BASE } from '../../lib/api';
@@ -82,10 +82,10 @@ function ClockCard({ clock, onChange }: { clock: Clock; onChange: (c: Clock) => 
   return (
     <View style={{ gap: 12 }}>
       <Row style={{ justifyContent: 'space-between' }}>
-        <Text style={{ color: '#C9D3EA', fontWeight: '600' }}>{t('Time clock')}</Text>
-        {open ? <Pill text={t(onBreak ? 'On break' : 'Clocked in')} kind={onBreak ? 'warn' : 'good'} /> : <Pill text={t('Clocked out')} kind="plain" />}
+        <Text style={{ color: '#8B90A8', fontWeight: '600', fontSize: 12, letterSpacing: 1.4 }}>{t('Time clock').toUpperCase()}</Text>
+        {open ? (onBreak ? <Pill text={t('On break')} kind="warn" /> : <LivePill text={t('Clocked in')} />) : <Pill text={t('Clocked out')} kind="plain" />}
       </Row>
-      <Text style={{ color: '#FFFFFF', fontSize: 46, fontWeight: '800', letterSpacing: -1.8 }} accessibilityLiveRegion="polite">
+      <Text style={{ color: '#FFFFFF', fontSize: 48, fontWeight: '800', letterSpacing: -2, fontVariant: ['tabular-nums'] }} accessibilityLiveRegion="polite">
         {open ? hm(worked) : hm(clock.today_minutes)}
       </Text>
       <Text style={{ color: '#C9D3EA' }}>
@@ -118,9 +118,10 @@ function ClockCard({ clock, onChange }: { clock: Clock; onChange: (c: Clock) => 
 
 const ROLE_LABEL: Record<string, string> = { owner: 'Owner', admin: 'Admin', manager: 'Manager' };
 
-type Quick = { icon: IconName; label: string; go: () => void };
-// Navy Frame: glass card on the navy header with a soft sky ring.
-const glass = { borderRadius: 22, padding: 16, backgroundColor: 'rgba(255,255,255,0.07)', borderWidth: 1, borderColor: 'rgba(185,196,255,0.28)' } as const;
+type Quick = { icon: IconName; label: string; go: () => void; live?: boolean };
+// Navy Glass Pro (3.9.1): a black card floating on the navy header, with a thin graphite line.
+const glass = { borderRadius: 24, padding: 18, backgroundColor: '#0D0F18', borderWidth: 1, borderColor: '#1F2233',
+  shadowColor: '#000000', shadowOpacity: 0.35, shadowRadius: 20, shadowOffset: { width: 0, height: 10 }, elevation: 8 } as const;
 
 /** Thin sales line with a soft fill, drawn from the last 14 days. */
 function Sparkline({ values }: { values: number[] }) {
@@ -142,11 +143,27 @@ function Sparkline({ values }: { values: number[] }) {
   );
 }
 
-function LivePill() {
+/** Green dot that pulses softly: the only green in the app, used for "live" things. */
+export function LiveDot({ size = 7 }: { size?: number }) {
+  const v = React.useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    const l = Animated.loop(Animated.timing(v, { toValue: 1, duration: 1600, easing: Easing.out(Easing.quad), useNativeDriver: Platform.OS !== 'web' }));
+    l.start(); return () => l.stop();
+  }, [v]);
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, height: 22, paddingHorizontal: 9, borderRadius: 999, backgroundColor: 'rgba(23,166,115,0.16)' }}>
-      <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#5BE0A8' }} />
-      <Text style={{ color: '#5BE0A8', fontSize: 11.5, fontWeight: '600' }}>{t('Live')}</Text>
+    <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
+      <Animated.View style={{ position: 'absolute', width: size, height: size, borderRadius: size, backgroundColor: '#12C163',
+        opacity: v.interpolate({ inputRange: [0, 1], outputRange: [0.6, 0] }), transform: [{ scale: v.interpolate({ inputRange: [0, 1], outputRange: [1, 2.8] }) }] }} />
+      <View style={{ width: size, height: size, borderRadius: size, backgroundColor: '#12C163' }} />
+    </View>
+  );
+}
+
+function LivePill({ text }: { text?: string }) {
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, height: 24, paddingHorizontal: 10, borderRadius: 999, backgroundColor: 'rgba(18,193,99,0.12)', borderWidth: 1, borderColor: 'rgba(18,193,99,0.28)' }}>
+      <LiveDot size={6} />
+      <Text style={{ color: '#3BD884', fontSize: 11.5, fontWeight: '700', letterSpacing: 0.2 }}>{text || t('Live')}</Text>
     </View>
   );
 }
@@ -158,7 +175,7 @@ function SalesGlass({ x }: { x: any }) {
   const mini: [string, string][] = [[String(x.orders_today ?? 0), t('Orders')], [x.labor_pct == null ? '—' : `${Math.round(x.labor_pct)}%`, t('Labour')], [String((x.on_clock || []).length), t('Working now')]];
   return (
     <View style={glass}>
-      <Row><Text style={{ color: '#9AA5C8', fontSize: 13, flex: 1 }}>{t("Today's sales")}</Text><LivePill /></Row>
+      <Row><Text style={{ color: '#8B90A8', fontSize: 12, fontWeight: '600', letterSpacing: 1.4, flex: 1 }}>{t("Today's sales").toUpperCase()}</Text><LivePill /></Row>
       <View style={{ flexDirection: 'row', alignItems: 'flex-end', marginTop: 8 }}>
         <Text style={{ color: '#FFFFFF', fontSize: 34, fontWeight: '800', letterSpacing: -1, flex: 1 }} numberOfLines={1}>{money(sales)}</Text>
         {growth == null ? null : <Text style={{ color: growth >= 0 ? '#5BE0A8' : '#F2B33D', fontWeight: '600', fontSize: 13, marginBottom: 5 }}>{t('{p}% vs last week', { p: `${growth >= 0 ? '+' : ''}${growth}` })}</Text>}
@@ -166,9 +183,9 @@ function SalesGlass({ x }: { x: any }) {
       <Sparkline values={(x.series || []).map((d: any) => Number(d.total || 0))} />
       <View style={{ flexDirection: 'row', gap: 8, marginTop: 12 }}>
         {mini.map(([v, l]) => (
-          <View key={l} style={{ flex: 1, borderRadius: 14, padding: 10, backgroundColor: 'rgba(255,255,255,0.05)' }}>
+          <View key={l} style={{ flex: 1, borderRadius: 14, padding: 10, backgroundColor: '#1A1D2B', borderWidth: 1, borderColor: '#23273A' }}>
             <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '700' }}>{v}</Text>
-            <Text style={{ color: '#9AA5C8', fontSize: 11.5 }} numberOfLines={1}>{l}</Text>
+            <Text style={{ color: '#8B90A8', fontSize: 11.5 }} numberOfLines={1}>{l}</Text>
           </View>
         ))}
       </View>
@@ -176,16 +193,18 @@ function SalesGlass({ x }: { x: any }) {
   );
 }
 
-/** Four white quick-action buttons. */
+/** Quick actions (3.9.1): four black tiles with white icons, one tap to the things people open most. */
 function QuickRow({ items }: { items: Quick[] }) {
   return (
     <View style={{ flexDirection: 'row', gap: 8 }}>
       {items.map((q, n) => (
         <Rise key={q.label} delay={60 + n * 40} style={{ flex: 1 }}>
           <Pressy onPress={q.go} accessibilityRole="button" accessibilityLabel={q.label}
-            style={{ backgroundColor: C.card, borderWidth: 1, borderColor: C.line, borderRadius: 18, paddingTop: 12, paddingBottom: 10, alignItems: 'center', gap: 7 }}>
-            <View style={{ width: 38, height: 38, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: C.dark ? '#16205E' : '#000C58' }}>
-              <Icon name={q.icon} color={C.dark ? '#B9C4FF' : '#FFFFFF'} size={20} duo={false} />
+            style={{ backgroundColor: C.card, borderWidth: 1, borderColor: C.line, borderRadius: 20, paddingTop: 12, paddingBottom: 10, alignItems: 'center', gap: 8,
+              shadowColor: '#000C58', shadowOpacity: C.dark ? 0 : 0.06, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 1 }}>
+            <View style={{ width: 48, height: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: '#0D0F18', borderWidth: 1, borderColor: '#1F2233' }}>
+              <Icon name={q.icon} color="#FFFFFF" size={21} duo={false} />
+              {q.live ? <View style={{ position: 'absolute', top: 7, right: 7 }}><LiveDot size={6} /></View> : null}
             </View>
             <Text style={{ color: C.ink, fontWeight: '600', fontSize: 11.5 }} numberOfLines={1}>{q.label}</Text>
           </Pressy>
@@ -328,11 +347,17 @@ export default function Home() {
   const x = dash.data;
   // The live shift on the lock screen and in the Dynamic Island follows the time clock.
   useEffect(() => { if (c.data) syncLive(c.data.open, c.data.next_shift?.location || company); }, [c.data?.open?.clock_in, c.data?.open?.break_started_at, !!c.data?.open]); // eslint-disable-line react-hooks/exhaustive-deps
-  const quick: Quick[] = [
-    hasEmployee ? { icon: 'clock', label: t('Clock in'), go: () => router.push('/timesheet') } : { icon: 'users', label: t('Team'), go: () => router.navigate('/team') },
-    { icon: 'calendar', label: t('Schedule'), go: () => router.navigate('/schedule') },
-    { icon: 'send', label: t('Pay'), go: () => router.navigate('/money') },
+  // Managers: Meet, Kiosk, Payroll, Calls. Employees: Clock, Schedule, Meet, Time off. All open inside the app.
+  const quick: Quick[] = isManager ? [
     { icon: 'video', label: t('Meet'), go: openMeet },
+    { icon: 'clock', label: t('Kiosk'), go: () => router.push('/kiosk') },
+    { icon: 'cash', label: t('Payroll'), go: () => openTool('/payroll', t('Payroll')) },
+    { icon: 'phone', label: t('Calls'), go: () => openTool('/calls', t('Business Phone')) },
+  ] : [
+    hasEmployee ? { icon: 'clock', label: t('Clock'), go: () => router.push('/timesheet'), live: !!c.data?.open } : { icon: 'users', label: t('Team'), go: () => router.navigate('/team') },
+    { icon: 'calendar', label: t('Schedule'), go: () => router.navigate('/schedule') },
+    { icon: 'video', label: t('Meet'), go: openMeet },
+    { icon: 'sun', label: t('Time off'), go: () => router.navigate('/timeoff') },
   ];
   const todos: Todo[] = [];
   if (x?.pending_timeoff) todos.push({ key: 'to', text: x.pending_timeoff === 1 ? t('Approve 1 time-off request') : t('Approve {n} time-off requests', { n: x.pending_timeoff }), go: () => router.navigate('/timeoff') });

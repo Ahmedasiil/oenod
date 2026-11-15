@@ -1,4 +1,4 @@
-// Floating navy tab bar (3.7 Navy Frame): a rounded navy bar that hovers above the screen, a white marker
+// Floating tab bar (3.9.1 Navy Glass Pro): a rounded black bar that hovers above the screen, a navy pill
 // that glides to the tab you pick, and Ava as a white button in the middle. Centred and capped in width on tablets.
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Platform, Pressable, Text, View, useWindowDimensions } from 'react-native';
@@ -51,8 +51,8 @@ export function AiOrb({ size = 56, still }: { size?: number; still?: boolean }) 
 /** Ava's button in the middle of the tab bar: a white circle with the navy spark and a soft ring. */
 function AiTile({ on }: { on: boolean }) {
   return (
-    <View style={{ width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFFFF',
-      borderWidth: 4, borderColor: 'rgba(255,255,255,0.18)', shadowColor: '#000738', shadowOpacity: 0.45, shadowRadius: 10, shadowOffset: { width: 0, height: 6 }, elevation: 6,
+    <View style={{ width: 46, height: 46, borderRadius: 23, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFFFF',
+      borderWidth: 3, borderColor: 'rgba(185,196,255,0.35)', shadowColor: '#000C58', shadowOpacity: 0.45, shadowRadius: 10, shadowOffset: { width: 0, height: 6 }, elevation: 6,
       transform: [{ scale: on ? 1.06 : 1 }] }}>
       <Icon name="spark" size={22} color="#000C58" duo={false} />
     </View>
@@ -72,25 +72,25 @@ export function TabBar({ state, descriptors, emitter, navigateToTab, insets }: B
     if (idx >= 0) Animated.spring(x, { toValue: idx * slot, speed: 18, bounciness: 7, useNativeDriver: native }).start();
   }, [idx, slot, x]);
   const barW = Math.min(width - 24, 520);
-  const dk = C.dark;
+  const H = 62;
   return (
-    <View pointerEvents="box-none" style={{ position: 'absolute', left: 0, right: 0, bottom: Math.max(insets.bottom - 8, 12), alignItems: 'center' }}>
-      <View style={{ width: barW, height: 66, borderRadius: 26, backgroundColor: dk ? 'rgba(13,20,64,0.97)' : '#000C58', borderWidth: 1, borderColor: dk ? 'rgba(150,168,255,0.22)' : 'rgba(255,255,255,0.08)',
-        shadowColor: '#000738', shadowOpacity: dk ? 0.6 : 0.35, shadowRadius: 22, shadowOffset: { width: 0, height: 12 }, elevation: 14, overflow: 'hidden' }}>
-        <Svg pointerEvents="none" width={barW} height={66} style={{ position: 'absolute' }}>
-          <Defs><LinearGradient id="tbg" x1="0" y1="0" x2="1" y2="1"><Stop offset="0" stopColor={dk ? '#121C55' : '#0B1C86'} /><Stop offset="1" stopColor={dk ? '#0D1440' : '#000C58'} /></LinearGradient></Defs>
-          <Rect x={0} y={0} width={barW} height={66} fill="url(#tbg)" />
+    <View pointerEvents="box-none" style={{ position: 'absolute', left: 0, right: 0, bottom: Math.max(insets.bottom - 8, 14), alignItems: 'center' }}>
+      <View style={{ width: barW, height: H, borderRadius: 24, backgroundColor: '#0D0F18', borderWidth: 1, borderColor: '#1D2030',
+        shadowColor: '#000000', shadowOpacity: 0.4, shadowRadius: 22, shadowOffset: { width: 0, height: 12 }, elevation: 14, overflow: 'hidden' }}>
+        <Svg pointerEvents="none" width={barW} height={H} style={{ position: 'absolute' }}>
+          <Defs><LinearGradient id="tbg" x1="0" y1="0" x2="0" y2="1"><Stop offset="0" stopColor="#161928" /><Stop offset="1" stopColor="#05060D" /></LinearGradient></Defs>
+          <Rect x={0} y={0} width={barW} height={H} fill="url(#tbg)" />
         </Svg>
         <View style={{ flexDirection: 'row', flex: 1 }} onLayout={(e) => setW(e.nativeEvent.layout.width)}>
           {slot && idx >= 0 && !onAi ? (
-            <Animated.View pointerEvents="none" style={{ position: 'absolute', top: 0, width: slot, alignItems: 'center', transform: [{ translateX: x }] }}>
-              <View style={{ width: 22, height: 3, borderBottomLeftRadius: 3, borderBottomRightRadius: 3, backgroundColor: '#FFFFFF' }} />
+            <Animated.View pointerEvents="none" style={{ position: 'absolute', top: 6, bottom: 6, width: slot, paddingHorizontal: 5, transform: [{ translateX: x }] }}>
+              <View style={{ flex: 1, borderRadius: 18, backgroundColor: '#000C58', borderWidth: 1, borderColor: 'rgba(185,196,255,0.22)' }} />
             </Animated.View>
           ) : null}
           {routes.map((r, i) => {
             const o: any = descriptors[r.key].options;
             const on = i === idx;
-            const color = on ? '#FFFFFF' : (dk ? '#7E88BE' : '#9AA6E6');
+            const color = on ? '#FFFFFF' : '#7D8199';
             const label = typeof o.tabBarLabel === 'string' ? o.tabBarLabel : o.title ?? r.name;
             const press = () => {
               const ev = emitter.emit({ type: 'tabPress', target: r.key, canPreventDefault: true });
@@ -101,7 +101,7 @@ export function TabBar({ state, descriptors, emitter, navigateToTab, insets }: B
                 style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 3 }}>
                 {r.name === 'ai' ? <AiTile on={on} /> : (
                   <>
-                    <View style={{ height: 30, justifyContent: 'center' }}>{o.tabBarIcon?.({ focused: on, color, size: 22 })}</View>
+                    <View style={{ height: 26, justifyContent: 'center' }}>{o.tabBarIcon?.({ focused: on, color, size: 22 })}</View>
                     <Text numberOfLines={1} style={{ fontSize: 10.5, lineHeight: 13, fontWeight: on ? '700' : '500', color }}>{label}</Text>
                   </>
                 )}

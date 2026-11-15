@@ -14,6 +14,7 @@ import { BASE } from '../lib/api';
 import { lang, t } from '../lib/i18n';
 import { C } from '../lib/theme';
 import { Icon } from '../ui/Icon';
+import { Logo } from '../ui/Logo';
 
 /** Open an oenod.com page (hash route like "/invoices") in the in-app web view. */
 export const openTool = (path: string, title: string) => router.push({ pathname: '/web', params: { path, title } });
@@ -32,19 +33,26 @@ export default function Web() {
   if (Platform.OS === 'web') { WebBrowser.openBrowserAsync(url); router.back(); return null; }
   return (
     <View style={{ flex: 1, backgroundColor: C.bg }}>
-      <View style={{ paddingTop: insets.top + 4, paddingHorizontal: 12, paddingBottom: 8, flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: C.bg, borderBottomWidth: 1, borderColor: C.line }}>
+      {/* 3.9.1 Navy Glass Pro: a black header that says you are still inside OENOD and signed in. */}
+      <View style={{ paddingTop: insets.top + 4, paddingHorizontal: 12, paddingBottom: 10, flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#05060D', borderBottomWidth: 1, borderColor: '#1A1D2B' }}>
         <Pressable onPress={() => (canBack ? ref.current?.goBack() : router.back())} accessibilityRole="button" accessibilityLabel={t('Back')} hitSlop={8}
-          style={{ width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: C.card, borderWidth: 1, borderColor: C.line }}>
-          <Icon name="back" size={20} color={C.ink} />
+          style={({ pressed }) => ({ width: 40, height: 40, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: pressed ? '#1A1D2B' : '#0D0F18', borderWidth: 1, borderColor: '#1F2233' })}>
+          <Icon name="back" size={20} color="#FFFFFF" duo={false} />
         </Pressable>
-        <Text numberOfLines={1} style={{ flex: 1, color: C.ink, fontSize: 17, fontWeight: '800', letterSpacing: -0.3 }}>{String(title)}</Text>
-        {busy ? <ActivityIndicator color={C.link} /> : null}
+        <View style={{ flex: 1, minWidth: 0 }}>
+          <Text numberOfLines={1} style={{ color: '#FFFFFF', fontSize: 16.5, fontWeight: '700', letterSpacing: -0.2 }}>{String(title)}</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 1 }}>
+            <Icon name="shield" size={11} color="#3BD884" duo={false} />
+            <Text numberOfLines={1} style={{ color: '#3BD884', fontSize: 11.5, fontWeight: '600' }}>{t('Inside OENOD · signed in')}</Text>
+          </View>
+        </View>
+        {busy ? <ActivityIndicator color="#B9C4FF" /> : <Logo width={46} color="#FFFFFF" />}
         <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel={t('Close')} hitSlop={8}
-          style={{ width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' }}>
-          <Icon name="x" size={20} color={C.sub} />
+          style={{ width: 36, height: 40, alignItems: 'center', justifyContent: 'center' }}>
+          <Icon name="x" size={20} color="#8B90A8" duo={false} />
         </Pressable>
       </View>
-      <Animated.View style={{ height: 2, backgroundColor: '#2A3BC4', transform: [{ scaleX: p }], opacity: busy ? 1 : 0, alignSelf: 'stretch' }} />
+      <Animated.View style={{ height: 2, backgroundColor: '#3D5BF5', transform: [{ scaleX: p }], opacity: busy ? 1 : 0, alignSelf: 'stretch' }} />
       <WebView
         ref={ref}
         source={{ uri: url }}

@@ -1,6 +1,7 @@
-OENOD 3.9: everything in one app.
-- Your shift goes live on your iPhone: clock in and a timer appears on your lock screen and in the Dynamic Island.
-- OENOD Meet now opens right inside the app, with your camera and microphone. No more jumping to the website or signing in again.
-- New Employee kiosk: put a phone or iPad at the door. Staff clock in and out with their PIN or badge QR. Leaving the kiosk needs Face ID.
-- Every OENOD tool now opens inside the app, already signed in, and always shows the newest version.
-- A fresh new icon and a modern navy look on every screen.
+OENOD 3.9.1: business calls on your iPhone and a new Navy Glass look.
+- Business Phone calls now ring full screen on iPhone and iPad, like a normal phone call, even when the app is closed. They have their own OENOD ringtone so you always know it's work.
+- A new welcome screen with live cards and everything OENOD does, all in one place.
+- Today has new quick buttons for Meet, Kiosk, Payroll and Calls, plus a sleek black live card for sales and your shift.
+- A new floating black tab bar with Ava in the middle.
+- Every tool opens inside the app with a clear "Inside OENOD, signed in" bar.
+- The same icon in a deeper navy.

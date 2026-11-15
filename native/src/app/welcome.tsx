@@ -1,5 +1,7 @@
-// First screen for anyone signed out (3.7 "Constellation"): deep navy night, points of light
-// gather into the OENOD logo, then one clear promise and two buttons. Language at the top right.
+// First screen for anyone signed out. 3.9.1 "Navy Glass Pro": deep navy night with the turning OENOD
+// rings, points of light gather into the logo, two live glass cards float beside it (a shift timer and
+// today's sales), a strip of everything inside the app glides by, then Sign in, Create account and
+// Join a meeting. Language at the top right. Everything stays still when the phone asks for less motion.
 import React, { useEffect, useRef, useState } from 'react';
 import { AccessibilityInfo, Animated, Easing, Platform, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { router } from 'expo-router';
@@ -8,6 +10,7 @@ import Svg, { Defs, Ellipse, LinearGradient, RadialGradient, Rect, Stop } from '
 import { Icon } from '../ui/Icon';
 import { LogoBurst } from '../ui/LogoBurst';
 import { MapleLeaf } from '../ui/Brand';
+import { Bands } from '../ui/Bands';
 import { LANGS, t, useLang } from '../lib/i18n';
 import { secure } from '../lib/secure';
 
@@ -55,7 +58,7 @@ function Aurora({ width, still }: { width: number; still: boolean }) {
   return (
     <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 320, overflow: 'hidden' }}>
       {blob('#2A3BC4', width * 1.1, 260, -width * 0.35, -90, width * 0.18, -10, 0.9, 'au1')}
-      {blob('#5B4BD6', width * 0.9, 220, width * 0.35, -110, -width * 0.16, 8, 0.55, 'au2')}
+      {blob('#0B1C86', width * 0.9, 220, width * 0.35, -110, -width * 0.16, 8, 0.55, 'au2')}
       {blob('#1B6FD8', width * 0.8, 200, width * 0.05, -140, width * 0.1, -14, 0.5, 'au3')}
     </View>
   );
@@ -69,6 +72,86 @@ function Rise({ children, delay, still }: { children: React.ReactNode; delay: nu
     Animated.timing(v, { toValue: 1, duration: 700, delay, easing: Easing.out(Easing.cubic), useNativeDriver: native }).start();
   }, [v, delay, still]);
   return <Animated.View style={{ opacity: v, transform: [{ translateY: v.interpolate({ inputRange: [0, 1], outputRange: [16, 0] }) }] }}>{children}</Animated.View>;
+}
+
+/** A small glass card that bobs gently: shows what the app does, live, before anyone signs in. */
+function Float({ children, delay, dy, still, style }: { children: React.ReactNode; delay: number; dy: number; still: boolean; style?: any }) {
+  const v = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    if (still) return;
+    const l = Animated.loop(Animated.sequence([
+      Animated.timing(v, { toValue: 1, duration: 2600, delay, easing: Easing.inOut(Easing.sin), useNativeDriver: native }),
+      Animated.timing(v, { toValue: 0, duration: 2600, easing: Easing.inOut(Easing.sin), useNativeDriver: native }),
+    ]));
+    l.start(); return () => l.stop();
+  }, [v, still, delay]);
+  return (
+    <Animated.View style={[{ borderRadius: 18, paddingVertical: 10, paddingHorizontal: 12, backgroundColor: 'rgba(13,15,24,0.78)', borderWidth: 1, borderColor: 'rgba(185,196,255,0.2)',
+      shadowColor: '#000000', shadowOpacity: 0.4, shadowRadius: 16, shadowOffset: { width: 0, height: 8 }, elevation: 8,
+      transform: [{ translateY: v.interpolate({ inputRange: [0, 1], outputRange: [0, dy] }) }] }, style]}>
+      {children}
+    </Animated.View>
+  );
+}
+
+function Dot() {
+  return <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: '#12C163' }} />;
+}
+
+/** "On shift" timer that really ticks, and a sales card with a tiny bar chart. */
+function LiveCards({ still, width }: { still: boolean; width: number }) {
+  const [sec, setSec] = useState(4 * 3600 + 12 * 60 + 33);
+  useEffect(() => { if (still) return; const i = setInterval(() => setSec((x) => x + 1), 1000); return () => clearInterval(i); }, [still]);
+  const p2 = (n: number) => String(n).padStart(2, '0');
+  const clock = `${p2(Math.floor(sec / 3600))}:${p2(Math.floor(sec / 60) % 60)}:${p2(sec % 60)}`;
+  const w = Math.min(158, (width - 64) / 2);
+  return (
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+      <Float delay={0} dy={-6} still={still} style={{ width: w }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}><Dot /><Text style={{ color: '#8B90A8', fontSize: 10.5, fontWeight: '700', letterSpacing: 1.2 }}>{t('ON SHIFT')}</Text></View>
+        <Text style={{ color: '#FFFFFF', fontSize: 20, fontWeight: '800', letterSpacing: -0.5, marginTop: 4, fontVariant: ['tabular-nums'] }}>{clock}</Text>
+        <Text style={{ color: '#8B90A8', fontSize: 11 }} numberOfLines={1}>{t('Front counter')}</Text>
+      </Float>
+      <Float delay={900} dy={6} still={still} style={{ width: w, marginTop: 18 }}>
+        <Text style={{ color: '#8B90A8', fontSize: 10.5, fontWeight: '700', letterSpacing: 1.2 }}>{t('SALES TODAY')}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 6, marginTop: 4 }}>
+          <Text style={{ color: '#FFFFFF', fontSize: 20, fontWeight: '800', letterSpacing: -0.5 }}>$4,820</Text>
+          <Text style={{ color: '#3BD884', fontSize: 11, fontWeight: '700', marginBottom: 3 }}>+13%</Text>
+        </View>
+        <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 3, height: 16, marginTop: 4 }}>
+          {[5, 8, 6, 10, 9, 13, 16].map((h, i) => <View key={i} style={{ flex: 1, height: h, borderRadius: 2, backgroundColor: i === 6 ? '#FFFFFF' : 'rgba(185,196,255,0.35)' }} />)}
+        </View>
+      </Float>
+    </View>
+  );
+}
+
+const FEATURES = ['Schedules', 'Time clock', 'Payroll', 'OENOD Meet', 'Business Phone', 'Kiosk', 'Invoices', 'Ava AI', 'Inventory', 'Point of sale', 'Hiring', 'Training'];
+
+/** A strip of everything inside the app, gliding slowly sideways. */
+function Marquee({ still, width }: { still: boolean; width: number }) {
+  const [w, setW] = useState(0);
+  const x = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    if (still || !w) return;
+    x.setValue(0);
+    const l = Animated.loop(Animated.timing(x, { toValue: -w, duration: w * 28, easing: Easing.linear, useNativeDriver: native }));
+    l.start(); return () => l.stop();
+  }, [w, still, x]);
+  const chip = (f: string, k: string) => (
+    <View key={k} style={{ flexDirection: 'row', alignItems: 'center', gap: 6, height: 32, paddingHorizontal: 12, borderRadius: 999, marginRight: 8, backgroundColor: 'rgba(255,255,255,0.06)', borderWidth: 1, borderColor: 'rgba(185,196,255,0.18)' }}>
+      <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: '#B9C4FF' }} />
+      <Text style={{ color: '#DDE3FF', fontSize: 12.5, fontWeight: '600' }}>{t(f)}</Text>
+    </View>
+  );
+  return (
+    <View style={{ width, overflow: 'hidden' }} accessibilityLabel={FEATURES.map((f) => t(f)).join(', ')}>
+      <Animated.View style={{ flexDirection: 'row', transform: [{ translateX: x }] }}>
+        <View style={{ flexDirection: 'row' }} onLayout={(e) => setW(e.nativeEvent.layout.width)}>{FEATURES.map((f) => chip(f, 'a' + f))}</View>
+        <View style={{ flexDirection: 'row' }}>{FEATURES.map((f) => chip(f, 'b' + f))}</View>
+      </Animated.View>
+    </View>
+  );
 }
 
 function LangPick() {
@@ -113,7 +196,8 @@ export default function Welcome() {
       <Aurora width={width} still={still} />
       <ScrollView bounces={false} contentContainerStyle={{ flexGrow: 1, paddingTop: insets.top + 8, paddingBottom: insets.bottom + 14, paddingHorizontal: side }}>
         <LangPick />
-        <View style={{ marginHorizontal: -side }}>
+        <View style={{ marginHorizontal: -side, alignItems: 'center', justifyContent: 'center' }}>
+          <Bands size={Math.min(width * 0.9, 380)} style={{ position: 'absolute', opacity: 0.45 }} />
           <LogoBurst height={stage} logoWidth={Math.round(Math.min(150, width * 0.34))} still={still} />
         </View>
         <Rise delay={d} still={still}>
@@ -121,37 +205,45 @@ export default function Welcome() {
             {t('ALL-IN-ONE BUSINESS PLATFORM')}
           </Text>
         </Rise>
-        <View style={{ flex: 1, minHeight: 24 }} />
-        <Rise delay={d + 300} still={still}>
+        <Rise delay={d + 200} still={still}>
+          <View style={{ marginTop: 22 }}><LiveCards still={still} width={Math.min(width, 520)} /></View>
+        </Rise>
+        <View style={{ flex: 1, minHeight: 22 }} />
+        <Rise delay={d + 400} still={still}>
           <View style={{ gap: 10 }}>
-            <Text accessibilityRole="header" style={{ color: '#FFFFFF', fontSize: width < 380 ? 28 : 30, fontWeight: '700', letterSpacing: -0.8, lineHeight: width < 380 ? 33 : 36 }}>
-              {t('Run your whole company from one app.')}
+            <Text accessibilityRole="header" style={{ color: '#FFFFFF', fontSize: width < 380 ? 30 : 34, fontWeight: '800', letterSpacing: -1, lineHeight: width < 380 ? 35 : 39 }}>
+              {t('Your whole business, in one app.')}
             </Text>
-            <Text style={{ color: 'rgba(221,227,255,0.74)', fontSize: 16, lineHeight: 24 }}>
-              {t('Team, schedules, payroll, invoices and Ava, together in one secure place.')}
+            <Text style={{ color: 'rgba(221,227,255,0.74)', fontSize: 15.5, lineHeight: 23 }}>
+              {t('Team, schedules, payroll, calls, meetings and Ava, together in one secure place.')}
             </Text>
           </View>
         </Rise>
-        <Rise delay={d + 600} still={still}>
-          <View style={{ gap: 12, marginTop: 28 }}>
-            <Pressable onPress={() => router.push('/signup')} accessibilityRole="button"
+        <Rise delay={d + 550} still={still}>
+          <View style={{ marginHorizontal: -side, marginTop: 18 }}><Marquee still={still} width={width} /></View>
+        </Rise>
+        <Rise delay={d + 700} still={still}>
+          <View style={{ gap: 10, marginTop: 22 }}>
+            <Pressable onPress={() => router.push('/login')} accessibilityRole="button"
               style={({ pressed }) => ({ minHeight: 56, borderRadius: 18, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8, opacity: pressed ? 0.9 : 1, transform: [{ scale: pressed ? 0.98 : 1 }],
                 shadowColor: '#8EA0FF', shadowOpacity: 0.35, shadowRadius: 18, shadowOffset: { width: 0, height: 6 }, elevation: 6 })}>
-              <Text style={{ color: '#000C58', fontSize: 16.5, fontWeight: '700' }}>{t('Create free account')}</Text>
+              <Text style={{ color: '#000C58', fontSize: 16.5, fontWeight: '700' }}>{t('Sign in')}</Text>
               <Icon name="arrow" size={19} color="#000C58" duo={false} />
             </Pressable>
-            <Pressable onPress={() => router.push('/login')} accessibilityRole="button"
-              style={({ pressed }) => ({ minHeight: 54, borderRadius: 18, borderWidth: 1, borderColor: 'rgba(221,227,255,0.3)', alignItems: 'center', justifyContent: 'center', backgroundColor: pressed ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)' })}>
-              <Text style={{ color: '#FFFFFF', fontSize: 16.5, fontWeight: '600' }}>{t('Sign in')}</Text>
+            <Pressable onPress={() => router.push('/signup')} accessibilityRole="button"
+              style={({ pressed }) => ({ minHeight: 54, borderRadius: 18, backgroundColor: pressed ? '#1A1D2B' : '#05060D', borderWidth: 1, borderColor: '#1F2233', alignItems: 'center', justifyContent: 'center', transform: [{ scale: pressed ? 0.98 : 1 }] })}>
+              <Text style={{ color: '#FFFFFF', fontSize: 16.5, fontWeight: '700' }}>{t('Create free account')}</Text>
             </Pressable>
-            <Pressable onPress={() => router.push('/guest')} accessibilityRole="link" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 8 }}>
-              <Icon name="video" size={17} color="rgba(221,227,255,0.8)" duo={false} />
-              <Text style={{ color: 'rgba(221,227,255,0.85)', fontWeight: '600', fontSize: 14.5 }}>{t('Join a meeting as a guest')}</Text>
+            <Pressable onPress={() => router.push('/guest')} accessibilityRole="button"
+              style={({ pressed }) => ({ minHeight: 48, borderRadius: 18, borderWidth: 1, borderColor: 'rgba(221,227,255,0.28)', flexDirection: 'row', gap: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: pressed ? 'rgba(255,255,255,0.08)' : 'transparent' })}>
+              <Icon name="video" size={17} color="#DDE3FF" duo={false} />
+              <Text style={{ color: '#DDE3FF', fontWeight: '600', fontSize: 15 }}>{t('Join a meeting')}</Text>
             </Pressable>
           </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 14 }}>
-            <Text style={{ color: 'rgba(185,196,255,0.55)', fontSize: 11.5, letterSpacing: 0.6 }}>OENOD Inc. · {t('Proudly Canadian')}</Text>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 14 }}>
+            <Text style={{ color: 'rgba(185,196,255,0.6)', fontSize: 11.5, letterSpacing: 0.4, textAlign: 'center' }}>{t('Free for up to 3 people')} · {t('Proudly Canadian')}</Text>
             <MapleLeaf size={11} />
+            <Text style={{ color: 'rgba(185,196,255,0.6)', fontSize: 11.5, letterSpacing: 0.4 }}>· OENOD Inc.</Text>
           </View>
         </Rise>
       </ScrollView>
