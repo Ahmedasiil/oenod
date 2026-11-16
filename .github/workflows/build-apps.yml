@@ -90,7 +90,9 @@ jobs:
           if [ -n "$MAC_CERT_P12" ]; then
             echo "Signing + notarizing with Developer ID"
             mkdir -p ~/private_keys && printf '%s' "$APPLE_KEY_P8" > ~/private_keys/AuthKey_$APPLE_KEY_ID.p8
-            printf '%s' "$MAC_CERT_P12" | tr -d ' \r\n' | base64 --decode > "$RUNNER_TEMP/devid.p12"
+            C=$(printf '%s' "$MAC_CERT_P12" | tr -d ' \r\n')
+            echo "key check: length ${#C}, sha $(printf '%s' "$C" | shasum -a 256 | cut -c1-12), starts $(printf '%s' "$C" | cut -c1-4)"
+            printf '%s' "$C" | base64 -D > "$RUNNER_TEMP/devid.p12"
             export CSC_LINK="$RUNNER_TEMP/devid.p12" CSC_KEY_PASSWORD="$(printf '%s' "$MAC_CERT_PASSWORD" | tr -d ' \r\n')"
             export APPLE_API_KEY=~/private_keys/AuthKey_$APPLE_KEY_ID.p8 APPLE_API_KEY_ID="$APPLE_KEY_ID" APPLE_API_ISSUER="$APPLE_ISSUER_ID"
             npx electron-builder --mac dmg --universal
