@@ -21,7 +21,7 @@ export function MidGlow({ width, height, id = 'mg' }: { width: number; height: n
     <Svg pointerEvents="none" style={StyleSheet.absoluteFill} width={width} height={height}>
       <Defs>
         <LinearGradient id={id + 'a'} x1="0.15" y1="0" x2="0.85" y2="1">
-          <Stop offset="0" stopColor={MID.g1} /><Stop offset="0.45" stopColor={MID.g2} /><Stop offset="1" stopColor={MID.g3} />
+          <Stop offset="0" stopColor="#3B55FF" /><Stop offset="0.4" stopColor="#1A2FCF" /><Stop offset="1" stopColor="#000C58" />
         </LinearGradient>
         <RadialGradient id={id + 'b'} cx="92%" cy="0%" r="65%">
           <Stop offset="0" stopColor="#FFFFFF" stopOpacity={0.28} /><Stop offset="1" stopColor="#FFFFFF" stopOpacity={0} />
@@ -29,8 +29,8 @@ export function MidGlow({ width, height, id = 'mg' }: { width: number; height: n
       </Defs>
       <Rect x={0} y={0} width={width} height={height} fill={`url(#${id}a)`} />
       <Rect x={0} y={0} width={width} height={height} fill={`url(#${id}b)`} />
-      <Circle cx={width * 0.92} cy={height * 0.05} r={r * 0.34} fill="none" stroke="#FFFFFF" strokeOpacity={0.12} strokeWidth={1} />
-      <Circle cx={width * 0.92} cy={height * 0.05} r={r * 0.52} fill="none" stroke="#FFFFFF" strokeOpacity={0.07} strokeWidth={1} />
+      <Circle cx={width - 40} cy={20} r={130} fill="none" stroke="#FFFFFF" strokeOpacity={0.18} strokeWidth={1} />
+      <Circle cx={width - 30} cy={30} r={80} fill="none" stroke="#FFFFFF" strokeOpacity={0.18} strokeWidth={1} strokeDasharray="4 4" />
     </Svg>
   );
 }
@@ -147,7 +147,7 @@ export function Screen({ title, eyebrow, subtitle, right, children, refreshing, 
         refreshControl={onRefresh ? <RefreshControl refreshing={!!refreshing} onRefresh={onRefresh} tintColor={hero ? '#FFFFFF' : C.link} progressViewOffset={insets.top} /> : undefined}
       >
         {head}
-        <View style={{ width: '100%', maxWidth: 760, alignSelf: 'center', paddingHorizontal: S.lg, paddingTop: 18, gap: 14 }}>
+        <View style={{ width: '100%', maxWidth: 760, alignSelf: 'center', paddingHorizontal: S.lg, paddingTop: 16, gap: C.dark ? 16 : 14 }}>
           {children}
           <PoweredBy />
         </View>
@@ -264,7 +264,7 @@ onPalette(() => { Object.assign(st, StyleSheet.create({
   screen: { flex: 1, backgroundColor: C.bg },
   head: { overflow: 'hidden', paddingHorizontal: S.lg, paddingBottom: 14, backgroundColor: C.dark ? C.bg : '#FFFFFF' },
   panel: { overflow: 'hidden', paddingHorizontal: S.lg, paddingBottom: 24, gap: 18, backgroundColor: '#000C58', borderBottomLeftRadius: 28, borderBottomRightRadius: 28 },
-  midCard: { overflow: 'hidden', borderRadius: 28, padding: 18, gap: 14, backgroundColor: MID.g2, shadowColor: '#2238D8', shadowOpacity: 0.35, shadowRadius: 24, shadowOffset: { width: 0, height: 12 }, elevation: 10 },
+  midCard: { overflow: 'hidden', borderRadius: 28, padding: 18, gap: 12, backgroundColor: MID.g2, shadowColor: '#2238D8', shadowOpacity: 0.35, shadowRadius: 24, shadowOffset: { width: 0, height: 12 }, elevation: 10 },
   slim: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 48, paddingHorizontal: 14, borderRadius: 16, backgroundColor: C.dark ? 'rgba(12,21,54,0.94)' : 'rgba(255,255,255,0.96)', borderWidth: StyleSheet.hairlineWidth, borderColor: C.line, shadowColor: '#0A1230', shadowOpacity: 0.14, shadowRadius: 18, shadowOffset: { width: 0, height: 8 }, elevation: 8 },
   eyebrow: { color: C.faint, fontSize: 13, fontWeight: '500', marginBottom: 2 },
   h1: { color: C.ink, fontSize: 30, fontWeight: '800', letterSpacing: -0.9 },

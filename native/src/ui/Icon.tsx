@@ -2,7 +2,7 @@
 import React from 'react';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 
-export type IconName = 'home' | 'calendar' | 'sun' | 'users' | 'user' | 'bell' | 'clock' | 'check' | 'x' | 'chevron' | 'back' | 'phone' | 'mail' | 'pin' | 'logout' | 'globe' | 'qr' | 'plus' | 'coffee' | 'cash' | 'chart' | 'briefcase' | 'shield' | 'spark' | 'arrow' | 'face' | 'news' | 'moon' | 'device' | 'video' | 'grid' | 'chat' | 'wallet' | 'send' | 'link' | 'search';
+export type IconName = 'home' | 'calendar' | 'sun' | 'users' | 'user' | 'bell' | 'clock' | 'check' | 'x' | 'chevron' | 'back' | 'phone' | 'mail' | 'pin' | 'logout' | 'globe' | 'qr' | 'plus' | 'coffee' | 'cash' | 'chart' | 'briefcase' | 'shield' | 'spark' | 'arrow' | 'face' | 'news' | 'moon' | 'device' | 'video' | 'grid' | 'chat' | 'wallet' | 'send' | 'link' | 'search' | 'recv' | 'doc' | 'cap' | 'heart' | 'box' | 'cloud' | 'cart' | 'scan' | 'dots' | 'mic' | 'keypad';
 
 export function Icon({ name, size = 22, color = '#0B1220', stroke = 1.9, duo = true }: { name: IconName; size?: number; color?: string; stroke?: number; duo?: boolean }) {
   const p = { stroke: color, strokeWidth: stroke, fill: 'none', strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
@@ -46,6 +46,17 @@ export function Icon({ name, size = 22, color = '#0B1220', stroke = 1.9, duo = t
       {name === 'wallet' && <><Rect {...f} x={3} y={6} width={18} height={14} rx={3} /><Path {...p} d="M17 6V4.5A1.5 1.5 0 0 0 15.2 3L5 5.2A2.5 2.5 0 0 0 3 7.6V17a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3V9a3 3 0 0 0-3-3H5" /><Path {...p} d="M16.5 13h.01" /></>}
       {name === 'send' && <><Path {...f} d="M21 3 3 10.5l7 3 3 7z" /><Path {...p} d="M21 3 3 10.5l7 3 3 7zM21 3 10 13.5" /></>}
       {name === 'link' && <Path {...p} d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1" />}
+      {name === 'recv' && <Path {...p} d="M19 5 5 19M15 19H5V9" />}
+      {name === 'doc' && <><Path {...f} d="M7 3h7l5 5v13H7z" /><Path {...p} d="M7 3h7l5 5v13H7z" /><Path {...p} d="M14 3v5h5M10 13h6M10 17h6" /></>}
+      {name === 'cap' && <><Path {...f} d="M2 9l10-5 10 5-10 5z" /><Path {...p} d="M2 9l10-5 10 5-10 5z" /><Path {...p} d="M6 11v5c3 2 9 2 12 0v-5" /></>}
+      {name === 'heart' && <><Path {...f} d="M12 20s-8-5-8-11a4.5 4.5 0 0 1 8-2.5A4.5 4.5 0 0 1 20 9c0 6-8 11-8 11z" /><Path {...p} d="M12 20s-8-5-8-11a4.5 4.5 0 0 1 8-2.5A4.5 4.5 0 0 1 20 9c0 6-8 11-8 11z" /></>}
+      {name === 'box' && <><Path {...f} d="M3 7l9-4 9 4v10l-9 4-9-4z" /><Path {...p} d="M3 7l9-4 9 4v10l-9 4-9-4z" /><Path {...p} d="M3 7l9 4 9-4M12 11v10" /></>}
+      {name === 'cloud' && <><Path {...f} d="M7 18a5 5 0 1 1 1-9.9A6 6 0 0 1 19.5 10 4 4 0 0 1 18 18z" /><Path {...p} d="M7 18a5 5 0 1 1 1-9.9A6 6 0 0 1 19.5 10 4 4 0 0 1 18 18z" /></>}
+      {name === 'cart' && <><Path {...p} d="M3 4h2l2 12h11l2-8H6" /><Circle {...p} cx={9} cy={20} r={1.5} /><Circle {...p} cx={17} cy={20} r={1.5} /></>}
+      {name === 'scan' && <Path {...p} d="M4 8V5h3M17 5h3v3M20 16v3h-3M7 19H4v-3M7 12h10" />}
+      {name === 'dots' && <><Circle cx={5.5} cy={12} r={1.8} fill={color} /><Circle cx={12} cy={12} r={1.8} fill={color} /><Circle cx={18.5} cy={12} r={1.8} fill={color} /></>}
+      {name === 'mic' && <><Rect {...f} x={9} y={3} width={6} height={11} rx={3} /><Rect {...p} x={9} y={3} width={6} height={11} rx={3} /><Path {...p} d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" /></>}
+      {name === 'keypad' && <>{[5, 12, 19].map((x) => [5, 12, 19].map((y) => <Circle key={x + '-' + y} cx={x} cy={y} r={1.7} fill={color} />))}</>}
     </Svg>
   );
 }

@@ -2,7 +2,7 @@
 // glossy 3-D squircle icons, the hero's stat trio, Ava's white brief bar, the Money & meetings bento.
 import React, { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
-import Svg, { Defs, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
+import Svg, { Defs, LinearGradient, Path, RadialGradient, Rect, Stop } from 'react-native-svg';
 import { Icon, type IconName } from './Icon';
 import { Pressy } from './Motion';
 import { C, MID } from '../lib/theme';
@@ -69,10 +69,10 @@ export function StatTrio({ items }: { items: Stat3[] }) {
       {items.map((s) => (
         <View key={s.label} style={{ flex: 1, minWidth: 0 }}>
         <Pressy onPress={s.go} accessibilityRole="button" accessibilityLabel={`${s.label} ${s.value}${s.note ? ', ' + s.note : ''}`}
-          style={{ borderRadius: 16, paddingVertical: 10, paddingHorizontal: 11, backgroundColor: 'rgba(10,20,110,0.35)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.16)' }}>
-          <Text style={{ color: MID.ice, fontSize: 11.5 }} numberOfLines={1}>{s.label}</Text>
-          <Text style={{ color: '#FFFFFF', fontSize: 19, fontWeight: '800', letterSpacing: -0.4, marginTop: 2, fontVariant: ['tabular-nums'] }} numberOfLines={1} adjustsFontSizeToFit>{s.value}</Text>
-          {s.note ? <Text style={{ color: s.good ? '#5CF0A6' : MID.ice, fontSize: 11, fontWeight: '600', marginTop: 1 }} numberOfLines={1}>{s.note}</Text> : null}
+          style={{ borderRadius: 16, paddingVertical: 9, paddingHorizontal: 11, gap: 2, backgroundColor: 'rgba(0,6,40,0.35)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.14)' }}>
+          <Text style={{ color: '#C9D2FF', fontSize: 11 }} numberOfLines={1}>{s.label}</Text>
+          <Text style={{ fontFamily: 'SG6', color: '#FFFFFF', fontSize: 18, marginTop: 2 }} numberOfLines={1} adjustsFontSizeToFit>{s.value}</Text>
+          {s.note ? <Text style={{ color: s.good ? '#8EF0B8' : '#C9D2FF', fontSize: 11, marginTop: 1 }} numberOfLines={1}>{s.note}</Text> : null}
         </Pressy>
         </View>
       ))}
@@ -84,18 +84,18 @@ export function StatTrio({ items }: { items: Stat3[] }) {
 export function BriefBar({ title, sub, onPress }: { title: string; sub: string; onPress: () => void }) {
   return (
     <Pressy onPress={onPress} accessibilityRole="button" accessibilityLabel={title}
-      style={{ flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 18, paddingVertical: 10, paddingLeft: 10, paddingRight: 10, backgroundColor: '#FFFFFF' }}>
+      style={{ flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 18, paddingVertical: 8, paddingLeft: 10, paddingRight: 8, backgroundColor: '#FFFFFF' }}>
       <View style={{ width: 34, height: 34, borderRadius: 17, overflow: 'hidden' }}>
         <Svg width={34} height={34}>
-          <Defs><LinearGradient id="orb" x1="0.2" y1="0.1" x2="0.8" y2="1"><Stop offset="0" stopColor="#9DB0FF" /><Stop offset="0.5" stopColor="#3B55FF" /><Stop offset="1" stopColor="#0A1A9A" /></LinearGradient></Defs>
+          <Defs><RadialGradient id="orb" cx="35%" cy="30%" r="75%"><Stop offset="0" stopColor="#FFFFFF" /><Stop offset="0.45" stopColor="#4A63FF" /><Stop offset="1" stopColor="#000C58" /></RadialGradient></Defs>
           <Rect x={0} y={0} width={34} height={34} fill="url(#orb)" />
         </Svg>
       </View>
       <View style={{ flex: 1, minWidth: 0 }}>
-        <Text style={{ color: '#0A1A9A', fontSize: 14.5, fontWeight: '800' }} numberOfLines={1}>{title}</Text>
-        <Text style={{ color: '#5A6286', fontSize: 12 }} numberOfLines={1}>{sub}</Text>
+        <Text style={{ color: '#000C58', fontSize: 14, fontWeight: '700' }} numberOfLines={1}>{title}</Text>
+        <Text style={{ color: '#4B5070', fontSize: 12 }} numberOfLines={1}>{sub}</Text>
       </View>
-      <View style={{ width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', backgroundColor: '#0A1A9A' }}>
+      <View style={{ width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: '#000C58' }}>
         <Icon name="spark" size={17} color="#FFFFFF" duo={false} />
       </View>
     </Pressy>
@@ -105,8 +105,8 @@ export function BriefBar({ title, sub, onPress }: { title: string; sub: string; 
 /** Small chip on the navy hero. */
 export function HeroChip({ text }: { text: string }) {
   return (
-    <View style={{ height: 28, paddingHorizontal: 11, borderRadius: 14, justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.14)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)' }}>
-      <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '600' }} numberOfLines={1}>{text}</Text>
+    <View style={{ height: 26, paddingHorizontal: 10, borderRadius: 13, justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.14)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)' }}>
+      <Text style={{ color: '#FFFFFF', fontSize: 11.5, fontWeight: '600' }} numberOfLines={1}>{text}</Text>
     </View>
   );
 }

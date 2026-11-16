@@ -1,153 +1,179 @@
-// Everything: every OENOD tool in the same five suites as the website. Tools built into the app
-// open natively; the rest open the full oenod.com tool inside the app, already signed in.
+// All tools (Midnight v6, approved 11-16): search, favourites on a navy card, then every tool in rows of three
+// with glossy 3-D icons, grouped People, Money, Talk, Ava/mail/learning and Operations. Every tool opens inside
+// the app with the same sign-in. Tools the company hasn't switched on show "Turn on" to owners and admins only.
 import React, { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
+import { Pressable, ScrollView, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { router } from 'expo-router';
-import { BASE } from '../../lib/api';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 import { useAuth } from '../../lib/auth';
-import { C } from '../../lib/theme';
 import { t } from '../../lib/i18n';
-import { Avatar, Screen } from '../../ui/kit';
-import { Rise } from '../../ui/Motion';
-import { Icon, IconName } from '../../ui/Icon';
+import { Icon, type IconName } from '../../ui/Icon';
+import { FH, SubTop, Ti, V } from '../../ui/M6';
+import { PoweredBy } from '../../ui/Brand';
 import { openTool } from '../web';
-import { GlossIcon } from '../../ui/Mid';
-import { MID } from '../../lib/theme';
 
-type Tool = { name: string; icon: IconName; app?: string; web?: string; browser?: boolean; who: 'all' | 'staff' | 'mgr' | 'team' };
-type Suite = { name: string; color: string; soft: [string, string]; tools: Tool[] };
+type Who = 'all' | 'staff' | 'mgr' | 'team';
+type Tool = { name: string; icon: IconName; hint: string; app?: string; web?: string; who: Who; mod?: string; admin?: boolean };
+type Group = { name: string; tools: Tool[] };
 
-const SUITES: Suite[] = [
-  { name: 'People', color: '#2A3BC4', soft: ['#EEF1FF', 'rgba(42,59,196,0.16)'], tools: [
-    { name: 'Team', icon: 'users', app: '/team', who: 'mgr' },
-    { name: 'Schedule', icon: 'calendar', app: '/schedule', who: 'team' },
-    { name: 'Time off', icon: 'sun', app: '/timeoff', who: 'team' },
-    { name: 'My hours', icon: 'clock', app: '/timesheet', who: 'staff' },
-    { name: 'My availability', icon: 'check', app: '/availability', who: 'staff' },
-    { name: 'Time clock', icon: 'clock', web: '/time', who: 'mgr' },
-    { name: 'Employee kiosk', icon: 'clock', app: '/kiosk', who: 'mgr' },
-    { name: 'Hiring', icon: 'briefcase', web: '/hiring', who: 'mgr' },
-    { name: 'Onboarding', icon: 'check', web: '/onboarding', who: 'mgr' },
-    { name: 'Payroll', icon: 'cash', web: '/payroll', who: 'mgr' },
-    { name: 'Performance', icon: 'chart', web: '/performance', who: 'mgr' },
-    { name: 'Academy', icon: 'spark', web: '/academy', who: 'all' },
+const GROUPS: Group[] = [
+  { name: 'People', tools: [
+    { name: 'Schedule', icon: 'calendar', hint: 'Shifts', app: '/schedule', who: 'team' },
+    { name: 'Time clock', icon: 'clock', hint: "Who's in", web: '/time', who: 'mgr' },
+    { name: 'Team', icon: 'users', hint: 'Everyone', app: '/team', who: 'mgr' },
+    { name: 'Time off', icon: 'sun', hint: 'Requests', app: '/timeoff', who: 'team' },
+    { name: 'My hours', icon: 'clock', hint: 'Timesheet', app: '/timesheet', who: 'staff' },
+    { name: 'My availability', icon: 'check', hint: 'When you can work', app: '/availability', who: 'staff' },
+    { name: 'Kiosk', icon: 'device', hint: 'Staff clock in', app: '/kiosk', who: 'mgr' },
+    { name: 'Hiring', icon: 'briefcase', hint: 'Jobs', web: '/hiring', who: 'mgr', mod: 'hiring' },
+    { name: 'Onboarding', icon: 'check', hint: 'New people', web: '/onboarding', who: 'mgr', mod: 'onboarding' },
+    { name: 'Performance', icon: 'chart', hint: 'Goals', web: '/performance', who: 'mgr', mod: 'performance' },
   ] },
-  { name: 'Money', color: '#17A673', soft: ['#E6F6EF', 'rgba(23,166,115,0.16)'], tools: [
-    { name: 'Wallet', icon: 'wallet', app: '/wallet', who: 'all' },
-    { name: 'My pay', icon: 'cash', app: '/pay', who: 'staff' },
-    { name: 'Invoices', icon: 'news', web: '/invoices', who: 'mgr' },
-    { name: 'Sales', icon: 'chart', web: '/sales', who: 'mgr' },
-    { name: 'Accounting', icon: 'chart', web: '/accounting', who: 'mgr' },
-    { name: 'Expenses', icon: 'briefcase', web: '/expenses', who: 'mgr' },
-    { name: 'Cash flow', icon: 'cash', web: '/cashflow', who: 'mgr' },
-    { name: 'Banking', icon: 'shield', web: '/banking', who: 'mgr' },
+  { name: 'Money', tools: [
+    { name: 'Payroll', icon: 'cash', hint: 'Pay your team', web: '/payroll', who: 'mgr', mod: 'payroll' },
+    { name: 'My pay', icon: 'cash', hint: 'Pay stubs', app: '/pay', who: 'staff', mod: 'payroll' },
+    { name: 'Invoices', icon: 'doc', hint: 'Get paid', web: '/invoices', who: 'mgr' },
+    { name: 'Sales & POS', icon: 'cart', hint: 'Register', web: '/pos', who: 'mgr' },
+    { name: 'Wallet', icon: 'wallet', hint: 'Balance', app: '/wallet', who: 'all' },
+    { name: 'Accounting', icon: 'chart', hint: 'Books', web: '/accounting', who: 'mgr', mod: 'accounting', admin: true },
+    { name: 'Expenses', icon: 'briefcase', hint: 'Receipts', web: '/expenses', who: 'mgr', mod: 'expenses' },
+    { name: 'Banking', icon: 'shield', hint: 'Accounts', web: '/banking', who: 'mgr', mod: 'accounting', admin: true },
   ] },
-  { name: 'Customers', color: '#C2417A', soft: ['#FBEAF2', 'rgba(194,65,122,0.18)'], tools: [
-    { name: 'Customers', icon: 'users', web: '/customers', who: 'mgr' },
-    { name: 'Reviews', icon: 'spark', web: '/reviews', who: 'mgr' },
-    { name: 'Business Phone', icon: 'phone', web: '/calls', who: 'mgr' },
-    { name: 'Phone line', icon: 'phone', web: '/phone', who: 'mgr' },
-    { name: 'Marketing', icon: 'news', web: '/marketing', who: 'mgr' },
-    { name: 'Reservations', icon: 'calendar', web: '/reservations', who: 'mgr' },
-    { name: 'Loyalty', icon: 'check', web: '/loyalty', who: 'mgr' },
-    { name: 'Gift cards', icon: 'cash', web: '/gift-cards', who: 'mgr' },
+  { name: 'Talk', tools: [
+    { name: 'Meet', icon: 'video', hint: 'Video meetings', app: '/meet', who: 'team', mod: 'meet' },
+    { name: 'Business Phone', icon: 'phone', hint: 'Company line', app: '/phone', who: 'mgr' },
+    { name: 'Team chat', icon: 'chat', hint: 'Messages', web: '/chat', who: 'team', mod: 'chat' },
+    { name: 'Team news', icon: 'news', hint: 'Feed', app: '/feed', who: 'team', mod: 'feed' },
+    { name: 'Customers', icon: 'heart', hint: 'People who buy', web: '/customers', who: 'mgr' },
+    { name: 'Reviews', icon: 'spark', hint: 'Stars', web: '/reviews', who: 'mgr' },
+    { name: 'Marketing', icon: 'send', hint: 'Campaigns', web: '/marketing', who: 'mgr', mod: 'marketing' },
   ] },
-  { name: 'Operations', color: '#D98A1C', soft: ['#FFF3E0', 'rgba(217,138,28,0.18)'], tools: [
-    { name: 'Inventory', icon: 'briefcase', web: '/inventory', who: 'mgr' },
-    { name: 'POS', icon: 'cash', web: '/pos', who: 'mgr' },
-    { name: 'Products', icon: 'grid', web: '/products', who: 'mgr' },
-    { name: 'Suppliers', icon: 'send', web: '/suppliers', who: 'mgr' },
-    { name: 'Cameras', icon: 'video', web: '/cameras', who: 'mgr' },
-    { name: 'Parking', icon: 'pin', web: '/parking', who: 'mgr' },
-    { name: 'Locations', icon: 'pin', web: '/locations', who: 'mgr' },
-    { name: 'Reports', icon: 'chart', web: '/reports', who: 'mgr' },
+  { name: 'Ava, mail & learning', tools: [
+    { name: 'Ava AI', icon: 'spark', hint: 'Ask', app: '/ai', who: 'all' },
+    { name: 'Mail', icon: 'mail', hint: 'Inbox', web: '/mail', who: 'mgr' },
+    { name: 'Academy', icon: 'cap', hint: 'Courses', web: '/academy', who: 'team', mod: 'academy' },
+    { name: 'Docs', icon: 'doc', hint: 'Sign and share', web: '/docs', who: 'mgr', mod: 'docs' },
+    { name: 'Résumé', icon: 'doc', hint: 'Ava writes it', web: '/resume', who: 'staff' },
   ] },
-  { name: 'AI & platform', color: '#0B1C86', soft: ['#F0EEFF', 'rgba(107,92,246,0.18)'], tools: [
-    { name: 'My profile', icon: 'user', app: '/me', who: 'all' },
-    { name: 'Ava', icon: 'spark', app: '/ai', who: 'all' },
-    { name: 'Meet', icon: 'video', web: '/meet', who: 'team' },
-    { name: 'Join a meeting', icon: 'link', app: '/guest', who: 'all' },
-    { name: 'Connect a watch', icon: 'clock', app: '/watch', who: 'all' },
-    { name: 'Team chat', icon: 'chat', web: '/chat', who: 'team' },
-    { name: 'Team news', icon: 'news', app: '/feed', who: 'team' },
-    { name: 'Docs', icon: 'news', web: '/docs', who: 'mgr' },
-    { name: 'Notifications', icon: 'bell', app: '/notifications', who: 'all' },
-    { name: 'Settings', icon: 'globe', web: '/settings', who: 'mgr' },
-    { name: 'Security', icon: 'shield', web: '/security', who: 'mgr' },
-    { name: 'Help', icon: 'chat', web: '/help', who: 'all' },
+  { name: 'Operations', tools: [
+    { name: 'Inventory', icon: 'box', hint: 'Stock', web: '/inventory', who: 'mgr' },
+    { name: 'Storm Center', icon: 'cloud', hint: 'Weather', web: '/storm', who: 'mgr' },
+    { name: 'Products', icon: 'grid', hint: 'Menu & items', web: '/products', who: 'mgr' },
+    { name: 'Suppliers', icon: 'send', hint: 'Orders', web: '/suppliers', who: 'mgr', mod: 'suppliers' },
+    { name: 'Reservations', icon: 'calendar', hint: 'Bookings', web: '/reservations', who: 'mgr', mod: 'reservations' },
+    { name: 'Loyalty', icon: 'heart', hint: 'Rewards', web: '/loyalty', who: 'mgr', mod: 'loyalty' },
+    { name: 'Projects', icon: 'check', hint: 'Tasks', web: '/projects', who: 'mgr', mod: 'projects' },
+    { name: 'Cameras', icon: 'video', hint: 'Live view', web: '/cameras', who: 'mgr' },
+    { name: 'Reports', icon: 'chart', hint: 'Numbers', web: '/reports', who: 'mgr' },
+  ] },
+  { name: 'You & settings', tools: [
+    { name: 'My profile', icon: 'user', hint: 'Card & badge', app: '/me', who: 'all' },
+    { name: 'Notifications', icon: 'bell', hint: 'Alerts', app: '/notifications', who: 'all' },
+    { name: 'Join a meeting', icon: 'link', hint: 'With a code', app: '/guest', who: 'all' },
+    { name: 'Connect a watch', icon: 'clock', hint: 'Apple Watch', app: '/watch', who: 'all' },
+    { name: 'Settings', icon: 'globe', hint: 'Company', web: '/settings', who: 'mgr', admin: true },
+    { name: 'Security', icon: 'shield', hint: 'Sign-in', web: '/company-security', who: 'mgr', admin: true },
+    { name: 'Help', icon: 'chat', hint: 'Support', web: '/support', who: 'all' },
   ] },
 ];
+const TONES = ['nv', 'wh', 'bk'] as const;
 
-export default function Everything() {
+export default function AllTools() {
   const { session, isManager } = useAuth();
+  const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const [q, setQ] = useState('');
   const staff = !!session?.employee;
-  const ok = (w: Tool['who']) => w === 'all' || (w === 'mgr' && isManager) || (w === 'staff' && staff) || (w === 'team' && (staff || isManager));
-  const cols = C.dark ? (width >= 900 ? 6 : width >= 600 ? 4 : 3) : (width >= 900 ? 6 : width >= 600 ? 5 : 4);
-  const groups = useMemo(() => SUITES.map((s) => ({
-    ...s,
-    tools: s.tools.filter((x) => ok(x.who)
-      && (!q.trim() || t(x.name).toLowerCase().includes(q.trim().toLowerCase()))),
-  })).filter((s) => s.tools.length), [isManager, staff, q]); // eslint-disable-line react-hooks/exhaustive-deps
-  const count = SUITES.reduce((a, s) => a + s.tools.filter((x) => ok(x.who)).length, 0);
+  const role = String(session?.user?.role || '');
+  const admin = role === 'owner' || role === 'admin';
+  const off = session?.company?.modules_off || [];
+  const ok = (x: Tool) => (x.who === 'all' || (x.who === 'mgr' && isManager) || (x.who === 'staff' && staff) || (x.who === 'team' && (staff || isManager))) && (!x.admin || admin);
+  const isOff = (x: Tool) => !!x.mod && off.includes(x.mod);
+  // Off tools: owners and admins see "Turn on"; everyone else simply doesn't see them.
+  const shown = (x: Tool) => ok(x) && (!isOff(x) || admin);
+  const s = q.trim().toLowerCase();
+  const groups = useMemo(() => GROUPS.map((g) => ({ ...g, tools: g.tools.filter((x) => shown(x) && (!s || t(x.name).toLowerCase().includes(s) || t(x.hint).toLowerCase().includes(s))) })).filter((g) => g.tools.length),
+    [s, isManager, staff, admin, off.join(',')]); // eslint-disable-line react-hooks/exhaustive-deps
   const go = (x: Tool) => {
+    if (isOff(x)) { openTool('/billing', t('Plan & billing')); return; }
     if (x.app) { router.navigate(x.app as any); return; }
     if (x.web) openTool(x.web, t(x.name));
   };
-  const u = session?.user;
+  const all = GROUPS.flatMap((g) => g.tools);
+  const favs = (isManager ? ['Schedule', 'Payroll', 'Meet', 'Ava AI'] : ['Schedule', 'My pay', 'Meet', 'Ava AI']).map((n) => all.find((x) => x.name === n)!).filter((x) => x && shown(x));
+  const cols = width >= 900 ? 6 : width >= 600 ? 4 : 3;
+  const maxW = 760;
+  const tileW = (Math.min(width, maxW) - 32 - (cols - 1) * 8) / cols;
   return (
-    <Screen eyebrow={t('{n} tools in 5 suites', { n: count })} title={t('Everything')}
-      right={<Pressable onPress={() => router.navigate('/me')} accessibilityRole="button" accessibilityLabel={t('Me')}><Avatar name={u?.name || '?'} size={36} /></Pressable>}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 46, paddingHorizontal: 14, borderRadius: 999, backgroundColor: C.card, borderWidth: 1, borderColor: C.line }}>
-        <View style={{ flexShrink: 0 }}><Icon name="search" size={18} color={C.faint} duo={false} /></View>
-        <TextInput value={q} onChangeText={setQ} placeholder={t('Search tools')} placeholderTextColor={C.faint} style={{ flex: 1, minWidth: 0, color: C.ink, fontSize: 15, paddingVertical: 11 }} accessibilityLabel={t('Search tools')} autoCorrect={false} />
-        {q ? <Pressable onPress={() => setQ('')} hitSlop={8} accessibilityLabel={t('Clear')}><Icon name="x" size={18} color={C.faint} /></Pressable> : null}
-      </View>
-      {C.dark && !q ? (
-        <View style={{ borderRadius: MID.rM, padding: 14, gap: 12, backgroundColor: MID.g2, overflow: 'hidden' }}>
-          <Text style={{ color: MID.ice, fontSize: 12, fontWeight: '600', letterSpacing: 1.2 }}>{t('Favourites').toUpperCase()}</Text>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            {(isManager ? [{ name: 'Schedule', icon: 'calendar', app: '/schedule' }, { name: 'Payroll', icon: 'cash', web: '/payroll' }, { name: 'Meet', icon: 'video', web: '/meet' }, { name: 'Ava', icon: 'spark', app: '/ai' }]
-              : [{ name: 'Schedule', icon: 'calendar', app: '/schedule' }, { name: 'My pay', icon: 'cash', app: '/pay' }, { name: 'Meet', icon: 'video', web: '/meet' }, { name: 'Ava', icon: 'spark', app: '/ai' }]).map((f: any) => (
-              <Pressable key={f.name} onPress={() => go(f)} accessibilityRole="button" accessibilityLabel={t(f.name)} style={({ pressed }) => ({ alignItems: 'center', gap: 6, width: 72, opacity: pressed ? 0.8 : 1 })}>
-                <GlossIcon icon={f.icon} tone="wh" size={48} />
+    <View style={{ flex: 1, backgroundColor: V.bg }}>
+      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingTop: insets.top + 8, paddingHorizontal: 16, paddingBottom: insets.bottom + 130, gap: 16, width: '100%', maxWidth: maxW, alignSelf: 'center' }}>
+        <SubTop title={t('All tools')} onBack={() => router.navigate('/')} />
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, height: 48, borderRadius: V.rM, backgroundColor: V.surf, borderWidth: 1, borderColor: V.line, paddingHorizontal: 16 }}>
+          <Icon name="scan" size={18} color={V.mute} duo={false} />
+          <TextInput value={q} onChangeText={setQ} placeholder={t('Search tools, people, invoices')} placeholderTextColor={V.mute} autoCorrect={false} accessibilityLabel={t('Search tools')}
+            style={{ flex: 1, minWidth: 0, color: '#FFFFFF', fontSize: 14, paddingVertical: 10 }} />
+          {q ? <Pressable onPress={() => setQ('')} hitSlop={8} accessibilityLabel={t('Clear')}><Icon name="x" size={18} color={V.mute} duo={false} /></Pressable> : null}
+        </View>
+        {!s ? (
+          <View style={{ flexDirection: 'row', justifyContent: 'space-around', paddingVertical: 16, paddingHorizontal: 10, borderRadius: V.rL, overflow: 'hidden', backgroundColor: '#000C58' }}>
+            <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }}>
+              <FavBg />
+            </View>
+            {favs.map((f) => (
+              <Pressable key={f.name} onPress={() => go(f)} accessibilityRole="button" accessibilityLabel={t(f.name)}
+                style={({ pressed }) => ({ alignItems: 'center', gap: 8, width: 72, transform: [{ scale: pressed ? 0.92 : 1 }] })}>
+                <Ti icon={f.icon} tone="wh" size={58} />
                 <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '600' }} numberOfLines={1}>{t(f.name)}</Text>
               </Pressable>
             ))}
           </View>
+        ) : null}
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginVertical: -4, marginHorizontal: 2 }}>
+          <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: V.good, shadowColor: V.good, shadowOpacity: 1, shadowRadius: 5, shadowOffset: { width: 0, height: 0 } }} />
+          <Text style={{ color: V.mute, fontSize: 12, flex: 1 }}>{t('Every tool opens inside the app · one sign-in')}</Text>
         </View>
-      ) : null}
-      {C.dark ? (
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 4 }}>
-          <Icon name="shield" size={15} color={C.good} duo={false} />
-          <Text style={{ color: C.sub, fontSize: 12.5, flex: 1 }}>{t('Every tool opens inside the app · one sign-in')}</Text>
-        </View>
-      ) : null}
-      {groups.map((g, gi) => (
-        <Rise key={g.name} delay={gi * 60} style={{ gap: 10, marginTop: 8 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <View style={{ width: 8, height: 8, borderRadius: 3, backgroundColor: C.dark ? '#8EA0FF' : '#000C58' }} />
-            <Text accessibilityRole="header" style={{ color: C.ink, fontSize: 13, fontWeight: '700' }}>{t(g.name)}</Text>
-            <Text style={{ color: C.faint, fontSize: 12 }}>{g.tools.length}</Text>
+        {groups.map((g) => (
+          <View key={g.name} style={{ gap: 10 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Text style={[FH, { color: '#FFFFFF', fontSize: 15 }]} accessibilityRole="header">{t(g.name)}</Text>
+              <View style={{ paddingVertical: 2, paddingHorizontal: 8, borderRadius: 99, backgroundColor: V.surf2 }}><Text style={{ color: V.mute, fontSize: 11, fontWeight: '700' }}>{g.tools.length}</Text></View>
+            </View>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+              {g.tools.map((x, i) => {
+                const offNow = isOff(x);
+                return (
+                  <Pressable key={x.name} onPress={() => go(x)} accessibilityRole="button" accessibilityLabel={offNow ? `${t(x.name)}, ${t('Turn on')}` : t(x.name)}
+                    style={() => ({ width: tileW, borderRadius: V.rM, backgroundColor: V.surf, borderWidth: 1, borderColor: V.line, paddingTop: 14, paddingBottom: 12, paddingHorizontal: 6, alignItems: 'center', gap: 4 })}>
+                    {({ pressed }) => (
+                      <>
+                        <View style={{ marginBottom: 6, opacity: offNow ? 0.55 : 1, transform: [{ scale: pressed ? 0.9 : 1 }, { rotate: pressed ? '-4deg' : '0deg' }] }}>
+                          <Ti icon={x.icon} tone={TONES[i % 3]} size={52} />
+                        </View>
+                        <Text style={{ color: '#FFFFFF', fontSize: 12.5, fontWeight: '700', textAlign: 'center', lineHeight: 15 }} numberOfLines={2}>{t(x.name)}</Text>
+                        <Text style={{ color: offNow ? '#C9D2FF' : V.mute, fontSize: 11, fontWeight: offNow ? '600' : '400' }} numberOfLines={1}>{offNow ? t('Turn on') : t(x.hint)}</Text>
+                        {offNow ? <View style={{ position: 'absolute', top: 8, right: 8, width: 20, height: 20, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFFFF' }}><Text style={{ color: V.navy, fontSize: 14, fontWeight: '700', lineHeight: 18 }}>+</Text></View> : null}
+                      </>
+                    )}
+                  </Pressable>
+                );
+              })}
+            </View>
           </View>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: -4 }}>
-            {g.tools.map((x) => (
-              <View key={x.name} style={{ width: `${100 / cols}%`, padding: 4 }}>
-                <Pressable onPress={() => go(x)} accessibilityRole="button" accessibilityLabel={t(x.name)}
-                  style={({ pressed }) => ({ alignItems: 'center', gap: 7, paddingTop: C.dark ? 14 : 12, paddingBottom: 10, paddingHorizontal: 2, borderRadius: C.dark ? MID.rS : 16, backgroundColor: C.card, borderWidth: StyleSheet.hairlineWidth, borderColor: C.line, opacity: pressed ? 0.75 : 1, transform: [{ scale: pressed ? 0.97 : 1 }] })}>
-                  {C.dark ? <GlossIcon icon={x.icon} tone={(['nv', 'wh', 'bk'] as const)[g.tools.indexOf(x) % 3]} size={46} /> : (
-                  <View style={{ width: 36, height: 36, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: '#000C58' }}>
-                    <Icon name={x.icon} size={19} color="#FFFFFF" duo={false} />
-                  </View>)}
-                  <Text numberOfLines={2} style={{ color: C.ink, fontSize: C.dark ? 12 : 11, fontWeight: '600', textAlign: 'center', minHeight: 26 }}>{t(x.name)}</Text>
-                </Pressable>
-              </View>
-            ))}
-          </View>
-        </Rise>
-      ))}
-      {!groups.length ? <Text style={{ color: C.sub, textAlign: 'center', padding: 24 }}>{t('No tools match “{q}”.', { q })}</Text> : null}
-    </Screen>
+        ))}
+        {!groups.length ? <Text style={{ color: V.mute, textAlign: 'center', padding: 24 }}>{t('No tools match “{q}”.', { q })}</Text> : null}
+        <PoweredBy />
+      </ScrollView>
+    </View>
+  );
+}
+
+/** Favourites card background: 160deg #1A2FCF → #000C58 with a thin top highlight. */
+function FavBg() {
+  return (
+    <Svg width="100%" height="100%" viewBox="0 0 10 10" preserveAspectRatio="none">
+      <Defs><LinearGradient id="fav" x1="0.2" y1="0" x2="0.8" y2="1"><Stop offset="0" stopColor="#1A2FCF" /><Stop offset="1" stopColor="#000C58" /></LinearGradient></Defs>
+      <Rect width={10} height={10} fill="url(#fav)" />
+    </Svg>
   );
 }

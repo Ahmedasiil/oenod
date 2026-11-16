@@ -84,3 +84,17 @@ export async function toggleMute() { if (!call || !view) return; const m = !view
 export async function toggleHold() { if (!call || !view) return; const h = !view.held; try { await call.hold(h); set({ ...view, held: h }); } catch { /* ignore */ } }
 export async function speakerPicker() { try { await voice?.showAvRoutePickerView(); } catch { /* ignore */ } }
 export async function keypad(d: string) { try { await call?.sendDigits(d); } catch { /* ignore */ } }
+
+/** Call out with the company number (iPhone, phone seat). Returns false when this phone can't place the call itself;
+    the caller then opens the Calls screen, whose dial pad calls from the browser phone. */
+export async function dialOut(num: string): Promise<boolean> {
+  const to = num.replace(/[^\d+]/g, '');
+  if (!Voice || to.replace(/\D/g, '').length < 10) return false;
+  await syncPhone();
+  if (!voice || !token || call) return false;
+  try {
+    const c = await voice.connect(token, { params: { To: to.length === 10 ? '+1' + to : to } });
+    track(c, to);
+    return true;
+  } catch { return false; }
+}

@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Stack, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { useFonts } from 'expo-font';
 import { AppState } from 'react-native';
 import { Splash } from '../ui/Brand';
 import { AppearanceProvider, takeReturnTo } from '../lib/appearance';
@@ -67,6 +68,7 @@ function Gate() {
         <Stack.Screen name="watch" options={{ headerShown: true, title: t('Connect a watch'), headerTintColor: C.ink, headerStyle: { backgroundColor: C.dark ? C.bg : '#FFFFFF' }, headerShadowVisible: false }} />
         <Stack.Screen name="timesheet" options={{ headerShown: true, title: t('My hours'), headerTintColor: C.ink, headerStyle: { backgroundColor: C.dark ? C.bg : '#FFFFFF' }, headerShadowVisible: false }} />
         <Stack.Screen name="setup" options={{ animation: 'fade', gestureEnabled: false, contentStyle: { backgroundColor: '#050B24' } }} />
+        <Stack.Screen name="payroll" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
         <Stack.Screen name="web" options={{ animation: 'slide_from_bottom' }} />
         <Stack.Screen name="kiosk" options={{ animation: 'fade', gestureEnabled: false, contentStyle: { backgroundColor: '#000C58' } }} />
         <Stack.Screen name="call" options={{ presentation: 'fullScreenModal', gestureEnabled: false, contentStyle: { backgroundColor: '#000C58' } }} />
@@ -84,6 +86,8 @@ function Gate() {
 }
 
 export default function RootLayout() {
+  // Midnight heading font (Space Grotesk, same as the approved design). Text falls back to the system font until it loads.
+  useFonts({ SG6: require('../../assets/fonts/SpaceGrotesk-SemiBold.ttf'), SG7: require('../../assets/fonts/SpaceGrotesk-Bold.ttf') });
   return (
     <SafeAreaProvider>
       <AuthProvider>
