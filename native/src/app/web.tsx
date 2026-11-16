@@ -20,6 +20,17 @@ import { Logo } from '../ui/Logo';
 /** Open an oenod.com page (hash route like "/invoices") in the in-app web view. */
 export const openTool = (path: string, title: string) => router.push({ pathname: '/web', params: { path, title } });
 
+// ap1 (oenod.com 3.8.494+): tells every OENOD page it is inside the phone app, so the page drops the website's own
+// top bar, tabs, menu and rail and shows only the tool, in the app's Midnight look. Runs before the page's own code.
+const APP_MODE = `(function(){try{window.OENOD_APP='${Platform.OS}';sessionStorage.setItem('ap1','1');}catch(e){}})();true;`;
+const BEFORE = IOS_STORE ? APP_MODE + IOS_WEB_GUARD : APP_MODE;
+// Other websites (a bank, a carrier, a map) open in a sheet over the app with a Done button: you never leave OENOD.
+export const openSheet = (u: string) => WebBrowser.openBrowserAsync(u, {
+  presentationStyle: WebBrowser.WebBrowserPresentationStyle.PAGE_SHEET,
+  controlsColor: '#FFFFFF', toolbarColor: '#05060D', secondaryToolbarColor: '#05060D',
+  enableBarCollapsing: true, showTitle: true, createTask: false,
+}).catch(() => {});
+
 export default function Web() {
   const { path = '/', title = 'OENOD' } = useLocalSearchParams<{ path: string; title: string }>();
   const insets = useSafeAreaInsets();
@@ -58,7 +69,7 @@ export default function Web() {
       <WebView
         ref={ref}
         source={{ uri: url }}
-        injectedJavaScriptBeforeContentLoaded={IOS_STORE ? IOS_WEB_GUARD : undefined}
+        injectedJavaScriptBeforeContentLoaded={BEFORE}
         injectedJavaScript={IOS_STORE ? IOS_WEB_GUARD : undefined}
         sharedCookiesEnabled
         cacheEnabled={false}
@@ -83,7 +94,7 @@ export default function Web() {
           if (IOS_STORE && /^https:\/\/(www\.)?oenod\.com\/(pricing|plans|signup|start|checkout)/i.test(r.url)) return false;
           // Links back to the website's own sign-in never leave the app either.
           if (/^https:\/\/(www\.)?oenod\.com/.test(r.url)) return true;
-          if (/^https?:/.test(r.url)) { WebBrowser.openBrowserAsync(r.url); return false; }
+          if (/^https?:/.test(r.url)) { openSheet(r.url); return false; }
           Linking.openURL(r.url).catch(() => {});
           return false;
         }}

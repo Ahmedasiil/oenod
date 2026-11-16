@@ -1,14 +1,14 @@
 // Meet tab (Midnight v6, approved 11-16): next or live meeting with who's in it, your Meet character,
 // New meeting / Join code, the four Meet features, and today's list. Every button opens Meet inside the app.
 import React, { useState } from 'react';
-import { Image, Linking, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { get } from '../../lib/api';
 import { useLoad } from '../../lib/useLoad';
 import { day, time } from '../../lib/format';
 import { t } from '../../lib/i18n';
-import { openTool } from '../web';
+import { openSheet, openTool } from '../web';
 import { meetingId, openMeeting } from '../guest';
 import { Icon, type IconName } from '../../ui/Icon';
 import { Av, FH, Li, List, NavyFill, Pills, SBtn, Sec, SubTop, V } from '../../ui/M6';
@@ -24,7 +24,10 @@ const meetHome = () => openTool('/meet', 'OENOD Meet');
 export function joinMeeting(m: { url?: string }) {
   const id = meetingId(String(m.url || ''));
   if (id) return openMeeting(id);
-  if (m.url && /^https:\/\//.test(m.url)) return Linking.openURL(m.url);
+  // An OENOD page opens in the app's OENOD screen; a meeting on another service opens in a sheet over the app.
+  const own = String(m.url || '').match(/^https:\/\/(?:www\.)?oenod\.com\/?#?(\/.*)?$/i);
+  if (own) return openTool(own[1] || '/meet', 'OENOD Meet');
+  if (m.url && /^https:\/\//.test(m.url)) return openSheet(m.url);
   return meetHome();
 }
 
