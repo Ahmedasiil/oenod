@@ -22,7 +22,7 @@ jobs:
           npx tsc --noEmit
       - name: Firebase config for Android calls (repository secret, never committed)
         working-directory: native
-        env: { GSJ: '${{ secrets.GOOGLE_SERVICES_JSON }}', GSJ64: '${{ secrets.GOOGLE_SERVICES_JSON_B64 }}' }
+        env: { GSJ: '${{ secrets.GOOGLE_SERVICES_JSON || secrets.GOOGLE_SERVICES_USON }}', GSJ64: '${{ secrets.GOOGLE_SERVICES_JSON_B64 }}' }
         run: |
           if [ -n "$GSJ" ]; then printf '%s' "$GSJ" > google-services.json
           elif [ -n "$GSJ64" ]; then echo "$GSJ64" | base64 -d > google-services.json
