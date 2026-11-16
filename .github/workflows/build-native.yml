@@ -22,10 +22,11 @@ jobs:
           npx tsc --noEmit
       - name: Firebase config for Android calls (repository secret, never committed)
         working-directory: native
-        env: { GSJ: '${{ secrets.GOOGLE_SERVICES_JSON_B64 }}' }
+        env: { GSJ: '${{ secrets.GOOGLE_SERVICES_JSON }}', GSJ64: '${{ secrets.GOOGLE_SERVICES_JSON_B64 }}' }
         run: |
-          if [ -z "$GSJ" ]; then echo "::error::GOOGLE_SERVICES_JSON_B64 secret is missing"; exit 1; fi
-          echo "$GSJ" | base64 -d > google-services.json
+          if [ -n "$GSJ" ]; then printf '%s' "$GSJ" > google-services.json
+          elif [ -n "$GSJ64" ]; then echo "$GSJ64" | base64 -d > google-services.json
+          else echo "::error::GOOGLE_SERVICES_JSON secret is missing"; exit 1; fi
           node -e "const j=require('./google-services.json');if(!j.client.some(c=>c.client_info.android_client_info.package_name==='com.oenod.app'))throw new Error('google-services.json is not for com.oenod.app')"
       - name: Generate Android project
         working-directory: native
