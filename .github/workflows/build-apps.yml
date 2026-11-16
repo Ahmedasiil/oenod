@@ -100,7 +100,10 @@ jobs:
             DMG=$(ls dist/*.dmg)
             xcrun notarytool submit "$DMG" --key "$APPLE_API_KEY" --key-id "$APPLE_KEY_ID" --issuer "$APPLE_ISSUER_ID" --wait
             xcrun stapler staple "$DMG"
-            spctl -a -t open --context context:primary-signature -v "$DMG"
+            MNT=$(hdiutil attach -nobrowse -readonly "$DMG" | tail -1 | awk -F'\t' '{print $NF}')
+            spctl -a -t exec -vv "$MNT/OENOD.app"
+            xcrun stapler validate "$DMG"
+            hdiutil detach "$MNT"
             rm -rf ~/private_keys "$RUNNER_TEMP/devid.p12"
           else
             echo "::warning::Mac app is UNSIGNED (MAC_CERT_P12 secret missing)"
