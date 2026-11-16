@@ -1,5 +1,5 @@
-// Languages: the same 10 as oenod.com. Arabic and Urdu read right to left.
-// The six newer languages live in src/i18n/<code>.json.
+// Languages: the same 20 as oenod.com. Arabic, Urdu and Farsi read right to left.
+// Newer languages live in src/i18n/<code>.json; v391.json adds the Midnight words.
 // English text is the key; a missing translation falls back to English.
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { setSeasonContext } from './season';
@@ -13,15 +13,31 @@ import pt from '../i18n/pt.json';
 import ur from '../i18n/ur.json';
 import v36 from '../i18n/v36.json';
 import v37 from '../i18n/v37.json';
+import v391 from '../i18n/v391.json';
+import koJ from '../i18n/ko.json';
+import viJ from '../i18n/vi.json';
+import faJ from '../i18n/fa.json';
+import ruJ from '../i18n/ru.json';
+import taJ from '../i18n/ta.json';
+import guJ from '../i18n/gu.json';
+import itJ from '../i18n/it.json';
+import deJ from '../i18n/de.json';
+import plJ from '../i18n/pl.json';
+import jaJ from '../i18n/ja.json';
+
 import { secure } from './secure';
 import { useAuth } from './auth';
 import { post } from './api';
 
-export type Lang = 'en' | 'fr' | 'es' | 'ar' | 'zh' | 'pa' | 'tl' | 'hi' | 'pt' | 'ur';
+export type Lang = 'en' | 'fr' | 'es' | 'ar' | 'zh' | 'pa' | 'tl' | 'hi' | 'pt' | 'ur'
+  | 'ko' | 'vi' | 'fa' | 'ru' | 'ta' | 'gu' | 'it' | 'de' | 'pl' | 'ja';
 export const LANGS: { code: Lang; name: string }[] = [
   { code: 'en', name: 'English' }, { code: 'fr', name: 'Français' }, { code: 'es', name: 'Español' }, { code: 'ar', name: 'العربية' },
   { code: 'zh', name: '中文（简体）' }, { code: 'pa', name: 'ਪੰਜਾਬੀ' }, { code: 'tl', name: 'Tagalog' }, { code: 'hi', name: 'हिन्दी' },
   { code: 'pt', name: 'Português' }, { code: 'ur', name: 'اردو' },
+  { code: 'ko', name: '한국어' }, { code: 'vi', name: 'Tiếng Việt' }, { code: 'fa', name: 'فارسی' }, { code: 'ru', name: 'Русский' },
+  { code: 'ta', name: 'தமிழ்' }, { code: 'gu', name: 'ગુજરાતી' }, { code: 'it', name: 'Italiano' }, { code: 'de', name: 'Deutsch' },
+  { code: 'pl', name: 'Polski' }, { code: 'ja', name: '日本語' },
 ];
 
 type Dict = Record<string, string>;
@@ -1159,11 +1175,13 @@ Object.assign(ar, {"Delete my account": "حذف حسابي", "Permanently remove
 // App 3.6 phrases (new design, watches, sign up).
 Object.assign(fr, v36.fr); Object.assign(es, v36.es); Object.assign(ar, v36.ar);
 Object.assign(fr, v37.fr); Object.assign(es, v37.es); Object.assign(ar, v37.ar);
-const DICTS: Record<Lang, Dict> = { en: {}, fr, ar, es, zh: { ...zh, ...v36.zh, ...v37.zh }, pa: { ...pa, ...v36.pa, ...v37.pa }, tl: { ...tl, ...v36.tl, ...v37.tl }, hi: { ...hi, ...v36.hi, ...v37.hi }, pt: { ...pt, ...v36.pt, ...v37.pt }, ur: { ...ur, ...v36.ur, ...v37.ur } };
+Object.assign(fr, v391.fr); Object.assign(es, v391.es); Object.assign(ar, v391.ar);
+const DICTS: Record<Lang, Dict> = { en: {}, fr, ar, es, zh: { ...zh, ...v36.zh, ...v37.zh, ...v391.zh }, pa: { ...pa, ...v36.pa, ...v37.pa, ...v391.pa }, tl: { ...tl, ...v36.tl, ...v37.tl, ...v391.tl }, hi: { ...hi, ...v36.hi, ...v37.hi, ...v391.hi }, pt: { ...pt, ...v36.pt, ...v37.pt, ...v391.pt }, ur: { ...ur, ...v36.ur, ...v37.ur, ...v391.ur },
+  ko: koJ as Dict, vi: viJ as Dict, fa: faJ as Dict, ru: ruJ as Dict, ta: taJ as Dict, gu: guJ as Dict, it: itJ as Dict, de: deJ as Dict, pl: plJ as Dict, ja: jaJ as Dict };
 
 let current: Lang = 'en';
 export const lang = () => current;
-export const locale = () => ({ en: 'en-CA', fr: 'fr-CA', ar: 'ar', es: 'es', zh: 'zh-CN', pa: 'pa-IN', tl: 'fil-PH', hi: 'hi-IN', pt: 'pt-BR', ur: 'ur-PK' }[current]);
+export const locale = () => ({ en: 'en-CA', fr: 'fr-CA', ar: 'ar', es: 'es', zh: 'zh-CN', pa: 'pa-IN', tl: 'fil-PH', hi: 'hi-IN', pt: 'pt-BR', ur: 'ur-PK', ko: 'ko-KR', vi: 'vi-VN', fa: 'fa-IR', ru: 'ru-RU', ta: 'ta-IN', gu: 'gu-IN', it: 'it-IT', de: 'de-DE', pl: 'pl-PL', ja: 'ja-JP' }[current]);
 
 /** Translate. English is the key; {name} placeholders are filled from vars. */
 export function t(s: string, vars?: Record<string, string | number>): string {
@@ -1208,9 +1226,9 @@ export function LangProvider({ children }: { children: React.ReactNode }) {
 }
 export const useLang = () => useContext(Ctx);
 
-/** Arabic and Urdu read right to left. Returns true when the app must restart to flip the layout. */
+/** Arabic, Urdu and Farsi read right to left. Returns true when the app must restart to flip the layout. */
 function applyDirection(l: Lang): boolean {
-  const rtl = l === 'ar' || l === 'ur';
+  const rtl = l === 'ar' || l === 'ur' || l === 'fa';
   if (Platform.OS === 'web') {
     try { document.documentElement.dir = rtl ? 'rtl' : 'ltr'; document.documentElement.lang = l; } catch { /* ignore */ }
     return false;
