@@ -2,7 +2,7 @@
   "expo": {
     "name": "OENOD",
     "slug": "oenod",
-    "version": "3.9.1",
+    "version": "3.9.2",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -37,7 +37,7 @@
     },
     "android": {
       "package": "com.oenod.app",
-      "versionCode": 392,
+      "versionCode": 393,
       "adaptiveIcon": {
         "backgroundColor": "#000C58",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -49,17 +49,24 @@
         "ACCESS_FINE_LOCATION",
         "CAMERA",
         "USE_BIOMETRIC",
-        "POST_NOTIFICATIONS"
+        "POST_NOTIFICATIONS",
+        "RECORD_AUDIO",
+        "BLUETOOTH_CONNECT",
+        "USE_FULL_SCREEN_INTENT",
+        "FOREGROUND_SERVICE",
+        "FOREGROUND_SERVICE_MICROPHONE",
+        "WAKE_LOCK",
+        "VIBRATE"
       ],
       "predictiveBackGestureEnabled": false,
       "blockedPermissions": [
         "android.permission.ACCESS_BACKGROUND_LOCATION",
         "android.permission.FOREGROUND_SERVICE_LOCATION",
         "android.permission.SYSTEM_ALERT_WINDOW",
-        "android.permission.RECORD_AUDIO",
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE"
-      ]
+      ],
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -220,6 +227,13 @@
             }
           }
         ]
+      ],
+      [
+        "@twilio/voice-react-native-sdk",
+        {
+          "apsEnvironment": "production",
+          "microphoneUsageDescription": "OENOD uses the microphone for video meetings in OENOD Meet and for Business Phone calls."
+        }
       ]
     ],
     "scheme": "oenod",

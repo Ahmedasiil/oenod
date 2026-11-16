@@ -1,6 +1,7 @@
-// iPhone Business Phone calls (CallKit + PushKit through Twilio Voice): VoIP + audio background modes and
-// the production push environment, so company calls ring like normal calls, also on a locked phone.
-// (Same iOS settings as Twilio's own config plugin, without its Android part, which waits for Firebase.)
+// Business Phone calls through Twilio Voice, so company calls ring like normal phone calls, also on a locked phone.
+// iPhone: CallKit + PushKit (VoIP + audio background modes, production push environment).
+// Android (3.9.2): Twilio's own plugin wires the app; this adds the OENOD ringtone and vibration to the
+// full-screen incoming call (Answer / Decline) that Twilio's SDK shows on the lock screen.
 const { withInfoPlist, withEntitlementsPlist, withDangerousMod, withXcodeProject, IOSConfig } = require('expo/config-plugins');
 const fs = require('fs');
 const path = require('path');
@@ -32,5 +33,22 @@ module.exports = function withPhoneCalls(config) {
     }
     return c;
   });
+  // Android: the OENOD ringtone replaces Twilio's default "incoming" sound (app resources win over the library's).
+  config = withDangerousMod(config, ['android', async (c) => {
+    const raw = path.join(c.modRequest.platformProjectRoot, 'app/src/main/res/raw');
+    fs.mkdirSync(raw, { recursive: true });
+    fs.copyFileSync(path.join(c.modRequest.projectRoot, 'assets/sounds/oenod_ring.wav'), path.join(raw, 'incoming.wav'));
+    // Vibrate like a phone call: Twilio's call notification channel is silent (the SDK plays the ringtone itself)
+    // and has no vibration, so turn vibration on for its channels. Idempotent; runs on the installed SDK source.
+    const f = path.join(c.modRequest.projectRoot, 'node_modules/@twilio/voice-react-native-sdk/android/src/main/java/com/twiliovoicereactnative/NotificationUtility.java');
+    let src = fs.readFileSync(f, 'utf8');
+    const anchor = '.setGroup(Constants.VOICE_CHANNEL_GROUP);';
+    if (!src.includes('/* oenod vibrate */')) {
+      if (!src.includes(anchor)) throw new Error('withPhoneCalls: Twilio NotificationUtility changed; update the vibration patch');
+      src = src.replace(anchor, '.setGroup(Constants.VOICE_CHANNEL_GROUP)\n        /* oenod vibrate */ .setVibrationEnabled(Constants.VOICE_CHANNEL_HIGH_IMPORTANCE.equals(voiceChannelId))\n        .setVibrationPattern(new long[] {0, 1000, 1000, 1000, 1000, 1000, 1000});');
+      fs.writeFileSync(f, src);
+    }
+    return c;
+  }]);
   return config;
 };

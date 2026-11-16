@@ -1,7 +1,3 @@
-// Business Phone calls (Twilio Voice) are iPhone-only for now: Android needs OENOD's Firebase project
-// (FCM) first. When google-services.json is in place, remove the android: null line below.
-module.exports = {
-  dependencies: {
-    '@twilio/voice-react-native-sdk': { platforms: { android: null } },
-  },
-};
+// Business Phone calls (Twilio Voice) on iPhone and Android. Android rings through Firebase (FCM);
+// CI writes google-services.json from a repository secret (it is never committed to this public repo).
+module.exports = {};
