@@ -89,7 +89,34 @@ end
 # 5. Attach build to the editable version
 _, vs = call(:get, "/v1/apps/#{app_id}/appStoreVersions?filter[platform]=IOS&limit=5")
 ver = vs['data']&.find { |v| %w[READY_FOR_REVIEW PREPARE_FOR_SUBMISSION DEVELOPER_REJECTED REJECTED METADATA_REJECTED].include?(v['attributes']['appStoreState']) }
-abort('RESULT version: no editable version') unless ver
+unless ver
+  vstr = JSON.parse(File.read(File.join(__dir__, '..', 'app.json')))['expo']['version']
+  c, b = call(:post, '/v1/appStoreVersions', { data: { type: 'appStoreVersions', attributes: { platform: 'IOS', versionString: vstr },
+    relationships: { app: { data: { type: 'apps', id: app_id } } } } })
+  abort("RESULT version: create #{vstr} FAILED #{err(b)}") unless [200, 201].include?(c)
+  ver = b['data']
+  puts "RESULT version: created #{vstr}"
+  # copy the App Review sign-in details from the last version (never printed)
+  prev = (vs['data'] || []).find { |v| v['id'] != ver['id'] }
+  if prev
+    _, prd = call(:get, "/v1/appStoreVersions/#{prev['id']}/appStoreReviewDetail")
+    pa = (prd.dig('data', 'attributes') || {}).slice('contactFirstName', 'contactLastName', 'contactPhone', 'contactEmail', 'demoAccountName', 'demoAccountPassword', 'demoAccountRequired', 'notes')
+    _, nrd = call(:get, "/v1/appStoreVersions/#{ver['id']}/appStoreReviewDetail")
+    if nrd['data']
+      c3, b3 = call(:patch, "/v1/appStoreReviewDetails/#{nrd['data']['id']}", { data: { type: 'appStoreReviewDetails', id: nrd['data']['id'], attributes: pa } })
+    else
+      c3, b3 = call(:post, '/v1/appStoreReviewDetails', { data: { type: 'appStoreReviewDetails', attributes: pa, relationships: { appStoreVersion: { data: { type: 'appStoreVersions', id: ver['id'] } } } } })
+    end
+    res('review-details-copied', [200, 201].include?(c3), [200, 201].include?(c3) ? '' : err(b3))
+  end
+  note = ENV['WHATS_NEW'].to_s.strip
+  note = 'New Midnight look, business calls with the OENOD ringtone, 20 languages, and speed and reliability fixes.' if note.empty?
+  _, ls = call(:get, "/v1/appStoreVersions/#{ver['id']}/appStoreVersionLocalizations")
+  (ls['data'] || []).each do |l|
+    c2, b2 = call(:patch, "/v1/appStoreVersionLocalizations/#{l['id']}", { data: { type: 'appStoreVersionLocalizations', id: l['id'], attributes: { whatsNew: note } } })
+    res("whats-new #{l['attributes']['locale']}", [200].include?(c2), [200].include?(c2) ? '' : err(b2))
+  end
+end
 puts "RESULT version: #{ver['attributes']['versionString']} (#{ver['attributes']['appStoreState']})"
 want = ENV['BUILD_NUMBER'].to_s
 build = nil
