@@ -2,7 +2,7 @@
 // No Node.js access is given to web content, other sites open in the normal browser, and
 // only the configured OENOD domain can load inside the app.
 // OENOD Remote (remote.js) lets someone help on this computer, only after the person here presses Allow.
-const { app, BrowserWindow, shell, Menu, session } = require('electron');
+const { app, BrowserWindow, shell, Menu, session, dialog, net } = require('electron');
 const remote = require('./remote');
 const path = require('path');
 const fs = require('fs');
@@ -36,7 +36,7 @@ pendingLink = linkIn(process.argv) || null; // Windows and Linux, first start
 function create() {
   win = new BrowserWindow({
     width: 1360, height: 860, minWidth: 380, minHeight: 600, show: false, title: CFG.appName,
-    backgroundColor: '#050B24', icon: path.join(__dirname, 'build', 'icon.png'),
+    backgroundColor: '#0A0B10', icon: path.join(__dirname, 'build', 'icon.png'),
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
     webPreferences: { contextIsolation: true, nodeIntegration: false, sandbox: true, webSecurity: true, spellcheck: true, preload: path.join(__dirname, 'preload.js') },
   });
@@ -49,6 +49,35 @@ function create() {
   win.webContents.on('will-navigate', (e, url) => { if (!allowed(url)) { e.preventDefault(); if (/^https?:/i.test(url)) shell.openExternal(url); } });
   win.webContents.on('did-fail-load', (e, code, desc, url, isMain) => { if (isMain && code !== -3) win.loadFile(path.join(__dirname, 'offline.html')); });
   win.loadURL(HOME.href);
+}
+
+
+// du1: tells the person when a newer OENOD desktop app is on the Download page.
+// Reads oenod.com/api/public/apps (the same list the Download page uses) and opens the installer in the browser.
+const newer = (a, b) => { const x = a.split('.').map(Number), y = b.split('.').map(Number); for (let i = 0; i < 3; i++) { if ((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) > (y[i] || 0); } return false; };
+let askedFor = '';
+async function checkUpdate() {
+  try {
+    const r = await net.fetch(new URL('/api/public/apps', HOME).href, { headers: { Accept: 'application/json' } });
+    if (!r.ok) return;
+    const j = await r.json();
+    const key = process.platform === 'darwin' ? 'mac' : 'windows';
+    let link = typeof j[key] === 'string' ? j[key] : '';
+    const m = /(\d+\.\d+\.\d+)\.(exe|dmg)(\?|$)/i.exec(link);
+    if (!m) return;
+    let v = m[1];
+    if (process.platform === 'linux') link = '/downloads/OENOD-' + v + '.AppImage';
+    if (!newer(v, app.getVersion()) || askedFor === v || !win || win.isDestroyed()) return;
+    askedFor = v;
+    const url = new URL(link, HOME);
+    if (!allowed(url.href)) return;
+    const { response } = await dialog.showMessageBox(win, {
+      type: 'info', buttons: ['Download now', 'Later'], defaultId: 0, cancelId: 1, title: 'OENOD update',
+      message: 'A new OENOD app is ready (' + v + ')',
+      detail: 'You have ' + app.getVersion() + '. Download the new version, open it and install it over this one. Your sign-in and data stay the same.',
+    });
+    if (response === 0) shell.openExternal(url.href);
+  } catch { /* offline or site busy: try again later */ }
 }
 
 app.whenReady().then(() => {
@@ -66,6 +95,7 @@ app.whenReady().then(() => {
   remote.init({ home: HOME, isMain: (wc) => !!win && !win.isDestroyed() && wc === win.webContents });
   if (pendingLink) { const l = pendingLink; pendingLink = null; win.webContents.once('did-finish-load', () => onLink(l)); }
   app.on('activate', () => { if (!BrowserWindow.getAllWindows().length) create(); });
+  setTimeout(checkUpdate, 15000); setInterval(checkUpdate, 6 * 3600 * 1000);
 });
 app.on('second-instance', (e, argv) => { const l = linkIn(argv); if (l) return onLink(l); if (win) { if (win.isMinimized()) win.restore(); win.focus(); } });
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
