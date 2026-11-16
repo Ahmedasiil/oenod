@@ -1,0 +1,29 @@
+name: Read Developer ID certificate (public part only)
+on:
+  push:
+    branches: [mac-cert]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  read:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          APPLE_KEY_P8: ${{ secrets.APPLE_KEY_P8 }}
+          APPLE_KEY_ID: ${{ secrets.APPLE_KEY_ID }}
+          APPLE_ISSUER_ID: ${{ secrets.APPLE_ISSUER_ID }}
+        run: |
+          pip install -q pyjwt cryptography requests
+          python3 - <<'PY'
+          import os, time, jwt, requests
+          tok = jwt.encode({'iss': os.environ['APPLE_ISSUER_ID'], 'iat': int(time.time()), 'exp': int(time.time()) + 600, 'aud': 'appstoreconnect-v1'},
+                           os.environ['APPLE_KEY_P8'], algorithm='ES256', headers={'kid': os.environ['APPLE_KEY_ID']})
+          r = requests.get('https://api.appstoreconnect.apple.com/v1/certificates', params={'limit': 200}, headers={'Authorization': 'Bearer ' + tok})
+          print('STATUS', r.status_code)
+          for c in r.json().get('data', []):
+              a = c['attributes']
+              if 'DEVELOPER_ID' in a.get('certificateType', ''):
+                  print('CERT', c['id'], a['certificateType'], a.get('expirationDate'))
+                  print('CONTENT', a['certificateContent'])
+          PY
