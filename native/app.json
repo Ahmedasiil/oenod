@@ -111,7 +111,116 @@
       ],
       "@bacons/apple-targets",
       "./plugins/withWear",
-      "./plugins/withPhoneCalls"
+      "./plugins/withPhoneCalls",
+      [
+        "expo-alternate-app-icons",
+        [
+          {
+            "name": "SeasonXmas",
+            "ios": "./assets/season/ios-xmas.png",
+            "android": {
+              "foregroundImage": "./assets/season/fg-xmas.png",
+              "backgroundColor": "#00063D"
+            }
+          },
+          {
+            "name": "SeasonNewyear",
+            "ios": "./assets/season/ios-newyear.png",
+            "android": {
+              "foregroundImage": "./assets/season/fg-newyear.png",
+              "backgroundColor": "#00063D"
+            }
+          },
+          {
+            "name": "SeasonCanada",
+            "ios": "./assets/season/ios-canada.png",
+            "android": {
+              "foregroundImage": "./assets/season/fg-canada.png",
+              "backgroundColor": "#00063D"
+            }
+          },
+          {
+            "name": "SeasonJuly4",
+            "ios": "./assets/season/ios-july4.png",
+            "android": {
+              "foregroundImage": "./assets/season/fg-july4.png",
+              "backgroundColor": "#00063D"
+            }
+          },
+          {
+            "name": "SeasonEid",
+            "ios": "./assets/season/ios-eid.png",
+            "android": {
+              "foregroundImage": "./assets/season/fg-eid.png",
+              "backgroundColor": "#00063D"
+            }
+          },
+          {
+            "name": "SeasonRamadan",
+            "ios": "./assets/season/ios-ramadan.png",
+            "android": {
+              "foregroundImage": "./assets/season/fg-ramadan.png",
+              "backgroundColor": "#00063D"
+            }
+          },
+          {
+            "name": "SeasonDiwali",
+            "ios": "./assets/season/ios-diwali.png",
+            "android": {
+              "foregroundImage": "./assets/season/fg-diwali.png",
+              "backgroundColor": "#00063D"
+            }
+          },
+          {
+            "name": "SeasonLunar",
+            "ios": "./assets/season/ios-lunar.png",
+            "android": {
+              "foregroundImage": "./assets/season/fg-lunar.png",
+              "backgroundColor": "#00063D"
+            }
+          },
+          {
+            "name": "SeasonHalloween",
+            "ios": "./assets/season/ios-halloween.png",
+            "android": {
+              "foregroundImage": "./assets/season/fg-halloween.png",
+              "backgroundColor": "#00063D"
+            }
+          },
+          {
+            "name": "SeasonPoppy",
+            "ios": "./assets/season/ios-poppy.png",
+            "android": {
+              "foregroundImage": "./assets/season/fg-poppy.png",
+              "backgroundColor": "#00063D"
+            }
+          },
+          {
+            "name": "SeasonThanks",
+            "ios": "./assets/season/ios-thanks.png",
+            "android": {
+              "foregroundImage": "./assets/season/fg-thanks.png",
+              "backgroundColor": "#00063D"
+            }
+          },
+          {
+            "name": "SeasonStpat",
+            "ios": "./assets/season/ios-stpat.png",
+            "android": {
+              "foregroundImage": "./assets/season/fg-stpat.png",
+              "backgroundColor": "#00063D"
+            }
+          },
+          {
+            "name": "SeasonValentine",
+            "ios": "./assets/season/ios-valentine.png",
+            "android": {
+              "foregroundImage": "./assets/season/fg-valentine.png",
+              "backgroundColor": "#00063D"
+            }
+          }
+        ]
+      ]
     ],
     "scheme": "oenod",
     "backgroundColor": "#050B24",

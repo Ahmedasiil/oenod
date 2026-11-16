@@ -11,9 +11,13 @@ import { LangProvider, t } from '../lib/i18n';
 import { stopTracking, syncTracking } from '../lib/geo'; // also registers the location task (Android)
 import { onWatchPair, watchPending } from '../../modules/oenod-watchlink/src';
 import { stopPhone, syncPhone } from '../lib/phone';
+import { loadSeasonSwitch } from '../lib/season';
+import { startSeasonIcon } from '../lib/seasonIcon';
 
 function Gate() {
   const { ready, session } = useAuth();
+  // Seasonal logo: HQ's on/off switch, checked once a day and whenever the app comes back.
+  useEffect(() => { loadSeasonSwitch(); const sub = AppState.addEventListener('change', (st) => { if (st === 'active') loadSeasonSwitch(); }); const stop = startSeasonIcon(); return () => { sub.remove(); stop(); }; }, []);
   const signedIn = !!session?.user;
   const hasEmployee = !!session?.employee;
   useEffect(() => {

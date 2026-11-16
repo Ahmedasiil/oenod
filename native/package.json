@@ -6,6 +6,7 @@
     "@expo/metro-runtime": "~58.0.16",
     "@twilio/voice-react-native-sdk": "1.8.1",
     "expo": "~58.0.22",
+    "expo-alternate-app-icons": "11.0.0",
     "expo-camera": "~58.0.14",
     "expo-constants": "~58.0.14",
     "expo-font": "~58.0.11",

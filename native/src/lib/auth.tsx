@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { setSeasonContext } from './season';
 import { Alert, Platform } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import { api, ApiError, BASE, clearCred, loadCred, post, refreshSession, saveCred, setAltSignIn, setSignedOutHandler } from './api';
@@ -49,6 +50,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (Array.isArray(sp)) setProviders(sp.filter((p: string) => ['google', 'apple', 'microsoft'].includes(p)));
     setSession(s && s.user ? s : null);
     if (s?.company) setLocale(s.company.timezone, s.company.currency);
+    setSeasonContext(s?.company?.timezone || null); // seasonal logo follows the company's country
   }, []);
 
   const reload = useCallback(async () => {

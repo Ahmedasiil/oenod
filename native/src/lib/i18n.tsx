@@ -2,6 +2,7 @@
 // The six newer languages live in src/i18n/<code>.json.
 // English text is the key; a missing translation falls back to English.
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { setSeasonContext } from './season';
 import { I18nManager, Platform } from 'react-native';
 import { getLocales } from 'expo-localization';
 import zh from '../i18n/zh.json';
@@ -1201,6 +1202,7 @@ export function LangProvider({ children }: { children: React.ReactNode }) {
     if (session?.user) post('/api/account/prefs', { lang: next }).catch(() => {});
     return applyDirection(next);
   }, [session?.user]);
+  useEffect(() => { setSeasonContext(undefined, l); }, [l]); // Eid for Arabic/Urdu, Diwali for Hindi/Punjabi, Lunar New Year for Chinese
   // key={l} re-renders every screen in the new language.
   return <Ctx.Provider value={{ lang: l, setLang }}><React.Fragment key={l}>{children}</React.Fragment></Ctx.Provider>;
 }
