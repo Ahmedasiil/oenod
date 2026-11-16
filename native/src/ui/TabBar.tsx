@@ -1,10 +1,10 @@
-// Floating tab bar (approved 3.9 look): a rounded navy bar that hovers above the screen, the open tab glows
-// white, and Ava is a raised white tile in the middle. Centred and capped in width on tablets.
-import React, { useEffect, useRef, useState } from 'react';
+// Floating tab bar (Midnight, approved 11-16): a white bar with a soft notch in the middle, where Ava sits as
+// a raised navy circle. Centred and capped in width on tablets.
+import React, { useEffect, useRef } from 'react';
 import { Animated, Easing, Platform, Pressable, Text, View, useWindowDimensions } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import type { BottomTabBarProps } from 'expo-router/tabs';
-import Svg, { Circle, Defs, LinearGradient, RadialGradient, Rect, Stop } from 'react-native-svg';
+import Svg, { Circle, Defs, LinearGradient, Path, RadialGradient, Rect, Stop } from 'react-native-svg';
 import { C } from '../lib/theme';
 import { Icon } from './Icon';
 
@@ -48,51 +48,46 @@ export function AiOrb({ size = 56, still }: { size?: number; still?: boolean }) 
   );
 }
 
-/** Ava's button in the middle of the tab bar: a white circle with the navy spark and a soft ring. */
-function AiTile({ on }: { on: boolean }) {
+/** Ava's button: a raised navy circle that sits in the notch of the white bar. */
+function AiFab({ on }: { on: boolean }) {
   return (
-    <View style={{ width: 54, height: 54, borderRadius: 18, marginTop: -18, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFFFF',
-      borderWidth: 4, borderColor: 'rgba(142,160,255,0.25)', shadowColor: '#000C58', shadowOpacity: 0.45, shadowRadius: 10, shadowOffset: { width: 0, height: 6 }, elevation: 6,
-      transform: [{ scale: on ? 1.06 : 1 }] }}>
-      <Icon name="spark" size={24} color="#000C58" duo={false} />
+    <View style={{ width: 62, height: 62, borderRadius: 31, marginTop: -40, alignItems: 'center', justifyContent: 'center', backgroundColor: '#2238D8',
+      borderWidth: 5, borderColor: '#0A0B10', shadowColor: '#2238D8', shadowOpacity: 0.6, shadowRadius: 14, shadowOffset: { width: 0, height: 8 }, elevation: 10,
+      transform: [{ scale: on ? 1.06 : 1 }], overflow: 'hidden' }}>
+      <Svg width={62} height={62} style={{ position: 'absolute' }}>
+        <Defs><LinearGradient id="fab" x1="0.1" y1="0" x2="0.9" y2="1"><Stop offset="0" stopColor="#5B72FF" /><Stop offset="0.5" stopColor="#2238D8" /><Stop offset="1" stopColor="#0A1A9A" /></LinearGradient></Defs>
+        <Rect x={0} y={0} width={62} height={62} fill="url(#fab)" />
+      </Svg>
+      <View style={{ zIndex: 1 }}><Icon name="spark" size={24} color="#FFFFFF" duo={false} /></View>
     </View>
   );
 }
 
+/** The white bar with a soft notch in the middle for Ava. */
+function notchPath(w: number, h: number, cx: number) {
+  const r = 28;
+  return `M${r} 0 L${cx - 50} 0 C${cx - 36} 0 ${cx - 38} 30 ${cx} 30 C${cx + 38} 30 ${cx + 36} 0 ${cx + 50} 0 L${w - r} 0 Q${w} 0 ${w} ${r} L${w} ${h - r} Q${w} ${h} ${w - r} ${h} L${r} ${h} Q0 ${h} 0 ${h - r} L0 ${r} Q0 0 ${r} 0Z`;
+}
+
 export function TabBar({ state, descriptors, emitter, navigateToTab, insets }: BottomTabBarProps) {
   const { width } = useWindowDimensions();
-  const routes = state.routes.filter((r) => !(descriptors[r.key]?.options as any)?.hidden);
+  const routes = state.routes.filter((r) => { const o = descriptors[r.key]?.options as any; return !o?.hidden && !o?.oeOffBar; });
   const activeKey = state.routes[state.index]?.key;
   const idx = routes.findIndex((r) => r.key === activeKey);
-  const [w, setW] = useState(0);
-  const slot = routes.length ? w / routes.length : 0;
-  const x = useRef(new Animated.Value(0)).current;
-  const onAi = routes[idx]?.name === 'ai';
-  useEffect(() => {
-    if (idx >= 0) Animated.spring(x, { toValue: idx * slot, speed: 18, bounciness: 7, useNativeDriver: native }).start();
-  }, [idx, slot, x]);
   const barW = Math.min(width - 24, 520);
-  const H = 66;
+  const H = 68;
+  const aiAt = routes.findIndex((r) => r.name === 'ai');
   return (
     <View pointerEvents="box-none" style={{ position: 'absolute', left: 0, right: 0, bottom: Math.max(insets.bottom - 8, 14), alignItems: 'center' }}>
-      <View style={{ width: barW, height: H, borderRadius: 24, backgroundColor: '#000C58', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)',
-        shadowColor: '#000C58', shadowOpacity: 0.55, shadowRadius: 22, shadowOffset: { width: 0, height: 12 }, elevation: 14 }}>
-        <View pointerEvents="none" style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, borderRadius: 24, overflow: 'hidden' }}>
+      <View style={{ width: barW, height: H, shadowColor: '#000000', shadowOpacity: 0.45, shadowRadius: 22, shadowOffset: { width: 0, height: 10 }, elevation: 14 }}>
         <Svg pointerEvents="none" width={barW} height={H} style={{ position: 'absolute' }}>
-          <Defs><LinearGradient id="tbg" x1="0" y1="0" x2="1" y2="0.6"><Stop offset="0" stopColor="#000C58" /><Stop offset="1" stopColor="#0B1C86" /></LinearGradient></Defs>
-          <Rect x={0} y={0} width={barW} height={H} fill="url(#tbg)" />
+          <Path d={notchPath(barW, H, aiAt >= 0 ? (aiAt + 0.5) * barW / routes.length : barW / 2)} fill="#FFFFFF" />
         </Svg>
-        </View>
-        <View style={{ flexDirection: 'row', flex: 1 }} onLayout={(e) => setW(e.nativeEvent.layout.width)}>
-          {slot && idx >= 0 && !onAi ? (
-            <Animated.View pointerEvents="none" style={{ position: 'absolute', top: 6, bottom: 6, width: slot, paddingHorizontal: 5, transform: [{ translateX: x }] }}>
-              <View style={{ flex: 1, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.1)' }} />
-            </Animated.View>
-          ) : null}
+        <View style={{ flexDirection: 'row', flex: 1 }}>
           {routes.map((r, i) => {
             const o: any = descriptors[r.key].options;
             const on = i === idx;
-            const color = on ? '#FFFFFF' : '#8E98D6';
+            const color = on ? '#0A0B10' : '#8F95AD';
             const label = typeof o.tabBarLabel === 'string' ? o.tabBarLabel : o.title ?? r.name;
             const press = () => {
               const ev = emitter.emit({ type: 'tabPress', target: r.key, canPreventDefault: true });
@@ -101,10 +96,10 @@ export function TabBar({ state, descriptors, emitter, navigateToTab, insets }: B
             return (
               <Pressable key={r.key} accessibilityRole="tab" accessibilityState={{ selected: on }} accessibilityLabel={label} onPress={press}
                 style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 3 }}>
-                {r.name === 'ai' ? <AiTile on={on} /> : (
+                {r.name === 'ai' ? <AiFab on={on} /> : (
                   <>
-                    <View style={{ height: 26, justifyContent: 'center' }}>{o.tabBarIcon?.({ focused: on, color, size: 22 })}</View>
-                    <Text numberOfLines={1} style={{ fontSize: 10.5, lineHeight: 13, fontWeight: on ? '700' : '500', color }}>{label}</Text>
+                    <View style={{ height: 26, justifyContent: 'center' }}>{o.tabBarIcon?.({ focused: on, color, size: 23 })}</View>
+                    <Text numberOfLines={1} style={{ fontSize: 10, lineHeight: 12, fontWeight: on ? '700' : '500', color }}>{label}</Text>
                   </>
                 )}
               </Pressable>

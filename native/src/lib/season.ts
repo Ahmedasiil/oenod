@@ -7,6 +7,8 @@ import * as Localization from 'expo-localization';
 import { secure as Store } from './secure';
 import { BASE } from './api';
 
+var VB = '-25.7 -9.6 2378.2 671.3'; // the logo's own coordinates, with room for the art around the dot
+
   // Moving dates (Islamic, Hindu and lunar calendars). Add the next years before 2032.
   var EIDF = ['2026-03-20', '2027-03-10', '2028-02-27', '2029-02-15', '2030-02-05', '2031-01-25', '2032-01-14'];
   var EIDA = ['2026-05-27', '2027-05-17', '2028-05-05', '2029-04-24', '2030-04-13', '2031-04-02', '2032-03-22'];
@@ -178,7 +180,8 @@ export const LOOK_KEYS: LookKey[] = LOOKS.map(function (l) { return l.key; });
 export const lookName = (k) => (BY[k] ? BY[k].name : '');
 
 let hqOn = true;
-let forced: string | null = null; // preview from Me > Appearance (or tests)
+let forced: string | null = null; // preview from Me > Appearance (or ?season=xmas on the web test build)
+try { const q = (globalThis as any).location?.search ? new URLSearchParams((globalThis as any).location.search).get('season') : null; if (q) forced = q.toLowerCase(); } catch (e) {}
 let zoneOverride = '';
 let langOverride = '';
 const subs = new Set<() => void>();

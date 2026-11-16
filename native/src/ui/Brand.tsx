@@ -224,12 +224,12 @@ export function HeroCard({ children, style, frame = true }: { children: React.Re
   const outer: ViewStyle = { margin, marginTop, marginBottom, marginHorizontal, marginVertical, flex, alignSelf, width };
   const card = (
     <View onLayout={(e) => setSz({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}
-      style={[{ borderRadius: 22, padding: 18, overflow: 'hidden', backgroundColor: '#000C58', borderWidth: 1, borderColor: 'rgba(185,196,255,0.22)' }, inner]}>
-      <NavyFill w={sz.w} h={sz.h} />
+      style={[{ borderRadius: C.dark ? 24 : 22, padding: 18, overflow: 'hidden', backgroundColor: C.dark ? '#111219' : '#000C58', borderWidth: 1, borderColor: C.dark ? 'rgba(255,255,255,0.08)' : 'rgba(185,196,255,0.22)' }, inner]}>
+      {C.dark ? null : <NavyFill w={sz.w} h={sz.h} />}
       <View style={{ gap: 14, zIndex: 1, alignItems: inner.alignItems }}>{children}</View>
     </View>
   );
-  if (!frame) return <View style={outer}>{card}</View>;
+  if (!frame || C.dark) return <View style={outer}>{card}</View>; // Midnight: plain graphite card under the navy header card
   return <View style={[{ borderRadius: 27, padding: 5, backgroundColor: C.dark ? 'rgba(142,160,255,0.08)' : 'rgba(0,12,88,0.07)' }, outer]}>{card}</View>;
 }
 

@@ -11,7 +11,29 @@ import { GradientButton, HeroGradient, PoweredBy } from './Brand';
 import { Pressy } from './Motion';
 import { Logo } from './Logo';
 import { Bands } from './Bands';
-import Svg, { Circle } from 'react-native-svg';
+import Svg, { Circle, Defs, LinearGradient, RadialGradient, Rect, Stop } from 'react-native-svg';
+import { MID } from '../lib/theme';
+
+/** Midnight hero card background: bright navy gradient, a soft light in the top corner and two thin rings. */
+export function MidGlow({ width, height, id = 'mg' }: { width: number; height: number; id?: string }) {
+  const r = Math.max(width, height);
+  return (
+    <Svg pointerEvents="none" style={StyleSheet.absoluteFill} width={width} height={height}>
+      <Defs>
+        <LinearGradient id={id + 'a'} x1="0.15" y1="0" x2="0.85" y2="1">
+          <Stop offset="0" stopColor={MID.g1} /><Stop offset="0.45" stopColor={MID.g2} /><Stop offset="1" stopColor={MID.g3} />
+        </LinearGradient>
+        <RadialGradient id={id + 'b'} cx="92%" cy="0%" r="65%">
+          <Stop offset="0" stopColor="#FFFFFF" stopOpacity={0.28} /><Stop offset="1" stopColor="#FFFFFF" stopOpacity={0} />
+        </RadialGradient>
+      </Defs>
+      <Rect x={0} y={0} width={width} height={height} fill={`url(#${id}a)`} />
+      <Rect x={0} y={0} width={width} height={height} fill={`url(#${id}b)`} />
+      <Circle cx={width * 0.92} cy={height * 0.05} r={r * 0.34} fill="none" stroke="#FFFFFF" strokeOpacity={0.12} strokeWidth={1} />
+      <Circle cx={width * 0.92} cy={height * 0.05} r={r * 0.52} fill="none" stroke="#FFFFFF" strokeOpacity={0.07} strokeWidth={1} />
+    </Svg>
+  );
+}
 
 /** Faint dot grid that fades out downward, like the website's night bands. */
 function DotGrid({ width, height }: { width: number; height: number }) {
@@ -43,6 +65,7 @@ export function Screen({ title, eyebrow, subtitle, right, children, refreshing, 
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const [hh, setHh] = React.useState(160);
+  const [card, setCard] = React.useState({ w: 360, h: 200 });
   const y = React.useRef(new Animated.Value(0)).current;
   // 3.9: every titled screen gets the navy band header with the layered rings, like the website.
   const isHero = !!hero || !!title;
@@ -68,7 +91,18 @@ export function Screen({ title, eyebrow, subtitle, right, children, refreshing, 
       </View>
     </View>
   ) : null;
-  const head = isHero ? (
+  const head = isHero ? (C.dark ? (
+    // Midnight: the top row sits on the black page and the title + hero live in a floating navy card.
+    <View onLayout={(e) => setHh(e.nativeEvent.layout.height)} style={{ paddingTop: insets.top + S.sm, paddingHorizontal: Math.max(S.lg, (width - 760) / 2 + S.lg), gap: 14 }}>
+      {top}
+      <View onLayout={(e) => setCard({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })} style={st.midCard}>
+        <MidGlow width={card.w} height={card.h} id="hd" />
+        {titleRow}
+        {hero}
+      </View>
+      {below}
+    </View>
+  ) : (
     <View onLayout={(e) => setHh(e.nativeEvent.layout.height)}>
     <View style={[st.panel, { paddingTop: insets.top + (top ? S.sm : S.lg), paddingHorizontal: padH }, hero ? null : { paddingBottom: 20 }]}>
       <HeroGradient width={width} height={hh} id="sp" fade={false} />
@@ -80,7 +114,7 @@ export function Screen({ title, eyebrow, subtitle, right, children, refreshing, 
     </View>
     {below}
     </View>
-  ) : title ? (
+  )) : title ? (
     <View onLayout={(e) => setHh(e.nativeEvent.layout.height)}>
       <View style={[st.head, { paddingTop: insets.top + S.lg, paddingHorizontal: padH }]}>
         {top}
@@ -109,7 +143,7 @@ export function Screen({ title, eyebrow, subtitle, right, children, refreshing, 
       <Animated.ScrollView
         scrollEventThrottle={16}
         onScroll={Animated.event([{ nativeEvent: { contentOffset: { y } } }], { useNativeDriver: Platform.OS !== 'web' })}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 120 }}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 130 }}
         refreshControl={onRefresh ? <RefreshControl refreshing={!!refreshing} onRefresh={onRefresh} tintColor={hero ? '#FFFFFF' : C.link} progressViewOffset={insets.top} /> : undefined}
       >
         {head}
@@ -230,6 +264,7 @@ onPalette(() => { Object.assign(st, StyleSheet.create({
   screen: { flex: 1, backgroundColor: C.bg },
   head: { overflow: 'hidden', paddingHorizontal: S.lg, paddingBottom: 14, backgroundColor: C.dark ? C.bg : '#FFFFFF' },
   panel: { overflow: 'hidden', paddingHorizontal: S.lg, paddingBottom: 24, gap: 18, backgroundColor: '#000C58', borderBottomLeftRadius: 28, borderBottomRightRadius: 28 },
+  midCard: { overflow: 'hidden', borderRadius: 28, padding: 18, gap: 14, backgroundColor: MID.g2, shadowColor: '#2238D8', shadowOpacity: 0.35, shadowRadius: 24, shadowOffset: { width: 0, height: 12 }, elevation: 10 },
   slim: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 48, paddingHorizontal: 14, borderRadius: 16, backgroundColor: C.dark ? 'rgba(12,21,54,0.94)' : 'rgba(255,255,255,0.96)', borderWidth: StyleSheet.hairlineWidth, borderColor: C.line, shadowColor: '#0A1230', shadowOpacity: 0.14, shadowRadius: 18, shadowOffset: { width: 0, height: 8 }, elevation: 8 },
   eyebrow: { color: C.faint, fontSize: 13, fontWeight: '500', marginBottom: 2 },
   h1: { color: C.ink, fontSize: 30, fontWeight: '800', letterSpacing: -0.9 },

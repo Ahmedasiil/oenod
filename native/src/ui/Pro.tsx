@@ -114,22 +114,22 @@ export function QuickAccess({ title, items }: { title: string; items: QA[] }) {
 export function NavyCard({ icon, title, sub, link, onLink, children, style }: { icon: IconName; title: string; sub?: string; link?: string; onLink?: () => void; children?: React.ReactNode; style?: any }) {
   const [w, setW] = useState(360);
   return (
-    <View style={[{ backgroundColor: C.card, borderWidth: 1, borderColor: C.line, borderRadius: 22, overflow: 'hidden',
+    <View style={[{ backgroundColor: C.card, borderWidth: 1, borderColor: C.line, borderRadius: C.dark ? 24 : 22, overflow: 'hidden',
       shadowColor: '#000C58', shadowOpacity: C.dark ? 0 : 0.08, shadowRadius: 18, shadowOffset: { width: 0, height: 8 }, elevation: 2 }, style]}>
       <View onLayout={(e) => setW(e.nativeEvent.layout.width)} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, paddingHorizontal: 14, overflow: 'hidden' }}>
-        <Svg style={{ position: 'absolute', left: 0, top: 0 }} width={w} height={70}>
+        {C.dark ? null : <Svg style={{ position: 'absolute', left: 0, top: 0 }} width={w} height={70}>
           <Defs><LinearGradient id={'nc' + title.length} x1="0" y1="0" x2="1" y2="0.5"><Stop offset="0" stopColor="#000C58" /><Stop offset="0.55" stopColor="#0B1C86" /><Stop offset="1" stopColor="#1B2A9E" /></LinearGradient></Defs>
           <Rect width={w} height={70} fill={`url(#nc${title.length})`} />
-        </Svg>
-        <View style={{ width: 34, height: 34, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.12)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' }}>
+        </Svg>}
+        <View style={{ width: 34, height: 34, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: C.dark ? '#2238D8' : 'rgba(255,255,255,0.12)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' }}>
           <Icon name={icon} size={18} color="#FFFFFF" duo={false} />
         </View>
         <View style={{ flex: 1, minWidth: 0 }}>
-          <Text style={{ color: '#FFFFFF', fontSize: 14.5, fontWeight: '700' }} numberOfLines={1} accessibilityRole="header">{title}</Text>
-          {sub ? <Text style={{ color: LAV, fontSize: 11.5 }} numberOfLines={1}>{sub}</Text> : null}
+          <Text style={{ color: C.dark ? C.ink : '#FFFFFF', fontSize: 14.5, fontWeight: '700' }} numberOfLines={1} accessibilityRole="header">{title}</Text>
+          {sub ? <Text style={{ color: C.dark ? C.sub : LAV, fontSize: 11.5 }} numberOfLines={1}>{sub}</Text> : null}
         </View>
         {link ? (
-          <Pressable onPress={onLink} accessibilityRole="button" hitSlop={8} style={({ pressed }) => ({ borderRadius: 999, paddingVertical: 5, paddingHorizontal: 11, backgroundColor: pressed ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.12)' })}>
+          <Pressable onPress={onLink} accessibilityRole="button" hitSlop={8} style={({ pressed }) => ({ borderRadius: 999, paddingVertical: 5, paddingHorizontal: 11, backgroundColor: pressed ? 'rgba(255,255,255,0.25)' : (C.dark ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.12)') })}>
             <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '600' }}>{link}</Text>
           </Pressable>
         ) : null}

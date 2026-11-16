@@ -21,6 +21,11 @@ import { PhoneStatus } from '../../ui/PhoneStatus';
 import { useAppearance, type Mode } from '../../lib/appearance';
 import { Pressable } from 'react-native';
 import type { IconName } from '../../ui/Icon';
+import { PillRow } from '../../ui/Mid';
+import { Logo, useSeason } from '../../ui/Logo';
+import { lookName } from '../../lib/season';
+import { seasonIconOn, seasonIconSupported, setSeasonIconOn } from '../../lib/seasonIcon';
+import { Switch } from 'react-native';
 
 export default function Me() {
   const { session, signOut } = useAuth();
@@ -33,6 +38,8 @@ export default function Me() {
     if (restart) { const msg = t('Restart the app to finish switching the layout direction.'); if (Platform.OS === 'web') window.alert(msg); else Alert.alert(t('Language'), msg); }
   };
   const p = useLoad(() => get('/api/me/profile'));
+  const season = useSeason();
+  const [iconOn, setIconOn] = useState(seasonIconOn());
   const [which, setWhich] = useState<'card' | 'badge'>(session?.employee ? 'badge' : 'card');
   const u = session?.user;
   const badgeUrl: string | undefined = p.data?.employee?.badge_url;
@@ -46,7 +53,7 @@ export default function Me() {
   };
 
   return (
-    <Screen back title={t('Me')} subtitle={u?.email} refreshing={p.refreshing} onRefresh={p.refresh}>
+    <Screen back title={t('My profile')} subtitle={u?.email} refreshing={p.refreshing} onRefresh={p.refresh}>
       <Rise><HeroCard seed={11}>
         <Row>
           <View style={{ borderRadius: 34, padding: 3, backgroundColor: 'rgba(255,255,255,0.18)' }}><Avatar name={u?.name || '?'} size={60} /></View>
@@ -61,6 +68,12 @@ export default function Me() {
           <Mini label={t('Appearance')} value={look.mode === 'system' ? t('Automatic') : look.mode === 'light' ? t('Light') : t('Dark')} />
         </Row>
       </HeroCard></Rise>
+      <PillRow items={[
+        { label: t('Edit my profile'), icon: 'user', primary: true, go: () => open('/#/profile', t('Edit my profile')) },
+        { label: t('Wallet'), icon: 'wallet', go: () => router.push('/wallet') },
+        { label: t('My pay'), icon: 'cash', go: () => router.push('/pay') },
+        { label: t('Notifications'), icon: 'bell', go: () => router.push('/notifications') },
+      ]} />
 
       <Section>
       <H2>{t(session?.employee ? 'My badge and card' : 'My business card')}</H2>
@@ -103,6 +116,24 @@ export default function Me() {
         })}
       </View>
       <Muted style={{ fontSize: 13 }}>{t('Automatic follows your phone’s light or dark setting.')}</Muted>
+      <Card style={{ gap: 10 }}>
+        <Row>
+          <View style={{ width: 74, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: '#0A1A9A' }}><Logo width={56} color="#FFFFFF" /></View>
+          <View style={{ flex: 1 }}>
+            <Text style={{ color: C.ink, fontWeight: '700', fontSize: 15 }}>{t('Seasonal logo')}</Text>
+            <Muted style={{ fontSize: 13 }}>{season ? t('Today: {n}', { n: t(lookName(season.key)) }) : t('Changes for holidays like Eid, Diwali, Christmas and Canada Day.')}</Muted>
+          </View>
+        </Row>
+        {seasonIconSupported() ? (
+          <Row>
+            <View style={{ flex: 1 }}>
+              <Text style={{ color: C.ink, fontWeight: '700', fontSize: 15 }}>{t('Seasonal app icon')}</Text>
+              <Muted style={{ fontSize: 13 }}>{t('The OENOD icon on your home screen changes for holidays too.')}</Muted>
+            </View>
+            <Switch value={iconOn} onValueChange={(v) => { setIconOn(v); setSeasonIconOn(v).catch(() => {}); }} accessibilityLabel={t('Seasonal app icon')} />
+          </Row>
+        ) : null}
+      </Card>
       </Section>
 
       <H2>{t('Language')}</H2>
@@ -124,7 +155,7 @@ export default function Me() {
         <Divider />
         <ListRow title={t('Every OENOD tool')} sub={t('Payroll, POS, invoices, reports and everything else, right here in the app')} left={<IconTile name="globe" color={tint(1)} />} onPress={() => router.navigate('/all')} />
         <Divider />
-        <ListRow title={t('Edit my card and resume')} left={<IconTile name="user" color={tint(2)} />} onPress={() => open('/#/profile', t('Edit my card and resume'))} />
+        <ListRow title={t('Edit my profile, card and resume')} left={<IconTile name="user" color={tint(2)} />} onPress={() => open('/#/profile', t('Edit my card and resume'))} />
         <Divider />
         <ListRow title={t('Help and support')} left={<IconTile name="mail" color={tint(3)} />} onPress={() => open('/#/help', t('Help and support'))} />
         <Divider />

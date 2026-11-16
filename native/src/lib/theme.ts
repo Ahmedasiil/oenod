@@ -7,15 +7,16 @@ const BRAND = {
   sky: '#B9C4FF', mist: '#A6AEDA', onDark: '#E8ECFA', violet: '#0B1C86', white: '#FFFFFF',
 };
 
+// Midnight (approved 11-16): near-black page, graphite cards, the navy hero card and a white tab bar.
 export const DARK = {
   ...BRAND,
-  blue: '#8EA0FF', blueSoft: 'rgba(142,160,255,0.14)', black: '#03071A',
-  ink: '#F2F4FF', sub: '#A6AEDA', faint: '#6E77A8', line: 'rgba(150,168,255,0.16)',
-  bg: '#060B26', card: '#0D1440', card2: '#111A4C',
-  field: '#0D1440', seg: '#0D1440', segOn: '#1A2560',
-  tabBg: 'rgba(13,20,64,0.98)', tabOn: '#FFFFFF', link: '#B9C4FF',
-  btn: '#FFFFFF', btnInk: '#000C58',
-  good: '#4ADE9B', goodSoft: 'rgba(74,222,155,0.13)',
+  blue: '#8EA0FF', blueSoft: 'rgba(142,160,255,0.14)', black: '#050608',
+  ink: '#F4F5FA', sub: '#9AA0B8', faint: '#6B7088', line: 'rgba(255,255,255,0.08)',
+  bg: '#0A0B10', card: '#111219', card2: '#1A1C26',
+  field: '#111219', seg: '#111219', segOn: '#1A1C26',
+  tabBg: '#FFFFFF', tabOn: '#0A0B10', link: '#B9C4FF',
+  btn: '#FFFFFF', btnInk: '#0A0B10',
+  good: '#28D17C', goodSoft: 'rgba(40,209,124,0.13)',
   warn: '#F5B454', warnSoft: 'rgba(245,180,84,0.12)', warnLine: 'rgba(245,180,84,0.3)',
   bad: '#FF8A80', badSoft: 'rgba(255,138,128,0.12)', badLine: 'rgba(255,138,128,0.3)',
   dark: true,
@@ -51,3 +52,6 @@ export const R = { sm: 10, md: 14, lg: 20, xl: 26 };
 export const FRAME = { halo: 'rgba(0,12,88,0.07)', ring: 'rgba(0,12,88,0.22)', haloDark: 'rgba(142,160,255,0.08)', ringDark: 'rgba(150,168,255,0.3)' };
 export const S = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24 };
 export const shadow = { shadowColor: '#000', shadowOpacity: 0.12, shadowRadius: 24, shadowOffset: { width: 0, height: 10 }, elevation: 6 };
+
+/** Midnight hero card: the bright navy gradient used on Home, Meet and every screen header. */
+export const MID = { g1: '#3B55FF', g2: '#2238D8', g3: '#0A1A9A', ice: '#DCE3FF', rL: 28, rM: 22, rS: 18 };

@@ -19,6 +19,7 @@ import { Pressy, Rise, useCountUp } from '../../ui/Motion';
 import { t } from '../../lib/i18n';
 import { currentFix, syncTracking, waitForConsent, type GeoMe } from '../../lib/geo';
 import { syncLive } from '../../lib/live';
+import { BriefBar, HeroChip, MidSec, MoneyBento, PillRow, StatTrio, ToolGrid } from '../../ui/Mid';
 
 type Clock = {
   employee: { id: number; name: string; job_title: string | null; location_id: number | null } | null;
@@ -480,7 +481,37 @@ export default function Home() {
     </View>
   );
   const dateChip = `${now.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })} · ${now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
-  const hero = (
+  // Midnight (11-16): a calm hero card (chips, greeting, three numbers, Ava's brief), the rest below it.
+  const salesNote = growth == null ? undefined : `${growth >= 0 ? '▲' : '▼'} ${Math.abs(growth)}%`;
+  const heroSub = isManager
+    ? (x ? (growth != null && growth >= 0 ? t('Sales are up and your team is on it.') : t('Here is your business today.')) : t('Loading your day…'))
+    : nx ? t('Next shift {d}', { d: `${day(nx.starts_at)} ${time(nx.starts_at)}` }) : t('Have a great day.');
+  const trio = isManager
+    ? [
+      { label: t('Sales today'), value: x ? money(x.sales_today || 0) : '—', note: salesNote, good: (growth ?? 0) >= 0, go: () => openTool('/sales', t('Sales')) },
+      { label: t('On shift'), value: x ? (planned ? `${onNow}/${planned}` : String(onNow)) : '—', note: planned && onNow < planned ? t('{n} not in', { n: planned - onNow }) : t('clocked in now'), go: () => router.navigate('/team') },
+      { label: t('Orders'), value: x ? String(x.orders_today ?? 0) : '—', note: x?.labor_pct != null ? t('Labour {n}%', { n: Math.round(x.labor_pct) }) : undefined, go: () => openTool('/sales', t('Sales')) },
+    ]
+    : [
+      { label: t('Today'), value: c.data ? hm(open ? c.data.open_minutes : c.data.today_minutes) : '—', note: open ? t('Clocked in') : t('Not clocked in'), good: !!open, go: () => router.push('/timesheet') },
+      { label: t('Next shift'), value: nx ? time(nx.starts_at) : '—', note: nx ? day(nx.starts_at) : t('None yet'), go: () => router.navigate('/schedule') },
+      { label: t('My pay'), value: '→', note: t('Pay stubs'), go: () => router.push('/pay') },
+    ];
+  const hero = C.dark ? (
+    <View style={{ gap: 14 }}>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+        {company ? <HeroChip text={company} /> : null}
+        <HeroChip text={now.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })} />
+        {open ? <HeroChip text={t('On shift')} /> : null}
+      </View>
+      <View>
+        <Text style={{ color: '#FFFFFF', fontSize: 27, fontWeight: '700', letterSpacing: -0.6 }} accessibilityRole="header" numberOfLines={1} adjustsFontSizeToFit>{`${greeting()}${first ? ', ' + first : ''}`}</Text>
+        <Text style={{ color: '#DCE3FF', fontSize: 14, marginTop: 4 }} numberOfLines={1}>{heroSub}</Text>
+      </View>
+      <StatTrio items={trio} />
+      <BriefBar title={t("Ava's 30-second brief")} sub={t('Tap to hear today in 30 seconds')} onPress={() => ask(t('Give me my 30-second brief for today.'))} />
+    </View>
+  ) : (
     <View style={{ gap: 14 }}>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
         {company ? <Chip text={nx?.location ? `${company} · ${nx.location}` : company} icon="pin" /> : null}
@@ -502,7 +533,26 @@ export default function Home() {
       {isManager ? (
         <>
           {dash.error && !x ? <ErrorBox text={dash.error} onRetry={dash.reload} /> : null}
+          {C.dark ? <Rise><ToolGrid items={qa.map((q) => ({ icon: q.icon, label: q.label, sub: q.sub, go: q.go }))} /></Rise> : null}
           <Rise><Waiting x={x} onChanged={dash.refresh} /></Rise>
+          {C.dark && x ? (
+            <>
+              <MidSec title={t('Money & meetings')} right={t('Details')} onRight={() => router.navigate('/money')} />
+              <Rise delay={40}>
+                <MoneyBento b={{
+                  cash: { label: t('Sales this week'), value: money(x.sales_week || 0), note: growth == null ? undefined : t('{p} vs last week', { p: `${growth >= 0 ? '▲' : '▼'} ${Math.abs(growth)}%` }), up: (growth ?? 0) >= 0, series: ser.slice(-10), go: () => openTool('/sales', t('Sales')) },
+                  pay: { label: t('In your wallet'), value: wal.data?.balance ? money(wal.data.balance.available) : '—', note: t('Review payroll'), go: () => openTool('/payroll', t('Payroll')) },
+                  meet: { label: t('Meet'), title: t('Start a meeting'), note: t('Ready when you are'), go: openMeet },
+                }} />
+              </Rise>
+              <PillRow items={[
+                { label: t('Pay team'), icon: 'cash', primary: true, go: () => openTool('/payroll', t('Payroll')) },
+                { label: t('Meet'), icon: 'video', go: openMeet },
+                { label: t('Invoices'), icon: 'news', go: () => openTool('/invoices', t('Invoices')) },
+                { label: t('All tools'), icon: 'grid', go: () => router.navigate('/all') },
+              ]} />
+            </>
+          ) : null}
           <Rise delay={60}><BriefPro /></Rise>
           {x ? (
             <>
@@ -526,11 +576,11 @@ export default function Home() {
                   <GlanceGrid items={glance} />
                 </NavyCard>
               </Rise>
-              <Rise delay={180}>
+              {C.dark ? null : <Rise delay={180}>
                 <BlackCard eyebrow={t('Available in your OENOD wallet')} value={wal.data?.balance ? money(wal.data.balance.available) : '—'}
                   sub={wal.data?.balance?.pending ? t('{m} on the way', { m: money(wal.data.balance.pending) }) : t('Payroll, invoices and payouts in one place')}
                   a={{ label: t('Review payroll'), go: () => openTool('/payroll', t('Payroll')) }} b={{ label: t('Timesheets'), go: () => openTool('/time', t('Time clock')) }} />
-              </Rise>
+              </Rise>}
             </>
           ) : null}
         </>
@@ -542,6 +592,7 @@ export default function Home() {
               {c.data ? <View style={{ backgroundColor: '#0A0B14', borderRadius: 16, padding: 14, marginTop: 6 }}><ClockCard clock={c.data} onChange={(v) => c.setData(v)} /></View> : <Loading />}
             </NavyCard>
           </Rise>
+          {C.dark ? <Rise delay={30}><ToolGrid items={qa.map((q) => ({ icon: q.icon, label: q.label, sub: q.sub, go: q.go }))} /></Rise> : null}
           {nx ? (
             <Rise delay={60}>
               <NavyCard icon="calendar" title={t('Next shift')} sub={[nx.role, nx.location].filter(Boolean).join(' · ') || t('Shift')} link={t('My shifts')} onLink={() => router.navigate('/schedule')}>

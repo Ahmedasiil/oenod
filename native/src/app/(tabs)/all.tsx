@@ -11,6 +11,8 @@ import { Avatar, Screen } from '../../ui/kit';
 import { Rise } from '../../ui/Motion';
 import { Icon, IconName } from '../../ui/Icon';
 import { openTool } from '../web';
+import { GlossIcon } from '../../ui/Mid';
+import { MID } from '../../lib/theme';
 
 type Tool = { name: string; icon: IconName; app?: string; web?: string; browser?: boolean; who: 'all' | 'staff' | 'mgr' | 'team' };
 type Suite = { name: string; color: string; soft: [string, string]; tools: Tool[] };
@@ -61,6 +63,7 @@ const SUITES: Suite[] = [
     { name: 'Reports', icon: 'chart', web: '/reports', who: 'mgr' },
   ] },
   { name: 'AI & platform', color: '#0B1C86', soft: ['#F0EEFF', 'rgba(107,92,246,0.18)'], tools: [
+    { name: 'My profile', icon: 'user', app: '/me', who: 'all' },
     { name: 'Ava', icon: 'spark', app: '/ai', who: 'all' },
     { name: 'Meet', icon: 'video', web: '/meet', who: 'team' },
     { name: 'Join a meeting', icon: 'link', app: '/guest', who: 'all' },
@@ -81,7 +84,7 @@ export default function Everything() {
   const [q, setQ] = useState('');
   const staff = !!session?.employee;
   const ok = (w: Tool['who']) => w === 'all' || (w === 'mgr' && isManager) || (w === 'staff' && staff) || (w === 'team' && (staff || isManager));
-  const cols = width >= 900 ? 6 : width >= 600 ? 5 : 4;
+  const cols = C.dark ? (width >= 900 ? 6 : width >= 600 ? 4 : 3) : (width >= 900 ? 6 : width >= 600 ? 5 : 4);
   const groups = useMemo(() => SUITES.map((s) => ({
     ...s,
     tools: s.tools.filter((x) => ok(x.who)
@@ -101,6 +104,26 @@ export default function Everything() {
         <TextInput value={q} onChangeText={setQ} placeholder={t('Search tools')} placeholderTextColor={C.faint} style={{ flex: 1, minWidth: 0, color: C.ink, fontSize: 15, paddingVertical: 11 }} accessibilityLabel={t('Search tools')} autoCorrect={false} />
         {q ? <Pressable onPress={() => setQ('')} hitSlop={8} accessibilityLabel={t('Clear')}><Icon name="x" size={18} color={C.faint} /></Pressable> : null}
       </View>
+      {C.dark && !q ? (
+        <View style={{ borderRadius: MID.rM, padding: 14, gap: 12, backgroundColor: MID.g2, overflow: 'hidden' }}>
+          <Text style={{ color: MID.ice, fontSize: 12, fontWeight: '600', letterSpacing: 1.2 }}>{t('Favourites').toUpperCase()}</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            {(isManager ? [{ name: 'Schedule', icon: 'calendar', app: '/schedule' }, { name: 'Payroll', icon: 'cash', web: '/payroll' }, { name: 'Meet', icon: 'video', web: '/meet' }, { name: 'Ava', icon: 'spark', app: '/ai' }]
+              : [{ name: 'Schedule', icon: 'calendar', app: '/schedule' }, { name: 'My pay', icon: 'cash', app: '/pay' }, { name: 'Meet', icon: 'video', web: '/meet' }, { name: 'Ava', icon: 'spark', app: '/ai' }]).map((f: any) => (
+              <Pressable key={f.name} onPress={() => go(f)} accessibilityRole="button" accessibilityLabel={t(f.name)} style={({ pressed }) => ({ alignItems: 'center', gap: 6, width: 72, opacity: pressed ? 0.8 : 1 })}>
+                <GlossIcon icon={f.icon} tone="wh" size={48} />
+                <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '600' }} numberOfLines={1}>{t(f.name)}</Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+      ) : null}
+      {C.dark ? (
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 4 }}>
+          <Icon name="shield" size={15} color={C.good} duo={false} />
+          <Text style={{ color: C.sub, fontSize: 12.5, flex: 1 }}>{t('Every tool opens inside the app · one sign-in')}</Text>
+        </View>
+      ) : null}
       {groups.map((g, gi) => (
         <Rise key={g.name} delay={gi * 60} style={{ gap: 10, marginTop: 8 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -112,11 +135,12 @@ export default function Everything() {
             {g.tools.map((x) => (
               <View key={x.name} style={{ width: `${100 / cols}%`, padding: 4 }}>
                 <Pressable onPress={() => go(x)} accessibilityRole="button" accessibilityLabel={t(x.name)}
-                  style={({ pressed }) => ({ alignItems: 'center', gap: 7, paddingTop: 12, paddingBottom: 10, paddingHorizontal: 2, borderRadius: 16, backgroundColor: C.card, borderWidth: StyleSheet.hairlineWidth, borderColor: C.line, opacity: pressed ? 0.75 : 1, transform: [{ scale: pressed ? 0.97 : 1 }] })}>
-                  <View style={{ width: 36, height: 36, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: C.dark ? '#16205E' : '#000C58' }}>
-                    <Icon name={x.icon} size={19} color={C.dark ? '#B9C4FF' : '#FFFFFF'} duo={false} />
-                  </View>
-                  <Text numberOfLines={2} style={{ color: C.ink, fontSize: 11, fontWeight: '600', textAlign: 'center', minHeight: 26 }}>{t(x.name)}</Text>
+                  style={({ pressed }) => ({ alignItems: 'center', gap: 7, paddingTop: C.dark ? 14 : 12, paddingBottom: 10, paddingHorizontal: 2, borderRadius: C.dark ? MID.rS : 16, backgroundColor: C.card, borderWidth: StyleSheet.hairlineWidth, borderColor: C.line, opacity: pressed ? 0.75 : 1, transform: [{ scale: pressed ? 0.97 : 1 }] })}>
+                  {C.dark ? <GlossIcon icon={x.icon} tone={(['nv', 'wh', 'bk'] as const)[g.tools.indexOf(x) % 3]} size={46} /> : (
+                  <View style={{ width: 36, height: 36, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: '#000C58' }}>
+                    <Icon name={x.icon} size={19} color="#FFFFFF" duo={false} />
+                  </View>)}
+                  <Text numberOfLines={2} style={{ color: C.ink, fontSize: C.dark ? 12 : 11, fontWeight: '600', textAlign: 'center', minHeight: 26 }}>{t(x.name)}</Text>
                 </Pressable>
               </View>
             ))}

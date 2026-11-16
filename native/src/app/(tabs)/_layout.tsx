@@ -6,6 +6,10 @@ import { t } from '../../lib/i18n';
 import { Icon, IconName } from '../../ui/Icon';
 import { TabBar } from '../../ui/TabBar';
 
+// Reachable screens that just don't get a tab button. (expo-router 58 turns href: null into a redirect to Today,
+// which made Me, Team and Time off impossible to open.)
+const OFF_BAR = { oeOffBar: true } as any;
+
 const icon = (name: IconName) => ({ color }: { color: unknown }) => <Icon name={name} color={String(color ?? C.faint)} size={22} duo={false} />;
 
 // Five tabs, like the website's five suites: Today, Schedule, OENOD AI (centre orb), Money, Everything.
@@ -25,9 +29,9 @@ export default function TabsLayout() {
       <Tabs.Screen name="ai" options={{ title: t('Ava'), tabBarIcon: icon('spark') }} />
       <Tabs.Screen name="money" options={{ title: t('Money'), tabBarIcon: icon('wallet'), href: hasCompany || hasEmployee ? undefined : null }} />
       <Tabs.Screen name="all" options={{ title: t('Everything'), tabBarIcon: icon('grid') }} />
-      <Tabs.Screen name="timeoff" options={{ title: t('Time off'), href: null }} />
-      <Tabs.Screen name="team" options={{ title: t('Team'), href: null }} />
-      <Tabs.Screen name="me" options={{ title: t('Me'), href: null }} />
+      <Tabs.Screen name="timeoff" options={{ title: t('Time off'), ...OFF_BAR }} />
+      <Tabs.Screen name="team" options={{ title: t('Team'), ...OFF_BAR }} />
+      <Tabs.Screen name="me" options={{ title: t('Me'), ...OFF_BAR }} />
     </Tabs>
   );
 }
