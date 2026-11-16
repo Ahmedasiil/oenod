@@ -69,6 +69,14 @@ function Gate() {
         <Stack.Screen name="timesheet" options={{ headerShown: true, title: t('My hours'), headerTintColor: C.ink, headerStyle: { backgroundColor: C.dark ? C.bg : '#FFFFFF' }, headerShadowVisible: false }} />
         <Stack.Screen name="setup" options={{ animation: 'fade', gestureEnabled: false, contentStyle: { backgroundColor: '#050B24' } }} />
         <Stack.Screen name="payroll" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="invoices/index" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="invoices/[id]" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="invoices/new" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="customers/index" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="customers/[id]" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="expenses" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="timeclock" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="inventory" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
         <Stack.Screen name="web" options={{ animation: 'slide_from_bottom' }} />
         <Stack.Screen name="kiosk" options={{ animation: 'fade', gestureEnabled: false, contentStyle: { backgroundColor: '#000C58' } }} />
         <Stack.Screen name="call" options={{ presentation: 'fullScreenModal', gestureEnabled: false, contentStyle: { backgroundColor: '#000C58' } }} />

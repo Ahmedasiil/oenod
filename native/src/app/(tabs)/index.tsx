@@ -394,9 +394,9 @@ function Waiting({ x, onChanged }: { x: any; onChanged: () => void }) {
       a={{ label: t('Approve'), busy: busy === 'sa' + r.id, go: () => run('sa' + r.id, () => post(`/api/schedule/requests/${r.id}/decide`, { decision: 'approve' })) }} />);
   }
   if (x?.overdue_count) rows.push(<LightRow key="inv" first={!rows.length} kind="r" title={t('{n} invoices overdue', { n: x.overdue_count })} sub={money(x.overdue_amount)}
-    a={{ label: t('Remind'), go: () => openTool('/invoices', t('Invoices')) }} />);
+    a={{ label: t('Remind'), go: () => router.push('/invoices') }} />);
   if (x?.to_approve) rows.push(<LightRow key="ts" first={!rows.length} kind="a" title={t('Approve {n} timesheets', { n: x.to_approve })} sub={t('Before payroll')}
-    a={{ label: t('Review'), go: () => openTool('/time', t('Time clock')) }} />);
+    a={{ label: t('Review'), go: () => router.push('/timeclock') }} />);
   return (
     <NavyCard icon="bell" title={t('Waiting for you')} sub={rows.length ? t('{n} things need your OK', { n: rows.length }) : t('All caught up')} link={t('See all')} onLink={() => router.navigate('/timeoff')}>
       {rows.length ? rows : <LightRow first kind="g" title={t('Nothing waiting')} sub={t('New requests show up here')} />}
@@ -585,8 +585,8 @@ export default function Home() {
         minis.push({ tone: minis.length % 2 ? 'dk' : 'wh', icon: m[0], kind: t(m[1]), title: extra ? `${n.title} · ${extra}` : n.title, btn: t(m[2]), go: () => openHref(n.href, n.title) });
       }
     } else if (x) {
-      if (x.overdue_count) minis.push({ tone: 'dk', icon: 'doc', kind: t('Overdue'), title: t('{n} invoices overdue', { n: x.overdue_count }) + ' · ' + money(x.overdue_amount), btn: t('Remind'), go: () => openTool('/invoices', t('Invoices')) });
-      if (x.to_approve) minis.push({ tone: 'wh', icon: 'clock', kind: t('Timesheets'), title: t('Approve {n} timesheets', { n: x.to_approve }), btn: t('Review'), go: () => openTool('/time', t('Time clock')) });
+      if (x.overdue_count) minis.push({ tone: 'dk', icon: 'doc', kind: t('Overdue'), title: t('{n} invoices overdue', { n: x.overdue_count }) + ' · ' + money(x.overdue_amount), btn: t('Remind'), go: () => router.push('/invoices') });
+      if (x.to_approve) minis.push({ tone: 'wh', icon: 'clock', kind: t('Timesheets'), title: t('Approve {n} timesheets', { n: x.to_approve }), btn: t('Review'), go: () => router.push('/timeclock') });
     }
   }
   const waiting = minis.filter((m) => !m.done).length;

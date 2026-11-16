@@ -18,7 +18,27 @@ import { Icon } from '../ui/Icon';
 import { Logo } from '../ui/Logo';
 
 /** Open an oenod.com page (hash route like "/invoices") in the in-app web view. */
-export const openTool = (path: string, title: string) => router.push({ pathname: '/web', params: { path, title } });
+// Sections rebuilt as real app screens (wave 1): any link to them, from anywhere, opens the app screen, not a web page.
+const NATIVE: [RegExp, (m: RegExpMatchArray) => string][] = [
+  [/^\/invoices\/new$/, () => '/invoices/new'],
+  [/^\/invoices\/(\d+)$/, (m) => `/invoices/${m[1]}`],
+  [/^\/(invoices|quotes)$/, () => '/invoices'],
+  [/^\/customers\/(\d+)$/, (m) => `/customers/${m[1]}`],
+  [/^\/customers$/, () => '/customers'],
+  [/^\/expenses(\/.*)?$/, () => '/expenses'],
+  [/^\/(time|timeclock|time-clock)$/, () => '/timeclock'],
+  [/^\/(inventory|stock)$/, () => '/inventory'],
+];
+export const nativeFor = (path: string): string | null => {
+  const p = ('/' + String(path || '').replace(/^#?\/*/, '')).split(/[?#]/)[0].replace(/\/+$/, '') || '/';
+  for (const [re, to] of NATIVE) { const m = p.match(re); if (m) return to(m); }
+  return null;
+};
+export const openTool = (path: string, title: string) => {
+  const n = nativeFor(path);
+  if (n) return router.push(n as any);
+  router.push({ pathname: '/web', params: { path, title } });
+};
 
 // ap1 (oenod.com 3.8.494+): tells every OENOD page it is inside the phone app, so the page drops the website's own
 // top bar, tabs, menu and rail and shows only the tool, in the app's Midnight look. Runs before the page's own code.

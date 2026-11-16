@@ -21,7 +21,7 @@ type Group = { name: string; tools: Tool[] };
 const GROUPS: Group[] = [
   { name: 'People', tools: [
     { name: 'Schedule', icon: 'calendar', hint: 'Shifts', app: '/schedule', who: 'team' },
-    { name: 'Time clock', icon: 'clock', hint: "Who's in", web: '/time', who: 'mgr' },
+    { name: 'Time clock', icon: 'clock', hint: "Who's in", app: '/timeclock', who: 'mgr' },
     { name: 'Team', icon: 'users', hint: 'Everyone', app: '/team', who: 'mgr' },
     { name: 'Time off', icon: 'sun', hint: 'Requests', app: '/timeoff', who: 'team' },
     { name: 'My hours', icon: 'clock', hint: 'Timesheet', app: '/timesheet', who: 'staff' },
@@ -34,11 +34,11 @@ const GROUPS: Group[] = [
   { name: 'Money', tools: [
     { name: 'Payroll', icon: 'cash', hint: 'Pay your team', web: '/payroll', who: 'mgr', mod: 'payroll' },
     { name: 'My pay', icon: 'cash', hint: 'Pay stubs', app: '/pay', who: 'staff', mod: 'payroll' },
-    { name: 'Invoices', icon: 'doc', hint: 'Get paid', web: '/invoices', who: 'mgr' },
+    { name: 'Invoices', icon: 'doc', hint: 'Get paid', app: '/invoices', who: 'mgr' },
     { name: 'Sales & POS', icon: 'cart', hint: 'Register', web: '/pos', who: 'mgr' },
     { name: 'Wallet', icon: 'wallet', hint: 'Balance', app: '/wallet', who: 'all' },
     { name: 'Accounting', icon: 'chart', hint: 'Books', web: '/accounting', who: 'mgr', mod: 'accounting', admin: true },
-    { name: 'Expenses', icon: 'briefcase', hint: 'Receipts', web: '/expenses', who: 'mgr', mod: 'expenses' },
+    { name: 'Expenses', icon: 'briefcase', hint: 'Receipts', app: '/expenses', who: 'mgr', mod: 'expenses' },
     { name: 'Banking', icon: 'shield', hint: 'Accounts', web: '/banking', who: 'mgr', mod: 'accounting', admin: true },
   ] },
   { name: 'Talk', tools: [
@@ -46,7 +46,7 @@ const GROUPS: Group[] = [
     { name: 'Business Phone', icon: 'phone', hint: 'Company line', app: '/phone', who: 'mgr' },
     { name: 'Team chat', icon: 'chat', hint: 'Messages', web: '/chat', who: 'team', mod: 'chat' },
     { name: 'Team news', icon: 'news', hint: 'Feed', app: '/feed', who: 'team', mod: 'feed' },
-    { name: 'Customers', icon: 'heart', hint: 'People who buy', web: '/customers', who: 'mgr' },
+    { name: 'Customers', icon: 'heart', hint: 'People who buy', app: '/customers', who: 'mgr' },
     { name: 'Reviews', icon: 'spark', hint: 'Stars', web: '/reviews', who: 'mgr' },
     { name: 'Marketing', icon: 'send', hint: 'Campaigns', web: '/marketing', who: 'mgr', mod: 'marketing' },
   ] },
@@ -58,7 +58,7 @@ const GROUPS: Group[] = [
     { name: 'Résumé', icon: 'doc', hint: 'Ava writes it', web: '/resume', who: 'staff' },
   ] },
   { name: 'Operations', tools: [
-    { name: 'Inventory', icon: 'box', hint: 'Stock', web: '/inventory', who: 'mgr' },
+    { name: 'Inventory', icon: 'box', hint: 'Stock', app: '/inventory', who: 'mgr' },
     { name: 'Storm Center', icon: 'cloud', hint: 'Weather', web: '/storm', who: 'mgr' },
     { name: 'Products', icon: 'grid', hint: 'Menu & items', web: '/products', who: 'mgr' },
     { name: 'Suppliers', icon: 'send', hint: 'Orders', web: '/suppliers', who: 'mgr', mod: 'suppliers' },

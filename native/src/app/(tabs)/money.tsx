@@ -150,7 +150,7 @@ function OwnerMoney() {
                 <Text style={{ color: C.ink, fontSize: 20, fontWeight: '800' }}>{money(x.open_ar)}</Text>
                 <Text style={{ color: C.faint, fontSize: 12.5 }}>{x.overdue_count ? t('{m} is past due', { m: money(x.overdue_amount) }) : t('Nothing past due')}</Text>
               </View>
-              <Pressable onPress={() => openTool('/invoices', t('Invoices'))} accessibilityRole="button"
+              <Pressable onPress={() => router.push('/invoices')} accessibilityRole="button"
                 style={{ height: 38, paddingHorizontal: 16, borderRadius: 14, justifyContent: 'center', backgroundColor: C.dark ? '#FFFFFF' : '#0A1230' }}>
                 <Text style={{ color: C.dark ? '#0A1230' : '#FFFFFF', fontWeight: '600', fontSize: 13 }}>{t('Review')}</Text>
               </Pressable>
@@ -161,7 +161,7 @@ function OwnerMoney() {
       {invoices.length ? (
         <Rise delay={120}>
           <Card style={{ paddingBottom: 8 }}>
-            <CardHead title={t('Invoices')} right={<Pressable onPress={() => openTool('/invoices', t('Invoices'))} hitSlop={8}><Text style={{ color: C.blue, fontWeight: '600', fontSize: 13 }}>{t('See all')}</Text></Pressable>} />
+            <CardHead title={t('Invoices')} right={<Pressable onPress={() => router.push('/invoices')} hitSlop={8}><Text style={{ color: C.blue, fontWeight: '600', fontSize: 13 }}>{t('See all')}</Text></Pressable>} />
             {invoices.map((v, i) => {
               const paid = v.status === 'paid';
               const name = v.customer || v.customer_name || t('Customer');
@@ -198,10 +198,10 @@ function OwnerMoney() {
       ) : null}
       <H2>{t('Money tools')}</H2>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
-        <Tile icon="news" label={t('Invoices')} color="#17A673" go={() => openTool('/invoices', t('Invoices'))} />
+        <Tile icon="news" label={t('Invoices')} color="#17A673" go={() => router.push('/invoices')} />
         <Tile icon="chart" label={t('Accounting')} color="#2A3BC4" go={() => openTool('/accounting', t('Accounting'))} />
         <Tile icon="cash" label={t('Sales')} color="#D98A1C" go={() => openTool('/sales', t('Sales'))} />
-        <Tile icon="briefcase" label={t('Expenses')} color="#C2417A" go={() => openTool('/expenses', t('Expenses'))} />
+        <Tile icon="briefcase" label={t('Expenses')} color="#C2417A" go={() => router.push('/expenses')} />
         <Tile icon="users" label={t('Payroll')} color="#0B1C86" go={() => openTool('/payroll', t('Payroll'))} />
         <Tile icon="chart" label={t('Cash flow')} color="#0EA5E9" go={() => openTool('/cashflow', t('Cash flow'))} />
       </View>

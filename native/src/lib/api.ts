@@ -91,3 +91,4 @@ export async function api<T = any>(method: 'GET' | 'POST' | 'PUT' | 'DELETE', pa
 export const get = <T = any>(p: string) => api<T>('GET', p);
 export const post = <T = any>(p: string, b: unknown = {}) => api<T>('POST', p, b);
 export const put = <T = any>(p: string, b: unknown = {}) => api<T>('PUT', p, b);
+export const del = <T = any>(p: string) => api<T>('DELETE', p);

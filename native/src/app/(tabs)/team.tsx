@@ -1,7 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import { TextInput, View } from 'react-native';
 import { router } from 'expo-router';
-import { get } from '../../lib/api';
+import { get, post } from '../../lib/api';
+import { useAuth } from '../../lib/auth';
+import { Btn, In, Pick, Sheet, useBusy } from '../../ui/T1';
 import { useLoad } from '../../lib/useLoad';
 import { time } from '../../lib/format';
 import { C, R, S } from '../../lib/theme';
@@ -25,6 +27,27 @@ export default function Team() {
   const onBreak = all.filter((e) => e.open_entry?.break_started_at).length;
   const onLeave = all.filter((e) => e.status === 'on_leave').length;
   const live = all.filter((e) => e.open_entry).length;
+  // Add a team member right here (and invite them to the app), no website needed.
+  const { session } = useAuth();
+  const role = String(session?.user?.role || '');
+  const canInviteAdmin = role === 'owner' || role === 'admin';
+  const blank = { first_name: '', last_name: '', email: '', phone: '', job_title: '' };
+  const [add, setAdd] = useState(false);
+  const [f, setF] = useState(blank);
+  const [inv, setInv] = useState<'employee' | 'manager' | 'admin' | 'none'>('employee');
+  const [err, setErr] = useState('');
+  const { busy, run } = useBusy();
+  const save = () => {
+    if (!f.first_name.trim() || !f.last_name.trim()) return setErr(t('Type their first and last name.'));
+    if (inv !== 'none' && !/^\S+@\S+\.\S+$/.test(f.email.trim())) return setErr(t('Type their email so we can send the invite, or pick "No invite".'));
+    setErr('');
+    run('add', async () => {
+      const r = await post<{ id: number }>('/api/employees', { first_name: f.first_name.trim(), last_name: f.last_name.trim(), email: f.email.trim() || null, phone: f.phone.trim() || null, job_title: f.job_title.trim() || null });
+      if (inv !== 'none' && r?.id) await post(`/api/employees/${r.id}/invite`, { email: f.email.trim(), role: inv });
+      setAdd(false); setF(blank); d.reload();
+      if (r?.id) router.push(`/employee/${r.id}`);
+    });
+  };
 
   return (
     <Screen back title={t('Team')} subtitle={d.data ? t('{n} people · {w} working now', { n: list.length, w: working }) : t('Your people')} refreshing={d.refreshing} onRefresh={d.refresh}>
@@ -51,11 +74,21 @@ export default function Team() {
                 onPress={() => router.push(`/employee/${e.id}`)}
               />
             </View>
-          )) : <Empty icon="users" title={t('No one found')} sub={t(q ? 'Try another search.' : 'Add team members on the website.')} />}
+          )) : <Empty icon="users" title={t('No one found')} sub={t(q ? 'Try another search.' : 'Tap Add a team member below.')} />}
         </Card>
         </Section>
       )}
-      <Muted style={{ textAlign: 'center' }}>{t('Add or edit people on oenod.com. Changes show here right away.')}</Muted>
+      <Btn text={t('Add a team member')} icon="plus" onPress={() => { setErr(''); setAdd(true); }} />
+      <Sheet open={add} title={t('Add a team member')} onClose={() => setAdd(false)}>
+        <In label={t('First name')} value={f.first_name} onChangeText={(v) => setF({ ...f, first_name: v })} error={err || undefined} />
+        <In label={t('Last name')} value={f.last_name} onChangeText={(v) => setF({ ...f, last_name: v })} />
+        <In label={t('Email')} value={f.email} onChangeText={(v) => setF({ ...f, email: v })} keyboardType="email-address" autoCapitalize="none" />
+        <In label={t('Phone (optional)')} value={f.phone} onChangeText={(v) => setF({ ...f, phone: v })} keyboardType="phone-pad" />
+        <In label={t('Job title (optional)')} value={f.job_title} onChangeText={(v) => setF({ ...f, job_title: v })} />
+        <Pick<'employee' | 'manager' | 'admin' | 'none'> label={t('Invite to the app')} value={inv} onChange={setInv}
+          items={[['employee', t('As staff')], ['manager', t('As manager')], ...(canInviteAdmin ? [['admin', t('As admin')] as ['admin', string]] : []), ['none', t('No invite')]]} />
+        <Btn text={inv === 'none' ? t('Add') : t('Add and send invite')} icon="check" onPress={save} busy={busy === 'add'} />
+      </Sheet>
     </Screen>
   );
 }
