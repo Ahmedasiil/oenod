@@ -58,7 +58,8 @@ function WalletView({ base }: { base: '/api/me/wallet' | '/api/wallet' }) {
     setBusy(key);
     try {
       const r = await post<{ url: string }>(base + path, body);
-      await WebBrowser.openBrowserAsync(r.url);
+      // Stripe's own secure pages must open in a browser sheet (Stripe does not allow them inside a web view); it slides over the app.
+      await WebBrowser.openBrowserAsync(r.url, { presentationStyle: WebBrowser.WebBrowserPresentationStyle.PAGE_SHEET, controlsColor: '#FFFFFF', toolbarColor: '#05060D', createTask: false });
       setFresh(true); d.reload();
     } catch (e: any) { if (body.password) throw e; say(t('Not done'), e.message); } finally { setBusy(null); }
   }, [base, d]);
