@@ -45,10 +45,26 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
+      # Windows signing (Azure Artifact Signing). Unsigned build when the AZURE_* secrets are not set yet.
       - working-directory: desktop
+        shell: bash
+        env:
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          AZ_ENDPOINT: ${{ secrets.AZURE_SIGNING_ENDPOINT }}
+          AZ_ACCOUNT: ${{ secrets.AZURE_SIGNING_ACCOUNT }}
+          AZ_PROFILE: ${{ secrets.AZURE_SIGNING_PROFILE }}
         run: |
           npm install
-          npm run build:win
+          npm run prebuild
+          if [ -n "$AZURE_CLIENT_SECRET" ] && [ -n "$AZ_PROFILE" ]; then
+            echo "Signing with Azure Artifact Signing"
+            npx electron-builder --win nsis -c.win.azureSignOptions.publisherName="OENOD Inc." -c.win.azureSignOptions.endpoint="$AZ_ENDPOINT" -c.win.azureSignOptions.codeSigningAccountName="$AZ_ACCOUNT" -c.win.azureSignOptions.certificateProfileName="$AZ_PROFILE"
+          else
+            echo "::warning::Windows installer is UNSIGNED (AZURE_* secrets missing)"
+            npx electron-builder --win nsis
+          fi
       - uses: actions/upload-artifact@v4
         with: { name: windows, path: desktop/dist/*.exe }
 
@@ -58,13 +74,34 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
+      # Mac signing: Developer ID certificate (MAC_CERT_P12 base64 + MAC_CERT_PASSWORD) and notarization with the
+      # App Store Connect API key already used for iOS (APPLE_KEY_ID / APPLE_ISSUER_ID / APPLE_KEY_P8).
+      # Ad-hoc (unsigned) build when MAC_CERT_P12 is not set yet.
       - working-directory: desktop
         env:
-          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+          MAC_CERT_P12: ${{ secrets.MAC_CERT_P12 }}
+          MAC_CERT_PASSWORD: ${{ secrets.MAC_CERT_PASSWORD }}
+          APPLE_KEY_P8: ${{ secrets.APPLE_KEY_P8 }}
+          APPLE_KEY_ID: ${{ secrets.APPLE_KEY_ID }}
+          APPLE_ISSUER_ID: ${{ secrets.APPLE_ISSUER_ID }}
         run: |
           npm install
           npm run prebuild
-          npx electron-builder --mac dmg --universal -c.mac.identity=-
+          if [ -n "$MAC_CERT_P12" ]; then
+            echo "Signing + notarizing with Developer ID"
+            mkdir -p ~/private_keys && printf '%s' "$APPLE_KEY_P8" > ~/private_keys/AuthKey_$APPLE_KEY_ID.p8
+            export CSC_LINK="$MAC_CERT_P12" CSC_KEY_PASSWORD="$MAC_CERT_PASSWORD"
+            export APPLE_API_KEY=~/private_keys/AuthKey_$APPLE_KEY_ID.p8 APPLE_API_KEY_ID="$APPLE_KEY_ID" APPLE_API_ISSUER="$APPLE_ISSUER_ID"
+            npx electron-builder --mac dmg --universal
+            DMG=$(ls dist/*.dmg)
+            xcrun notarytool submit "$DMG" --key "$APPLE_API_KEY" --key-id "$APPLE_KEY_ID" --issuer "$APPLE_ISSUER_ID" --wait
+            xcrun stapler staple "$DMG"
+            spctl -a -t open --context context:primary-signature -v "$DMG"
+            rm -rf ~/private_keys
+          else
+            echo "::warning::Mac app is UNSIGNED (MAC_CERT_P12 secret missing)"
+            CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder --mac dmg --universal -c.mac.identity=- -c.mac.notarize=false
+          fi
       - uses: actions/upload-artifact@v4
         with: { name: mac, path: desktop/dist/*.dmg }
 

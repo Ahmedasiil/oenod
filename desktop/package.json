@@ -78,7 +78,10 @@
         "NSAppleEventsUsageDescription": "OENOD Remote uses this only while you allow someone to help you.",
         "NSScreenCaptureUsageDescription": "OENOD Remote shares your screen only after you press Allow."
       },
-      "x64ArchFiles": "Contents/Resources/app.asar.unpacked/node_modules/@nut-tree-fork/libnut-darwin/**/*.node"
+      "x64ArchFiles": "Contents/Resources/app.asar.unpacked/node_modules/@nut-tree-fork/libnut-darwin/**/*.node",
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "gatekeeperAssess": false
     },
     "linux": {
       "target": [
