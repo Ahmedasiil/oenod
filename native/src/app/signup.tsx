@@ -2,7 +2,8 @@
 // A business gets a free trial with the owner signed in; "Just me" makes a personal account.
 import React, { useState } from 'react';
 import { Linking, Pressable, Text, View } from 'react-native';
-import { router } from 'expo-router';
+import { Redirect, router } from 'expo-router';
+import { IOS_STORE } from '../lib/store';
 import { openTool } from './web';
 import { useAuth } from '../lib/auth';
 import { BASE } from '../lib/api';
@@ -32,7 +33,12 @@ function strength(p: string) {
   return s;
 }
 
-export default function Signup() {
+// iOS: no business sign-up inside the app (Apple guideline 3.1.1).
+export default function SignupGate() {
+  return IOS_STORE ? <Redirect href="/login" /> : <Signup />;
+}
+
+function Signup() {
   const { signUp } = useAuth();
   const [step, setStep] = useState(1);
   const [personal, setPersonal] = useState(false);

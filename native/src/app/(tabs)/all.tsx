@@ -12,6 +12,7 @@ import { Icon, type IconName } from '../../ui/Icon';
 import { FH, SubTop, Ti, V } from '../../ui/M6';
 import { PoweredBy } from '../../ui/Brand';
 import { openTool } from '../web';
+import { IOS_STORE } from '../../lib/store';
 
 type Who = 'all' | 'staff' | 'mgr' | 'team';
 type Tool = { name: string; icon: IconName; hint: string; app?: string; web?: string; who: Who; mod?: string; admin?: boolean };
@@ -91,7 +92,7 @@ export default function AllTools() {
   const ok = (x: Tool) => (x.who === 'all' || (x.who === 'mgr' && isManager) || (x.who === 'staff' && staff) || (x.who === 'team' && (staff || isManager))) && (!x.admin || admin);
   const isOff = (x: Tool) => !!x.mod && off.includes(x.mod);
   // Off tools: owners and admins see "Turn on"; everyone else simply doesn't see them.
-  const shown = (x: Tool) => ok(x) && (!isOff(x) || admin);
+  const shown = (x: Tool) => ok(x) && (!isOff(x) || (admin && !IOS_STORE));
   const s = q.trim().toLowerCase();
   const groups = useMemo(() => GROUPS.map((g) => ({ ...g, tools: g.tools.filter((x) => shown(x) && (!s || t(x.name).toLowerCase().includes(s) || t(x.hint).toLowerCase().includes(s))) })).filter((g) => g.tools.length),
     [s, isManager, staff, admin, off.join(',')]); // eslint-disable-line react-hooks/exhaustive-deps

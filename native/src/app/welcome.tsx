@@ -13,6 +13,7 @@ import { useAuth } from '../lib/auth';
 import { MapleLeaf } from '../ui/Brand';
 import { LANGS, t, useLang } from '../lib/i18n';
 import { secure } from '../lib/secure';
+import { IOS_STORE } from '../lib/store';
 
 export const SEEN = 'oenod.welcomed';
 const native = Platform.OS !== 'web';
@@ -224,16 +225,16 @@ export default function Welcome() {
         </Rise>
         <Rise delay={still ? 0 : 550} still={still}>
           <View style={{ gap: 10, marginTop: 22 }}>
-            <Pressable onPress={() => router.push('/signup')} accessibilityRole="button"
+            <Pressable onPress={() => router.push(IOS_STORE ? '/login' : '/signup')} accessibilityRole="button"
               style={({ pressed }) => ({ minHeight: 56, borderRadius: 28, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8, opacity: pressed ? 0.9 : 1, transform: [{ scale: pressed ? 0.98 : 1 }] })}>
-              <Text style={{ color: '#0A1A9A', fontSize: 16.5, fontWeight: '800' }}>{t('Get started free')}</Text>
+              <Text style={{ color: '#0A1A9A', fontSize: 16.5, fontWeight: '800' }}>{t(IOS_STORE ? 'Sign in' : 'Get started free')}</Text>
               <Icon name="arrow" size={19} color="#0A1A9A" duo={false} />
             </Pressable>
             <View style={{ flexDirection: 'row', gap: 10 }}>
-              <Pressable onPress={() => router.push('/login')} accessibilityRole="button"
+              {IOS_STORE ? <Text style={{ flex: 1, alignSelf: 'center', color: '#9AA0B8', fontSize: 13.5, lineHeight: 19 }}>{t('For teams that already use OENOD. Ask your manager for an invite.')}</Text> : <Pressable onPress={() => router.push('/login')} accessibilityRole="button"
                 style={({ pressed }) => ({ flex: 1, minHeight: 54, borderRadius: 27, backgroundColor: pressed ? '#1A1C26' : '#111219', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', alignItems: 'center', justifyContent: 'center' })}>
                 <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '700' }}>{t('Sign in')}</Text>
-              </Pressable>
+              </Pressable>}
               <Pressable onPress={faceId} accessibilityRole="button" accessibilityLabel={quick.on ? t('Sign in with {m}', { m: quick.name || t('Face ID') }) : t('Sign in')}
                 style={({ pressed }) => ({ width: 54, height: 54, borderRadius: 27, backgroundColor: pressed ? '#1A1C26' : '#111219', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', alignItems: 'center', justifyContent: 'center' })}>
                 <Icon name="face" size={22} color="#FFFFFF" duo={false} />

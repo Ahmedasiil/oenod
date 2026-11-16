@@ -13,6 +13,7 @@ import { ErrorLine, GField, In } from '../ui/AuthKit';
 import { Icon, type IconName } from '../ui/Icon';
 import { secure } from '../lib/secure';
 import { SEEN } from './welcome';
+import { IOS_STORE } from '../lib/store';
 
 export default function Login() {
   const { signIn, verify2fa, pending2fa, providers, signInWith, signInQuick, quick } = useAuth();
@@ -138,7 +139,7 @@ export default function Login() {
                   </Pressable>
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                  <Pressable onPress={() => router.push('/signup')} accessibilityRole="link" hitSlop={6}><Text style={{ color: '#C9D2FF', fontWeight: '600', fontSize: 13.5 }}>{t('Create a free account')}</Text></Pressable>
+                  {IOS_STORE ? <View /> : <Pressable onPress={() => router.push('/signup')} accessibilityRole="link" hitSlop={6}><Text style={{ color: '#C9D2FF', fontWeight: '600', fontSize: 13.5 }}>{t('Create a free account')}</Text></Pressable>}
                   <Pressable onPress={() => open('/#/forgot')} accessibilityRole="link" hitSlop={6}><Text style={{ color: '#C9D2FF', fontWeight: '600', fontSize: 13.5 }}>{t('Forgot password?')}</Text></Pressable>
                 </View>
               </In>

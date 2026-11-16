@@ -10,6 +10,7 @@ const WebView = RNWebView as any;
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as WebBrowser from 'expo-web-browser';
+import { IOS_STORE, IOS_WEB_GUARD, SALES_ROUTE } from '../lib/store';
 import { BASE } from '../lib/api';
 import { lang, t } from '../lib/i18n';
 import { C } from '../lib/theme';
@@ -26,7 +27,8 @@ export default function Web() {
   const [canBack, setCanBack] = useState(false);
   const [busy, setBusy] = useState(true);
   const p = useRef(new Animated.Value(0)).current;
-  const route = String(path).startsWith('/') ? String(path) : '/' + path;
+  let route = String(path).startsWith('/') ? String(path) : '/' + path;
+  if (IOS_STORE && SALES_ROUTE.test(route)) route = '/';
   // A new stamp each time the screen opens, so the phone never shows a stale copy of the site.
   const stamp = useRef(String(Date.now())).current;
   const url = `${BASE}/?lang=${lang()}&app=1&v=${stamp}#${route}`;
@@ -56,6 +58,8 @@ export default function Web() {
       <WebView
         ref={ref}
         source={{ uri: url }}
+        injectedJavaScriptBeforeContentLoaded={IOS_STORE ? IOS_WEB_GUARD : undefined}
+        injectedJavaScript={IOS_STORE ? IOS_WEB_GUARD : undefined}
         sharedCookiesEnabled
         cacheEnabled={false}
         cacheMode="LOAD_NO_CACHE"
@@ -76,6 +80,7 @@ export default function Web() {
         onShouldStartLoadWithRequest={(r: any) => {
           // Stay inside OENOD; send other sites (and mail/phone links) to the phone's own apps.
           if (r.url.startsWith(BASE) || r.url.startsWith('about:') || r.url.startsWith('blob:') || r.url.startsWith('data:')) return true;
+          if (IOS_STORE && /^https:\/\/(www\.)?oenod\.com\/(pricing|plans|signup|start|checkout)/i.test(r.url)) return false;
           // Links back to the website's own sign-in never leave the app either.
           if (/^https:\/\/(www\.)?oenod\.com/.test(r.url)) return true;
           if (/^https?:/.test(r.url)) { WebBrowser.openBrowserAsync(r.url); return false; }
