@@ -35,7 +35,7 @@ const GROUPS: Group[] = [
     { name: 'Payroll', icon: 'cash', hint: 'Pay your team', web: '/payroll', who: 'mgr', mod: 'payroll' },
     { name: 'My pay', icon: 'cash', hint: 'Pay stubs', app: '/pay', who: 'staff', mod: 'payroll' },
     { name: 'Invoices', icon: 'doc', hint: 'Get paid', app: '/invoices', who: 'mgr' },
-    { name: 'Sales & POS', icon: 'cart', hint: 'Register', web: '/pos', who: 'mgr' },
+    { name: 'Sales & POS', icon: 'cart', hint: 'Register', app: '/sales', who: 'mgr' },
     { name: 'Wallet', icon: 'wallet', hint: 'Balance', app: '/wallet', who: 'all' },
     { name: 'Accounting', icon: 'chart', hint: 'Books', web: '/accounting', who: 'mgr', mod: 'accounting', admin: true },
     { name: 'Expenses', icon: 'briefcase', hint: 'Receipts', app: '/expenses', who: 'mgr', mod: 'expenses' },
@@ -44,10 +44,10 @@ const GROUPS: Group[] = [
   { name: 'Talk', tools: [
     { name: 'Meet', icon: 'video', hint: 'Video meetings', app: '/meet', who: 'team', mod: 'meet' },
     { name: 'Business Phone', icon: 'phone', hint: 'Company line', app: '/phone', who: 'mgr' },
-    { name: 'Team chat', icon: 'chat', hint: 'Messages', web: '/chat', who: 'team', mod: 'chat' },
+    { name: 'Team chat', icon: 'chat', hint: 'Messages', app: '/chat', who: 'team', mod: 'chat' },
     { name: 'Team news', icon: 'news', hint: 'Feed', app: '/feed', who: 'team', mod: 'feed' },
     { name: 'Customers', icon: 'heart', hint: 'People who buy', app: '/customers', who: 'mgr' },
-    { name: 'Reviews', icon: 'spark', hint: 'Stars', web: '/reviews', who: 'mgr' },
+    { name: 'Reviews', icon: 'spark', hint: 'Stars', app: '/reviews', who: 'mgr' },
     { name: 'Marketing', icon: 'send', hint: 'Campaigns', web: '/marketing', who: 'mgr', mod: 'marketing' },
   ] },
   { name: 'Ava, mail & learning', tools: [
@@ -60,13 +60,13 @@ const GROUPS: Group[] = [
   { name: 'Operations', tools: [
     { name: 'Inventory', icon: 'box', hint: 'Stock', app: '/inventory', who: 'mgr' },
     { name: 'Storm Center', icon: 'cloud', hint: 'Weather', web: '/storm', who: 'mgr' },
-    { name: 'Products', icon: 'grid', hint: 'Menu & items', web: '/products', who: 'mgr' },
+    { name: 'Products', icon: 'grid', hint: 'Menu & items', app: '/products', who: 'mgr' },
     { name: 'Suppliers', icon: 'send', hint: 'Orders', web: '/suppliers', who: 'mgr', mod: 'suppliers' },
     { name: 'Reservations', icon: 'calendar', hint: 'Bookings', web: '/reservations', who: 'mgr', mod: 'reservations' },
     { name: 'Loyalty', icon: 'heart', hint: 'Rewards', web: '/loyalty', who: 'mgr', mod: 'loyalty' },
     { name: 'Projects', icon: 'check', hint: 'Tasks', web: '/projects', who: 'mgr', mod: 'projects' },
     { name: 'Cameras', icon: 'video', hint: 'Live view', web: '/cameras', who: 'mgr' },
-    { name: 'Reports', icon: 'chart', hint: 'Numbers', web: '/reports', who: 'mgr' },
+    { name: 'Reports', icon: 'chart', hint: 'Numbers', app: '/reports', who: 'mgr' },
   ] },
   { name: 'You & settings', tools: [
     { name: 'My profile', icon: 'user', hint: 'Card & badge', app: '/me', who: 'all' },
@@ -75,7 +75,7 @@ const GROUPS: Group[] = [
     { name: 'Connect a watch', icon: 'clock', hint: 'Apple Watch', app: '/watch', who: 'all' },
     { name: 'Settings', icon: 'globe', hint: 'Company', web: '/settings', who: 'mgr', admin: true },
     { name: 'Security', icon: 'shield', hint: 'Sign-in', web: '/company-security', who: 'mgr', admin: true },
-    { name: 'Help', icon: 'chat', hint: 'Support', web: '/support', who: 'all' },
+    { name: 'Help', icon: 'chat', hint: 'Support', app: '/support', who: 'all' },
   ] },
 ];
 const TONES = ['nv', 'wh', 'bk'] as const;

@@ -77,6 +77,16 @@ function Gate() {
         <Stack.Screen name="expenses" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
         <Stack.Screen name="timeclock" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
         <Stack.Screen name="inventory" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="sales/index" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="sales/[id]" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="register" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="products" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="reports" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="chat/index" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="chat/[id]" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="reviews" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="support/index" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="support/[id]" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
         <Stack.Screen name="web" options={{ animation: 'slide_from_bottom' }} />
         <Stack.Screen name="kiosk" options={{ animation: 'fade', gestureEnabled: false, contentStyle: { backgroundColor: '#000C58' } }} />
         <Stack.Screen name="call" options={{ presentation: 'fullScreenModal', gestureEnabled: false, contentStyle: { backgroundColor: '#000C58' } }} />
