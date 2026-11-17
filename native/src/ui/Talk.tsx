@@ -36,10 +36,10 @@ export function Talk({ title, sub, bubbles, loading, error, onRetry, canSend = t
         {!loading && !error && !bubbles.length ? <Text style={{ color: V.mute, fontSize: 14, textAlign: 'center', marginTop: 40 }}>{empty || t('No messages yet. Say hello.')}</Text> : null}
         {bubbles.map((b) => (
           <View key={b.id} style={{ alignSelf: b.mine ? 'flex-end' : 'flex-start', maxWidth: '84%', gap: 3 }}>
-            {!b.mine && b.by ? <Text style={{ color: b.color || '#AFC0FF', fontSize: 12, fontWeight: '700', marginLeft: 6 }}>{b.by}{b.staff ? ' · ' + t('OENOD team') : ''}</Text> : null}
+            {!b.mine && b.by ? <Text style={{ color: b.color || V.link, fontSize: 12, fontWeight: '700', marginLeft: 6 }}>{b.by}{b.staff ? ' · ' + t('OENOD team') : ''}</Text> : null}
             <View style={{ paddingVertical: 10, paddingHorizontal: 14, borderRadius: 20, borderBottomRightRadius: b.mine ? 6 : 20, borderBottomLeftRadius: b.mine ? 20 : 6,
               backgroundColor: b.mine ? '#2238D8' : V.surf, borderWidth: b.mine ? 0 : 1, borderColor: V.line }}>
-              <Text style={{ color: '#FFFFFF', fontSize: 15, lineHeight: 21 }} selectable>{b.body}</Text>
+              <Text style={{ color: b.mine ? '#FFFFFF' : V.ink, fontSize: 15, lineHeight: 21 }} selectable>{b.body}</Text>
             </View>
             {b.at || b.note ? <Text style={{ color: V.faint, fontSize: 11, alignSelf: b.mine ? 'flex-end' : 'flex-start', marginHorizontal: 6 }}>{[b.at, b.note].filter(Boolean).join(' · ')}</Text> : null}
           </View>
@@ -50,7 +50,7 @@ export function Talk({ title, sub, bubbles, loading, error, onRetry, canSend = t
         {canSend ? (
           <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 8, width: '100%', maxWidth: 760, alignSelf: 'center' }}>
             <TextInput value={text} onChangeText={setText} placeholder={t('Type a message')} placeholderTextColor={V.faint} multiline accessibilityLabel={t('Type a message')}
-              style={{ flex: 1, minHeight: 46, maxHeight: 130, borderRadius: 23, paddingHorizontal: 16, paddingTop: 13, paddingBottom: 11, backgroundColor: V.surf2, color: '#FFFFFF', fontSize: 15.5, borderWidth: 1, borderColor: V.line }} />
+              style={{ flex: 1, minHeight: 46, maxHeight: 130, borderRadius: 23, paddingHorizontal: 16, paddingTop: 13, paddingBottom: 11, backgroundColor: V.surf2, color: V.ink, fontSize: 15.5, borderWidth: 1, borderColor: V.line }} />
             <Pressable onPress={send} disabled={!text.trim() || busy} accessibilityRole="button" accessibilityLabel={t('Send')}
               style={({ pressed }) => ({ width: 46, height: 46, borderRadius: 23, alignItems: 'center', justifyContent: 'center', backgroundColor: text.trim() ? '#FFFFFF' : V.surf2, opacity: pressed || busy ? 0.6 : 1 })}>
               <Icon name="send" size={18} color={text.trim() ? V.navy : V.mute} duo={false} />

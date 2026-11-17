@@ -52,7 +52,7 @@ export default function Chat() {
           <Card>
             {list.length ? list.map((c) => (
               <Item key={c.id} onPress={() => router.push(`/chat/${c.id}`)}
-                left={c.kind === 'dm' ? <Face name={c.name} online={(x.people.find((p) => p.id === c.peers?.[0]?.id) || {}).online} /> : <View style={{ width: 42, height: 42, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: c.kind === 'announce' ? '#2238D8' : V.surf2 }}><Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: '700' }}>{c.kind === 'announce' ? '!' : '#'}</Text></View>}
+                left={c.kind === 'dm' ? <Face name={c.name} online={(x.people.find((p) => p.id === c.peers?.[0]?.id) || {}).online} /> : <View style={{ width: 42, height: 42, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: c.kind === 'announce' ? '#2238D8' : V.surf2 }}><Text style={{ color: c.kind === 'announce' ? '#FFFFFF' : V.ink, fontSize: 18, fontWeight: '700' }}>{c.kind === 'announce' ? '!' : '#'}</Text></View>}
                 title={c.name} sub={c.last?.body ? `${c.last.by ? c.last.by + ': ' : ''}${c.last.body}` : c.topic || t('No messages yet')}
                 right={when(c.last?.at) || undefined} rightSub={c.unread ? <Tag text={String(c.unread)} tone="info" /> : c.muted ? t('Muted') : undefined} />
             )) : <None icon="chat" title={q || tab !== 'all' ? t('Nothing here') : t('No chats yet')} sub={t('Tap + to message someone on your team.')} />}

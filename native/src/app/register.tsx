@@ -65,9 +65,9 @@ export default function Register() {
                   <Pressable key={p.id} onPress={() => add(p)} accessibilityRole="button" accessibilityLabel={`${p.name}, ${money(p.price, 2)}`}
                     style={({ pressed }) => ({ width: (Math.min(width, 760) - 32 - (cols - 1) * 10) / cols, minHeight: 92, borderRadius: 20, padding: 12, justifyContent: 'space-between', opacity: pressed ? 0.75 : 1,
                       backgroundColor: n ? '#1B2A8C' : V.surf, borderWidth: 1, borderColor: n ? '#4A63FF' : V.line })}>
-                    <Text style={{ color: '#FFFFFF', fontSize: 13.5, fontWeight: '600' }} numberOfLines={2}>{p.name}</Text>
+                    <Text style={{ color: V.ink, fontSize: 13.5, fontWeight: '600' }} numberOfLines={2}>{p.name}</Text>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Text style={[FH, { color: '#FFFFFF', fontSize: 14 }]}>{money(p.price, 2)}</Text>
+                      <Text style={[FH, { color: V.ink, fontSize: 14 }]}>{money(p.price, 2)}</Text>
                       {n ? <View style={{ minWidth: 22, height: 22, borderRadius: 11, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 5 }}><Text style={{ color: V.navy, fontWeight: '800', fontSize: 12 }}>{n}</Text></View> : null}
                     </View>
                   </Pressable>
@@ -79,9 +79,9 @@ export default function Register() {
             <Item left={undefined} title={who ? who.name : t('Walk-in customer')} sub={who ? t('Tap to change') : t('Tap to pick a customer')} onPress={() => setPickC(true)} />
             {cart.map((l) => (
               <View key={l.key} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10 }}>
-                <View style={{ flex: 1 }}><Text style={{ color: '#FFFFFF', fontSize: 14.5, fontWeight: '600' }} numberOfLines={1}>{l.name}</Text><Text style={{ color: V.mute, fontSize: 12.5 }}>{money(l.price, 2)}</Text></View>
+                <View style={{ flex: 1 }}><Text style={{ color: V.ink, fontSize: 14.5, fontWeight: '600' }} numberOfLines={1}>{l.name}</Text><Text style={{ color: V.mute, fontSize: 12.5 }}>{money(l.price, 2)}</Text></View>
                 <Pressable onPress={() => bump(l.key, -1)} accessibilityRole="button" accessibilityLabel={t('One less {n}', { n: l.name })} style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: V.surf2, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: '#FFFFFF', fontSize: 18 }}>−</Text></Pressable>
-                <Text style={[FH, { color: '#FFFFFF', minWidth: 22, textAlign: 'center' }]}>{l.qty}</Text>
+                <Text style={[FH, { color: V.ink, minWidth: 22, textAlign: 'center' }]}>{l.qty}</Text>
                 <Pressable onPress={() => bump(l.key, 1)} accessibilityRole="button" accessibilityLabel={t('One more {n}', { n: l.name })} style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: V.surf2, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: '#FFFFFF', fontSize: 18 }}>+</Text></Pressable>
               </View>
             ))}
@@ -101,7 +101,7 @@ export default function Register() {
           onPress={() => { setCart((c) => [...c, { key: 'c' + Date.now(), name: cn.trim(), price: Number(cp.replace(',', '.')), qty: 1 }]); setCustom(false); }} />
       </Sheet>
       <Sheet open={pay} title={t('Take payment')} onClose={() => setPay(false)}>
-        <Text style={[FH, { color: '#FFFFFF', fontSize: 30, textAlign: 'center' }]}>{money(sub, 2)}</Text>
+        <Text style={[FH, { color: V.ink, fontSize: 30, textAlign: 'center' }]}>{money(sub, 2)}</Text>
         <Text style={{ color: V.mute, fontSize: 13, textAlign: 'center', marginTop: -8 }}>{t('Before tax. Tax is added for you.')}</Text>
         <Pick<Pay> label={t('How they pay')} value={method} onChange={setMethod} items={[['card', t('Card (on your terminal)')], ['cash', t('Cash')], ['other', t('Other')]]} />
         {method === 'cash' ? <In label={t('Cash given (optional)')} value={tender} onChangeText={setTender} keyboardType="decimal-pad" placeholder="0.00" error={err || undefined} /> : null}
@@ -113,7 +113,7 @@ export default function Register() {
           <>
             <Text style={[FH, { color: '#9CF0C0', fontSize: 30, textAlign: 'center' }]}>{money(done.total, 2)}</Text>
             <View style={{ alignItems: 'center' }}><Tag text={t('Sale #{n}', { n: done.number })} tone="good" /></View>
-            {done.change != null ? <Text style={[FH, { color: '#FFFFFF', fontSize: 20, textAlign: 'center' }]}>{t('Change: {m}', { m: money(done.change, 2) })}</Text> : null}
+            {done.change != null ? <Text style={[FH, { color: V.ink, fontSize: 20, textAlign: 'center' }]}>{t('Change: {m}', { m: money(done.change, 2) })}</Text> : null}
             <Btn text={t('Next sale')} icon="plus" onPress={() => setDone(null)} />
             <Btn text={t('See receipt')} icon="doc" kind="dark" onPress={() => { const id = done.id; setDone(null); router.push(`/sales/${id}`); }} />
           </>

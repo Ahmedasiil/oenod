@@ -51,11 +51,11 @@ export default function Reviews() {
         {open ? (
           <>
             <Card><View style={{ paddingVertical: 12, gap: 6 }}>
-              <Text style={{ color: '#FFFFFF', fontSize: 15, lineHeight: 22 }}>{open.comment || t('No comment, just stars')}</Text>
+              <Text style={{ color: V.ink, fontSize: 15, lineHeight: 22 }}>{open.comment || t('No comment, just stars')}</Text>
               <Text style={{ color: V.mute, fontSize: 12 }}>{[day(open.created_at), open.source].filter(Boolean).join(' · ')}</Text>
             </View></Card>
             {open.reply ? (
-              <Card title={t('Your reply')}><View style={{ paddingVertical: 10 }}><Text style={{ color: '#FFFFFF', fontSize: 14.5, lineHeight: 21 }}>{open.reply}</Text></View></Card>
+              <Card title={t('Your reply')}><View style={{ paddingVertical: 10 }}><Text style={{ color: V.ink, fontSize: 14.5, lineHeight: 21 }}>{open.reply}</Text></View></Card>
             ) : (
               <>
                 <In label={t('Your reply')} value={text} onChangeText={setText} multiline style={{ minHeight: 120 }} placeholder={t('Thank them, and fix what went wrong.')} />

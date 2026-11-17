@@ -17,8 +17,8 @@ function Bar({ label, value, max, sub }: { label: string; value: number; max: nu
   return (
     <View style={{ paddingVertical: 10, gap: 6 }}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-        <Text style={{ color: '#FFFFFF', fontSize: 14.5, fontWeight: '600' }} numberOfLines={1}>{label}</Text>
-        <Text style={{ color: '#FFFFFF', fontSize: 14.5, fontWeight: '700' }}>{money(value)}</Text>
+        <Text style={{ color: V.ink, fontSize: 14.5, fontWeight: '600' }} numberOfLines={1}>{label}</Text>
+        <Text style={{ color: V.ink, fontSize: 14.5, fontWeight: '700' }}>{money(value)}</Text>
       </View>
       <View style={{ height: 8, borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.08)' }}><View style={{ width: `${w}%`, height: 8, borderRadius: 4, backgroundColor: '#4A63FF' }} /></View>
       <Text style={{ color: V.mute, fontSize: 12 }}>{sub}</Text>

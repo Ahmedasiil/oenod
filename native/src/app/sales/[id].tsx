@@ -36,7 +36,7 @@ export default function SaleView() {
             <Item title={t('Tax')} right={money(s.tax, 2)} />
             {Number(s.tip) > 0 ? <Item title={t('Tip')} right={money(s.tip, 2)} /> : null}
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 14 }}>
-              <Text style={[FH, { color: '#FFFFFF', fontSize: 17 }]}>{t('Total')}</Text><Text style={[FH, { color: '#FFFFFF', fontSize: 17 }]}>{money(s.total, 2)}</Text>
+              <Text style={[FH, { color: V.ink, fontSize: 17 }]}>{t('Total')}</Text><Text style={[FH, { color: V.ink, fontSize: 17 }]}>{money(s.total, 2)}</Text>
             </View>
           </Card>
           <Btn text={t('Share receipt')} icon="send" kind="dark" onPress={receipt} />

@@ -17,7 +17,7 @@ const n = (s: string) => Number(String(s).replace(',', '.'));
 function Toggle({ label, value, onChange }: { label: string; value: boolean; onChange: (v: boolean) => void }) {
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 4 }}>
-      <Text style={{ color: '#FFFFFF', fontSize: 15 }}>{label}</Text>
+      <Text style={{ color: V.ink, fontSize: 15 }}>{label}</Text>
       <Switch value={value} onValueChange={onChange} accessibilityLabel={label} trackColor={{ true: '#4A63FF', false: '#3A3D4A' }} thumbColor="#FFFFFF" />
     </View>
   );
