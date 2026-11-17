@@ -9,13 +9,27 @@ import { Icon, type IconName } from './Icon';
 import { Logo } from './Logo';
 import { Pressy } from './Motion';
 import { t } from '../lib/i18n';
+import { onPalette, C } from '../lib/theme';
 
 /** v6 tokens. */
-export const V = {
+// App look 4.0 ("Navy Daylight", approved 11-17, https://claude.ai/artifact/Jj2DsJyfZSMSmUfPLvDxYc): white pages, navy bands,
+// black floating tab bar. Dark stays available in Me > Appearance; V follows the chosen mode.
+const VD = {
   bg: '#0A0B10', surf: '#111219', surf2: '#1A1C26', line: 'rgba(255,255,255,0.08)', mute: '#9AA0B8', faint: '#6B7090',
   blue: '#2B44E8', blue2: '#4A63FF', navy: '#000C58', ice: '#DCE3FF', good: '#28D17C', mint: '#8EF0B8', bk: '#14151C', grey: '#2A2C36',
+  ink: '#FFFFFF', pill: '#FFFFFF', pillInk: '#000C58', sheet: '#13141B', ring: '#3A3D4A', link: '#AFC0FF', progA: '#FFFFFF', shade: 0, dark: true,
   rL: 28, rM: 22, rS: 18,
 };
+const VL: typeof VD = {
+  bg: '#FFFFFF', surf: '#FFFFFF', surf2: '#F3F4F8', line: '#E3E6EF', mute: '#5B6079', faint: '#8A90AE',
+  blue: '#1A2FCF', blue2: '#4A63FF', navy: '#000C58', ice: '#DCE3FF', good: '#12A25B', mint: '#8EF0B8', bk: '#0A0B10', grey: '#E3E6EF',
+  ink: '#0A0B10', pill: '#000C58', pillInk: '#FFFFFF', sheet: '#FFFFFF', ring: '#C9CEDD', link: '#1A2FCF', progA: '#AEB8F0', shade: 1, dark: false,
+  rL: 28, rM: 22, rS: 18,
+};
+export const V = { ...VL };
+onPalette(() => Object.assign(V, C.dark ? VD : VL));
+/** Soft card shadow + border used on white cards in the light look. */
+export const lift = () => (V.dark ? {} : { borderWidth: 1, borderColor: V.line, shadowColor: '#000C58', shadowOpacity: 0.08, shadowRadius: 18, shadowOffset: { width: 0, height: 8 }, elevation: 3 });
 /** Heading font (Space Grotesk 600 / 700). */
 export const FH = { fontFamily: 'SG6' } as const;
 export const FH7 = { fontFamily: 'SG7' } as const;
@@ -28,9 +42,9 @@ export function NavyFill({ id = 'nf', hero = false }: { id?: string; hero?: bool
     <Svg pointerEvents="none" style={StyleSheet.absoluteFill} width="100%" height="100%" preserveAspectRatio="none" viewBox="0 0 100 100">
       <Defs>
         <LinearGradient id={id} x1="0.2" y1="0" x2="0.8" y2="1">
-          <Stop offset="0" stopColor="#3B55FF" />
-          <Stop offset={hero ? '0.4' : '0.45'} stopColor={hero ? '#1A2FCF' : '#2238D8'} />
-          <Stop offset="1" stopColor={hero ? '#000C58' : '#0A1A9A'} />
+          <Stop offset="0" stopColor={V.dark ? '#3B55FF' : '#1A2FCF'} />
+          <Stop offset={hero ? '0.4' : '0.45'} stopColor={V.dark ? (hero ? '#1A2FCF' : '#2238D8') : '#04137A'} />
+          <Stop offset="1" stopColor={V.dark ? (hero ? '#000C58' : '#0A1A9A') : '#000C58'} />
         </LinearGradient>
       </Defs>
       <Rect x={0} y={0} width={100} height={100} fill={`url(#${id})`} />
@@ -60,11 +74,11 @@ export function Av({ name, size = 42, color, ring }: { name: string; size?: numb
 export function TopRow({ name, unread, avColor, onBell, onMe }: { name: string; unread: number; avColor?: string | null; onBell: () => void; onMe: () => void }) {
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 44 }}>
-      <Logo width={63} color="#FFFFFF" />
+      <Logo width={63} color={V.ink} />
       <View style={{ flex: 1 }} />
       <Pressable onPress={onBell} accessibilityRole="button" accessibilityLabel={`${t('Notifications')}${unread ? ` (${unread})` : ''}`}
         style={{ width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center', backgroundColor: V.surf, borderWidth: 1, borderColor: V.line }}>
-        <Icon name="bell" size={18} color="#FFFFFF" duo={false} />
+        <Icon name="bell" size={18} color={V.ink} duo={false} />
         {unread ? <View style={{ position: 'absolute', top: -2, right: -2, minWidth: 18, height: 18, borderRadius: 9, paddingHorizontal: 4, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFFFF' }}><Text style={{ color: V.navy, fontSize: 10.5, fontWeight: '700' }}>{unread > 9 ? '9+' : unread}</Text></View> : null}
       </Pressable>
       <Pressable onPress={onMe} accessibilityRole="button" accessibilityLabel={t('Me')}><Av name={name} size={44} color={avColor} /></Pressable>
@@ -78,9 +92,9 @@ export function SubTop({ title, onBack, right, rightLabel, onRight }: { title: s
   const btn = { width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center', backgroundColor: V.surf, borderWidth: 1, borderColor: V.line } as ViewStyle;
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 44 }}>
-      <Pressable onPress={back} style={btn} accessibilityRole="button" accessibilityLabel={t('Back')} hitSlop={6}><Icon name="back" size={18} color="#FFFFFF" duo={false} /></Pressable>
-      <Text style={[FH, { flex: 1, textAlign: 'center', color: '#FFFFFF', fontSize: 18 }]} numberOfLines={1} accessibilityRole="header">{title}</Text>
-      {right ? <Pressable onPress={onRight} style={btn} accessibilityRole="button" accessibilityLabel={rightLabel || title} hitSlop={6}><Icon name={right} size={18} color="#FFFFFF" duo={false} /></Pressable> : <View style={{ width: 42 }} />}
+      <Pressable onPress={back} style={btn} accessibilityRole="button" accessibilityLabel={t('Back')} hitSlop={6}><Icon name="back" size={18} color={V.ink} duo={false} /></Pressable>
+      <Text style={[FH, { flex: 1, textAlign: 'center', color: V.ink, fontSize: 18 }]} numberOfLines={1} accessibilityRole="header">{title}</Text>
+      {right ? <Pressable onPress={onRight} style={btn} accessibilityRole="button" accessibilityLabel={rightLabel || title} hitSlop={6}><Icon name={right} size={18} color={V.ink} duo={false} /></Pressable> : <View style={{ width: 42 }} />}
     </View>
   );
 }
@@ -89,7 +103,7 @@ export function SubTop({ title, onBack, right, rightLabel, onRight }: { title: s
 export function Sec({ title, right, onRight }: { title: string; right?: string; onRight?: () => void }) {
   return (
     <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: -6 }}>
-      <Text style={[FH, { color: '#FFFFFF', fontSize: 16 }]} accessibilityRole="header">{title}</Text>
+      <Text style={[FH, { color: V.ink, fontSize: 16 }]} accessibilityRole="header">{title}</Text>
       {right ? <Pressable onPress={onRight} hitSlop={10} accessibilityRole="button" disabled={!onRight}><Text style={{ color: V.mute, fontSize: 12.5 }}>{right}</Text></Pressable> : null}
     </View>
   );
@@ -111,10 +125,10 @@ export function Minis({ items }: { items: Mini[] }) {
   return (
     <HRow>
       {items.map((m, i) => {
-        const ink = m.tone === 'wh' ? '#0A0B10' : '#FFFFFF';
+        const ink = m.tone === 'wh' ? '#0A0B10' : m.tone === 'dk' ? V.ink : '#FFFFFF';
         return (
           <View key={m.kind + i} style={{ width: 148, minHeight: 132, borderRadius: V.rM, padding: 14, overflow: 'hidden', justifyContent: 'space-between', opacity: m.done ? 0.55 : 1,
-            backgroundColor: m.tone === 'wh' ? '#FFFFFF' : m.tone === 'nv' ? '#2238D8' : V.surf2, borderWidth: m.tone === 'dk' ? 1 : 0, borderColor: V.line }}>
+            backgroundColor: m.tone === 'wh' ? '#FFFFFF' : m.tone === 'nv' ? '#2238D8' : V.surf2, borderWidth: m.tone === 'dk' || (m.tone === 'wh' && !V.dark) ? 1 : 0, borderColor: V.line }}>
             {m.tone === 'nv' ? <NavyFill id={'mn' + i} /> : null}
             <View style={{ gap: 8 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, opacity: 0.7 }}>
@@ -125,8 +139,8 @@ export function Minis({ items }: { items: Mini[] }) {
             </View>
             {m.btn && !m.done ? (
               <Pressy onPress={m.go} accessibilityRole="button" accessibilityLabel={`${m.btn}: ${m.title}`}
-                style={{ alignSelf: 'flex-start', marginTop: 8, paddingVertical: 7, paddingHorizontal: 13, borderRadius: 99, backgroundColor: m.tone === 'wh' ? V.navy : '#FFFFFF', opacity: m.busy ? 0.6 : 1 }}>
-                <Text style={{ color: m.tone === 'wh' ? '#FFFFFF' : V.navy, fontSize: 12.5, fontWeight: '600' }}>{m.btn}</Text>
+                style={{ alignSelf: 'flex-start', marginTop: 8, paddingVertical: 7, paddingHorizontal: 13, borderRadius: 99, backgroundColor: m.tone === 'wh' || (m.tone === 'dk' && !V.dark) ? V.navy : '#FFFFFF', opacity: m.busy ? 0.6 : 1 }}>
+                <Text style={{ color: m.tone === 'wh' || (m.tone === 'dk' && !V.dark) ? '#FFFFFF' : V.navy, fontSize: 12.5, fontWeight: '600' }}>{m.btn}</Text>
               </Pressy>
             ) : null}
           </View>
@@ -159,7 +173,7 @@ export type SmallTile = { icon: IconName; label: string; value: string; note?: s
 export function Bento({ tall, a, b, bigValue = 27 }: { tall: BigTile; a: SmallTile; b: SmallTile; bigValue?: number }) {
   const small = (x: SmallTile, white: boolean) => (
     <Pressy onPress={x.go} accessibilityRole="button" accessibilityLabel={`${x.label} ${x.value}${x.note ? ', ' + x.note : ''}`}
-      style={{ minHeight: 100, borderRadius: V.rM, padding: 14, gap: 4, backgroundColor: white ? '#FFFFFF' : V.bk, borderWidth: white ? 0 : 1, borderColor: V.line }}>
+      style={{ minHeight: 100, borderRadius: V.rM, padding: 14, gap: 4, backgroundColor: white ? '#FFFFFF' : V.bk, borderWidth: white && V.dark ? 0 : 1, borderColor: V.line }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
         <Icon name={x.icon} size={14} color={white ? V.navy : '#FFFFFF'} duo={false} />
         <Text style={{ color: white ? V.navy : '#FFFFFF', fontSize: 12, fontWeight: '600' }} numberOfLines={1}>{x.label}</Text>
@@ -202,7 +216,7 @@ export function Pills({ items, more }: { items: { label: string; icon: IconName;
     <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
       {items.map((p) => (
         <Pressy key={p.label} onPress={p.go} accessibilityRole="button" accessibilityLabel={p.label}
-          style={{ flex: 1, height: 52, borderRadius: 99, backgroundColor: '#FFFFFF', flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 7, opacity: p.busy ? 0.6 : 1 }}>
+          style={{ flex: 1, height: 52, borderRadius: 99, backgroundColor: '#FFFFFF', flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 7, opacity: p.busy ? 0.6 : 1, ...lift() }}>
           <View style={{ width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center', backgroundColor: p.danger ? '#E5484D' : V.blue }}>
             <Icon name={p.icon} size={19} color="#FFFFFF" duo={false} />
           </View>
@@ -212,7 +226,7 @@ export function Pills({ items, more }: { items: { label: string; icon: IconName;
       {more ? (
         <Pressy onPress={more.go} accessibilityRole="button" accessibilityLabel={more.label}
           style={{ width: 52, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center', backgroundColor: V.grey }}>
-          <Icon name="dots" size={22} color="#FFFFFF" duo={false} />
+          <Icon name="dots" size={22} color={V.ink} duo={false} />
         </Pressy>
       ) : null}
     </View>
@@ -237,7 +251,7 @@ export function TeamStrip({ people, onOpen }: { people: Person[]; onOpen: (p: Pe
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
               {p.on ? <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: V.good }} /> : null}
-              <Text style={{ color: on ? '#FFFFFF' : V.mute, fontSize: 12, fontWeight: on ? '600' : '400' }} numberOfLines={1}>{p.name.split(' ')[0]}</Text>
+              <Text style={{ color: on ? V.ink : V.mute, fontSize: 12, fontWeight: on ? '600' : '400' }} numberOfLines={1}>{p.name.split(' ')[0]}</Text>
             </View>
           </Pressable>
         );
@@ -257,7 +271,7 @@ export function TxCards({ items }: { items: Tx[] }) {
         const soft = x.navy ? '#C9D2FF' : '#4B5070';
         return (
           <Pressy key={x.title + i} onPress={x.go} accessibilityRole="button" accessibilityLabel={`${x.title}${x.sub ? ', ' + x.sub : ''}`}
-            style={{ width: 148, height: 132, borderRadius: V.rM, padding: 14, overflow: 'hidden', backgroundColor: x.navy ? '#2238D8' : '#FFFFFF' }}>
+            style={{ width: 148, height: 132, borderRadius: V.rM, padding: 14, overflow: 'hidden', backgroundColor: x.navy ? '#2238D8' : '#FFFFFF', ...(x.navy ? {} : lift()) }}>
             {x.navy ? <NavyFill id={'tx' + i} /> : null}
             <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 6 }}>
               <View style={{ flex: 1, gap: 2 }}>
@@ -295,7 +309,7 @@ export function Li({ title, sub, left, btn, onBtn, onPress, muted }: { title: st
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 }}>
       {left}
       <View style={{ flex: 1, minWidth: 0 }}>
-        <Text style={{ color: muted ? V.mute : '#FFFFFF', fontSize: 14.5, fontWeight: muted ? '500' : '600' }} numberOfLines={1}>{title}</Text>
+        <Text style={{ color: muted ? V.mute : V.ink, fontSize: 14.5, fontWeight: muted ? '500' : '600' }} numberOfLines={1}>{title}</Text>
         {sub ? <Text style={{ color: V.mute, fontSize: 12, marginTop: 1 }} numberOfLines={1}>{sub}</Text> : null}
       </View>
       {btn ? <SBtn text={btn} onPress={onBtn || onPress} /> : null}
@@ -308,16 +322,16 @@ export function Li({ title, sub, left, btn, onBtn, onPress, muted }: { title: st
 export function SBtn({ text, onPress, busy }: { text: string; onPress?: () => void; busy?: boolean }) {
   return (
     <Pressy onPress={onPress} accessibilityRole="button" accessibilityLabel={text}
-      style={{ paddingVertical: 9, paddingHorizontal: 14, borderRadius: 99, backgroundColor: '#FFFFFF', opacity: busy ? 0.6 : 1 }}>
-      <Text style={{ color: V.navy, fontSize: 13, fontWeight: '600' }}>{text}</Text>
+      style={{ paddingVertical: 9, paddingHorizontal: 14, borderRadius: 99, backgroundColor: V.pill, opacity: busy ? 0.6 : 1 }}>
+      <Text style={{ color: V.pillInk, fontSize: 13, fontWeight: '600' }}>{text}</Text>
     </Pressy>
   );
 }
 
 /** Round tick (done) or empty ring (to do). */
 export const Tick = ({ done }: { done: boolean }) => (
-  <View style={{ width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: done ? '#FFFFFF' : 'transparent', borderWidth: done ? 0 : 2, borderColor: '#3A3D4A' }}>
-    {done ? <Svg width={13} height={13} viewBox="0 0 24 24"><Path d="M5 12l5 5 9-10" stroke={V.navy} strokeWidth={3} fill="none" strokeLinecap="round" strokeLinejoin="round" /></Svg> : null}
+  <View style={{ width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: done ? V.pill : 'transparent', borderWidth: done ? 0 : 2, borderColor: V.ring }}>
+    {done ? <Svg width={13} height={13} viewBox="0 0 24 24"><Path d="M5 12l5 5 9-10" stroke={V.pillInk} strokeWidth={3} fill="none" strokeLinecap="round" strokeLinejoin="round" /></Svg> : null}
   </View>
 );
 
@@ -327,7 +341,7 @@ export function Prog({ pct }: { pct: number }) {
     <View style={{ height: 8, borderRadius: 9, backgroundColor: V.grey, overflow: 'hidden', marginVertical: 4 }}>
       <View style={{ width: `${Math.max(4, Math.min(100, pct))}%`, height: '100%', borderRadius: 9, overflow: 'hidden' }}>
         <Svg style={StyleSheet.absoluteFill} width="100%" height="100%" viewBox="0 0 10 10" preserveAspectRatio="none">
-          <Defs><LinearGradient id="pg" x1="0" y1="0" x2="1" y2="0"><Stop offset="0" stopColor="#FFFFFF" /><Stop offset="1" stopColor="#4A63FF" /></LinearGradient></Defs>
+          <Defs><LinearGradient id="pg" x1="0" y1="0" x2="1" y2="0"><Stop offset="0" stopColor={V.progA} /><Stop offset="1" stopColor="#4A63FF" /></LinearGradient></Defs>
           <Rect width={10} height={10} fill="url(#pg)" />
         </Svg>
       </View>
@@ -336,9 +350,9 @@ export function Prog({ pct }: { pct: number }) {
 }
 
 /** Rounded tile with a blue icon square (v6 .ib inside lists). */
-export const IB = ({ icon, color = '#FFFFFF' }: { icon: IconName; color?: string }) => (
+export const IB = ({ icon, color }: { icon: IconName; color?: string }) => (
   <View style={{ width: 40, height: 40, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: V.surf2 }}>
-    <Icon name={icon} size={16} color={color} stroke={2.2} duo={false} />
+    <Icon name={icon} size={16} color={color || V.ink} stroke={2.2} duo={false} />
   </View>
 );
 

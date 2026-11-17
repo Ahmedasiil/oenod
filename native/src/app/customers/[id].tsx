@@ -53,7 +53,7 @@ export default function Customer() {
         <>
           <View style={{ alignItems: 'center', gap: 8 }}>
             <Av name={c.name} size={84} ring />
-            <Text style={[FH, { color: '#FFFFFF', fontSize: 22 }]} numberOfLines={1}>{c.name}</Text>
+            <Text style={[FH, { color: V.ink, fontSize: 22 }]} numberOfLines={1}>{c.name}</Text>
             {c.organization ? <Text style={{ color: V.mute, fontSize: 13.5 }}>{c.organization}</Text> : null}
             {x.segment ? <View style={{ alignSelf: 'center' }}><Tag text={t(x.segment_label)} tone={tone(x.segment)} /></View> : null}
           </View>

@@ -5,8 +5,8 @@ import { applyPalette } from './theme';
 import { secure } from './secure';
 
 export type Mode = 'system' | 'light' | 'dark';
-const KEY = 'oenod.appearance';
-const Ctx = createContext<{ mode: Mode; dark: boolean; setMode: (m: Mode) => void }>({ mode: 'dark', dark: true, setMode: () => {} });
+const KEY = 'oenod.appearance.v4'; // 4.0: new key so everyone starts in the new light look
+const Ctx = createContext<{ mode: Mode; dark: boolean; setMode: (m: Mode) => void }>({ mode: 'light', dark: false, setMode: () => {} });
 export const useAppearance = () => useContext(Ctx);
 
 // Screen to reopen after the app redraws in the new colours.
@@ -17,7 +17,7 @@ export const takeReturnTo = () => { const r = returnTo; returnTo = null; return 
 
 export function AppearanceProvider({ children }: { children: React.ReactNode }) {
   const system = useColorScheme();
-  const [mode, set] = useState<Mode>('dark'); // 3.9.1 Midnight: black screens and the navy hero card (Light stays in Me > Appearance)
+  const [mode, set] = useState<Mode>('light'); // 4.0 Navy Daylight: white pages + navy bands (Dark stays in Me > Appearance)
   const [loaded, setLoaded] = useState(false);
   useEffect(() => {
     secure.get(KEY).then((v) => { if (v === 'light' || v === 'dark' || v === 'system') set(v); }).catch(() => {}).finally(() => setLoaded(true));

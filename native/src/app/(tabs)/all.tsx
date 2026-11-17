@@ -9,7 +9,9 @@ import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 import { useAuth } from '../../lib/auth';
 import { t } from '../../lib/i18n';
 import { Icon, type IconName } from '../../ui/Icon';
-import { FH, SubTop, Ti, V } from '../../ui/M6';
+import { FH, SubTop, V } from '../../ui/M6';
+import { TileIcon, type Tone } from '../../ui/H';
+import type { PhName } from '../../ui/phPaths';
 import { PoweredBy } from '../../ui/Brand';
 import { openTool } from '../web';
 import { IOS_STORE } from '../../lib/store';
@@ -78,7 +80,11 @@ const GROUPS: Group[] = [
     { name: 'Help', icon: 'chat', hint: 'Support', web: '/support', who: 'all' },
   ] },
 ];
-const TONES = ['nv', 'wh', 'bk'] as const;
+// 4.0: the same soft two-tone tiles as Home, coloured by meaning (People navy, Money sky blue, the rest grey).
+const GTONE: Record<string, Tone> = { 'People': 'navy', 'Money': 'blue', 'Talk': 'navy', 'Ava, mail & learning': 'navy', 'Operations': 'ink', 'You & settings': 'ink' };
+const PHI: Partial<Record<IconName, PhName>> = { calendar: 'calendar-dots', clock: 'clock', users: 'users-three', sun: 'sun-horizon', check: 'seal-check', device: 'monitor', briefcase: 'briefcase',
+  chart: 'chart-line-up', cash: 'money', doc: 'receipt', cart: 'package', wallet: 'wallet', shield: 'shield-check', video: 'video-camera', phone: 'phone', chat: 'chat-circle-dots', news: 'megaphone',
+  heart: 'star', spark: 'sparkle', send: 'megaphone', mail: 'envelope-simple', cap: 'graduation-cap', box: 'package', cloud: 'warning', grid: 'squares-four', user: 'user', bell: 'bell', link: 'arrow-up-right', globe: 'gear-six' };
 
 export default function AllTools() {
   const { session, isManager } = useAuth();
@@ -113,7 +119,7 @@ export default function AllTools() {
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, height: 48, borderRadius: V.rM, backgroundColor: V.surf, borderWidth: 1, borderColor: V.line, paddingHorizontal: 16 }}>
           <Icon name="scan" size={18} color={V.mute} duo={false} />
           <TextInput value={q} onChangeText={setQ} placeholder={t('Search tools, people, invoices')} placeholderTextColor={V.mute} autoCorrect={false} accessibilityLabel={t('Search tools')}
-            style={{ flex: 1, minWidth: 0, color: '#FFFFFF', fontSize: 14, paddingVertical: 10 }} />
+            style={{ flex: 1, minWidth: 0, color: V.ink, fontSize: 14, paddingVertical: 10 }} />
           {q ? <Pressable onPress={() => setQ('')} hitSlop={8} accessibilityLabel={t('Clear')}><Icon name="x" size={18} color={V.mute} duo={false} /></Pressable> : null}
         </View>
         {!s ? (
@@ -124,7 +130,7 @@ export default function AllTools() {
             {favs.map((f) => (
               <Pressable key={f.name} onPress={() => go(f)} accessibilityRole="button" accessibilityLabel={t(f.name)}
                 style={({ pressed }) => ({ alignItems: 'center', gap: 8, width: 72, transform: [{ scale: pressed ? 0.92 : 1 }] })}>
-                <Ti icon={f.icon} tone="wh" size={58} />
+                <TileIcon icon={PHI[f.icon] || 'squares-four'} tone="light" size={58} />
                 <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '600' }} numberOfLines={1}>{t(f.name)}</Text>
               </Pressable>
             ))}
@@ -137,7 +143,7 @@ export default function AllTools() {
         {groups.map((g) => (
           <View key={g.name} style={{ gap: 10 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <Text style={[FH, { color: '#FFFFFF', fontSize: 15 }]} accessibilityRole="header">{t(g.name)}</Text>
+              <Text style={[FH, { color: V.ink, fontSize: 15 }]} accessibilityRole="header">{t(g.name)}</Text>
               <View style={{ paddingVertical: 2, paddingHorizontal: 8, borderRadius: 99, backgroundColor: V.surf2 }}><Text style={{ color: V.mute, fontSize: 11, fontWeight: '700' }}>{g.tools.length}</Text></View>
             </View>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
@@ -149,10 +155,10 @@ export default function AllTools() {
                     {({ pressed }) => (
                       <>
                         <View style={{ marginBottom: 6, opacity: offNow ? 0.55 : 1, transform: [{ scale: pressed ? 0.9 : 1 }, { rotate: pressed ? '-4deg' : '0deg' }] }}>
-                          <Ti icon={x.icon} tone={TONES[i % 3]} size={52} />
+                          <TileIcon icon={PHI[x.icon] || 'squares-four'} tone={GTONE[g.name] || 'navy'} size={52} />
                         </View>
-                        <Text style={{ color: '#FFFFFF', fontSize: 12.5, fontWeight: '700', textAlign: 'center', lineHeight: 15 }} numberOfLines={2}>{t(x.name)}</Text>
-                        <Text style={{ color: offNow ? '#C9D2FF' : V.mute, fontSize: 11, fontWeight: offNow ? '600' : '400' }} numberOfLines={1}>{offNow ? t('Turn on') : t(x.hint)}</Text>
+                        <Text style={{ color: V.ink, fontSize: 12.5, fontWeight: '700', textAlign: 'center', lineHeight: 15 }} numberOfLines={2}>{t(x.name)}</Text>
+                        <Text style={{ color: offNow ? V.link : V.mute, fontSize: 11, fontWeight: offNow ? '600' : '400' }} numberOfLines={1}>{offNow ? t('Turn on') : t(x.hint)}</Text>
                         {offNow ? <View style={{ position: 'absolute', top: 8, right: 8, width: 20, height: 20, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFFFF' }}><Text style={{ color: V.navy, fontSize: 14, fontWeight: '700', lineHeight: 18 }}>+</Text></View> : null}
                       </>
                     )}

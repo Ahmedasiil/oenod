@@ -76,8 +76,8 @@ export default function Login() {
   const field = { height: 56, borderRadius: V.rM, backgroundColor: V.surf, borderWidth: 1, borderColor: V.line, paddingHorizontal: 18, flexDirection: 'row' as const, alignItems: 'center' as const, gap: 10 };
   const chip = (label: string, icon: IconName, onPress: () => void) => (
     <Pressable key={label} onPress={onPress} accessibilityRole="button" style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 10, paddingHorizontal: 14, borderRadius: 99, borderWidth: 1, borderColor: V.line, backgroundColor: V.surf, opacity: pressed ? 0.75 : 1 })}>
-      <Icon name={icon} size={16} color="#FFFFFF" duo={false} />
-      <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '600' }}>{label}</Text>
+      <Icon name={icon} size={16} color={V.ink} duo={false} />
+      <Text style={{ color: V.ink, fontSize: 13, fontWeight: '600' }}>{label}</Text>
     </Pressable>
   );
 
@@ -89,7 +89,7 @@ export default function Login() {
           <SubTop title={pending2fa ? t('Two-step check') : t('Sign in')} onBack={() => (router.canGoBack() ? router.back() : router.replace('/welcome'))} />
           <In>
             <View style={{ alignItems: 'center' }}>
-              <Text style={[FH, { color: '#FFFFFF', fontSize: 26 }]} accessibilityRole="header">{t(pending2fa ? 'Enter your code' : 'Welcome back')}</Text>
+              <Text style={[FH, { color: V.ink, fontSize: 26 }]} accessibilityRole="header">{t(pending2fa ? 'Enter your code' : 'Welcome back')}</Text>
               <Text style={{ color: V.mute, fontSize: 14, marginTop: 4, textAlign: 'center' }}>{pending2fa ? t('Enter the 6-digit code from your authenticator app.') : t('Pick the easiest way for you')}</Text>
             </View>
           </In>
@@ -113,7 +113,7 @@ export default function Login() {
                       <Pressable key={p} onPress={() => social(p)} disabled={busy} accessibilityRole="button" accessibilityLabel={t('Continue with {p}', { p: LABEL[p] || p })}
                         style={({ pressed }) => ({ flex: 1, height: 54, borderRadius: V.rM, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7, backgroundColor: V.surf2, borderWidth: 1, borderColor: V.line, opacity: pressed || busy ? 0.75 : 1 })}>
                         {SOC[p] || null}
-                        <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8} style={{ color: '#FFFFFF', fontWeight: '600', fontSize: 13.5 }}>{LABEL[p] || p}</Text>
+                        <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8} style={{ color: V.ink, fontWeight: '600', fontSize: 13.5 }}>{LABEL[p] || p}</Text>
                       </Pressable>
                     ))}
                   </View>
@@ -149,8 +149,8 @@ export default function Login() {
           {note && !error ? <Text style={{ color: '#C9D2FF', fontSize: 13, lineHeight: 18, textAlign: 'center' }}>{note}</Text> : null}
           <In delay={160}>
             <Pressable onPress={go} disabled={busy} accessibilityRole="button" accessibilityLabel={t(pending2fa ? 'Verify' : 'Sign in')}
-              style={({ pressed }) => ({ height: 54, borderRadius: 99, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFFFF', opacity: busy ? 0.7 : 1, transform: [{ scale: pressed ? 0.98 : 1 }] })}>
-              {busy ? <ActivityIndicator color={V.navy} /> : <Text style={[FH, { color: V.navy, fontSize: 16 }]}>{t(pending2fa ? 'Verify' : 'Sign in')}</Text>}
+              style={({ pressed }) => ({ height: 54, borderRadius: 99, alignItems: 'center', justifyContent: 'center', backgroundColor: V.pill, opacity: busy ? 0.7 : 1, transform: [{ scale: pressed ? 0.98 : 1 }] })}>
+              {busy ? <ActivityIndicator color={V.pillInk} /> : <Text style={[FH, { color: V.pillInk, fontSize: 16 }]}>{t(pending2fa ? 'Verify' : 'Sign in')}</Text>}
             </Pressable>
           </In>
           {!pending2fa ? (

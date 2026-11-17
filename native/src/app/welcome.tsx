@@ -14,6 +14,8 @@ import { MapleLeaf } from '../ui/Brand';
 import { LANGS, t, useLang } from '../lib/i18n';
 import { secure } from '../lib/secure';
 import { IOS_STORE } from '../lib/store';
+import { Ghost, Grad, HChip, OfferStrip, Primary } from '../ui/H';
+import type { PhName } from '../ui/phPaths';
 
 export const SEEN = 'oenod.welcomed';
 const native = Platform.OS !== 'web';
@@ -195,57 +197,75 @@ export default function Welcome() {
   const big = width < 380 ? 31 : 35;
   const faceId = () => { if (quick.on) signInQuick().catch(() => router.push('/login')); else router.push('/login'); };
 
+  const floatY = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    if (still) return;
+    const l = Animated.loop(Animated.sequence([
+      Animated.timing(floatY, { toValue: -10, duration: 2500, easing: Easing.inOut(Easing.sin), useNativeDriver: Platform.OS !== 'web' }),
+      Animated.timing(floatY, { toValue: 0, duration: 2500, easing: Easing.inOut(Easing.sin), useNativeDriver: Platform.OS !== 'web' }),
+    ]));
+    l.start(); return () => l.stop();
+  }, [still, floatY]);
+  const now = new Date();
+  const offers: [PhName, string][][] = [
+    [['clock', t('Time clock')], ['calendar-dots', t('Scheduling')], ['money', t('Payroll')], ['video-camera', t('OENOD Meet')], ['phone', t('Business phone')], ['receipt', t('Invoices')]],
+    [['user-plus', t('Hiring')], ['graduation-cap', t('Training')], ['package', t('Inventory')], ['chart-line-up', t('Reports')], ['chat-circle-dots', t('Team chat')], ['seal-check', t('E-signatures')]],
+  ];
+  // 4.0 Navy Daylight welcome (approved 11-17): navy top with rings, the offerings strip and a floating clock-in card,
+  // then Sign in on white.
   return (
-    <View style={{ flex: 1, backgroundColor: '#050608' }}>
-      <Grid width={width} height={height} />
-      <ScrollView bounces={false} contentContainerStyle={{ flexGrow: 1, paddingTop: insets.top + 8, paddingBottom: insets.bottom + 16, paddingHorizontal: side }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, zIndex: 10 }}>
-          <Logo width={92} color="#FFFFFF" />
-          <View style={{ flex: 1 }} />
-          <LangPick />
-          <Pressable onPress={() => router.push('/guest')} accessibilityRole="button" accessibilityLabel={t('Join a meeting')}
-            style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 7, height: 36, paddingLeft: 4, paddingRight: 12, borderRadius: 18, backgroundColor: pressed ? '#1A1C26' : '#111219', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' })}>
-            <Image source={LENA} style={{ width: 28, height: 28, borderRadius: 14 }} />
-            <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '700' }}>{t('Join meeting')}</Text>
-          </Pressable>
+    <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+      <ScrollView bounces={false} contentContainerStyle={{ flexGrow: 1 }}>
+        <View style={{ flexGrow: 1, minHeight: Math.max(560, height - 250), paddingTop: insets.top + 8, paddingHorizontal: Math.max(26, (width - 520) / 2), overflow: 'hidden', backgroundColor: '#000C58' }}>
+          <Grad id="wtop" x1={0.1} y1={0} x2={0.7} y2={1.3} stops={[[0, '#000C58'], [0.6, '#04137A'], [1.4, '#1A2FCF']]} />
+          <View pointerEvents="none" style={{ position: 'absolute', width: 520, height: 520, borderRadius: 260, left: -80, top: 120, borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)' }} />
+          <View pointerEvents="none" style={{ position: 'absolute', width: 360, height: 360, borderRadius: 180, left: 0, top: 200, borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)' }} />
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, zIndex: 10, marginTop: 10 }}>
+            <Logo width={90} color="#FFFFFF" />
+            <View style={{ flex: 1 }} />
+            <LangPick />
+          </View>
+          <Rise delay={still ? 0 : 150} still={still}>
+            <Text accessibilityRole="header" style={{ color: '#FFFFFF', fontSize: big + 7, fontWeight: '800', letterSpacing: -1.4, lineHeight: (big + 7) * 1.05, marginTop: 28 }}>{t('Work,')}{'\n'}{t('made simple.')}</Text>
+            <Text style={{ color: '#AEB8F0', fontSize: 15, lineHeight: 22, marginTop: 12, maxWidth: 300 }}>{t('Clock in, see your shifts, get paid and meet your team. All in one app.')}</Text>
+          </Rise>
+          <View style={{ marginTop: 22 }}><OfferStrip rows={offers} /></View>
+          <View style={{ flex: 1, minHeight: 230, justifyContent: 'center', alignItems: 'center', paddingVertical: 20 }}>
+            <Animated.View style={{ width: '82%', maxWidth: 300, transform: [{ translateY: floatY }, { rotate: '-4deg' }], backgroundColor: '#FFFFFF', borderRadius: 24, padding: 16,
+              shadowColor: '#000', shadowOpacity: 0.35, shadowRadius: 30, shadowOffset: { width: 0, height: 30 }, elevation: 14 }} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Text style={{ fontSize: 12, color: '#5B6079', fontWeight: '600' }}>{t('Today')} · {t('Front desk')}</Text>
+                <HChip text={t('On site')} bg="#EEF0FB" fg="#1A2FCF" live={!still} h={22} />
+              </View>
+              <Text style={{ fontSize: 34, fontWeight: '800', letterSpacing: -1, color: '#0A0B10', marginTop: 6, fontVariant: ['tabular-nums'] }}>{now.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}</Text>
+              <Text style={{ fontSize: 12, color: '#5B6079', marginTop: 2 }}>{t('Your workplace')} · {now.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}</Text>
+              <View style={{ marginTop: 12, height: 42, borderRadius: 13, backgroundColor: '#000C58', alignItems: 'center', justifyContent: 'center' }}>
+                <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 14 }}>{t('Clock in')}</Text>
+              </View>
+            </Animated.View>
+          </View>
         </View>
-        <Rise delay={still ? 0 : 150} still={still}>
-          <View style={{ marginTop: 26 }}><Stack still={still} width={Math.min(width, 520)} /></View>
-        </Rise>
-        <View style={{ flex: 1, minHeight: 18 }} />
-        <Rise delay={still ? 0 : 350} still={still}>
-          <View style={{ gap: 4 }}>
-            <Text accessibilityRole="header" style={{ color: '#FFFFFF', fontSize: big, fontWeight: '800', letterSpacing: -1, lineHeight: big * 1.15 }}>{t('Run your')}</Text>
-            <Turning still={still} big={big} />
-            <Text style={{ color: '#FFFFFF', fontSize: big, fontWeight: '800', letterSpacing: -1, lineHeight: big * 1.15, marginTop: 2 }}>{t('from one app.')}</Text>
-            <Text style={{ color: '#9AA0B8', fontSize: 15.5, lineHeight: 23, marginTop: 8 }}>
-              {t('Team, schedules, payroll, calls, meetings and Ava, together in one secure place.')}
-            </Text>
-          </View>
-        </Rise>
-        <Rise delay={still ? 0 : 550} still={still}>
-          <View style={{ gap: 10, marginTop: 22 }}>
-            <Pressable onPress={() => router.push(IOS_STORE ? '/login' : '/signup')} accessibilityRole="button"
-              style={({ pressed }) => ({ minHeight: 56, borderRadius: 28, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8, opacity: pressed ? 0.9 : 1, transform: [{ scale: pressed ? 0.98 : 1 }] })}>
-              <Text style={{ color: '#0A1A9A', fontSize: 16.5, fontWeight: '800' }}>{t(IOS_STORE ? 'Sign in' : 'Get started free')}</Text>
-              <Icon name="arrow" size={19} color="#0A1A9A" duo={false} />
+        <View style={{ paddingTop: 22, paddingBottom: insets.bottom + 18, paddingHorizontal: Math.max(22, (width - 520) / 2), gap: 10, backgroundColor: '#FFFFFF' }}>
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            <Primary text={t('Sign in')} ink onPress={() => router.push('/login')} style={{ flex: 1 }} />
+            <Pressable onPress={faceId} accessibilityRole="button" accessibilityLabel={quick.on ? t('Sign in with {m}', { m: quick.name || t('Face ID') }) : t('Sign in')}
+              style={({ pressed }) => ({ width: 58, height: 58, borderRadius: 18, backgroundColor: pressed ? '#E3E6EF' : '#F3F4F8', alignItems: 'center', justifyContent: 'center' })}>
+              <Icon name="face" size={24} color="#0A0B10" duo={false} />
             </Pressable>
-            <View style={{ flexDirection: 'row', gap: 10 }}>
-              {IOS_STORE ? <Text style={{ flex: 1, alignSelf: 'center', color: '#9AA0B8', fontSize: 13.5, lineHeight: 19 }}>{t('For teams that already use OENOD. Ask your manager for an invite.')}</Text> : <Pressable onPress={() => router.push('/login')} accessibilityRole="button"
-                style={({ pressed }) => ({ flex: 1, minHeight: 54, borderRadius: 27, backgroundColor: pressed ? '#1A1C26' : '#111219', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', alignItems: 'center', justifyContent: 'center' })}>
-                <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '700' }}>{t('Sign in')}</Text>
-              </Pressable>}
-              <Pressable onPress={faceId} accessibilityRole="button" accessibilityLabel={quick.on ? t('Sign in with {m}', { m: quick.name || t('Face ID') }) : t('Sign in')}
-                style={({ pressed }) => ({ width: 54, height: 54, borderRadius: 27, backgroundColor: pressed ? '#1A1C26' : '#111219', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', alignItems: 'center', justifyContent: 'center' })}>
-                <Icon name="face" size={22} color="#FFFFFF" duo={false} />
-              </Pressable>
-            </View>
           </View>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 14 }}>
-            <Text style={{ color: '#6B7088', fontSize: 11.5, textAlign: 'center' }}>{t('Free for up to 3 people')} · {t('{n} languages', { n: LANGS.length })} · {t('Proudly Canadian')}</Text>
+          <Ghost text={t('Join a meeting with a code')} icon="video-camera" onPress={() => router.push('/guest')} style={{ flex: 0, height: 54, borderRadius: 18 }} />
+          {IOS_STORE ? (
+            <Text style={{ textAlign: 'center', color: '#5B6079', fontSize: 13, marginTop: 4 }}>{t('For teams that already use OENOD. Ask your manager for an invite.')}</Text>
+          ) : (
+            <Pressable onPress={() => router.push('/signup')} accessibilityRole="button" style={{ alignItems: 'center', marginTop: 4 }}>
+              <Text style={{ color: '#5B6079', fontSize: 13 }}>{t('New business?')} <Text style={{ color: '#1A2FCF', fontWeight: '800' }}>{t('Start free for 14 days')}</Text></Text>
+            </Pressable>
+          )}
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 6 }}>
+            <Text style={{ color: '#8A90AE', fontSize: 11.5, textAlign: 'center' }}>{t('{n} languages', { n: LANGS.length })} · {t('Proudly Canadian')}</Text>
             <MapleLeaf size={11} />
           </View>
-        </Rise>
+        </View>
       </ScrollView>
     </View>
   );

@@ -159,7 +159,7 @@ export default function Expenses() {
       <Sheet open={!!open} title={open?.merchant || t('Expense')} onClose={() => setOpen(null)}>
         {open ? (
           <>
-            <Text style={[FH, { color: '#FFFFFF', fontSize: 30, textAlign: 'center' }]}>{money(open.amount, 2)}</Text>
+            <Text style={[FH, { color: V.ink, fontSize: 30, textAlign: 'center' }]}>{money(open.amount, 2)}</Text>
             <View style={{ alignItems: 'center' }}><Tag text={stText(open.status)} tone={stTone(open.status)} /></View>
             <Card>
               <Item title={t('Who')} right={open.who || '—'} />

@@ -1,12 +1,14 @@
-// Tab bar (Midnight v6, approved 11-16): a white bar along the bottom edge with a deep curve in the middle,
-// where Ava sits as a raised, glowing navy circle. Icons only. Centred and capped in width on tablets.
+// Tab bar (4.0 Navy Daylight, approved 11-17): a black floating pill. The open tab turns into a white pill with
+// its name; Meet sits in the middle as a raised navy circle with a white ring. Centred and capped on tablets.
 import React, { useEffect, useRef } from 'react';
-import { Animated, Easing, Platform, Pressable, View, useWindowDimensions } from 'react-native';
+import { Animated, Easing, Platform, Pressable, Text, View, useWindowDimensions } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import type { BottomTabBarProps } from 'expo-router/tabs';
 import Svg, { Circle, Defs, LinearGradient, Path, RadialGradient, Rect, Stop } from 'react-native-svg';
 import { C } from '../lib/theme';
 import { Icon } from './Icon';
+import { Grad, Ph } from './H';
+import type { PhName } from './phPaths';
 
 const native = Platform.OS !== 'web';
 
@@ -48,87 +50,53 @@ export function AiOrb({ size = 56, still }: { size?: number; still?: boolean }) 
   );
 }
 
-/** Ava's button (v6 .fab): a 70px navy circle with a 6px black ring, glowing softly, sitting in the bar's curve. */
-function AiFab({ on }: { on: boolean }) {
-  const v = useRef(new Animated.Value(0)).current;
-  useEffect(() => {
-    const a = Animated.loop(Animated.sequence([
-      Animated.timing(v, { toValue: 1, duration: 1500, easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
-      Animated.timing(v, { toValue: 0, duration: 1500, easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
-    ]));
-    a.start();
-    return () => a.stop();
-  }, [v]);
-  const glow = v.interpolate({ inputRange: [0, 1], outputRange: [0.75, 1] });
-  const rad = v.interpolate({ inputRange: [0, 1], outputRange: [14, 22] });
-  return (
-    <Animated.View style={{ width: 82, height: 82, borderRadius: 41, alignItems: 'center', justifyContent: 'center', backgroundColor: '#0A0B10',
-      shadowColor: '#2B44E8', shadowOpacity: glow, shadowRadius: rad, shadowOffset: { width: 0, height: 14 }, elevation: 12, transform: [{ scale: on ? 1.04 : 1 }] }}>
-      <View style={{ width: 70, height: 70, borderRadius: 35, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' }}>
-        <Svg width={70} height={70} style={{ position: 'absolute' }}>
-          <Defs><LinearGradient id="fab" x1="0.15" y1="0" x2="0.85" y2="1"><Stop offset="0" stopColor="#4A63FF" /><Stop offset="1" stopColor="#000C58" /></LinearGradient></Defs>
-          <Rect x={0} y={0} width={70} height={70} fill="url(#fab)" />
-        </Svg>
-        <View style={{ zIndex: 1 }}><Icon name="spark" size={28} color="#FFFFFF" duo={false} /></View>
-      </View>
-    </Animated.View>
-  );
-}
+const TAB_IC: Record<string, PhName> = { index: 'house', schedule: 'calendar-dots', team: 'users-three', meet: 'video-camera', phone: 'phone', ai: 'sparkle', me: 'user', all: 'squares-four' };
 
-/** The white bar (v6): rounded top corners and a deep curve in the middle for Ava, flat to the bottom edge. */
-function barPath(w: number, h: number) {
-  const cx = w / 2;
-  return `M0 22 Q0 0 22 0 H${cx - 56} C${cx - 42} 0 ${cx - 44} 40 ${cx} 40 C${cx + 44} 40 ${cx + 42} 0 ${cx + 56} 0 H${w - 22} Q${w} 0 ${w} 22 V${h} H0Z`;
-}
-
-// v6 order: Home, Meet, Ava (centre), All tools, Phone. Icons only; the names are read out by screen readers.
 export function TabBar({ state, descriptors, emitter, navigateToTab, insets }: BottomTabBarProps) {
   const { width } = useWindowDimensions();
   const routes = state.routes.filter((r) => { const o = descriptors[r.key]?.options as any; return !o?.hidden && !o?.oeOffBar; });
   const activeKey = state.routes[state.index]?.key;
-  const idx = routes.findIndex((r) => r.key === activeKey);
-  const barW = Math.min(width, 620);
-  const pad = Math.max(14, insets.bottom - 6);
-  const H = 26 + 56 + pad;
-  const aiAt = routes.findIndex((r) => r.name === 'ai');
+  const barW = Math.min(width - 28, 560);
+  const bottom = Math.max(14, insets.bottom);
   return (
-    <View pointerEvents="box-none" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, alignItems: 'center' }}>
-      <View style={{ width: barW, height: H, shadowColor: '#000000', shadowOpacity: 0.5, shadowRadius: 30, shadowOffset: { width: 0, height: -10 }, elevation: 16 }}>
-        <Svg pointerEvents="none" width={barW} height={H} style={{ position: 'absolute' }}>
-          <Path d={barPath(barW, H)} fill="#FFFFFF" />
-        </Svg>
-        <View style={{ position: 'absolute', left: 0, right: 0, bottom: pad, height: 56, flexDirection: 'row' }}>
-          {routes.map((r, i) => {
+    <View pointerEvents="box-none" style={{ position: 'absolute', left: 0, right: 0, bottom, alignItems: 'center' }}>
+      <View style={{ width: barW, height: 68, borderRadius: 26, shadowColor: '#000C58', shadowOpacity: 0.35, shadowRadius: 17, shadowOffset: { width: 0, height: 14 }, elevation: 16 }}>
+        <View style={{ flex: 1, borderRadius: 26, overflow: 'hidden', borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.08)' }}>
+          <Grad id="tabbar" x1={0.5} y1={0} x2={0.5} y2={1} stops={[[0, '#1B1E2B'], [1, '#0A0B10']]} />
+        </View>
+        <View style={{ position: 'absolute', left: 8, right: 8, top: 0, bottom: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          {routes.map((r) => {
             const o: any = descriptors[r.key].options;
-            const on = i === idx;
-            const color = on ? '#0A0B10' : '#7B8099';
+            const on = r.key === activeKey;
             const label = typeof o.tabBarLabel === 'string' ? o.tabBarLabel : o.title ?? r.name;
             const press = () => {
               const ev = emitter.emit({ type: 'tabPress', target: r.key, canPreventDefault: true });
               if (!on && !ev.defaultPrevented) { if (native) Haptics.selectionAsync().catch(() => {}); navigateToTab(r.key); }
             };
-            if (r.name === 'ai') return <View key={r.key} style={{ flex: 1 }} />;
+            const ic = TAB_IC[r.name] || 'squares-four';
+            if (r.name === 'meet') {
+              return (
+                <Pressable key={r.key} onPress={press} accessibilityRole="tab" accessibilityState={{ selected: on }} accessibilityLabel={label}
+                  style={{ width: 64, height: 64, marginTop: -34, borderRadius: 32, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center',
+                    shadowColor: '#000C58', shadowOpacity: 0.45, shadowRadius: 10, shadowOffset: { width: 0, height: 10 }, elevation: 12 }}>
+                  <View style={{ width: 54, height: 54, borderRadius: 27, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' }}>
+                    <Grad id="tabmeet" x1={0.1} y1={0} x2={0.9} y2={1} stops={[[0, '#2B44E8'], [1, '#000C58']]} />
+                    <View style={{ zIndex: 1 }}><Ph name={ic} size={28} color="#FFFFFF" duo={on ? 1 : 0.3} /></View>
+                  </View>
+                </Pressable>
+              );
+            }
             return (
-              <Pressable key={r.key} accessibilityRole="tab" accessibilityState={{ selected: on }} accessibilityLabel={label} onPress={press}
-                style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                {o.tabBarIcon?.({ focused: on, color, size: 24 })}
+              <Pressable key={r.key} onPress={press} accessibilityRole="tab" accessibilityState={{ selected: on }} accessibilityLabel={label}
+                style={{ height: 50, minWidth: 50, borderRadius: 18, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  paddingLeft: on ? 14 : 12, paddingRight: on ? 16 : 12, backgroundColor: on ? '#FFFFFF' : 'transparent',
+                  shadowColor: '#000', shadowOpacity: on ? 0.25 : 0, shadowRadius: 7, shadowOffset: { width: 0, height: 6 } }}>
+                <Ph name={ic} size={24} color={on ? '#000C58' : 'rgba(255,255,255,0.72)'} duo={on ? 1 : 0.22} />
+                {on ? <Text style={{ color: '#000C58', fontSize: 13, fontWeight: '800' }} numberOfLines={1}>{label}</Text> : null}
               </Pressable>
             );
           })}
         </View>
-        {aiAt >= 0 ? (() => {
-          const r = routes[aiAt]; const o: any = descriptors[r.key].options; const on = aiAt === idx;
-          const press = () => {
-            const ev = emitter.emit({ type: 'tabPress', target: r.key, canPreventDefault: true });
-            if (!on && !ev.defaultPrevented) { if (native) Haptics.selectionAsync().catch(() => {}); navigateToTab(r.key); }
-          };
-          return (
-            <Pressable onPress={press} accessibilityRole="tab" accessibilityState={{ selected: on }} accessibilityLabel={typeof o.title === 'string' ? o.title : 'Ava'}
-              style={{ position: 'absolute', top: -36, left: barW / 2 - 41, width: 82, height: 82 }}>
-              <AiFab on={on} />
-            </Pressable>
-          );
-        })() : null}
       </View>
     </View>
   );

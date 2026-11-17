@@ -54,7 +54,7 @@ export default function RunPayroll() {
           </>
         ) : null}
         <View style={{ alignSelf: 'center', paddingVertical: 12, paddingHorizontal: 26, borderRadius: 99, backgroundColor: V.surf2, flexDirection: 'row', alignItems: 'center' }}>
-          <Text style={[FH, { color: '#FFFFFF', fontSize: 34 }]} numberOfLines={1} adjustsFontSizeToFit>{amount ? money(amount, 2) : '—'}</Text>
+          <Text style={[FH, { color: V.ink, fontSize: 34 }]} numberOfLines={1} adjustsFontSizeToFit>{amount ? money(amount, 2) : '—'}</Text>
         </View>
         <Text style={{ textAlign: 'center', color: V.mute, fontSize: 13, marginTop: -6 }}>{open ? t('Gross pay · {h} hours', { h: Math.round(Number(open.hours || 0) * 10) / 10 }) : ev ? t('Estimate from your last 3 pay runs') : t('Start a pay run in Payroll')}</Text>
         <Pressy onPress={full} accessibilityRole="button" style={{ borderRadius: V.rM, backgroundColor: V.ice, paddingVertical: 16, paddingHorizontal: 20, flexDirection: 'row', alignItems: 'center', gap: 10 }}>

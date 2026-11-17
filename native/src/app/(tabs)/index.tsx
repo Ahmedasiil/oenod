@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Animated, Easing, Platform, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Alert, Animated, Easing, Platform, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { AskBar, BlackCard, Chip, GlanceGrid, HealthBar, KpiStrip, LightRow, NavyCard, QuickAccess, Sec as ProSec, Suggest, type Glance, type Kpi, type QA } from '../../ui/Pro';
 import Svg, { Defs, LinearGradient as SvgGrad, Path, Rect, Stop } from 'react-native-svg';
 import { Logo } from '../../ui/Logo';
@@ -20,7 +20,11 @@ import { t } from '../../lib/i18n';
 import { currentFix, syncTracking, waitForConsent, type GeoMe } from '../../lib/geo';
 import { syncLive } from '../../lib/live';
 import { BriefBar, HeroChip, StatTrio } from '../../ui/Mid';
-import { Bento, FH, Li, List, Minis, Pills, Prog, Sec, TeamStrip, Tick, TopRow, TxCards, V, type Mini, type Tx } from '../../ui/M6';
+import { type Mini, type Tx } from '../../ui/M6';
+import { Band, card, Ghost, H, HChip, HSec, Legend, LEGEND, NeedCard, Ph, Primary, TileGrid, type Need as HNeed, type TileItem } from '../../ui/H';
+import type { PhName } from '../../ui/phPaths';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { PoweredBy } from '../../ui/Brand';
 
 type Clock = {
   employee: { id: number; name: string; job_title: string | null; location_id: number | null } | null;
@@ -526,43 +530,6 @@ export default function Home() {
   const worked = open ? Math.max(0, minutesBetween(open.clock_in, nowUtc) - (open.break_minutes || 0) - (onBreak ? minutesBetween(open.break_started_at, nowUtc) : 0)) : 0;
   const lastPay = pay.data?.lines?.[0];
 
-  const top = <TopRow name={session?.user?.name || '?'} unread={unread} onBell={() => router.push('/notifications')} onMe={() => router.navigate('/me')} />;
-
-  const heroSub = isManager
-    ? (x ? (nextPay && (growth ?? 0) >= 0 ? t('Sales are up and payroll is ready.') : (growth ?? 0) >= 0 ? t('Sales are up and your team is on it.') : t('Here is your business today.')) : t('Loading your day…'))
-    : open ? t('You are clocked in. Have a great shift.')
-    : nx && sameDay(nx.starts_at) ? t('Your shift starts at {t}.', { t: time(nx.starts_at) })
-    : nx ? t('Next shift {d}', { d: `${day(nx.starts_at)} ${time(nx.starts_at)}` }) : t('Have a great day.');
-  const trio = isManager
-    ? [
-      { label: t('Sales today'), value: x ? money(x.sales_today || 0) : '—', note: growth == null ? undefined : `${growth >= 0 ? '▲' : '▼'} ${Math.abs(growth)}%`, good: true, go: () => openTool('/sales', t('Sales')) },
-      { label: t('On shift'), value: x ? String(onNow) : '—', note: breaks ? t('{n} on break', { n: breaks }) : planned && onNow < planned ? t('{n} not in', { n: planned - onNow }) : t('clocked in now'), good: true, go: () => router.navigate('/team') },
-      nextPay
-        ? { label: t('Payroll {d}', { d: wkday(payDay) }), value: short(nextPay.amount), note: t('Ready'), good: true, go: () => router.push('/payroll') }
-        : { label: t('Orders'), value: x ? String(x.orders_today ?? 0) : '—', note: x?.labor_pct != null ? t('Labour {n}%', { n: Math.round(x.labor_pct) }) : undefined, good: true, go: () => openTool('/sales', t('Sales')) },
-    ]
-    : [
-      { label: t('This week'), value: `${Math.round(weekMin / 6) / 10}h`, note: t('worked'), good: true, go: () => router.push('/timesheet') },
-      { label: t('Next pay'), value: pay.data?.next_pay_date ? wkday(pay.data.next_pay_date) + ' ' + new Date(pay.data.next_pay_date + 'T12:00:00').getDate() : '—', note: lastPay ? t('Last {m}', { m: money(Number(lastPay.net || lastPay.gross || 0)) }) : t('Pay stubs'), good: true, go: () => router.push('/pay') },
-      { label: t('Today'), value: c.data ? hm(open ? worked : c.data.today_minutes).replace(/ 00m$/, '') : '—', note: open ? (onBreak ? t('On break') : t('Clocked in')) : t('Not clocked in'), good: true, go: () => router.push('/timesheet') },
-    ];
-  const hero = (
-    <View style={{ gap: 12 }}>
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-        {isManager ? (company ? <HeroChip text={company} /> : null) : <HeroChip text={c.data?.employee?.job_title || company || t('Team')} />}
-        <HeroChip text={dateChip} />
-        {weather ? <HeroChip text={weather} /> : null}
-      </View>
-      <Text style={[FH, { color: '#FFFFFF', fontSize: 25, lineHeight: 28 }]} accessibilityRole="header" numberOfLines={1} adjustsFontSizeToFit>
-        {isManager ? `${greeting()}${first ? ', ' + first : ''}` : t('Hi {n}', { n: first })}
-      </Text>
-      <Text style={{ color: '#D5DCFF', fontSize: 13, marginTop: -6 }} numberOfLines={1}>{heroSub}</Text>
-      <StatTrio items={trio} />
-      <BriefBar title={isManager ? t("Ava's 30-second brief") : t("Ava's brief for you")} sub={isManager ? t('Tap to hear today in 30 seconds') : t("Tap to hear today's notes")}
-        onPress={() => ask(isManager ? t('Give me my 30-second brief for today.') : t('What do I need to know for my shift today?'))} />
-    </View>
-  );
-
   // "Needs you" cards (owners and managers).
   const minis: Mini[] = [];
   if (isManager) {
@@ -607,85 +574,264 @@ export default function Home() {
   const packOk = pack.filter((p) => p.ok).length;
   const PACK_GO: Record<string, string> = { tax: '/my-pay', deposit: '/my-pay', emergency: '/me', handbook: '/my-hr', contract: '/my-hr' };
 
+  // ---------- 4.0 Navy Daylight (approved 11-17, live preview Jj2DsJyfZSMSmUfPLvDxYc) ----------
+  const insets = useSafeAreaInsets();
+  const [geo, setGeo] = useState<GeoMe | null>(null);
+  useEffect(() => { if (open) syncTracking().then(setGeo).catch(() => {}); }, [!!open]); // eslint-disable-line react-hooks/exhaustive-deps
+  const [sec, setSec] = useState(Date.now());
+  useEffect(() => { const i = setInterval(() => setSec(Date.now()), open ? 1000 : 15000); return () => clearInterval(i); }, [!!open]); // eslint-disable-line react-hooks/exhaustive-deps
+  const clk = new Date(sec);
+  const hhmm = clk.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+  const ampm = (hhmm.match(/\s?([AaPp]\.?\s?[Mm]\.?)$/) || [])[1] || '';
+  const clockText = ampm ? hhmm.replace(ampm, '').trim() : hhmm;
+  const dateText = clk.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+  const fullName = session?.user?.name || '';
+  const initials = (fullName || '?').split(/\s+/).filter(Boolean).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+  const utcMs = (s?: string | null) => (s ? new Date(s.replace(' ', 'T') + (/[zZ]|[+-]\d\d:?\d\d$/.test(s) ? '' : 'Z')).getTime() : 0);
+  const onSec = open ? Math.max(0, Math.floor((sec - utcMs(open.clock_in)) / 1000) - (open.break_minutes || 0) * 60 - (onBreak ? Math.floor((sec - utcMs(open.break_started_at)) / 1000) : 0)) : 0;
+  const hms = [Math.floor(onSec / 3600), Math.floor((onSec % 3600) / 60), onSec % 60].map((n) => String(n).padStart(2, '0')).join(':');
+  const site = geo?.session?.site || nx?.location || company;
+  const onSite = geo?.session?.state === 'inside';
+  const shiftH = nx ? Math.round((utcMs(nx.ends_at) - utcMs(nx.starts_at)) / 360000) / 10 : 0;
+
+  const band = (
+    <Band>
+      <View style={{ paddingTop: insets.top + 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Logo width={68} color="#FFFFFF" />
+        <View style={{ flexDirection: 'row', gap: 8 }}>
+          <Pressable onPress={() => router.push('/notifications')} accessibilityRole="button" accessibilityLabel={`${t('Notifications')}${unread ? ` (${unread})` : ''}`}
+            style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: 'rgba(255,255,255,0.12)', alignItems: 'center', justifyContent: 'center' }}>
+            <Ph name="bell" size={20} color="#FFFFFF" duo={0.3} />
+            {unread ? <View style={{ position: 'absolute', top: 9, right: 10, width: 8, height: 8, borderRadius: 4, backgroundColor: '#FFFFFF' }} /> : null}
+          </Pressable>
+          <Pressable onPress={() => router.navigate('/me')} accessibilityRole="button" accessibilityLabel={t('Me')}
+            style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 2, borderColor: 'rgba(255,255,255,0.5)', backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' }}>
+            <Text style={{ color: H.navy, fontWeight: '800', fontSize: 14 }}>{initials}</Text>
+          </Pressable>
+        </View>
+      </View>
+    </Band>
+  );
+
+  const greet = (
+    <View>
+      <Text style={{ fontSize: 14, color: H.muted }}>{greeting()},</Text>
+      <Text style={{ fontSize: 24, fontWeight: '800', letterSpacing: -0.5, color: H.ink }} numberOfLines={1}>{isManager ? first || fullName : fullName}</Text>
+    </View>
+  );
+  const rowLine = (icon: PhName, strong: string, rest: string, right?: React.ReactNode) => (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+      <View style={{ width: 30, height: 30, borderRadius: 10, backgroundColor: H.tint, alignItems: 'center', justifyContent: 'center' }}><Ph name={icon} size={16} color={H.blue} /></View>
+      <Text style={{ flex: 1, fontSize: 13, color: H.ink }} numberOfLines={1}><Text style={{ fontWeight: '700' }}>{strong}</Text>{rest ? ` · ${rest}` : ''}</Text>
+      {right}
+    </View>
+  );
+
+  const staffCard = c.data ? (
+    <View style={[card, { padding: 18 }]}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        {greet}
+        {open ? <HChip text={onBreak ? t('On break') : t('Clocked in')} bg={onBreak ? '#FBF0E2' : H.tint} fg={onBreak ? '#A35A00' : H.blue} live={!onBreak} />
+          : <HChip text={t('Not clocked in')} />}
+      </View>
+      <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 10, marginTop: 14 }}>
+        <Text style={{ fontSize: 46, lineHeight: 50, fontWeight: '800', letterSpacing: -1.5, color: H.ink, fontVariant: ['tabular-nums'] }} accessibilityLabel={hhmm}>{clockText}</Text>
+        <View style={{ paddingBottom: 6 }}>
+          {ampm ? <Text style={{ fontSize: 15, fontWeight: '800', color: H.ink }}>{ampm.toUpperCase()}</Text> : null}
+          <Text style={{ fontSize: 12, color: H.muted }}>{dateText}</Text>
+        </View>
+      </View>
+      <View style={{ marginTop: 14, gap: 8 }}>
+        {site ? rowLine('map-pin', site, open && geo?.session ? (onSite ? '' : t('Location not confirmed')) : '', onSite ? <HChip text={t('On site')} bg={H.tint} fg={H.blue} live h={22} /> : null) : null}
+        {nx ? rowLine('calendar-dots', nx.role || t('Your shift'), sameDay(nx.starts_at) ? `${time(nx.starts_at)} – ${time(nx.ends_at)}` : `${day(nx.starts_at)} ${time(nx.starts_at)}`, shiftH ? <Text style={{ fontSize: 12, color: H.muted }}>{shiftH} h</Text> : null)
+          : rowLine('calendar-dots', t('No shift today'), t('See your schedule'))}
+      </View>
+      {open ? (
+        <View style={{ marginTop: 14, paddingVertical: 12, paddingHorizontal: 14, borderRadius: 16, backgroundColor: H.tint, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Text style={{ fontSize: 13, fontWeight: '600', color: H.navy }}>{onBreak ? t('On break') : t('Time on shift')}</Text>
+          <Text style={{ fontSize: 20, fontWeight: '800', color: H.navy, fontVariant: ['tabular-nums'] }} accessibilityLiveRegion="polite">{hms}</Text>
+        </View>
+      ) : null}
+      <Primary style={{ marginTop: 14 }} icon="clock" ink={!!open} busy={clockAct.busy === 'in' || clockAct.busy === 'out'}
+        text={open ? t('Clock out') : t('Clock in')} onPress={() => clockAct.act(open ? 'out' : 'in')} />
+      {open ? (
+        <View style={{ marginTop: 10, flexDirection: 'row', gap: 8 }}>
+          <Ghost text={onBreak ? t('End break') : t('Start break')} icon="coffee" busy={clockAct.busy === 'break' || clockAct.busy === 'resume'} onPress={() => clockAct.act(onBreak ? 'resume' : 'break')} />
+          <Ghost text={t('My hours')} icon="timer" onPress={() => router.push('/timesheet')} />
+        </View>
+      ) : null}
+      {open && geo?.session && geo.session.state !== 'inside' ? (
+        <Text style={{ marginTop: 10, fontSize: 12.5, color: '#A35A00' }}>{t('Turn on location for OENOD in your phone settings (precise location), then try again.')}</Text>
+      ) : null}
+    </View>
+  ) : (
+    <View style={[card, { padding: 18, minHeight: 200, justifyContent: 'center' }]}>{c.error ? <ErrorBox text={c.error} onRetry={c.reload} /> : <Loading />}</View>
+  );
+
+  // Staff "Needs you": setup steps first, then unread updates.
+  const sNeeds: HNeed[] = [];
+  for (const p of pack.filter((q) => !q.ok).slice(0, 3)) {
+    sNeeds.push({ key: 'p' + p.k, icon: p.k === 'contract' || p.k === 'handbook' ? 'pencil-simple-line' : p.k === 'tax' || p.k === 'deposit' ? 'money' : 'user-circle', tone: 'navy',
+      title: t(p.label), sub: p.k === 'contract' || p.k === 'handbook' ? t('Sign') : t('Fill in'), go: () => openTool(p.doc_id ? `/docs/${Number(p.doc_id)}` : PACK_GO[p.k] || '/my-hr', t(p.label)) });
+  }
+  items.filter((n) => !n.read_at).slice(0, 4).forEach((n, i) => {
+    sNeeds.push({ key: 'n' + n.id, icon: PH_NOTE[n.kind] || 'bell', tone: (['blue', 'ink', 'navy'] as const)[i % 3], title: n.title, sub: n.body || (sameDay(n.created_at) ? time(n.created_at) : day(n.created_at)), go: () => openHref(n.link, n.title) });
+  });
+
+  const staffTiles: TileItem[] = [
+    { label: t('Schedule'), icon: 'calendar-dots', tone: 'ink', go: () => router.navigate('/schedule') },
+    { label: t('Time off'), icon: 'sun-horizon', tone: 'ink', go: () => router.navigate('/timeoff') },
+    { label: t('Pay stubs'), icon: 'money', tone: 'blue', go: () => router.push('/pay') },
+    { label: t('Documents'), icon: 'file-text', tone: 'blue', badge: pack.filter((p) => !p.ok && (p.k === 'contract' || p.k === 'handbook')).length || undefined, go: () => openTool('/my-hr', t('Documents')) },
+    { label: t('Training'), icon: 'graduation-cap', tone: 'navy', go: () => openTool('/academy', t('Academy')) },
+    { label: t('Meet'), icon: 'video-camera', tone: 'navy', go: () => router.navigate('/meet') },
+    { label: t('Messages'), icon: 'chat-circle-dots', tone: 'navy', go: () => openTool('/chat', t('Team chat')) },
+    { label: t('Profile'), icon: 'user', tone: 'navy', go: () => router.navigate('/me') },
+  ];
+
+  // Today timeline (staff).
+  const tl: { at: string; title: string; sub?: string; dot: string; go?: () => void }[] = [];
+  if (open) tl.push({ at: time(open.clock_in), title: t('Clocked in'), sub: site, dot: '#12A25B' });
+  if (nx && sameDay(nx.starts_at)) {
+    if (!open) tl.push({ at: time(nx.starts_at), title: t('Shift starts'), sub: nx.role || site, dot: H.navy, go: () => router.navigate('/schedule') });
+    tl.push({ at: time(nx.ends_at), title: t('Shift ends'), sub: shiftH ? `${shiftH} h` : undefined, dot: H.ink, go: () => router.navigate('/schedule') });
+  }
+  for (const m of upcoming.filter((m) => sameDay(m.starts_at)).slice(0, 2)) tl.push({ at: time(m.starts_at), title: m.title, sub: t('OENOD Meet'), dot: H.blue, go: () => router.navigate('/meet') });
+  if (pay.data?.next_pay_date) tl.push({ at: `${wkday(pay.data.next_pay_date)} ${new Date(pay.data.next_pay_date + 'T12:00:00').getDate()}`, title: t('Next pay'), sub: lastPay ? t('Last pay {m}', { m: money(Number(lastPay.net || lastPay.gross || 0)) }) : undefined, dot: H.blue, go: () => router.push('/pay') });
+
+  // Owner.
+  const late = Math.max(0, planned - onNow);
+  const oNeeds: HNeed[] = minis.filter((m) => !m.done && m.tone !== 'nv').map((m, i) => ({
+    key: m.kind + i, icon: PH_ICON[m.icon] || 'bell', tone: (['navy', 'ink', 'blue'] as const)[i % 3], title: m.title, sub: m.btn ? `${m.kind} · ${m.btn}` : m.kind, go: m.go,
+  }));
+  const ownerTiles: TileItem[] = [
+    { label: t('Team'), icon: 'users-three', tone: 'navy', go: () => router.navigate('/team') },
+    { label: t('Meet'), icon: 'video-camera', tone: 'navy', go: () => router.navigate('/meet') },
+    { label: t('Calls'), icon: 'phone', tone: 'navy', go: () => router.navigate('/phone') },
+    { label: t('Payroll'), icon: 'money', tone: 'blue', go: () => router.push('/payroll') },
+    { label: t('Invoices'), icon: 'receipt', tone: 'blue', badge: x?.overdue_count || undefined, go: () => router.push('/invoices') },
+    { label: t('Schedule'), icon: 'calendar-dots', tone: 'ink', go: () => router.navigate('/schedule') },
+    { label: t('Time clock'), icon: 'clock', tone: 'ink', badge: x?.to_approve || undefined, go: () => router.push('/timeclock') },
+    { label: t('All tools'), icon: 'squares-four', tone: 'light', go: () => router.navigate('/all') },
+  ];
+  const week = ser.slice(-7);
+  const wMax = Math.max(1, ...week);
+  const stat = (v: string, l: string, go: () => void, mid?: boolean) => (
+    <Pressable onPress={go} accessibilityRole="button" accessibilityLabel={`${l} ${v}`}
+      style={{ flex: 1, paddingVertical: 14, alignItems: 'center', borderLeftWidth: mid ? 1 : 0, borderRightWidth: mid ? 1 : 0, borderColor: 'rgba(255,255,255,0.12)' }}>
+      <Text style={{ color: '#FFFFFF', fontSize: 26, fontWeight: '800', letterSpacing: -0.8 }} numberOfLines={1} adjustsFontSizeToFit>{v}</Text>
+      <Text style={{ color: H.soft, fontSize: 11 }}>{l}</Text>
+    </Pressable>
+  );
+  const ownerCard = (
+    <View style={[card, { padding: 18 }]}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        {greet}
+        <View style={{ alignItems: 'flex-end' }}>
+          <Text style={{ fontSize: 22, fontWeight: '800', color: H.ink, fontVariant: ['tabular-nums'] }}>{clockText} <Text style={{ fontSize: 13 }}>{ampm.toUpperCase()}</Text></Text>
+          <Text style={{ fontSize: 12, color: H.muted }}>{dateText}</Text>
+        </View>
+      </View>
+      {company ? <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 10 }}><Ph name="map-pin" size={15} color={H.muted} /><Text style={{ fontSize: 13, color: H.muted, flex: 1 }} numberOfLines={1}>{company}{weather ? ` · ${weather}` : ''}</Text></View> : null}
+      <View style={{ marginTop: 14, flexDirection: 'row', borderRadius: 18, backgroundColor: H.navy, overflow: 'hidden' }}>
+        {stat(x ? String(onNow) : '—', t('On shift'), () => router.navigate('/team'))}
+        {stat(x ? String(late) : '—', t('Not in yet'), () => router.navigate('/team'), true)}
+        {stat(x ? short(x.sales_today || 0) : '—', t('Sales today'), () => openTool('/sales', t('Sales')))}
+      </View>
+      <View style={{ marginTop: 10, flexDirection: 'row', gap: 8 }}>
+        <Ghost text={t("Who's working")} icon="map-pin" onPress={() => router.navigate('/team')} />
+        {hasEmployee ? <Ghost text={open ? t('Clock out') : t('Clock in')} icon="clock" busy={!!clockAct.busy} onPress={() => clockAct.act(open ? 'out' : 'in')} />
+          : <Ghost text={t('Ask Ava')} icon="sparkle" onPress={() => ask(t('Give me my 30-second brief for today.'))} />}
+      </View>
+    </View>
+  );
+
+  const needsRow = (list: HNeed[]) => list.length ? (
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginHorizontal: -16, flexGrow: 0 }} contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 2, gap: 10 }}>
+      {list.map((n) => <NeedCard key={n.key} n={n} />)}
+    </ScrollView>
+  ) : (
+    <View style={{ height: 118, borderRadius: 20, backgroundColor: '#E8ECFC', flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 18 }}>
+      <View style={{ width: 46, height: 46, borderRadius: 23, backgroundColor: H.navy, alignItems: 'center', justifyContent: 'center' }}><Ph name="check" size={22} color="#FFFFFF" duo={0.3} /></View>
+      <View style={{ flex: 1 }}>
+        <Text style={{ fontSize: 16, fontWeight: '800', color: H.ink }}>{t('You are all set')}</Text>
+        <Text style={{ fontSize: 12.5, color: H.muted }}>{t('Nothing needs you right now.')}</Text>
+      </View>
+    </View>
+  );
+
   return (
-    <Screen top={top} hero={hero} refreshing={c.refreshing || dash.refreshing} onRefresh={refresh}>
-      {isManager ? (
-        <>
-          {dash.error && !x ? <ErrorBox text={dash.error} onRetry={dash.reload} /> : null}
-          <Sec title={t('Needs you')} right={waiting ? t('{n} waiting', { n: waiting }) : t('All caught up')} />
-          <Rise><Minis items={minis} /></Rise>
-          <Sec title={t('Money & meetings')} right={t('Details')} onRight={() => router.navigate('/money')} />
-          <Rise delay={40}>
-            <Bento
-              tall={{ label: t('Cash this week'), value: x ? money(x.sales_week || 0) : '—', note: growth == null ? undefined : t('{p} vs last week', { p: `${growth >= 0 ? '▲' : '▼'} ${Math.abs(growth)}%` }),
-                noteColor: (growth ?? 0) >= 0 ? V.mint : '#FFC07A', series: ser.slice(-10), foot: wal.data?.balance ? t('Wallet {m}', { m: money(wal.data.balance.available) }) : '•••• OENOD', go: () => router.navigate('/money') }}
-              a={{ icon: 'cash', label: t('Next payroll'), value: nextPay ? money(nextPay.amount) : t('Pay team'), note: nextPay ? `${wkday(payDay)} · ${t('Run it')}` : t('Review and pay'), go: () => router.push('/payroll') }}
-              b={{ icon: 'video', label: t('Next meeting'), value: nm ? time(nm.starts_at) : t('Start one'), note: nm ? (sameDay(nm.starts_at) ? nm.title : `${day(nm.starts_at)} · ${nm.title}`) : t('Ready when you are'), face: nm?.people?.[0]?.name, go: () => router.navigate('/meet') }} />
-          </Rise>
-          <Pills items={[{ label: t('Pay team'), icon: 'cash', go: () => router.push('/payroll') }, { label: t('Meet'), icon: 'video', go: () => router.navigate('/meet') }]}
-            more={{ label: t('All tools'), go: () => router.navigate('/all') }} />
-          {team.length ? (
+    <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+      <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 120 }} showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={!!(c.refreshing || dash.refreshing)} onRefresh={refresh} tintColor="#FFFFFF" />}>
+        {band}
+        <View style={{ paddingHorizontal: 16, marginTop: -80, gap: 14, width: '100%', maxWidth: 760, alignSelf: 'center' }}>
+          {isManager ? (
             <>
-              <Sec title={t('Your team')} right={t('See all')} onRight={() => router.navigate('/team')} />
-              <TeamStrip people={[...team].sort((a, b) => Number(!!b.open_entry) - Number(!!a.open_entry)).slice(0, 12).map((e) => ({ id: e.id, name: e.name, color: e.color, on: !!e.open_entry }))}
-                onOpen={(p) => router.push(`/employee/${p.id}`)} />
-            </>
-          ) : null}
-          {activity.length ? (
-            <>
-              <Sec title={t('Recent activity')} right={t('View all')} onRight={() => router.push('/notifications')} />
-              <TxCards items={activity} />
-            </>
-          ) : null}
-        </>
-      ) : hasEmployee ? (
-        <>
-          {c.error && !c.data ? <ErrorBox text={c.error} onRetry={c.reload} /> : null}
-          {sMinis.length ? <Rise><Minis items={sMinis} /></Rise> : null}
-          <Rise delay={40}>
-            <Bento bigValue={28}
-              tall={{ label: nx && sameDay(nx.starts_at) ? t('Your shift · {a} – {b}', { a: time(nx.starts_at), b: time(nx.ends_at) }) : t('Time clock'),
-                value: open ? (onBreak ? t('On break') : t('Clocked in')) : t('Clock in'),
-                note: open ? t('{h} worked', { h: hm(worked) }) : t('Location checked when you tap'), busy: !!clockAct.busy,
-                foot: open ? t('Since {t}', { t: time(open.clock_in) }) : t('Tap to start'),
-                go: () => (open ? router.push('/timesheet') : clockAct.act('in')) }}
-              a={{ icon: 'cash', label: t('Next pay'), value: pay.data?.next_pay_date ? `${wkday(pay.data.next_pay_date)} ${new Date(pay.data.next_pay_date + 'T12:00:00').getDate()}` : t('Pay stubs'), note: lastPay ? t('Last pay {m}', { m: money(Number(lastPay.net || lastPay.gross || 0)) }) : t('See your pay'), go: () => router.push('/pay') }}
-              b={{ icon: 'calendar', label: t('Next shift'), value: nx ? `${wkday(nx.starts_at)} ${time(nx.starts_at)}` : t('None yet'), note: nx ? (nx.location || nx.role || day(nx.starts_at)) : t('My shifts'), go: () => router.navigate('/schedule') }} />
-          </Rise>
-          {open ? (
-            <Pills items={[
-              onBreak ? { label: t('End break'), icon: 'coffee', busy: clockAct.busy === 'resume', go: () => clockAct.act('resume') } : { label: t('Break'), icon: 'coffee', busy: clockAct.busy === 'break', go: () => clockAct.act('break') },
-              { label: t('Clock out'), icon: 'logout', danger: true, busy: clockAct.busy === 'out', go: () => clockAct.act('out') },
-            ]} />
-          ) : null}
-          {pack.length && packOk < pack.length ? (
-            <List>
-              <View style={{ paddingVertical: 12, gap: 8 }}>
-                <Text style={{ color: '#FFFFFF', fontSize: 14.5, fontWeight: '600' }}>{t('Finish your setup')}</Text>
-                <Text style={{ color: V.mute, fontSize: 12, marginTop: -6 }}>{t('{a} of {b} done', { a: packOk, b: pack.length })}</Text>
-                <Prog pct={(100 * packOk) / pack.length} />
+              <Rise>{ownerCard}</Rise>
+              {dash.error && !x ? <ErrorBox text={dash.error} onRetry={dash.reload} /> : null}
+              <HSec title={t('Needs you')} right={oNeeds.length ? t('{n} waiting', { n: oNeeds.length }) : undefined} onRight={() => router.push('/notifications')} />
+              {needsRow(oNeeds)}
+              <HSec title={t('Everything')}><Legend items={LEGEND.map(([cc, l]) => [cc, t(l)] as [string, string])} /></HSec>
+              <TileGrid items={ownerTiles} />
+              <HSec title={t('This week')} right={t('Details')} onRight={() => router.navigate('/money')} />
+              <View style={[card, { padding: 16, gap: 12 }]}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                  <Text style={{ fontSize: 13, color: H.muted, fontWeight: '600' }}>{t('Sales')}</Text>
+                  <Text><Text style={{ fontSize: 24, fontWeight: '800', color: H.ink }}>{x ? money(x.sales_week || 0) : '—'}</Text>{growth == null ? '' : <Text style={{ fontSize: 13, color: growth >= 0 ? '#12A25B' : '#B42318' }}>{`  ${growth >= 0 ? '▲' : '▼'} ${Math.abs(growth)}%`}</Text>}</Text>
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 8, height: 90 }}>
+                  {(week.length ? week : [0, 0, 0, 0, 0, 0, 0]).map((v, i, a) => (
+                    <View key={i} style={{ flex: 1, height: Math.max(8, (v / wMax) * 86), borderRadius: 8, backgroundColor: i === a.length - 1 ? H.ink : i % 2 ? '#DDE3FA' : '#C9D2F6' }} />
+                  ))}
+                </View>
               </View>
-              {pack.map((p) => (
-                <Li key={p.k} title={t(p.label)} muted={p.ok} left={<Tick done={p.ok} />} btn={p.ok ? undefined : p.k === 'tax' ? t('Fill in') : p.k === 'contract' || p.k === 'handbook' ? t('Sign') : t('Start')}
-                  onBtn={() => openTool(p.doc_id ? `/docs/${Number(p.doc_id)}` : PACK_GO[p.k] || '/my-hr', t(p.label))} />
-              ))}
-            </List>
-          ) : null}
-          <Sec title={t('Grow with OENOD')} right={t('Why these?')} onRight={() => ask(t('Which courses and skills should I work on next?'))} />
-          <TxCards items={[
-            { title: t('Your courses'), sub: t('Academy · picked by your team'), icon: 'cap', navy: true, left: t('Start'), right: '', go: () => openTool('/academy', t('Academy')) },
-            { title: t('Upgrade your résumé'), sub: t('Ava writes it for you'), icon: 'doc', left: t('Build it'), right: t('2 min'), go: () => openTool('/resume', t('Résumé')) },
-            { title: t('Team news'), sub: t('Updates from your team'), icon: 'news', left: t('Read'), right: '', go: () => router.push('/feed') },
-          ]} />
-        </>
-      ) : (
-        <>
-          <NavyCard icon="wallet" title={t('Wallet')} sub={t('Get paid and transfer money to your bank')} link={t('Open')} onLink={() => router.push('/wallet')} />
-          <Card>
-            <Empty icon="user" title={t('Your OENOD account')} sub={t('Your digital business card and badge are under Me. When an employer adds you to their team, your shifts and time clock show up here.')} />
-          </Card>
-        </>
-      )}
-    </Screen>
+            </>
+          ) : hasEmployee ? (
+            <>
+              <Rise>{staffCard}</Rise>
+              <HSec title={t('Needs you')} right={sNeeds.length ? t('See all') : undefined} onRight={() => router.push('/notifications')} />
+              {needsRow(sNeeds)}
+              <HSec title={t('Everything')}><Legend items={LEGEND.map(([cc, l]) => [cc, t(l)] as [string, string])} /></HSec>
+              <TileGrid items={staffTiles} />
+              <HSec title={t('Today')} right={t('Full schedule')} onRight={() => router.navigate('/schedule')} />
+              <View style={[card, { paddingVertical: 18, paddingHorizontal: 16 }]}>
+                {tl.length ? tl.map((e, i) => (
+                  <Pressable key={i} onPress={e.go} disabled={!e.go} accessibilityRole={e.go ? 'button' : undefined} style={{ flexDirection: 'row', gap: 12, paddingBottom: i < tl.length - 1 ? 16 : 0 }}>
+                    <View style={{ alignItems: 'center' }}>
+                      <View style={{ width: 12, height: 12, borderRadius: 6, marginTop: 4, backgroundColor: e.dot }} />
+                      {i < tl.length - 1 ? <View style={{ flex: 1, width: 2, backgroundColor: H.line, marginTop: 4, marginBottom: -16 }} /> : null}
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ fontSize: 12, color: H.muted, fontWeight: '600' }}>{e.at}</Text>
+                      <Text style={{ fontSize: 15, fontWeight: '700', color: H.ink }} numberOfLines={1}>{e.title}</Text>
+                      {e.sub ? <Text style={{ fontSize: 12.5, color: H.muted }} numberOfLines={1}>{e.sub}</Text> : null}
+                    </View>
+                  </Pressable>
+                )) : <Text style={{ fontSize: 14, color: H.muted }}>{t('Nothing else today.')}</Text>}
+              </View>
+            </>
+          ) : (
+            <>
+              <View style={[card, { padding: 18, gap: 12 }]}>
+                {greet}
+                <Text style={{ fontSize: 13.5, color: H.muted }}>{t('Your digital business card and badge are under Me. When an employer adds you to their team, your shifts and time clock show up here.')}</Text>
+                <Primary text={t('Join my team with a code')} icon="user-plus" onPress={() => router.push('/guest')} />
+              </View>
+              <TileGrid items={[
+                { label: t('Wallet'), icon: 'wallet', tone: 'blue', go: () => router.push('/wallet') },
+                { label: t('Meet'), icon: 'video-camera', tone: 'navy', go: () => router.navigate('/meet') },
+                { label: t('Ava'), icon: 'sparkle', tone: 'navy', go: () => router.navigate('/ai') },
+                { label: t('Profile'), icon: 'user', tone: 'navy', go: () => router.navigate('/me') },
+              ]} />
+            </>
+          )}
+          <PoweredBy />
+        </View>
+      </ScrollView>
+    </View>
   );
 }
+
+const PH_NOTE: Record<string, PhName> = { shift: 'calendar-dots', schedule: 'calendar-dots', timeoff: 'sun-horizon', pay: 'money', payroll: 'money', approval: 'check', message: 'chat-circle-dots', chat: 'chat-circle-dots', news: 'megaphone', clock: 'clock', alert: 'warning', call: 'phone', invoice: 'receipt', review: 'star' };
+const PH_ICON: Partial<Record<IconName, PhName>> = { calendar: 'calendar-dots', chat: 'chat-circle-dots', clock: 'clock', doc: 'receipt', cash: 'money', wallet: 'wallet', box: 'package', bell: 'bell', spark: 'sparkle', sun: 'sun-horizon', phone: 'phone' };

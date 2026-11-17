@@ -73,8 +73,8 @@ export default function InvoiceView() {
             {Number(i.discount) > 0 ? <Item title={t('Discount')} right={'−' + money(i.discount, 2)} /> : null}
             <Item title={t('Tax')} right={money(i.tax, 2)} />
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 14 }}>
-              <Text style={[FH, { color: '#FFFFFF', fontSize: 17 }]}>{t('Total')}</Text>
-              <Text style={[FH, { color: '#FFFFFF', fontSize: 17 }]}>{money(i.total, 2)}</Text>
+              <Text style={[FH, { color: V.ink, fontSize: 17 }]}>{t('Total')}</Text>
+              <Text style={[FH, { color: V.ink, fontSize: 17 }]}>{money(i.total, 2)}</Text>
             </View>
           </Card>
           {i.payments?.length ? (

@@ -24,11 +24,12 @@ export const DARK = {
 
 export const LIGHT: typeof DARK = {
   ...BRAND,
-  blue: '#1B2A9E', blueSoft: '#ECEFFA', black: '#0B1033',
-  ink: '#0B1033', sub: '#5A6286', faint: '#8A90AE', line: '#E3E7F2',
-  bg: '#F3F5FB', card: '#FFFFFF', card2: '#F7F8FC',
-  field: '#FFFFFF', seg: '#E7EBF6', segOn: '#FFFFFF',
-  tabBg: '#000C58', tabOn: '#FFFFFF', link: '#1B2A9E',
+  // 4.0 "Navy Daylight" (approved 11-17): white pages, navy bands, black text and a black floating tab bar.
+  blue: '#1A2FCF', blueSoft: '#EEF0FB', black: '#0A0B10',
+  ink: '#0A0B10', sub: '#5B6079', faint: '#8A90AE', line: '#E3E6EF',
+  bg: '#FFFFFF', card: '#FFFFFF', card2: '#F3F4F8',
+  field: '#FFFFFF', seg: '#EEF0F6', segOn: '#FFFFFF',
+  tabBg: '#0A0B10', tabOn: '#FFFFFF', link: '#1A2FCF',
   btn: '#000C58', btnInk: '#FFFFFF',
   good: '#0E7A4B', goodSoft: '#E4F3EB',
   warn: '#A35A00', warnSoft: '#FBF0E2', warnLine: '#F0D3AA',

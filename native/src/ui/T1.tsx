@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { ActivityIndicator, Alert, KeyboardAvoidingView, Modal, Platform, Pressable, RefreshControl, ScrollView, Text, TextInput, View, type TextInputProps, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon, type IconName } from './Icon';
-import { FH, NavyFill, SubTop, V } from './M6';
+import { FH, NavyFill, SubTop, V, lift } from './M6';
 import { Pressy } from './Motion';
 import { PoweredBy } from './Brand';
 import { t } from '../lib/i18n';
@@ -17,7 +17,7 @@ export function ToolPage({ title, right, rightLabel, onRight, refreshing, onRefr
   return (
     <View style={{ flex: 1, backgroundColor: V.bg }}>
       <ScrollView keyboardShouldPersistTaps="handled"
-        refreshControl={onRefresh ? <RefreshControl refreshing={!!refreshing} onRefresh={onRefresh} tintColor="#FFFFFF" /> : undefined}
+        refreshControl={onRefresh ? <RefreshControl refreshing={!!refreshing} onRefresh={onRefresh} tintColor={V.ink} /> : undefined}
         contentContainerStyle={{ paddingTop: insets.top + 8, paddingHorizontal: 16, paddingBottom: insets.bottom + 48, gap: 16, width: '100%', maxWidth: 760, alignSelf: 'center' }}>
         <SubTop title={title} right={right} rightLabel={rightLabel} onRight={onRight} />
         {children}
@@ -57,9 +57,9 @@ export function Chips<K extends string>({ items, value, onChange }: { items: [K,
         const on = k === value;
         return (
           <Pressable key={k} onPress={() => onChange(k)} accessibilityRole="button" accessibilityState={{ selected: on }}
-            style={{ height: 38, paddingHorizontal: 14, borderRadius: 99, flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: on ? '#FFFFFF' : V.surf, borderWidth: 1, borderColor: on ? '#FFFFFF' : V.line }}>
-            <Text style={{ color: on ? V.navy : '#FFFFFF', fontSize: 13.5, fontWeight: '600' }}>{label}</Text>
-            {n !== undefined ? <Text style={{ color: on ? V.blue : V.mute, fontSize: 12.5, fontWeight: '600' }}>{n}</Text> : null}
+            style={{ height: 38, paddingHorizontal: 14, borderRadius: 99, flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: on ? V.pill : V.surf, borderWidth: 1, borderColor: on ? V.pill : V.line }}>
+            <Text style={{ color: on ? V.pillInk : V.ink, fontSize: 13.5, fontWeight: '600' }}>{label}</Text>
+            {n !== undefined ? <Text style={{ color: on ? (V.dark ? V.blue : '#AEB8F0') : V.mute, fontSize: 12.5, fontWeight: '600' }}>{n}</Text> : null}
           </Pressable>
         );
       })}
@@ -73,7 +73,7 @@ export function Search({ value, onChange, placeholder }: { value: string; onChan
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, height: 50, borderRadius: 99, paddingHorizontal: 16, backgroundColor: V.surf, borderWidth: 1, borderColor: V.line }}>
       <Icon name="search" size={18} color={V.mute} duo={false} />
       <TextInput value={value} onChangeText={onChange} placeholder={placeholder} placeholderTextColor={V.faint} accessibilityLabel={placeholder}
-        style={{ flex: 1, color: '#FFFFFF', fontSize: 15.5, minHeight: 44 }} autoCorrect={false} returnKeyType="search" />
+        style={{ flex: 1, color: V.ink, fontSize: 15.5, minHeight: 44 }} autoCorrect={false} returnKeyType="search" />
       {value ? <Pressable onPress={() => onChange('')} hitSlop={10} accessibilityLabel={t('Clear')}><Icon name="x" size={16} color={V.mute} duo={false} /></Pressable> : null}
     </View>
   );
@@ -81,7 +81,9 @@ export function Search({ value, onChange, placeholder }: { value: string; onChan
 
 /** Coloured status chip. */
 export function Tag({ text, tone = 'plain' }: { text: string; tone?: 'good' | 'warn' | 'bad' | 'info' | 'plain' }) {
-  const c = { good: ['rgba(40,209,124,0.16)', '#6FF0AE'], warn: ['rgba(255,184,77,0.16)', '#FFC870'], bad: ['rgba(255,90,106,0.16)', '#FF8A96'], info: ['rgba(74,99,255,0.2)', '#AFC0FF'], plain: [V.surf2, V.mute] }[tone];
+  const c = (V.dark
+    ? { good: ['rgba(40,209,124,0.16)', '#6FF0AE'], warn: ['rgba(255,184,77,0.16)', '#FFC870'], bad: ['rgba(255,90,106,0.16)', '#FF8A96'], info: ['rgba(74,99,255,0.2)', '#AFC0FF'], plain: [V.surf2, V.mute] }
+    : { good: ['#E4F3EB', '#0E7A4B'], warn: ['#FBF0E2', '#A35A00'], bad: ['#FBEAE8', '#B42318'], info: ['#EEF0FB', '#1A2FCF'], plain: [V.surf2, V.mute] })[tone];
   return <View style={{ paddingVertical: 4, paddingHorizontal: 9, borderRadius: 99, backgroundColor: c[0], alignSelf: 'flex-start' }}><Text style={{ color: c[1], fontSize: 11.5, fontWeight: '700' }} numberOfLines={1}>{text}</Text></View>;
 }
 
@@ -91,13 +93,13 @@ export function Item({ left, title, sub, right, rightSub, tag, onPress }: { left
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 }}>
       {left}
       <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
-        <Text style={{ color: '#FFFFFF', fontSize: 15, fontWeight: '600' }} numberOfLines={1}>{title}</Text>
+        <Text style={{ color: V.ink, fontSize: 15, fontWeight: '600' }} numberOfLines={1}>{title}</Text>
         {sub ? <Text style={{ color: V.mute, fontSize: 12.5 }} numberOfLines={2}>{sub}</Text> : null}
         {tag ? <View style={{ marginTop: 3 }}>{tag}</View> : null}
       </View>
       {right || rightSub ? (
         <View style={{ alignItems: 'flex-end', gap: 4, maxWidth: '42%' }}>
-          {right ? <Text style={[FH, { color: '#FFFFFF', fontSize: 15.5 }]} numberOfLines={1}>{right}</Text> : null}
+          {right ? <Text style={[FH, { color: V.ink, fontSize: 15.5 }]} numberOfLines={1}>{right}</Text> : null}
           {typeof rightSub === 'string' ? <Text style={{ color: V.mute, fontSize: 12 }} numberOfLines={1}>{rightSub}</Text> : rightSub}
         </View>
       ) : null}
@@ -110,11 +112,11 @@ export function Item({ left, title, sub, right, rightSub, tag, onPress }: { left
 export function Card({ children, style, title, right, onRight }: { children: React.ReactNode; style?: ViewStyle; title?: string; right?: string; onRight?: () => void }) {
   const kids = React.Children.toArray(children).filter(Boolean);
   return (
-    <View style={[{ borderRadius: V.rM, backgroundColor: V.surf, borderWidth: 1, borderColor: V.line, paddingHorizontal: 16, paddingVertical: title ? 12 : 4 }, style]}>
+    <View style={[{ borderRadius: V.rM, backgroundColor: V.surf, borderWidth: 1, borderColor: V.line, paddingHorizontal: 16, paddingVertical: title ? 12 : 4 }, lift(), style]}>
       {title ? (
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 4 }}>
-          <Text style={[FH, { color: '#FFFFFF', fontSize: 15.5 }]} accessibilityRole="header">{title}</Text>
-          {right ? <Pressable onPress={onRight} hitSlop={8} disabled={!onRight} accessibilityRole={onRight ? 'button' : undefined} accessibilityLabel={right}><Text style={{ color: '#AFC0FF', fontSize: 13, fontWeight: '600' }}>{right}</Text></Pressable> : null}
+          <Text style={[FH, { color: V.ink, fontSize: 15.5 }]} accessibilityRole="header">{title}</Text>
+          {right ? <Pressable onPress={onRight} hitSlop={8} disabled={!onRight} accessibilityRole={onRight ? 'button' : undefined} accessibilityLabel={right}><Text style={{ color: V.link, fontSize: 13, fontWeight: '600' }}>{right}</Text></Pressable> : null}
         </View>
       ) : null}
       {kids.map((c, i) => <View key={i} style={i < kids.length - 1 ? { borderBottomWidth: 1, borderBottomColor: V.line } : null}>{c}</View>)}
@@ -124,15 +126,17 @@ export function Card({ children, style, title, right, onRight }: { children: Rea
 
 /** Round icon square used at the left of a row. */
 export const Dot = ({ icon, tone = 'dk' }: { icon: IconName; tone?: 'dk' | 'nv' | 'good' | 'bad' | 'warn' }) => {
-  const bg = { dk: V.surf2, nv: '#2238D8', good: 'rgba(40,209,124,0.18)', bad: 'rgba(255,90,106,0.18)', warn: 'rgba(255,184,77,0.18)' }[tone];
-  const fg = { dk: '#FFFFFF', nv: '#FFFFFF', good: '#6FF0AE', bad: '#FF8A96', warn: '#FFC870' }[tone];
+  const bg = V.dark ? { dk: V.surf2, nv: '#2238D8', good: 'rgba(40,209,124,0.18)', bad: 'rgba(255,90,106,0.18)', warn: 'rgba(255,184,77,0.18)' }[tone]
+    : { dk: '#EEF0FB', nv: '#2238D8', good: '#E4F3EB', bad: '#FBEAE8', warn: '#FBF0E2' }[tone];
+  const fg = V.dark ? { dk: '#FFFFFF', nv: '#FFFFFF', good: '#6FF0AE', bad: '#FF8A96', warn: '#FFC870' }[tone]
+    : { dk: '#000C58', nv: '#FFFFFF', good: '#0E7A4B', bad: '#B42318', warn: '#A35A00' }[tone];
   return <View style={{ width: 42, height: 42, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: bg }}><Icon name={icon} size={18} color={fg} stroke={2.1} duo={false} /></View>;
 };
 
 /** Big white button (or blue / dark / red). */
 export function Btn({ text, icon, onPress, busy, kind = 'white', style, disabled }: { text: string; icon?: IconName; onPress?: () => void; busy?: boolean; kind?: 'white' | 'blue' | 'dark' | 'red'; style?: ViewStyle; disabled?: boolean }) {
-  const bg = { white: '#FFFFFF', blue: V.blue, dark: V.surf2, red: '#E5484D' }[kind];
-  const fg = kind === 'white' ? V.navy : '#FFFFFF';
+  const bg = { white: V.pill, blue: V.blue, dark: V.surf2, red: '#E5484D' }[kind];
+  const fg = kind === 'white' ? V.pillInk : kind === 'dark' ? V.ink : '#FFFFFF';
   return (
     <Pressy onPress={busy || disabled ? undefined : onPress} accessibilityRole="button" accessibilityLabel={text} accessibilityState={{ disabled: !!(busy || disabled), busy: !!busy }}
       style={[{ height: 52, borderRadius: 99, backgroundColor: bg, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingHorizontal: 18, opacity: disabled ? 0.45 : 1, borderWidth: kind === 'dark' ? 1 : 0, borderColor: V.line }, style]}>
@@ -149,10 +153,10 @@ export function Actions({ items }: { items: { icon: IconName; label: string; go:
       {items.map((a) => (
         <Pressy key={a.label} onPress={a.off ? undefined : a.go} accessibilityRole="button" accessibilityLabel={a.label} accessibilityState={{ disabled: !!a.off }}
           style={{ alignItems: 'center', gap: 6, flex: 1, opacity: a.off ? 0.35 : 1 }}>
-          <View style={{ width: 54, height: 54, borderRadius: 27, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFFFF' }}>
-            <Icon name={a.icon} size={21} color={V.navy} duo={false} />
+          <View style={{ width: 54, height: 54, borderRadius: 27, alignItems: 'center', justifyContent: 'center', backgroundColor: V.pill }}>
+            <Icon name={a.icon} size={21} color={V.pillInk} duo={false} />
           </View>
-          <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '600' }} numberOfLines={1}>{a.label}</Text>
+          <Text style={{ color: V.ink, fontSize: 12, fontWeight: '600' }} numberOfLines={1}>{a.label}</Text>
         </Pressy>
       ))}
     </View>
@@ -165,7 +169,7 @@ export function In({ label, error, style, ...p }: TextInputProps & { label: stri
     <View style={[{ gap: 6 }, style]}>
       <Text style={{ color: V.mute, fontSize: 12.5, fontWeight: '600' }}>{label}</Text>
       <TextInput placeholderTextColor={V.faint} accessibilityLabel={label} {...p}
-        style={{ minHeight: 50, borderRadius: 16, paddingHorizontal: 14, paddingVertical: p.multiline ? 12 : 0, backgroundColor: V.surf2, color: '#FFFFFF', fontSize: 16, borderWidth: 1, borderColor: error ? '#FF5A6A' : V.line, textAlignVertical: p.multiline ? 'top' : 'center' }} />
+        style={{ minHeight: 50, borderRadius: 16, paddingHorizontal: 14, paddingVertical: p.multiline ? 12 : 0, backgroundColor: V.surf2, color: V.ink, fontSize: 16, borderWidth: 1, borderColor: error ? '#FF5A6A' : V.line, textAlignVertical: p.multiline ? 'top' : 'center' }} />
       {error ? <Text style={{ color: '#FF8A96', fontSize: 12 }}>{error}</Text> : null}
     </View>
   );
@@ -181,8 +185,8 @@ export function Pick<K extends string>({ label, items, value, onChange }: { labe
           const on = k === value;
           return (
             <Pressable key={k} onPress={() => onChange(k)} accessibilityRole="radio" accessibilityState={{ checked: on }}
-              style={{ paddingVertical: 9, paddingHorizontal: 13, borderRadius: 99, backgroundColor: on ? '#FFFFFF' : V.surf2, borderWidth: 1, borderColor: on ? '#FFFFFF' : V.line }}>
-              <Text style={{ color: on ? V.navy : '#FFFFFF', fontSize: 13.5, fontWeight: '600' }}>{l}</Text>
+              style={{ paddingVertical: 9, paddingHorizontal: 13, borderRadius: 99, backgroundColor: on ? V.pill : V.surf2, borderWidth: 1, borderColor: on ? V.pill : V.line }}>
+              <Text style={{ color: on ? V.pillInk : V.ink, fontSize: 13.5, fontWeight: '600' }}>{l}</Text>
             </Pressable>
           );
         })}
@@ -196,15 +200,15 @@ export function Sheet({ open, title, onClose, children }: { open: boolean; title
   const insets = useSafeAreaInsets();
   return (
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.6)' }}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: V.dark ? 'rgba(0,0,0,0.6)' : 'rgba(0,7,47,0.45)' }}>
         <Pressable style={{ flex: 1 }} onPress={onClose} accessibilityLabel={t('Close')} />
-        <View style={{ maxHeight: '90%', borderTopLeftRadius: 30, borderTopRightRadius: 30, backgroundColor: '#13141B', borderWidth: 1, borderColor: V.line, paddingBottom: insets.bottom + 12 }}>
-          <View style={{ alignItems: 'center', paddingTop: 8 }}><View style={{ width: 40, height: 5, borderRadius: 3, backgroundColor: '#3A3D4A' }} /></View>
+        <View style={{ maxHeight: '90%', borderTopLeftRadius: 30, borderTopRightRadius: 30, backgroundColor: V.sheet, borderWidth: 1, borderColor: V.line, paddingBottom: insets.bottom + 12 }}>
+          <View style={{ alignItems: 'center', paddingTop: 8 }}><View style={{ width: 40, height: 5, borderRadius: 3, backgroundColor: V.ring }} /></View>
           <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: 10, paddingBottom: 6 }}>
-            <Text style={[FH, { flex: 1, color: '#FFFFFF', fontSize: 19 }]} accessibilityRole="header">{title}</Text>
+            <Text style={[FH, { flex: 1, color: V.ink, fontSize: 19 }]} accessibilityRole="header">{title}</Text>
             <Pressable onPress={onClose} hitSlop={10} accessibilityRole="button" accessibilityLabel={t('Close')}
               style={{ width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: V.surf2 }}>
-              <Icon name="x" size={16} color="#FFFFFF" duo={false} />
+              <Icon name="x" size={16} color={V.ink} duo={false} />
             </Pressable>
           </View>
           <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: 20, paddingTop: 8, gap: 14 }}>{children}</ScrollView>
@@ -218,19 +222,19 @@ export function Sheet({ open, title, onClose, children }: { open: boolean; title
 export const None = ({ icon, title, sub }: { icon: IconName; title: string; sub?: string }) => (
   <View style={{ alignItems: 'center', paddingVertical: 26, gap: 8 }}>
     <Dot icon={icon} />
-    <Text style={[FH, { color: '#FFFFFF', fontSize: 15.5 }]}>{title}</Text>
+    <Text style={[FH, { color: V.ink, fontSize: 15.5 }]}>{title}</Text>
     {sub ? <Text style={{ color: V.mute, fontSize: 13, textAlign: 'center', maxWidth: 280 }}>{sub}</Text> : null}
   </View>
 );
 
 /** Loading and error states for a whole page. */
 export function State({ loading, error, onRetry }: { loading: boolean; error: string | null; onRetry: () => void }) {
-  if (loading) return <View style={{ paddingVertical: 60, alignItems: 'center' }}><ActivityIndicator color="#FFFFFF" size="large" /></View>;
+  if (loading) return <View style={{ paddingVertical: 60, alignItems: 'center' }}><ActivityIndicator color={V.ink} size="large" /></View>;
   if (!error) return null;
   return (
     <Card><View style={{ alignItems: 'center', paddingVertical: 22, gap: 10 }}>
       <Dot icon="cloud" tone="warn" />
-      <Text style={{ color: '#FFFFFF', fontSize: 14.5, textAlign: 'center' }}>{error}</Text>
+      <Text style={{ color: V.ink, fontSize: 14.5, textAlign: 'center' }}>{error}</Text>
       <Btn text={t('Try again')} kind="dark" onPress={onRetry} style={{ height: 44 }} />
     </View></Card>
   );

@@ -1,5 +1,5 @@
-// Meet tab (Midnight v6, approved 11-16): next or live meeting with who's in it, your Meet character,
-// New meeting / Join code, the four Meet features, and today's list. Every button opens Meet inside the app.
+// Meet tab (4.0 Navy Daylight, approved 11-17): the navy meeting room with the OENOD Meet characters and the raised
+// 3-D keys, then the Meet features and what's coming up. Every button opens Meet inside the app (same sign-in).
 import React, { useState } from 'react';
 import { Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { router } from 'expo-router';
@@ -13,6 +13,9 @@ import { meetingId, openMeeting } from '../guest';
 import { Icon, type IconName } from '../../ui/Icon';
 import { Av, FH, Li, List, NavyFill, Pills, SBtn, Sec, SubTop, V } from '../../ui/M6';
 import { PoweredBy } from '../../ui/Brand';
+import { card, Grad, Key, Ph, Pulse, TileIcon } from '../../ui/H';
+import type { PhName } from '../../ui/phPaths';
+import { Logo } from '../../ui/Logo';
 
 type Meeting = { id: number; title: string; starts_at: string; duration_min?: number; url?: string; status?: string; people?: { name?: string; email?: string }[] };
 
@@ -41,79 +44,71 @@ export default function MeetTab() {
   const top = live || list[0];
   const people = (top?.people || []).map((p) => p.name || p.email || '').filter(Boolean);
   const join = () => { const id = meetingId(code || ''); if (id) { setCode(null); openMeeting(id); } };
-  const feats: [string, string, IconName][] = [[t('Live captions'), t('20 languages'), 'chat'], [t('Ava notes'), t('To-dos sent after'), 'spark'], [t('Backgrounds'), t('Your company name'), 'grid'], [t('Presenter'), t('Share and talk'), 'user']];
+  const feats: [string, string, PhName][] = [[t('Live captions'), t('20 languages'), 'chat-circle-dots'], [t('Ava notes'), t('To-dos sent after'), 'sparkle'], [t('Backgrounds'), t('Your company name'), 'squares-four'], [t('Presenter'), t('Share and talk'), 'monitor']];
+  const names = top ? [...people.slice(0, 3)] : [];
+  const tags = [names[0] || 'Hassan', t('You'), names[1] || 'Amaka', names[2] || 'Nadia'];
+  const tile = (img: any, name: string, opts: { big?: boolean; host?: boolean; talk?: boolean } = {}) => (
+    <View style={{ flex: 1, borderRadius: 22, overflow: 'hidden', backgroundColor: '#0A1450', borderWidth: opts.talk ? 3 : 1, borderColor: opts.talk ? '#4A63FF' : 'rgba(255,255,255,0.1)' }}>
+      <Image source={img} style={{ position: 'absolute', width: '100%', height: '100%' }} resizeMode="cover" />
+      {opts.host ? <View style={{ position: 'absolute', left: 8, top: 8, height: 22, paddingHorizontal: 9, borderRadius: 99, backgroundColor: '#FFFFFF', justifyContent: 'center' }}><Text style={{ color: '#000C58', fontSize: 10, fontWeight: '900', letterSpacing: 0.6 }}>{t('HOST')}</Text></View> : null}
+      <View style={{ position: 'absolute', left: 8, bottom: 8, height: 26, paddingLeft: 6, paddingRight: 10, borderRadius: 99, backgroundColor: 'rgba(0,7,47,0.72)', flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+        <View style={{ width: 16, height: 16, borderRadius: 8, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' }}><Ph name="microphone" size={10} color="#000C58" /></View>
+        <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: '800' }} numberOfLines={1}>{name}{opts.talk ? ' · ' + t('speaking') : ''}</Text>
+      </View>
+    </View>
+  );
   return (
-    <View style={{ flex: 1, backgroundColor: V.bg }}>
-      <ScrollView contentContainerStyle={{ paddingTop: insets.top + 8, paddingHorizontal: 16, paddingBottom: insets.bottom + 130, gap: 16, width: '100%', maxWidth: 760, alignSelf: 'center' }}>
-        <SubTop title={t('Meet')} onBack={() => router.navigate('/')} right="plus" rightLabel={t('Schedule a meeting')} onRight={meetHome} />
-
-        {top ? (
-          <View style={{ borderRadius: V.rL, backgroundColor: '#13141B', borderWidth: 1, borderColor: V.line, padding: 12, gap: 10 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 4 }}>
-              {live ? (
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 5, paddingHorizontal: 10, borderRadius: 99, backgroundColor: 'rgba(255,90,106,0.15)' }}>
-                  <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: '#FF5A6A' }} />
-                  <Text style={{ color: '#FF8A96', fontSize: 12.5, fontWeight: '600' }}>{t('Live now')}</Text>
-                </View>
-              ) : (
-                <View style={{ paddingVertical: 5, paddingHorizontal: 10, borderRadius: 99, backgroundColor: V.surf2 }}>
-                  <Text style={{ color: '#FFFFFF', fontSize: 12.5, fontWeight: '600' }}>{t('Next up')}</Text>
-                </View>
-              )}
-              <Text style={{ color: '#FFFFFF', fontSize: 12.5, fontWeight: '600', fontVariant: ['tabular-nums'] }}>{day(top.starts_at)} · {time(top.starts_at)}</Text>
+    <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+      <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 130, width: '100%', maxWidth: 760, alignSelf: 'center' }}>
+        {/* The room: same navy room, character tiles and raised keys as OENOD Meet. */}
+        <View style={{ paddingTop: insets.top + 10, paddingHorizontal: 16, paddingBottom: 18, borderBottomLeftRadius: 32, borderBottomRightRadius: 32, overflow: 'hidden', backgroundColor: '#000C58', gap: 14 }}>
+          <Grad id="room" x1={0.5} y1={0} x2={0.5} y2={1} stops={[[0, '#0B1A8F'], [0.45, '#000C58'], [1, '#00072F']]} />
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Logo width={64} color="#FFFFFF" />
+            <View style={{ height: 30, paddingHorizontal: 12, borderRadius: 99, backgroundColor: 'rgba(255,255,255,0.1)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)', flexDirection: 'row', alignItems: 'center', gap: 7 }}>
+              {live ? <Pulse color="#FF5A5F" /> : null}
+              <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '800' }} numberOfLines={1}>{live ? t('Live now') : top ? `${t('Next up')} · ${day(top.starts_at)} ${time(top.starts_at)}` : t('OENOD Meet')}</Text>
             </View>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-              {[...people.slice(0, 3), ''].map((n, i) => (
-                <View key={i} style={{ width: '48.5%', aspectRatio: 1, borderRadius: V.rS, overflow: 'hidden', backgroundColor: V.surf2, alignItems: 'center', justifyContent: 'center' }}>
-                  {n ? <><NavyFill id={'mt' + i} /><Av name={n} size={64} /></> : <Image source={LENA} style={{ width: '100%', height: '100%' }} resizeMode="cover" />}
-                  <View style={{ position: 'absolute', left: 8, bottom: 8, paddingVertical: 4, paddingHorizontal: 9, borderRadius: 99, backgroundColor: 'rgba(0,0,0,0.55)' }}>
-                    <Text style={{ color: '#FFFFFF', fontSize: 11.5, fontWeight: '600' }} numberOfLines={1}>{n ? n.split(' ')[0] : t('You')}</Text>
-                  </View>
-                </View>
-              ))}
-            </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 4 }}>
-              <View style={{ flex: 1 }}>
-                <Text style={[FH, { color: '#FFFFFF', fontSize: 16 }]} numberOfLines={1}>{top.title}</Text>
-                <Text style={{ color: V.mute, fontSize: 12 }} numberOfLines={1}>{people.length ? t('{n} people', { n: people.length + 1 }) : t('Just you so far')} · {t('captions on')}</Text>
-              </View>
-              <SBtn text={t('Join')} onPress={() => joinMeeting(top)} />
+            <Pressable onPress={meetHome} accessibilityRole="button" accessibilityLabel={t('Schedule a meeting')}
+              style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: 'rgba(255,255,255,0.12)', alignItems: 'center', justifyContent: 'center' }}>
+              <Ph name="plus" size={18} color="#FFFFFF" duo={0.3} />
+            </Pressable>
+          </View>
+          <View style={{ height: 300, gap: 10 }}>
+            <View style={{ flex: 1.7, flexDirection: 'row' }}>{tile(FACES[1], tags[0], { host: true, talk: true })}</View>
+            <View style={{ flex: 1, flexDirection: 'row', gap: 10 }}>
+              {tile(LENA, tags[1])}{tile(FACES[2], tags[2])}{tile(FACES[3], tags[3])}
             </View>
           </View>
-        ) : null}
-
-        <View style={{ flexDirection: 'row', gap: 12, borderRadius: V.rL, padding: 12, overflow: 'hidden', backgroundColor: '#2238D8' }}>
-          <NavyFill id="me2" />
-          <Image source={LENA} style={{ width: 92, height: 140, borderRadius: V.rS }} resizeMode="cover" accessibilityLabel={t('Lena, your Meet character')} />
-          <View style={{ flex: 1, gap: 4, justifyContent: 'center' }}>
-            <Text style={{ color: '#C9D2FF', fontSize: 11, fontWeight: '700', letterSpacing: 1 }}>{t('Your Meet character').toUpperCase()}</Text>
-            <Text style={[FH, { color: '#FFFFFF', fontSize: 20 }]}>Lena</Text>
-            <Text style={{ color: '#D5DCFF', fontSize: 12, lineHeight: 16 }}>{t('She talks and blinks with your voice when your camera is off.')}</Text>
-            <View style={{ flexDirection: 'row', gap: 8, marginTop: 6 }}>
-              <SBtn text={t('Change')} onPress={meetHome} />
-              <Pressable onPress={meetHome} accessibilityRole="button" style={{ paddingVertical: 9, paddingHorizontal: 14, borderRadius: 99, borderWidth: 1, borderColor: 'rgba(255,255,255,0.35)' }}>
-                <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '600' }}>{t('Preview')}</Text>
-              </Pressable>
-            </View>
+          <View>
+            <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: '800' }} numberOfLines={1}>{top ? top.title : t('Your meeting room')}</Text>
+            <Text style={{ color: '#AEB8F0', fontSize: 12.5 }} numberOfLines={1}>{top ? (people.length ? t('{n} people', { n: people.length + 1 }) : t('Just you so far')) + ' · ' + t('captions on') : t('Your camera off? Lena talks for you.')}</Text>
+          </View>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 10, borderRadius: 30, backgroundColor: 'rgba(0,4,30,0.55)' }}>
+            <Key icon="video-camera" label={t('New meeting')} onPress={meetHome} />
+            <Key icon="plus" label={t('Join code')} tone="white" onPress={() => setCode(code == null ? '' : null)} />
+            <Key icon="users-three" label={t('Invite')} onPress={meetHome} />
+            <Key icon="sparkle" label={t('Ava notes')} onPress={meetHome} />
+            <Key label={top ? t('Join') : t('Start')} tone={top ? 'red' : 'navy'} wide onPress={() => (top ? joinMeeting(top) : meetHome())} />
           </View>
         </View>
 
-        <Pills items={[{ label: t('New meeting'), icon: 'video', go: meetHome }, { label: t('Join code'), icon: 'plus', go: () => setCode(code == null ? '' : null) }]} />
+        <View style={{ paddingHorizontal: 16, paddingTop: 16, gap: 16 }}>
         {code != null ? (
           <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
             <TextInput value={code} onChangeText={setCode} autoFocus autoCapitalize="none" autoCorrect={false} placeholder={t('Meeting code or link')} placeholderTextColor={V.faint}
               onSubmitEditing={join} returnKeyType="go"
-              style={{ flex: 1, height: 52, borderRadius: V.rM, backgroundColor: V.surf, borderWidth: 1, borderColor: V.line, paddingHorizontal: 16, color: '#FFFFFF', fontSize: 15 }} />
+              style={{ flex: 1, height: 52, borderRadius: V.rM, backgroundColor: V.surf, borderWidth: 1, borderColor: V.line, paddingHorizontal: 16, color: V.ink, fontSize: 15 }} />
             <SBtn text={t('Join')} onPress={join} />
           </View>
         ) : null}
 
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 10 }}>
           {feats.map(([a, b, ic]) => (
             <Pressable key={a} onPress={meetHome} accessibilityRole="button" accessibilityLabel={`${a}, ${b}`}
-              style={{ width: '48.5%', borderRadius: V.rM, backgroundColor: V.surf, borderWidth: 1, borderColor: V.line, padding: 12, gap: 4 }}>
-              <View style={{ width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: V.blue, marginBottom: 4 }}><Icon name={ic} size={18} color="#FFFFFF" duo={false} /></View>
-              <Text style={{ color: '#FFFFFF', fontSize: 14, fontWeight: '700' }}>{a}</Text>
+              style={[card, { width: '48.5%', borderRadius: 20, padding: 12, gap: 4 }]}>
+              <View style={{ marginBottom: 4 }}><TileIcon icon={ic} tone="navy" size={40} /></View>
+              <Text style={{ color: V.ink, fontSize: 14, fontWeight: '700' }}>{a}</Text>
               <Text style={{ color: V.mute, fontSize: 11.5 }}>{b}</Text>
             </Pressable>
           ))}
@@ -128,6 +123,7 @@ export default function MeetTab() {
           )) : <Li title={d.loading ? t('Loading…') : t('No meetings coming up')} sub={t('Tap + to schedule one')} left={<Image source={LENA} style={{ width: 40, height: 40, borderRadius: 14 }} />} />}
         </List>
         <PoweredBy />
+        </View>
       </ScrollView>
     </View>
   );

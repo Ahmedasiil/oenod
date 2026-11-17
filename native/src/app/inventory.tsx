@@ -102,7 +102,7 @@ export default function Inventory() {
         {it ? (
           <>
             <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
-              <View style={{ alignItems: 'center' }}><Text style={{ color: V.mute, fontSize: 12 }}>{t('Now')}</Text><Text style={[FH, { color: '#FFFFFF', fontSize: 28 }]}>{qn(it.stock)}</Text></View>
+              <View style={{ alignItems: 'center' }}><Text style={{ color: V.mute, fontSize: 12 }}>{t('Now')}</Text><Text style={[FH, { color: V.ink, fontSize: 28 }]}>{qn(it.stock)}</Text></View>
               <View style={{ alignItems: 'center' }}><Text style={{ color: V.mute, fontSize: 12 }}>{t('After')}</Text><Text style={[FH, { color: after < 0 ? '#FF8A96' : '#9CF0C0', fontSize: 28 }]}>{qn(after)}</Text></View>
             </View>
             <View style={{ flexDirection: 'row', gap: 8 }}>

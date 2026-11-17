@@ -55,13 +55,13 @@ export default function PhoneTab() {
           </View>
         ) : null}
         <Text style={{ textAlign: 'center', color: V.mute, fontSize: 13 }}>{me.data?.line ? t('Your line {n}', { n: pretty(me.data.line) }) : t('Calls go out with your company number')}</Text>
-        <Text style={[FH, { textAlign: 'center', color: '#FFFFFF', fontSize: 30, minHeight: 40 }]} accessibilityLiveRegion="polite" numberOfLines={1} adjustsFontSizeToFit>{num ? pretty(num) || num : ' '}</Text>
+        <Text style={[FH, { textAlign: 'center', color: V.ink, fontSize: 30, minHeight: 40 }]} accessibilityLiveRegion="polite" numberOfLines={1} adjustsFontSizeToFit>{num ? pretty(num) || num : ' '}</Text>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'space-between' }}>
           {keys.map((k) => (
             <Pressable key={k} onPress={() => press(k)} onLongPress={k === '⌫' ? () => setNum('') : k === '0' ? () => setNum((n) => n + '+') : undefined}
               accessibilityRole="button" accessibilityLabel={k === '⌫' ? t('Delete') : k}
-              style={({ pressed }) => ({ width: '31%', height: 56, borderRadius: V.rS, alignItems: 'center', justifyContent: 'center', backgroundColor: pressed ? '#262936' : V.surf2 })}>
-              <Text style={[FH, { color: '#FFFFFF', fontSize: 22 }]}>{k}</Text>
+              style={({ pressed }) => ({ width: '31%', height: 56, borderRadius: V.rS, alignItems: 'center', justifyContent: 'center', backgroundColor: pressed ? V.line : V.surf2 })}>
+              <Text style={[FH, { color: V.ink, fontSize: 22 }]}>{k}</Text>
             </Pressable>
           ))}
         </View>

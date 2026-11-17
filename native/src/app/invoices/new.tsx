@@ -102,12 +102,12 @@ export default function NewInvoice() {
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
               <Pressable onPress={() => set(l.key, { taxable: !l.taxable })} accessibilityRole="checkbox" accessibilityState={{ checked: l.taxable }} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }} hitSlop={6}>
-                <View style={{ width: 22, height: 22, borderRadius: 7, alignItems: 'center', justifyContent: 'center', backgroundColor: l.taxable ? '#FFFFFF' : 'transparent', borderWidth: 2, borderColor: l.taxable ? '#FFFFFF' : '#3A3D4A' }}>
-                  {l.taxable ? <Icon name="check" size={13} color={V.navy} stroke={3} duo={false} /> : null}
+                <View style={{ width: 22, height: 22, borderRadius: 7, alignItems: 'center', justifyContent: 'center', backgroundColor: l.taxable ? V.pill : 'transparent', borderWidth: 2, borderColor: l.taxable ? V.pill : V.ring }}>
+                  {l.taxable ? <Icon name="check" size={13} color={V.pillInk} stroke={3} duo={false} /> : null}
                 </View>
-                <Text style={{ color: '#FFFFFF', fontSize: 13.5 }}>{t('Add tax')}</Text>
+                <Text style={{ color: V.ink, fontSize: 13.5 }}>{t('Add tax')}</Text>
               </Pressable>
-              <Text style={[FH, { color: '#FFFFFF', fontSize: 15 }]}>{money(num(l.qty) * num(l.unit_price), 2)}</Text>
+              <Text style={[FH, { color: V.ink, fontSize: 15 }]}>{money(num(l.qty) * num(l.unit_price), 2)}</Text>
               {lines.length > 1 ? <Pressable onPress={() => setLines((ls) => ls.filter((x) => x.key !== l.key))} accessibilityRole="button" accessibilityLabel={t('Remove line {n}', { n: n + 1 })} hitSlop={8}><Text style={{ color: '#FF8A96', fontSize: 13, fontWeight: '600' }}>{t('Remove')}</Text></Pressable> : null}
             </View>
           </View>
@@ -119,7 +119,7 @@ export default function NewInvoice() {
       {err.lines ? <Text style={{ color: '#FF8A96', fontSize: 12.5, marginTop: -8 }}>{err.lines}</Text> : null}
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 4 }}>
         <Text style={{ color: V.mute, fontSize: 13.5 }}>{t('Before tax')}</Text>
-        <Text style={[FH, { color: '#FFFFFF', fontSize: 18 }]}>{money(sub, 2)}</Text>
+        <Text style={[FH, { color: V.ink, fontSize: 18 }]}>{money(sub, 2)}</Text>
       </View>
       <View style={{ flexDirection: 'row', gap: 10 }}>
         <In style={{ flex: 1 }} label={t('Issue date')} value={issue} onChangeText={setIssue} placeholder="YYYY-MM-DD" autoCapitalize="none" error={err.issue} />
@@ -128,7 +128,7 @@ export default function NewInvoice() {
       <View style={{ flexDirection: 'row', gap: 8 }}>
         {[[t('Due now'), 0], [t('7 days'), 7], [t('14 days'), 14], [t('30 days'), 30]].map(([l, n]) => (
           <Pressable key={String(n)} onPress={() => setDue(plusDays(Number(n)))} accessibilityRole="button" style={{ flex: 1, paddingVertical: 8, borderRadius: 99, alignItems: 'center', backgroundColor: V.surf2 }}>
-            <Text style={{ color: '#FFFFFF', fontSize: 12.5, fontWeight: '600' }}>{String(l)}</Text>
+            <Text style={{ color: V.ink, fontSize: 12.5, fontWeight: '600' }}>{String(l)}</Text>
           </Pressable>
         ))}
       </View>
