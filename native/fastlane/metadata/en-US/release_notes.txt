@@ -1,7 +1,4 @@
-OENOD 3.9.1: business calls on your iPhone and a new Navy Glass look.
-- Business Phone calls now ring full screen on iPhone and iPad, like a normal phone call, even when the app is closed. They have their own OENOD ringtone so you always know it's work.
-- A new welcome screen with live cards and everything OENOD does, all in one place.
-- Today has new quick buttons for Meet, Kiosk, Payroll and Calls, plus a sleek black live card for sales and your shift.
-- A new floating black tab bar with Ava in the middle.
-- Every tool opens inside the app with a clear "Inside OENOD, signed in" bar.
-- The same icon in a deeper navy.
+OENOD 4.0.1
+- Join a meeting with its 10-number meeting code right inside the app, from the Meet tab or as a guest.
+- Meeting links now open straight into the right meeting.
+- Small fixes and speed improvements.

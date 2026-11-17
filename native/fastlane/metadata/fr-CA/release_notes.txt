@@ -1,7 +1,4 @@
-OENOD 3.9.1 : les appels d’affaires sur votre iPhone et un nouveau look Navy Glass.
-- Les appels du Téléphone d’affaires sonnent maintenant en plein écran sur iPhone et iPad, comme un appel normal, même quand l’app est fermée. Ils ont leur propre sonnerie OENOD pour reconnaître le travail.
-- Un nouvel écran d’accueil avec des cartes en direct et tout ce que fait OENOD, au même endroit.
-- Aujourd’hui offre de nouveaux boutons rapides pour Meet, la borne, la paie et les appels, et une carte noire en direct pour les ventes et votre quart.
-- Une nouvelle barre d’onglets noire flottante avec Ava au centre.
-- Chaque outil s’ouvre dans l’app avec une barre claire « Dans OENOD · connecté ».
-- La même icône, dans un marine plus profond.
+OENOD 4.0.1
+- Rejoignez une réunion avec son code à 10 chiffres directement dans l’app, depuis l’onglet Meet ou en tant qu’invité.
+- Les liens de réunion ouvrent maintenant directement la bonne réunion.
+- Petites corrections et plus de rapidité.
