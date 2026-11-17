@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Text, View } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import { router } from 'expo-router';
-import { BASE } from '../lib/api';
+import { BASE, post } from '../lib/api';
 import { t } from '../lib/i18n';
 import { GradientButton } from '../ui/Brand';
 import { Icon } from '../ui/Icon';
@@ -17,25 +17,50 @@ export function meetingId(v: string): string | null {
   return m ? m[1] : null;
 }
 
+/** The 10 numbers of a meeting code ("482 913 5067", "482-913-5067" or a #/meet-join/<code> link), else null. */
+export function meetingCode(v: string): string | null {
+  const s = String(v || '').trim();
+  const j = s.match(/meet-join\/([\d\s-]{10,16})/);
+  const d = (j ? j[1] : s).replace(/[\s-]+/g, '');
+  if (/^\d{10}$/.test(d)) return d;
+  const m = meetingId(s);
+  return m && /^\d{10}$/.test(m) ? m : null;
+}
+
+/** Turn whatever the person typed or pasted into the meeting's id. Codes are looked up on oenod.com. Throws with a clear message. */
+export async function resolveMeeting(v: string): Promise<string> {
+  const code = meetingCode(v);
+  if (code) {
+    const r = await post<{ token?: string }>('/api/public/mc1-find', { code });
+    if (!r?.token) throw new Error(t('No meeting has that code. Check the numbers in your invite and try again.'));
+    return r.token;
+  }
+  const id = meetingId(v);
+  if (!id) throw new Error(t('Type the 10-number meeting code, like 482 913 5067, or paste the whole link from your invite.'));
+  return id;
+}
+
 /** Meetings open inside the app (3.9): same sign-in, camera and microphone in the app's own web view. */
 export const openMeeting = (id: string, replace = false) => (replace ? router.replace : router.push)({ pathname: '/web', params: { path: `/m/${id}`, title: 'OENOD Meet' } });
 
 export default function Guest() {
   const [v, setV] = useState('');
   const [err, setErr] = useState('');
-  const go = () => {
-    const id = meetingId(v);
-    if (!id) { setErr(t('That does not look like a meeting link. Copy the whole link from your invite and try again.')); return; }
-    setErr('');
-    openMeeting(id);
+  const [busy, setBusy] = useState(false);
+  const go = async () => {
+    if (busy) return;
+    setErr(''); setBusy(true);
+    try { openMeeting(await resolveMeeting(v)); }
+    catch (e: any) { setErr(e?.message || t('Something went wrong. Please try again.')); }
+    finally { setBusy(false); }
   };
   return (
     <AuthPage>
       <In><View style={{ width: 56, height: 56, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(42,59,196,0.18)', borderWidth: 1, borderColor: 'rgba(175,195,255,0.22)' }}><Icon name="video" size={28} color="#FFFFFF" /></View></In>
-      <In delay={60}><Heading eyebrow={t('OENOD Meet')} title={t('Join a meeting')} sub={t('No account needed. Paste the meeting link or code you were sent. You will add your name on the next screen.')} /></In>
-      <In delay={120}><GField label={t('Meeting link or code')} icon="link" value={v} onChangeText={setV} autoCapitalize="none" autoCorrect={false} keyboardType="url" placeholder="https://oenod.com/#/m/…" returnKeyType="go" onSubmitEditing={go} /></In>
+      <In delay={60}><Heading eyebrow={t('OENOD Meet')} title={t('Join a meeting')} sub={t('No account needed. Type the meeting code or paste the link you were sent. You will add your name on the next screen.')} /></In>
+      <In delay={120}><GField label={t('Meeting link or code')} icon="link" value={v} onChangeText={setV} autoCapitalize="none" autoCorrect={false} keyboardType="default" placeholder="482 913 5067" returnKeyType="go" onSubmitEditing={go} /></In>
       <ErrorLine text={err} />
-      <In delay={180}><GradientButton light title={t('Continue')} iconRight="arrow" onPress={go} /></In>
+      <In delay={180}><GradientButton light busy={busy} title={busy ? t('Finding the meeting…') : t('Continue')} iconRight="arrow" onPress={go} /></In>
       <In delay={240} style={{ gap: 12 }}>
         {[['shield', t('Encrypted call. The host lets you in.')], ['video', t('Camera and microphone stay off until you turn them on.')], ['globe', t('Works on any phone, tablet or computer.')]].map(([ic, x]) => (
           <View key={x} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}><Icon name={ic as any} size={17} color={A.sky} /><Text style={{ flex: 1, color: A.sub, fontSize: 14 }}>{x}</Text></View>

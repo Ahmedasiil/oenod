@@ -9,7 +9,7 @@ import { useLoad } from '../../lib/useLoad';
 import { day, time } from '../../lib/format';
 import { t } from '../../lib/i18n';
 import { openSheet, openTool } from '../web';
-import { meetingId, openMeeting } from '../guest';
+import { meetingId, openMeeting, resolveMeeting } from '../guest';
 import { Icon, type IconName } from '../../ui/Icon';
 import { Av, FH, Li, List, NavyFill, Pills, SBtn, Sec, SubTop, V } from '../../ui/M6';
 import { PoweredBy } from '../../ui/Brand';
@@ -43,7 +43,8 @@ export default function MeetTab() {
   const live = list.find((m) => at(m.starts_at).getTime() <= now);
   const top = live || list[0];
   const people = (top?.people || []).map((p) => p.name || p.email || '').filter(Boolean);
-  const join = () => { const id = meetingId(code || ''); if (id) { setCode(null); openMeeting(id); } };
+  const [codeErr, setCodeErr] = useState('');
+  const join = () => { setCodeErr(''); resolveMeeting(code || '').then((id) => { setCode(null); openMeeting(id); }).catch((e) => setCodeErr(e?.message || '')); };
   const feats: [string, string, PhName][] = [[t('Live captions'), t('20 languages'), 'chat-circle-dots'], [t('Ava notes'), t('To-dos sent after'), 'sparkle'], [t('Backgrounds'), t('Your company name'), 'squares-four'], [t('Presenter'), t('Share and talk'), 'monitor']];
   const names = top ? [...people.slice(0, 3)] : [];
   const tags = [names[0] || 'Hassan', t('You'), names[1] || 'Amaka', names[2] || 'Nadia'];
@@ -102,6 +103,7 @@ export default function MeetTab() {
             <SBtn text={t('Join')} onPress={join} />
           </View>
         ) : null}
+        {code != null && codeErr ? <Text style={{ color: '#B3141F', fontSize: 13, fontWeight: '600', marginTop: -8 }}>{codeErr}</Text> : null}
 
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 10 }}>
           {feats.map(([a, b, ic]) => (
