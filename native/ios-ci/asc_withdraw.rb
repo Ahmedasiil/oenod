@@ -37,3 +37,11 @@ if ver['attributes']['versionString'] != NEW
   c, b = call(:patch, "/v1/appStoreVersions/#{ver['id']}", { data: { type: 'appStoreVersions', id: ver['id'], attributes: { versionString: NEW } } })
   puts "RESULT rename to #{NEW}: #{c == 200 ? 'ok' : 'FAILED ' + err(b)}"
 end
+note = ENV['WHATS_NEW'].to_s.strip
+unless note.empty?
+  _, ls = call(:get, "/v1/appStoreVersions/#{ver['id']}/appStoreVersionLocalizations")
+  (ls['data'] || []).each do |l|
+    c, b = call(:patch, "/v1/appStoreVersionLocalizations/#{l['id']}", { data: { type: 'appStoreVersionLocalizations', id: l['id'], attributes: { whatsNew: note } } })
+    puts "RESULT whats-new #{l['attributes']['locale']}: #{c == 200 ? 'ok' : 'FAILED ' + err(b)}"
+  end
+end

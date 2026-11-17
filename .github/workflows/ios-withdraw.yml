@@ -11,7 +11,8 @@ jobs:
       APPLE_KEY_ID: ${{ secrets.APPLE_KEY_ID }}
       APPLE_ISSUER_ID: ${{ secrets.APPLE_ISSUER_ID }}
       APPLE_KEY_P8: ${{ secrets.APPLE_KEY_P8 }}
-      NEW_VERSION: '3.7.0'
+      NEW_VERSION: '4.0.0'
+      WHATS_NEW: 'A brand-new light look: clock in from your home screen, see what needs you, join meetings in the new Meet room, and every tool in one simple grid. Plus speed and reliability fixes.'
     steps:
       - uses: actions/checkout@v4
       - name: Withdraw and rename
