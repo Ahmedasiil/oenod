@@ -28,6 +28,16 @@ const NATIVE: [RegExp, (m: RegExpMatchArray) => string][] = [
   [/^\/expenses(\/.*)?$/, () => '/expenses'],
   [/^\/(time|timeclock|time-clock)$/, () => '/timeclock'],
   [/^\/(inventory|stock)$/, () => '/inventory'],
+  [/^\/sales\/(\d+)$/, (m) => `/sales/${m[1]}`],
+  [/^\/sales$/, () => '/sales'],
+  [/^\/(pos|register|pos\/register)$/, () => '/register'],
+  [/^\/(products|menu|items)$/, () => '/products'],
+  [/^\/reports(\/.*)?$/, () => '/reports'],
+  [/^\/chat\/(\d+)$/, (m) => `/chat/${m[1]}`],
+  [/^\/(chat|messages)$/, () => '/chat'],
+  [/^\/reviews$/, () => '/reviews'],
+  [/^\/(support|help)\/(\d+)$/, (m) => `/support/${m[2]}`],
+  [/^\/(support|help)$/, () => '/support'],
 ];
 export const nativeFor = (path: string): string | null => {
   const p = ('/' + String(path || '').replace(/^#?\/*/, '')).split(/[?#]/)[0].replace(/\/+$/, '') || '/';
