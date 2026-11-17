@@ -43,7 +43,7 @@ function Mine() {
   const today = todayKey();
   if (d.loading && !d.data) return <Loading />;
   if (!d.data) return <ErrorBox text={d.error || t('Could not load.')} onRetry={d.reload} />;
-  const x = d.data;
+  const x = { ...d.data, shifts: d.data.shifts || [], open: d.data.open || [] };
   const claim = async (id: number) => {
     setBusy(id);
     try { await post(`/api/shifts/${id}/claim`); say(t('Done'), t('Your manager was asked. You will get a notification when it is approved.')); d.reload(); }

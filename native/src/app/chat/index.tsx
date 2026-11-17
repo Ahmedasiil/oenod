@@ -48,7 +48,7 @@ export default function Chat() {
         <>
           <Text style={{ color: V.mute, fontSize: 13, textAlign: 'center', marginTop: -8 }}>{x.unread ? t('{n} unread · {o} online now', { n: x.unread, o: online }) : t('All read · {o} online now', { o: online })}</Text>
           <Search value={q} onChange={setQ} placeholder={t('Search rooms and people')} />
-          <Chips value={tab} onChange={setTab} items={[['all', t('All')], ['unread', t('Unread'), x.channels.filter((c) => c.unread > 0).length], ['rooms', t('Rooms')], ['dm', t('Direct')]]} />
+          <Chips value={tab} onChange={setTab} items={[['all', t('All')], ['unread', t('Unread'), (x.channels || []).filter((c) => c.unread > 0).length], ['rooms', t('Rooms')], ['dm', t('Direct')]]} />
           <Card>
             {list.length ? list.map((c) => (
               <Item key={c.id} onPress={() => router.push(`/chat/${c.id}`)}

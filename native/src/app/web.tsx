@@ -20,6 +20,17 @@ import { Logo } from '../ui/Logo';
 /** Open an oenod.com page (hash route like "/invoices") in the in-app web view. */
 // Sections rebuilt as real app screens (wave 1): any link to them, from anywhere, opens the app screen, not a web page.
 const NATIVE: [RegExp, (m: RegExpMatchArray) => string][] = [
+  // 4.0: the app's own tabs and screens, so a notification or card link never opens the website for them.
+  [/^\/(schedule|shifts|my-schedule)$/, () => '/schedule'],
+  [/^\/(timeoff|time-off|leave)$/, () => '/timeoff'],
+  [/^\/(team|employees|people)$/, () => '/team'],
+  [/^\/(calls|phone)$/, () => '/phone'],
+  [/^\/(pay|paystubs|my-pay)$/, () => '/pay'],
+  [/^\/payroll$/, () => '/payroll'],
+  [/^\/(timesheet|my-hours)$/, () => '/timesheet'],
+  [/^\/(notifications|inbox)$/, () => '/notifications'],
+  [/^\/(wallet|card)$/, () => '/wallet'],
+  [/^\/(me|profile|account)$/, () => '/me'],
   [/^\/invoices\/new$/, () => '/invoices/new'],
   [/^\/invoices\/(\d+)$/, (m) => `/invoices/${m[1]}`],
   [/^\/(invoices|quotes)$/, () => '/invoices'],
