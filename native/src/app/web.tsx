@@ -68,7 +68,7 @@ const BEFORE = IOS_STORE ? APP_MODE + IOS_WEB_GUARD : APP_MODE;
 // Other websites (a bank, a carrier, a map) open in a sheet over the app with a Done button: you never leave OENOD.
 export const openSheet = (u: string) => WebBrowser.openBrowserAsync(u, {
   presentationStyle: WebBrowser.WebBrowserPresentationStyle.PAGE_SHEET,
-  controlsColor: '#FFFFFF', toolbarColor: '#05060D', secondaryToolbarColor: '#05060D',
+  controlsColor: '#FFFFFF', toolbarColor: '#000C58', secondaryToolbarColor: '#000C58',
   enableBarCollapsing: true, showTitle: true, createTask: false,
 }).catch(() => {});
 
@@ -83,21 +83,21 @@ export default function Web() {
   if (IOS_STORE && SALES_ROUTE.test(route)) route = '/';
   // A new stamp each time the screen opens, so the phone never shows a stale copy of the site.
   const stamp = useRef(String(Date.now())).current;
-  const url = `${BASE}/?lang=${lang()}&app=1&v=${stamp}#${route}`;
+  const url = `${BASE}/?lang=${lang()}&app=1&look=day&v=${stamp}#${route}`;
   if (Platform.OS === 'web') { WebBrowser.openBrowserAsync(url); router.back(); return null; }
   return (
     <View style={{ flex: 1, backgroundColor: C.bg }}>
-      {/* 3.9.1 Navy Glass Pro: a black header that says you are still inside OENOD and signed in. */}
-      <View style={{ paddingTop: insets.top + 4, paddingHorizontal: 12, paddingBottom: 10, flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#05060D', borderBottomWidth: 1, borderColor: '#1A1D2B' }}>
+      {/* 4.0 Navy Daylight: a navy header that says you are still inside OENOD and signed in. */}
+      <View style={{ paddingTop: insets.top + 4, paddingHorizontal: 12, paddingBottom: 10, flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#000C58', borderBottomWidth: 1, borderColor: '#04137A' }}>
         <Pressable onPress={() => (canBack ? ref.current?.goBack() : router.back())} accessibilityRole="button" accessibilityLabel={t('Back')} hitSlop={8}
-          style={({ pressed }) => ({ width: 40, height: 40, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: pressed ? '#1A1D2B' : '#0D0F18', borderWidth: 1, borderColor: '#1F2233' })}>
+          style={({ pressed }) => ({ width: 40, height: 40, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: pressed ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.1)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.16)' })}>
           <Icon name="back" size={20} color="#FFFFFF" duo={false} />
         </Pressable>
         <View style={{ flex: 1, minWidth: 0 }}>
           <Text numberOfLines={1} style={{ color: '#FFFFFF', fontSize: 16.5, fontWeight: '700', letterSpacing: -0.2 }}>{String(title)}</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 1 }}>
             <Icon name="shield" size={11} color="#3BD884" duo={false} />
-            <Text numberOfLines={1} style={{ color: '#3BD884', fontSize: 11.5, fontWeight: '600' }}>{t('Inside OENOD · signed in')}</Text>
+            <Text numberOfLines={1} style={{ color: '#8EF0B8', fontSize: 11.5, fontWeight: '600' }}>{t('Inside OENOD · signed in')}</Text>
           </View>
         </View>
         {busy ? <ActivityIndicator color="#B9C4FF" /> : <Logo width={46} color="#FFFFFF" />}
