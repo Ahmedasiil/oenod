@@ -1,5 +1,5 @@
-OENOD 4.2: your card, your résumé and new jobs, right in the app.
-- My card: show your business card with a big QR code, share it with anyone, send your contact, or add it to Apple or Google Wallet.
-- Find a job: search jobs near you, see the pay and how well you match, apply with your résumé and a cover letter Ava writes, and get job alerts.
-- Résumé: Ava's tips to make it stronger, jobs that match it, and Save as PDF to send it anywhere.
-- Plus everything from 4.1: the new look and every tool inside the app.
+OENOD 4.3: meetings now run right inside the app.
+- OENOD Meet: join with the 10-number code or a link, with or without an account. Video, mute, camera, flip, speaker, chat, raise your hand, and let people in from the waiting room.
+- Business Phone: safer calls on Android, with clear messages if the microphone or notifications are off.
+- Forgot password, Terms and Privacy now open inside the app.
+- Sharper home buttons on Android, and many small fixes.

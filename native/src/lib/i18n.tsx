@@ -15,6 +15,7 @@ import v36 from '../i18n/v36.json';
 import v37 from '../i18n/v37.json';
 import v391 from '../i18n/v391.json';
 import v41 from '../i18n/v41.json';
+import v43 from '../i18n/v43.json';
 import w6x from '../i18n/w6x.json';
 import w7x from '../i18n/w7x.json';
 import koJ from '../i18n/ko.json';
@@ -1180,7 +1181,7 @@ Object.assign(fr, v36.fr); Object.assign(es, v36.es); Object.assign(ar, v36.ar);
 Object.assign(fr, v37.fr); Object.assign(es, v37.es); Object.assign(ar, v37.ar);
 Object.assign(fr, v391.fr); Object.assign(es, v391.es); Object.assign(ar, v391.ar);
 // 4.1 Meet look phrases (only adds words that had no translation yet).
-for (const [dst, src] of [[fr, v41.fr], [es, v41.es], [ar, v41.ar], [es, w6x.es], [ar, w6x.ar], [fr, w7x.fr], [es, w7x.es], [ar, w7x.ar]] as [Record<string, string>, Record<string, string>][]) for (const [k, v] of Object.entries(src)) if (!(k in dst)) dst[k] = v;
+for (const [dst, src] of [[fr, v41.fr], [es, v41.es], [ar, v41.ar], [es, w6x.es], [ar, w6x.ar], [fr, w7x.fr], [es, w7x.es], [ar, w7x.ar], [fr, v43.fr], [es, v43.es], [ar, v43.ar]] as [Record<string, string>, Record<string, string>][]) for (const [k, v] of Object.entries(src)) if (!(k in dst)) dst[k] = v;
 const DICTS: Record<Lang, Dict> = { en: {}, fr, ar, es, zh: { ...zh, ...v36.zh, ...v37.zh, ...v391.zh }, pa: { ...pa, ...v36.pa, ...v37.pa, ...v391.pa }, tl: { ...tl, ...v36.tl, ...v37.tl, ...v391.tl }, hi: { ...hi, ...v36.hi, ...v37.hi, ...v391.hi }, pt: { ...pt, ...v36.pt, ...v37.pt, ...v391.pt }, ur: { ...ur, ...v36.ur, ...v37.ur, ...v391.ur },
   ko: koJ as Dict, vi: viJ as Dict, fa: faJ as Dict, ru: ruJ as Dict, ta: taJ as Dict, gu: guJ as Dict, it: itJ as Dict, de: deJ as Dict, pl: plJ as Dict, ja: jaJ as Dict };
 
