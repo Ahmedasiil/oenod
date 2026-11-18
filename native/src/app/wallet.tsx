@@ -107,7 +107,7 @@ function WalletView({ base }: { base: '/api/me/wallet' | '/api/wallet' }) {
   const w = x.wallet;
   const cur = (n: number) => money(n, 2);
   const avail = x.balance?.available ?? 0;
-  const manage = x.security.can_manage !== false;
+  const manage = x.security?.can_manage !== false;
   const onHold = !!x.security.hold_until && new Date(x.security.hold_until.replace(' ', 'T') + 'Z').getTime() > Date.now();
   const canSend = manage && !onHold && w.can_payout && avail >= x.security.min_payout && w.status !== 'frozen';
 
