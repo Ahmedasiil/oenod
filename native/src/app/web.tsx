@@ -49,6 +49,16 @@ const NATIVE: [RegExp, (m: RegExpMatchArray) => string][] = [
   [/^\/reviews$/, () => '/reviews'],
   [/^\/(support|help)\/(\d+)$/, (m) => `/support/${m[2]}`],
   [/^\/(support|help)$/, () => '/support'],
+  [/^\/(hiring|jobs|applicants)$/, () => '/hiring'],
+  [/^\/(hiring|applicants|applications)\/(\d+)$/, (m) => `/hiring/${m[2]}`],
+  [/^\/onboarding$/, () => '/onboarding'],
+  [/^\/(onboarding|flows)\/(\d+)$/, (m) => `/onboarding/${m[2]}`],
+  [/^\/(performance|goals)$/, () => '/performance'],
+  [/^\/performance\/(\d+)$/, (m) => `/performance/${m[1]}`],
+  [/^\/(resume|resumes|me\/resumes)$/, () => '/resume'],
+  [/^\/(resume|resumes)\/(\d+)$/, (m) => `/resume/${m[2]}`],
+  [/^\/(mail|inbox)$/, () => '/mail'],
+  [/^\/mail\/(\d+)$/, (m) => `/mail/${m[1]}`],
 ];
 export const nativeFor = (path: string): string | null => {
   const p = ('/' + String(path || '').replace(/^#?\/*/, '')).split(/[?#]/)[0].replace(/\/+$/, '') || '/';

@@ -29,9 +29,9 @@ const GROUPS: Group[] = [
     { name: 'My hours', icon: 'clock', hint: 'Timesheet', app: '/timesheet', who: 'staff' },
     { name: 'My availability', icon: 'check', hint: 'When you can work', app: '/availability', who: 'staff' },
     { name: 'Kiosk', icon: 'device', hint: 'Staff clock in', app: '/kiosk', who: 'mgr' },
-    { name: 'Hiring', icon: 'briefcase', hint: 'Jobs', web: '/hiring', who: 'mgr', mod: 'hiring' },
-    { name: 'Onboarding', icon: 'check', hint: 'New people', web: '/onboarding', who: 'mgr', mod: 'onboarding' },
-    { name: 'Performance', icon: 'chart', hint: 'Goals', web: '/performance', who: 'mgr', mod: 'performance' },
+    { name: 'Hiring', icon: 'briefcase', hint: 'Jobs', app: '/hiring', who: 'mgr', mod: 'hiring' },
+    { name: 'Onboarding', icon: 'check', hint: 'New people', app: '/onboarding', who: 'mgr', mod: 'onboarding' },
+    { name: 'Performance', icon: 'chart', hint: 'Goals', app: '/performance', who: 'mgr', mod: 'performance' },
   ] },
   { name: 'Money', tools: [
     { name: 'Payroll', icon: 'cash', hint: 'Pay your team', web: '/payroll', who: 'mgr', mod: 'payroll' },
@@ -54,10 +54,10 @@ const GROUPS: Group[] = [
   ] },
   { name: 'Ava, mail & learning', tools: [
     { name: 'Ava AI', icon: 'spark', hint: 'Ask', app: '/ai', who: 'all' },
-    { name: 'Mail', icon: 'mail', hint: 'Inbox', web: '/mail', who: 'mgr' },
+    { name: 'Mail', icon: 'mail', hint: 'Inbox', app: '/mail', who: 'mgr' },
     { name: 'Academy', icon: 'cap', hint: 'Courses', web: '/academy', who: 'team', mod: 'academy' },
     { name: 'Docs', icon: 'doc', hint: 'Sign and share', web: '/docs', who: 'mgr', mod: 'docs' },
-    { name: 'Résumé', icon: 'doc', hint: 'Ava writes it', web: '/resume', who: 'staff' },
+    { name: 'Résumé', icon: 'doc', hint: 'Ava writes it', app: '/resume', who: 'staff' },
   ] },
   { name: 'Operations', tools: [
     { name: 'Inventory', icon: 'box', hint: 'Stock', app: '/inventory', who: 'mgr' },
