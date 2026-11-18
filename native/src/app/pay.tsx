@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ScrollView, View } from 'react-native';
-import { openTool } from './web';
-import { BASE, get } from '../lib/api';
+import { BASE, get, put } from '../lib/api';
+import { Btn, In, Item, Pick, Sheet, Tag, useBusy } from '../ui/T1';
 import { useLoad } from '../lib/useLoad';
 import { date, money } from '../lib/format';
 import { C, S } from '../lib/theme';
@@ -22,7 +22,24 @@ const n = (v: unknown) => Number(v || 0);
 export default function PayScreen() {
   const d = useLoad(() => get<Pay>('/api/me/pay'));
   const x = d.data;
-  const open = () => openTool('/my-pay', t('My pay'));
+  const bk = useLoad(() => get<{ bank: { holder: string; institution: string | null; transit: string | null; routing: string | null; last4: string; kind: string; bank_status: string } | null; country: string }>('/api/me/bank').catch(() => null));
+  const t4 = useLoad(() => get<{ years: number[]; employee_id?: number }>('/api/me/t4').catch(() => ({ years: [] as number[], employee_id: undefined as number | undefined })));
+  const { busy, run } = useBusy();
+  const [ed, setEd] = useState<{ holder: string; institution: string; transit: string; routing: string; account: string; kind: string; password: string; code: string } | null>(null);
+  const [err, setErr] = useState('');
+  const [slip, setSlip] = useState<{ year: number; s: Record<string, any> } | null>(null);
+  const us = bk.data?.country === 'US';
+  const open = () => { setErr(''); const b = bk.data?.bank; setEd({ holder: b?.holder || '', institution: b?.institution || '', transit: b?.transit || '', routing: b?.routing || '', account: '', kind: b?.kind || 'checking', password: '', code: '' }); };
+  const saveBank = () => {
+    if (!ed) return;
+    if (!ed.holder.trim()) return setErr(t('Type the name on the account.'));
+    if (us ? ed.routing.replace(/\D/g, '').length !== 9 : ed.institution.replace(/\D/g, '').length !== 3 || ed.transit.replace(/\D/g, '').length !== 5) return setErr(us ? t('The routing number is 9 digits.') : t('The institution number is 3 digits and the transit number is 5 digits.'));
+    if (ed.account.replace(/\D/g, '').length < 4) return setErr(t('Type your account number.'));
+    if (!ed.password) return setErr(t('Type your OENOD password to change where you get paid.'));
+    setErr('');
+    run('bk', async () => { await put('/api/me/bank', { ...ed, holder: ed.holder.trim() }); setEd(null); bk.reload(); d.reload(); });
+  };
+  const openSlip = (year: number) => t4.data?.employee_id && run('t4' + year, async () => { const r = await get<any>(`/api/cra/t4/${t4.data!.employee_id}/slip?year=${year}`); setSlip({ year, s: r.slip || r.slips?.[0] || r }); });
   return (
     <ScrollView style={{ backgroundColor: C.bg }} contentContainerStyle={{ width: '100%', maxWidth: 760, alignSelf: 'center', padding: S.lg, gap: S.md, paddingBottom: 48 }}>
       {d.loading && !x ? <Loading /> : d.error && !x ? <ErrorBox text={d.error} onRetry={d.reload} /> : (
@@ -70,10 +87,42 @@ export default function PayScreen() {
               </View>
             </Card>
           )) : <Card><Empty icon="cash" title={t('No pay stubs yet')} sub={t('After your employer runs payroll in OENOD, your pay stubs show up here.')} /></Card>}
-          <Card onPress={open}><Row><IconTile name="globe" color={tint(1)} /><B style={{ flex: 1 }}>{t('Full pay stubs and tax slips on the website')}</B><Icon name="chevron" color={C.faint} size={18} /></Row></Card>
+          <Card style={{ gap: 4 }}>
+            <H2>{t('Tax slips')}</H2>
+            {t4.data?.years.length ? t4.data.years.map((y) => <ListRow key={y} title={t('T4 for {y}', { y })} onPress={() => openSlip(y)} right={<Icon name="chevron" color={C.faint} size={18} />} />)
+              : <Muted>{t('Your T4 shows up here after your employer files it, by the end of February.')}</Muted>}
+          </Card>
         </>
       )}
       <PoweredBy />
+      <Sheet open={!!ed} title={t('Direct deposit')} onClose={() => setEd(null)}>
+        {ed ? (
+          <>
+            <In label={t('Name on the account')} value={ed.holder} onChangeText={(v) => setEd({ ...ed, holder: v })} />
+            {us ? <In label={t('Routing number (9 digits)')} value={ed.routing} onChangeText={(v) => setEd({ ...ed, routing: v })} keyboardType="number-pad" />
+              : <View style={{ flexDirection: 'row', gap: 10 }}>
+                  <In style={{ flex: 1 }} label={t('Institution (3 digits)')} value={ed.institution} onChangeText={(v) => setEd({ ...ed, institution: v })} keyboardType="number-pad" />
+                  <In style={{ flex: 1 }} label={t('Transit (5 digits)')} value={ed.transit} onChangeText={(v) => setEd({ ...ed, transit: v })} keyboardType="number-pad" />
+                </View>}
+            <In label={t('Account number')} value={ed.account} onChangeText={(v) => setEd({ ...ed, account: v })} keyboardType="number-pad" />
+            <Pick<string> label={t('Account type')} value={ed.kind} onChange={(v) => setEd({ ...ed, kind: v })} items={[['checking', t('Chequing')], ['savings', t('Savings')]]} />
+            <In label={t('Your OENOD password')} value={ed.password} onChangeText={(v) => setEd({ ...ed, password: v })} secureTextEntry />
+            <In label={t('2FA code (if you use one)')} value={ed.code} onChangeText={(v) => setEd({ ...ed, code: v })} keyboardType="number-pad" />
+            <Muted>{t('Your manager approves the new account before the next pay run.')}</Muted>
+            {err ? <Tag text={err} tone="bad" /> : null}
+            <Btn text={t('Save bank account')} icon="check" kind="blue" onPress={saveBank} busy={busy === 'bk'} />
+          </>
+        ) : null}
+      </Sheet>
+      <Sheet open={!!slip} title={slip ? t('T4 for {y}', { y: slip.year }) : ''} onClose={() => setSlip(null)}>
+        {slip ? (
+          <>
+            {([['box14', 'Employment income (box 14)'], ['box22', 'Income tax deducted (box 22)'], ['box16', 'CPP paid (box 16)'], ['box16a', 'CPP2 paid (box 16A)'], ['box18', 'EI paid (box 18)'], ['box24', 'EI insurable earnings (box 24)'], ['box26', 'CPP pensionable earnings (box 26)']] as [string, string][])
+              .filter(([k]) => slip.s[k] !== undefined).map(([k, l]) => <Item key={k} title={t(l)} right={money(Number(slip.s[k] || 0), 2)} />)}
+            <Muted>{t('Use these numbers when you file your taxes. Your employer also sends this slip to the CRA.')}</Muted>
+          </>
+        ) : null}
+      </Sheet>
       </ScrollView>
   );
 }

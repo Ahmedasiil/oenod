@@ -10,10 +10,10 @@ import { useLoad } from '../../lib/useLoad';
 import { day, time } from '../../lib/format';
 import { t } from '../../lib/i18n';
 import { dialOut } from '../../lib/phone';
-import { openTool } from '../web';
 import { Icon } from '../../ui/Icon';
 import { FH, IB, Li, List, SBtn, Sec, SubTop, V } from '../../ui/M6';
 import { PoweredBy } from '../../ui/Brand';
+import { oops } from '../../ui/T1';
 
 type Me = { on?: boolean; ready?: boolean; allowed?: boolean; seat?: boolean; line?: string | null; can_manage?: boolean; status?: string };
 type CallRow = { customer: string | null; number: string; dir: string; at: string; state: string; secs: number; note: string | null; agent: string | null };
@@ -22,7 +22,7 @@ export const pretty = (v: string) => {
   const d = v.replace(/\D/g, '').replace(/^1(?=\d{10}$)/, '');
   return d.length === 10 ? `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}` : d.length > 6 ? `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}` : d.length > 3 ? `(${d.slice(0, 3)}) ${d.slice(3)}` : d;
 };
-const calls = () => openTool('/calls', t('Business Phone'));
+const calls = () => router.push('/calls' as any);
 
 export default function PhoneTab() {
   const insets = useSafeAreaInsets();
@@ -36,8 +36,8 @@ export default function PhoneTab() {
     setNum((n) => (n.length < 15 ? n + k : n));
   };
   const call = async (to: string) => {
-    if (to.replace(/\D/g, '').length < 10) { calls(); return; }
-    if (!(await dialOut(to))) calls();
+    if (to.replace(/\D/g, '').length < 10) { oops(t('Type a 10-digit phone number.')); return; }
+    if (!(await dialOut(to))) oops(t('Calling works in the OENOD app on your phone. Number: {n}', { n: pretty(to) }));
   };
   const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '⌫'];
   const rows = hist.data?.calls || [];

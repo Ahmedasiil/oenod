@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { NavyFill } from '../../ui/Brand';
 import { Alert, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
-import { openTool } from '../web';
 import { Rise } from '../../ui/Motion';
 import { router } from 'expo-router';
 import { useAuth } from '../../lib/auth';
@@ -224,7 +223,7 @@ function Everyone({ sel, from, onLoaded }: { sel: string; from: string; onLoaded
   if (d.error && !d.data) return <ErrorBox text={d.error} onRetry={d.reload} />;
   return (
     <>
-      {isManager ? <Rise><AiTip text={tip} onOpen={() => openTool('/schedule', t('Schedule'))} /></Rise> : null}
+      {isManager ? <Rise><AiTip text={tip} onOpen={() => router.push({ pathname: '/shiftplan', params: { day: sel } } as any)} /></Rise> : null}
       <Requests list={d.data?.requests || []} onDone={d.reload} />
       <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
         <Text style={{ flex: 1, color: C.ink, fontSize: 16, fontWeight: '700' }} accessibilityRole="header">{`${dayName} · ${list.length === 1 ? t('1 shift') : t('{n} shifts', { n: list.length })}`}</Text>
@@ -252,7 +251,7 @@ export default function Schedule() {
     </View>
   );
   const fab = isManager && view === 'all' ? (
-    <Pressable onPress={() => openTool('/schedule', t('Schedule'))} accessibilityRole="button" accessibilityLabel={t('Add shift')}
+    <Pressable onPress={() => router.push({ pathname: '/shiftplan', params: { day: sel, add: '1' } } as any)} accessibilityRole="button" accessibilityLabel={t('Add shift')}
       style={({ pressed }) => ({ height: 50, paddingHorizontal: 18, borderRadius: 16, flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: C.dark ? '#FFFFFF' : '#0A1230', opacity: pressed ? 0.85 : 1, shadowColor: '#0A1230', shadowOpacity: 0.25, shadowRadius: 14, shadowOffset: { width: 0, height: 6 }, elevation: 6 })}>
       <Icon name="plus" size={18} color={C.dark ? '#0A1230' : '#FFFFFF'} duo={false} />
       <Text style={{ color: C.dark ? '#0A1230' : '#FFFFFF', fontWeight: '700', fontSize: 14 }}>{t('Add shift')}</Text>
@@ -260,7 +259,7 @@ export default function Schedule() {
   ) : undefined;
   return (
     <Screen eyebrow={eyebrow} title={t('Schedule')} below={below} fab={fab} refreshing={false} onRefresh={() => setK((x) => x + 1)}
-      right={<Pressable onPress={() => openTool('/schedule', t('Schedule'))} accessibilityLabel={t('Search')} style={{ width: 40, height: 40, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: C.dark ? C.card2 : '#F5F7FB' }}><Icon name="search" size={19} color={C.ink} duo={false} /></Pressable>}>
+      right={<Pressable onPress={() => router.push({ pathname: '/shiftplan', params: { day: sel } } as any)} accessibilityRole="button" accessibilityLabel={t('Search')} style={{ width: 40, height: 40, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: C.dark ? C.card2 : '#F5F7FB' }}><Icon name="search" size={19} color={C.ink} duo={false} /></Pressable>}>
       {view === 'mine' ? <Mine key={k} /> : <Everyone key={`${k}-${days[0]}`} sel={sel} from={days[0]} onLoaded={setHas} />}
       {isManager && view === 'all' ? <View style={{ height: 60 }} /> : null}
     </Screen>

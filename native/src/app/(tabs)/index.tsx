@@ -572,7 +572,7 @@ export default function Home() {
 
   const pack = ob.data?.pack || [];
   const packOk = pack.filter((p) => p.ok).length;
-  const PACK_GO: Record<string, string> = { tax: '/my-pay', deposit: '/my-pay', emergency: '/me', handbook: '/my-hr', contract: '/my-hr' };
+  const PACK_GO: Record<string, string> = { tax: '/my-pay', deposit: '/my-pay', emergency: '/profile-edit', handbook: '/docs', contract: '/docs' };
 
   // ---------- 4.0 Navy Daylight (approved 11-17, live preview Jj2DsJyfZSMSmUfPLvDxYc) ----------
   const insets = useSafeAreaInsets();
@@ -672,7 +672,7 @@ export default function Home() {
   const sNeeds: HNeed[] = [];
   for (const p of pack.filter((q) => !q.ok).slice(0, 3)) {
     sNeeds.push({ key: 'p' + p.k, icon: p.k === 'contract' || p.k === 'handbook' ? 'pencil-simple-line' : p.k === 'tax' || p.k === 'deposit' ? 'money' : 'user-circle', tone: 'navy',
-      title: t(p.label), sub: p.k === 'contract' || p.k === 'handbook' ? t('Sign') : t('Fill in'), go: () => openTool(p.doc_id ? `/docs/${Number(p.doc_id)}` : PACK_GO[p.k] || '/my-hr', t(p.label)) });
+      title: t(p.label), sub: p.k === 'contract' || p.k === 'handbook' ? t('Sign') : t('Fill in'), go: () => openTool(p.doc_id ? `/docs/${Number(p.doc_id)}` : PACK_GO[p.k] || '/docs', t(p.label)) });
   }
   items.filter((n) => !n.read_at).slice(0, 4).forEach((n, i) => {
     sNeeds.push({ key: 'n' + n.id, icon: PH_NOTE[n.kind] || 'bell', tone: (['blue', 'ink', 'navy'] as const)[i % 3], title: n.title, sub: n.body || (sameDay(n.created_at) ? time(n.created_at) : day(n.created_at)), go: () => openHref(n.link, n.title) });
@@ -682,7 +682,7 @@ export default function Home() {
     { label: t('Schedule'), icon: 'calendar-dots', tone: 'ink', go: () => router.navigate('/schedule') },
     { label: t('Time off'), icon: 'sun-horizon', tone: 'ink', go: () => router.navigate('/timeoff') },
     { label: t('Pay stubs'), icon: 'money', tone: 'blue', go: () => router.push('/pay') },
-    { label: t('Documents'), icon: 'file-text', tone: 'blue', badge: pack.filter((p) => !p.ok && (p.k === 'contract' || p.k === 'handbook')).length || undefined, go: () => openTool('/my-hr', t('Documents')) },
+    { label: t('Documents'), icon: 'file-text', tone: 'blue', badge: pack.filter((p) => !p.ok && (p.k === 'contract' || p.k === 'handbook')).length || undefined, go: () => openTool('/docs', t('Documents')) },
     { label: t('Training'), icon: 'graduation-cap', tone: 'navy', go: () => openTool('/academy', t('Academy')) },
     { label: t('Meet'), icon: 'video-camera', tone: 'navy', go: () => router.navigate('/meet') },
     { label: t('Messages'), icon: 'chat-circle-dots', tone: 'navy', go: () => openTool('/chat', t('Team chat')) },
