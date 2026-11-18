@@ -57,6 +57,11 @@ const NATIVE: [RegExp, (m: RegExpMatchArray) => string][] = [
   [/^\/performance\/(\d+)$/, (m) => `/performance/${m[1]}`],
   [/^\/(resume|resumes|me\/resumes)$/, () => '/resume'],
   [/^\/(resume|resumes)\/(\d+)$/, (m) => `/resume/${m[2]}`],
+  [/^\/(accounting|acct|books|bills)$/, () => '/accounting'],
+  [/^\/(banking|bank|bank-feed)$/, () => '/banking'],
+  [/^\/(marketing|campaigns)$/, () => '/marketing'],
+  [/^\/(projects|tasks)$/, () => '/projects'],
+  [/^\/projects\/(\d+)$/, (m) => `/projects/${m[1]}`],
   [/^\/(mail|inbox)$/, () => '/mail'],
   [/^\/mail\/(\d+)$/, (m) => `/mail/${m[1]}`],
 ];
