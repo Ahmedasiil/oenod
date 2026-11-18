@@ -49,7 +49,8 @@ class OenodTapModule : Module() {
       try {
         val cm = android.webkit.CookieManager.getInstance()
         val all = cm.getCookie("https://oenod.com") ?: ""
-        if (all.contains("oenod_sid=")) return@Function false
+        // A fresh signed-out cookie may already be there after a crash: put the saved sign-in back unless it is the same one.
+        if (all.split(";").map { it.trim() }.any { it == "oenod_sid=" + v }) return@Function false
         cm.setCookie("https://oenod.com", "oenod_sid=" + v + "; Path=/; Secure; HttpOnly; SameSite=Lax")
         cm.flush(); true
       } catch (e: Throwable) { false }
