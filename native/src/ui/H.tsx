@@ -239,3 +239,159 @@ export function Key({ icon, label, onPress, tone = 'navy', wide }: { icon?: PhNa
     </Pressy>
   );
 }
+
+// ---------- 4.1 Meet look (approved 11-18, preview https://claude.ai/artifact/PDmS73P7p6a2ZN2XEwf3MA) ----------
+
+/** Glass round button on the navy band. */
+export function GlassBtn({ icon, label, onPress, dot, children }: { icon?: PhName; label: string; onPress: () => void; dot?: boolean; children?: React.ReactNode }) {
+  return (
+    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={label} hitSlop={4}
+      style={({ pressed }) => ({ width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center', backgroundColor: pressed ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.12)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.14)' })}>
+      {icon ? <Ph name={icon} size={20} color="#FFFFFF" duo={0.3} /> : children}
+      {dot ? <View style={{ position: 'absolute', top: 9, right: 10, width: 8, height: 8, borderRadius: 4, backgroundColor: '#7CF0B0' }} /> : null}
+    </Pressable>
+  );
+}
+
+/** Top of a main page: the navy band with logo (or back), search, bell and avatar, then kicker, big title and a line under it.
+ *  Whatever comes right after it (pass `lift`) should pull up with marginTop -80 so it overlaps the band. */
+export function MTop({ title, sub, kicker, logo, onBack, top, initials, unread, onSearch, onBell, onMe, extra, pad = 104 }: {
+  title: string; sub?: string; kicker?: string; logo?: React.ReactNode; onBack?: () => void; top: number; initials: string; unread?: number;
+  onSearch?: () => void; onBell: () => void; onMe: () => void; extra?: React.ReactNode; pad?: number;
+}) {
+  return (
+    <Band pad={pad} style={{ paddingTop: top + 10 }}>
+      <View style={{ width: '100%', maxWidth: 760, alignSelf: 'center' }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 44 }}>
+          {onBack ? <GlassBtn icon="caret-left" label="Back" onPress={onBack} /> : logo}
+          <View style={{ flex: 1 }} />
+          {extra}
+          {onSearch ? <GlassBtn icon="magnifying-glass" label="Search" onPress={onSearch} /> : null}
+          <GlassBtn icon="bell" label={unread ? `Notifications (${unread})` : 'Notifications'} onPress={onBell} dot={!!unread} />
+          <Pressable onPress={onMe} accessibilityRole="button" accessibilityLabel="Me"
+            style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' }}>
+            <Text style={{ color: H.navy, fontWeight: '800', fontSize: 14 }}>{initials}</Text>
+          </Pressable>
+        </View>
+        {kicker ? <Text style={{ color: H.soft, fontSize: 14, fontWeight: '600', marginTop: 18 }} numberOfLines={1}>{kicker}</Text> : null}
+        <Text style={{ color: '#FFFFFF', fontSize: 36, fontWeight: '800', letterSpacing: -1, marginTop: kicker ? 2 : 18 }} numberOfLines={1} adjustsFontSizeToFit accessibilityRole="header">{title}</Text>
+        {sub ? <Text style={{ color: H.soft, fontSize: 14.5, marginTop: 4, lineHeight: 20 }} numberOfLines={2}>{sub}</Text> : null}
+      </View>
+    </Band>
+  );
+}
+
+export type Act = { icon: PhName; title: string; sub?: string; go: () => void; badge?: number; busy?: boolean };
+
+/** The white action card with a 2 x 2 grid of tiles; the first tile is the navy one. */
+export function ActCard({ items }: { items: Act[] }) {
+  return (
+    <View style={[card, { padding: 12, gap: 10 }]}>
+      {[items.slice(0, 2), items.slice(2, 4)].filter((r) => r.length).map((row, ri) => (
+      <View key={ri} style={{ flexDirection: 'row', gap: 10 }}>
+      {row.map((a, j) => {
+        const i = ri * 2 + j;
+        const main = i === 0;
+        return (
+          <Pressy key={a.title} onPress={a.busy ? undefined : a.go} accessibilityRole="button" accessibilityLabel={`${a.title}${a.sub ? ', ' + a.sub : ''}`}
+            style={{ flex: 1, height: 108, borderRadius: 20, padding: 14, overflow: 'hidden', justifyContent: 'space-between', opacity: a.busy ? 0.7 : 1,
+              shadowColor: main ? '#1A2FCF' : 'transparent', shadowOpacity: main ? 0.35 : 0, shadowRadius: 12, shadowOffset: { width: 0, height: 8 }, elevation: main ? 5 : 0 }}>
+            <Grad id={main ? 'actm' : 'actl'} x1={0.15} y1={0} x2={0.85} y2={1} stops={main ? [[0, '#2B44E8'], [1, '#000C58']] : [[0, '#F6F7FD'], [1, '#EBEEFA']]} />
+            <View style={{ width: 40, height: 40, borderRadius: 13, alignItems: 'center', justifyContent: 'center', backgroundColor: main ? 'rgba(255,255,255,0.16)' : '#FFFFFF',
+              shadowColor: H.navy, shadowOpacity: main ? 0 : 0.08, shadowRadius: 6, shadowOffset: { width: 0, height: 3 } }}>
+              <Ph name={a.icon} size={21} color={main ? '#FFFFFF' : H.navy} duo={main ? 0.35 : 0.22} />
+              {a.badge ? <View style={{ position: 'absolute', top: -5, right: -5, minWidth: 18, height: 18, borderRadius: 9, paddingHorizontal: 3, backgroundColor: '#4A63FF', borderWidth: 2, borderColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: '#FFFFFF', fontSize: 10, fontWeight: '800' }}>{a.badge}</Text></View> : null}
+            </View>
+            <View>
+              <Text style={{ color: main ? '#FFFFFF' : H.ink, fontSize: 15, fontWeight: '800', letterSpacing: -0.2 }} numberOfLines={1}>{a.title}</Text>
+              {a.sub ? <Text style={{ color: main ? '#C9D2FF' : H.muted, fontSize: 12, marginTop: 1 }} numberOfLines={1}>{a.sub}</Text> : null}
+            </View>
+          </Pressy>
+        );
+      })}
+      </View>
+      ))}
+    </View>
+  );
+}
+
+export type NowBtn = { text: string; go: () => void; main?: boolean; busy?: boolean };
+
+/** The black "now" card: live chip + right note, big title, a line, optional stats, faces and buttons. */
+export function NowCard({ chip, right, title, sub, stats, faces, more, btns, big, id = 'now' }: {
+  chip: string; right?: string; title: string; sub?: string; stats?: [string, string][]; faces?: string[]; more?: number; btns?: NowBtn[]; big?: boolean; id?: string;
+}) {
+  return (
+    <View style={{ borderRadius: 24, padding: 18, overflow: 'hidden', backgroundColor: '#0A0B10', shadowColor: '#1A2FCF', shadowOpacity: 0.35, shadowRadius: 22, shadowOffset: { width: 0, height: 14 }, elevation: 8 }}>
+      <Grad id={id} x1={0.2} y1={0} x2={0.8} y2={1} stops={[[0, '#16182A'], [1, '#0A0B10']]} />
+      <View pointerEvents="none" style={{ position: 'absolute', right: -60, top: -70, width: 200, height: 200, borderRadius: 100, backgroundColor: 'rgba(74,99,255,0.12)' }} />
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 4, paddingHorizontal: 10, borderRadius: 99, backgroundColor: 'rgba(124,240,176,0.14)' }}>
+          <Pulse color="#7CF0B0" size={7} />
+          <Text style={{ color: '#7CF0B0', fontSize: 12, fontWeight: '700' }} numberOfLines={1}>{chip}</Text>
+        </View>
+        {right ? <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, flexShrink: 1 }} numberOfLines={1}>{right}</Text> : null}
+      </View>
+      <Text style={{ color: '#FFFFFF', fontSize: big ? 52 : 26, fontWeight: '800', letterSpacing: big ? -1.5 : -0.6, marginTop: 12, fontVariant: ['tabular-nums'] }} numberOfLines={1} adjustsFontSizeToFit>{title}</Text>
+      {sub ? <Text style={{ color: 'rgba(255,255,255,0.72)', fontSize: 13, marginTop: 4 }} numberOfLines={2}>{sub}</Text> : null}
+      {stats && stats.length ? (
+        <View style={{ flexDirection: 'row', marginTop: 14, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.06)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)' }}>
+          {stats.map(([k, v], i) => (
+            <View key={k} style={{ flex: 1, paddingVertical: 11, paddingHorizontal: 12, borderLeftWidth: i ? 1 : 0, borderLeftColor: 'rgba(255,255,255,0.08)' }}>
+              <Text style={{ color: '#FFFFFF', fontSize: 19, fontWeight: '800' }} numberOfLines={1} adjustsFontSizeToFit>{v}</Text>
+              <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 11.5, marginTop: 1 }} numberOfLines={1}>{k}</Text>
+            </View>
+          ))}
+        </View>
+      ) : null}
+      {(faces && faces.length) || (btns && btns.length) ? (
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 16, gap: 8 }}>
+          <View style={{ flexDirection: 'row', flex: 1 }}>
+            {(faces || []).slice(0, 4).map((f, i) => (
+              <View key={i} style={{ width: 32, height: 32, borderRadius: 16, marginLeft: i ? -9 : 0, borderWidth: 2, borderColor: '#0A0B10', backgroundColor: ['#4A63FF', '#1A2FCF', '#12A25B', '#E08A2E'][i % 4], alignItems: 'center', justifyContent: 'center' }}>
+                <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: '800' }}>{f}</Text>
+              </View>
+            ))}
+            {more ? <View style={{ width: 32, height: 32, borderRadius: 16, marginLeft: -9, borderWidth: 2, borderColor: '#0A0B10', backgroundColor: '#E8ECFC', alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: H.navy, fontSize: 10.5, fontWeight: '800' }}>+{more}</Text></View> : null}
+          </View>
+          {(btns || []).map((b) => (
+            <Pressy key={b.text} onPress={b.busy ? undefined : b.go} accessibilityRole="button" accessibilityLabel={b.text}
+              style={{ height: 40, paddingHorizontal: 16, borderRadius: 99, alignItems: 'center', justifyContent: 'center', backgroundColor: b.main ? '#FFFFFF' : 'rgba(255,255,255,0.12)', opacity: b.busy ? 0.6 : 1 }}>
+              <Text style={{ color: b.main ? H.navy : '#FFFFFF', fontSize: 13.5, fontWeight: '800' }} numberOfLines={1}>{b.text}</Text>
+            </Pressy>
+          ))}
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+/** White list card with thin lines between rows (preview .list). */
+export function LCard({ children, style }: { children: React.ReactNode; style?: ViewStyle }) {
+  const kids = React.Children.toArray(children).filter(Boolean);
+  return (
+    <View style={[card, { paddingHorizontal: 16, paddingVertical: 4 }, style]}>
+      {kids.map((c, i) => <View key={i} style={i < kids.length - 1 ? { borderBottomWidth: 1, borderBottomColor: H.line } : null}>{c}</View>)}
+    </View>
+  );
+}
+
+/** One row in an LCard: soft icon box, title, line, right text. */
+export function LRow({ icon, title, sub, right, rightSub, onPress, left }: { icon?: PhName; title: string; sub?: string; right?: string; rightSub?: string; onPress?: () => void; left?: React.ReactNode }) {
+  return (
+    <Pressable onPress={onPress} disabled={!onPress} accessibilityRole={onPress ? 'button' : undefined} accessibilityLabel={`${title}${sub ? ', ' + sub : ''}`}
+      style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 13, opacity: pressed ? 0.7 : 1 })}>
+      {left || (icon ? <View style={{ width: 42, height: 42, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: '#F1F3FE' }}><Ph name={icon} size={21} color={H.navy} /></View> : null)}
+      <View style={{ flex: 1, minWidth: 0 }}>
+        <Text style={{ color: H.ink, fontSize: 15, fontWeight: '700' }} numberOfLines={1}>{title}</Text>
+        {sub ? <Text style={{ color: H.muted, fontSize: 12.5, marginTop: 1 }} numberOfLines={1}>{sub}</Text> : null}
+      </View>
+      {right || rightSub ? (
+        <View style={{ alignItems: 'flex-end' }}>
+          {right ? <Text style={{ color: H.ink, fontSize: 14, fontWeight: '800' }} numberOfLines={1}>{right}</Text> : null}
+          {rightSub ? <Text style={{ color: H.blue, fontSize: 11.5, fontWeight: '700', marginTop: 2 }} numberOfLines={1}>{rightSub}</Text> : onPress ? null : null}
+        </View>
+      ) : onPress ? <Ph name="caret-right" size={16} color="#A0A6C0" duo={0} /> : null}
+    </Pressable>
+  );
+}

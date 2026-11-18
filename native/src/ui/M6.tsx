@@ -31,8 +31,9 @@ onPalette(() => Object.assign(V, C.dark ? VD : VL));
 /** Soft card shadow + border used on white cards in the light look. */
 export const lift = () => (V.dark ? {} : { borderWidth: 1, borderColor: V.line, shadowColor: '#000C58', shadowOpacity: 0.08, shadowRadius: 18, shadowOffset: { width: 0, height: 8 }, elevation: 3 });
 /** Heading font (Space Grotesk 600 / 700). */
-export const FH = { fontFamily: 'SG6' } as const;
-export const FH7 = { fontFamily: 'SG7' } as const;
+// 4.1 Meet look: headings are the system's heavy face (SF on iPhone, Roboto on Android), tight like the preview's Inter 800.
+export const FH = { fontWeight: '800', letterSpacing: -0.3 } as const;
+export const FH7 = { fontWeight: '800', letterSpacing: -0.4 } as const;
 
 type Tone = 'nv' | 'wh' | 'dk' | 'bk';
 

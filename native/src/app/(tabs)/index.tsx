@@ -21,7 +21,7 @@ import { currentFix, syncTracking, waitForConsent, type GeoMe } from '../../lib/
 import { syncLive } from '../../lib/live';
 import { BriefBar, HeroChip, StatTrio } from '../../ui/Mid';
 import { type Mini, type Tx } from '../../ui/M6';
-import { Band, card, Ghost, H, HChip, HSec, Legend, LEGEND, NeedCard, Ph, Primary, TileGrid, type Need as HNeed, type TileItem } from '../../ui/H';
+import { ActCard, Band, card, Ghost, H, HChip, HSec, MTop, NowCard, Legend, LEGEND, NeedCard, Ph, Primary, TileGrid, type Need as HNeed, type TileItem } from '../../ui/H';
 import type { PhName } from '../../ui/phPaths';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PoweredBy } from '../../ui/Brand';
@@ -746,6 +746,54 @@ export default function Home() {
     </View>
   );
 
+  // ---------- 4.1 Meet look (approved 11-18, preview PDmS73P7p6a2ZN2XEwf3MA) ----------
+  const ini = (n: string) => (n || '?').split(/\s+/).filter(Boolean).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+  const working = team.filter((e) => e.open_entry);
+  const top = (
+    <MTop top={insets.top} logo={<Logo width={68} color="#FFFFFF" />} initials={initials} unread={unread}
+      kicker={`${greeting()}, ${isManager ? first || fullName : (fullName || '').split(' ')[0]}`}
+      title={isManager ? company || fullName : nx?.role || c.data?.employee?.job_title || company || fullName}
+      sub={isManager ? `${dateText}${x ? ' · ' + t('{n} working today', { n: planned }) : ''}${weather ? ' · ' + weather : ''}` : [company, dateText].filter(Boolean).join(' · ')}
+      onSearch={() => router.navigate('/all')} onBell={() => router.push('/notifications')} onMe={() => router.navigate('/me')} />
+  );
+  const clockTile = hasEmployee
+    ? { icon: 'clock' as PhName, title: open ? t('Clock out') : t('Clock in'), sub: open ? (onBreak ? t('On break') : t('On shift {t}', { t: hms.slice(0, 5) })) : t('You are off shift'), busy: !!clockAct.busy, go: () => clockAct.act(open ? 'out' : 'in') }
+    : { icon: 'sparkle' as PhName, title: t('Ask Ava'), sub: t('Your 30-second brief'), go: () => ask(t('Give me my 30-second brief for today.')) };
+  const ownerActs = (
+    <ActCard items={[
+      clockTile,
+      { icon: 'calendar-dots', title: t('Schedule'), sub: sr.length ? t('{n} requests', { n: sr.length }) : t('Plan the week'), badge: sr.length || undefined, go: () => router.navigate('/schedule') },
+      { icon: 'money', title: t('Payroll'), sub: payDay ? t('Runs {d}', { d: wkday(payDay) }) : t('Pay your team'), go: () => router.push('/payroll') },
+      { icon: 'receipt', title: t('Invoices'), sub: x?.overdue_count ? t('{n} to collect', { n: x.overdue_count }) : t('Get paid faster'), badge: x?.overdue_count || undefined, go: () => router.push('/invoices') },
+    ]} />
+  );
+  const ownerNow = (
+    <NowCard id="hnow" chip={t('Live now')} right={t('Updated {t}', { t: hhmm })}
+      title={x ? t('{n} on shift', { n: onNow }) : '—'}
+      sub={x ? [late ? t('{n} not in yet', { n: late }) : t('Everyone is in'), breaks ? t('{n} on break', { n: breaks }) : ''].filter(Boolean).join(' · ') : undefined}
+      stats={[[t('Sales today'), x ? short(x.sales_today || 0) : '—'], [t('To approve'), x ? String(x.to_approve || 0) : '—'], [t('Late invoices'), x ? String(x.overdue_count || 0) : '—']]}
+      faces={working.slice(0, 4).map((e) => ini(e.name))} more={Math.max(0, working.length - 4) || undefined}
+      btns={[{ text: t("Who's working"), main: true, go: () => router.navigate('/team') }]} />
+  );
+  const staffNow = c.data ? (
+    <NowCard id="snow" big={!!open} chip={open ? (onBreak ? t('On break') : t('Clocked in')) : t('Not clocked in')}
+      right={open ? t('Since {t}', { t: time(open.clock_in) }) : dateText}
+      title={open ? hms : (ampm ? `${clockText} ${ampm.toUpperCase()}` : clockText)}
+      sub={nx ? `${sameDay(nx.starts_at) ? t('Today') : day(nx.starts_at)} ${time(nx.starts_at)} – ${time(nx.ends_at)}${site ? ' · ' + site : ''}` : [t('No shift today'), site].filter(Boolean).join(' · ')}
+      btns={open ? [
+        { text: onBreak ? t('End break') : t('Start break'), busy: clockAct.busy === 'break' || clockAct.busy === 'resume', go: () => clockAct.act(onBreak ? 'resume' : 'break') },
+        { text: t('Clock out'), main: true, busy: clockAct.busy === 'out', go: () => clockAct.act('out') },
+      ] : [{ text: t('Clock in'), main: true, busy: clockAct.busy === 'in', go: () => clockAct.act('in') }]} />
+  ) : staffCard;
+  const staffActs = (
+    <ActCard items={[
+      { icon: 'calendar-dots', title: t('My shifts'), sub: nx ? t('Next: {d}', { d: `${wkday(nx.starts_at.slice(0, 10))} ${time(nx.starts_at)}` }) : t('See your week'), go: () => router.navigate('/schedule') },
+      { icon: 'sun-horizon', title: t('Time off'), sub: t('Ask for days off'), go: () => router.navigate('/timeoff') },
+      { icon: 'file-text', title: t('Pay stubs'), sub: lastPay ? money(Number(lastPay.net || lastPay.gross || 0)) : t('Every pay'), go: () => router.push('/pay') },
+      { icon: 'timer', title: t('My hours'), sub: t('{h} this week', { h: hm(weekMin) }), go: () => router.push('/timesheet') },
+    ]} />
+  );
+
   const needsRow = (list: HNeed[]) => list.length ? (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginHorizontal: -16, flexGrow: 0 }} contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 2, gap: 10 }}>
       {list.map((n) => <NeedCard key={n.key} n={n} />)}
@@ -764,11 +812,12 @@ export default function Home() {
     <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
       <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 120 }} showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={!!(c.refreshing || dash.refreshing)} onRefresh={refresh} tintColor="#FFFFFF" />}>
-        {band}
+        {isManager || hasEmployee ? top : band}
         <View style={{ paddingHorizontal: 16, marginTop: -80, gap: 14, width: '100%', maxWidth: 760, alignSelf: 'center' }}>
           {isManager ? (
             <>
-              <Rise>{ownerCard}</Rise>
+              <Rise>{ownerActs}</Rise>
+              {ownerNow}
               {dash.error && !x ? <ErrorBox text={dash.error} onRetry={dash.reload} /> : null}
               <HSec title={t('Needs you')} right={oNeeds.length ? t('{n} waiting', { n: oNeeds.length }) : undefined} onRight={() => router.push('/notifications')} />
               {needsRow(oNeeds)}
@@ -789,7 +838,9 @@ export default function Home() {
             </>
           ) : hasEmployee ? (
             <>
-              <Rise>{staffCard}</Rise>
+              <Rise>{staffNow}</Rise>
+              {open && geo?.session && geo.session.state !== 'inside' ? <Text style={{ fontSize: 12.5, color: '#A35A00' }}>{t('Turn on location for OENOD in your phone settings (precise location), then try again.')}</Text> : null}
+              {staffActs}
               <HSec title={t('Needs you')} right={sNeeds.length ? t('See all') : undefined} onRight={() => router.push('/notifications')} />
               {needsRow(sNeeds)}
               <HSec title={t('Everything')}><Legend items={LEGEND.map(([cc, l]) => [cc, t(l)] as [string, string])} /></HSec>

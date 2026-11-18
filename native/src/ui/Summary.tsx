@@ -1,3 +1,4 @@
+import { Grad } from './H';
 import React from 'react';
 import { Text, View, type ViewStyle } from 'react-native';
 import { C } from '../lib/theme';
@@ -25,25 +26,35 @@ export function Mini({ label, value }: { label: string; value: string }) {
 }
 
 /** The navy summary card screens open with (same look as the wallet card): label, big number, badge, up to 3 mini stats. */
-export function Summary({ label, value, badge, minis, foot, children, style }: {
+export function Summary({ label, value, badge, minis, foot, children, style, seed }: {
   label: string; value?: string; badge?: React.ReactNode; minis?: [string, string][]; foot?: string; seed?: number; children?: React.ReactNode; style?: ViewStyle;
 }) {
-  const [sz, setSz] = React.useState({ w: 340, h: 180 });
+  // 4.1 Meet look: the black "now" card with a green chip, big number and a stats strip.
   return (
     <Rise>
-      <View style={[{ borderRadius: 27, padding: 5, backgroundColor: C.dark ? 'rgba(142,160,255,0.08)' : 'rgba(0,12,88,0.07)' }, style]}>
-      <View onLayout={(e) => setSz({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}
-        style={{ borderRadius: 22, padding: 18, gap: 12, overflow: 'hidden', backgroundColor: '#000C58', borderWidth: 1, borderColor: 'rgba(185,196,255,0.22)' }}>
-        <NavyFill w={sz.w} h={sz.h} />
-        <Row style={{ justifyContent: 'space-between', zIndex: 1 }}>
-          <Text style={{ color: '#B9C4FF', fontWeight: '600', fontSize: 13, flexShrink: 1 }} numberOfLines={1}>{label}</Text>
+      <View style={[{ borderRadius: 24, padding: 18, gap: 12, overflow: 'hidden', backgroundColor: '#0A0B10', shadowColor: '#1A2FCF', shadowOpacity: 0.35, shadowRadius: 22, shadowOffset: { width: 0, height: 14 }, elevation: 8 }, style]}>
+        <Grad id={'sum' + (seed ?? 0)} x1={0.2} y1={0} x2={0.8} y2={1} stops={[[0, '#16182A'], [1, '#0A0B10']]} />
+        <View pointerEvents="none" style={{ position: 'absolute', right: -60, top: -70, width: 200, height: 200, borderRadius: 100, backgroundColor: 'rgba(74,99,255,0.12)' }} />
+        <Row style={{ justifyContent: 'space-between', gap: 8 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 4, paddingHorizontal: 10, borderRadius: 99, backgroundColor: 'rgba(124,240,176,0.14)', flexShrink: 1 }}>
+            <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: '#7CF0B0' }} />
+            <Text style={{ color: '#7CF0B0', fontWeight: '700', fontSize: 12, flexShrink: 1 }} numberOfLines={1}>{label}</Text>
+          </View>
           {badge}
         </Row>
-        {value != null ? <Text style={{ zIndex: 1, color: '#FFFFFF', fontSize: value.length > 18 ? 26 : value.length > 14 ? 29 : value.length > 10 ? 32 : 36, fontWeight: '800', letterSpacing: -1 }} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>{value}</Text> : null}
-        {children ? <View style={{ zIndex: 1 }}>{children}</View> : null}
-        {minis?.length ? <Row style={{ gap: 8, zIndex: 1 }}>{minis.map(([l, v]) => <Mini key={l} label={l} value={v} />)}</Row> : null}
-        {foot ? <Text style={{ color: '#9AA5C8', fontSize: 13, zIndex: 1 }}>{foot}</Text> : null}
-      </View>
+        {value != null ? <Text style={{ color: '#FFFFFF', fontSize: value.length > 18 ? 24 : value.length > 14 ? 27 : value.length > 10 ? 30 : 34, fontWeight: '800', letterSpacing: -0.8 }} numberOfLines={1} adjustsFontSizeToFit>{value}</Text> : null}
+        {children ? <View>{children}</View> : null}
+        {minis?.length ? (
+          <View style={{ flexDirection: 'row', borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.06)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)' }}>
+            {minis.map(([l, v], i) => (
+              <View key={l} style={{ flex: 1, paddingVertical: 11, paddingHorizontal: 12, borderLeftWidth: i ? 1 : 0, borderLeftColor: 'rgba(255,255,255,0.08)' }}>
+                <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: '800' }} numberOfLines={1} adjustsFontSizeToFit>{v}</Text>
+                <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 11.5, marginTop: 1 }} numberOfLines={1}>{l}</Text>
+              </View>
+            ))}
+          </View>
+        ) : null}
+        {foot ? <Text style={{ color: 'rgba(255,255,255,0.65)', fontSize: 13 }}>{foot}</Text> : null}
       </View>
     </Rise>
   );

@@ -1,3 +1,4 @@
+import { Band } from './H';
 import React from 'react';
 import { ActivityIndicator, Animated, Platform, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, TextInputProps, View, ViewStyle, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -74,7 +75,7 @@ export function Screen({ title, eyebrow, subtitle, right, children, refreshing, 
   const goBack = () => (router.canGoBack() ? router.back() : router.replace('/'));
   const backBtn = back ? (
     <Pressable onPress={goBack} accessibilityRole="button" accessibilityLabel={t('Back')} hitSlop={8}
-      style={{ width: 38, height: 38, borderRadius: 13, alignItems: 'center', justifyContent: 'center', alignSelf: 'flex-start', marginBottom: 4, backgroundColor: isHero ? 'rgba(255,255,255,0.12)' : (C.dark ? C.card2 : '#F5F7FB') }}>
+      style={{ width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center', alignSelf: 'flex-start', marginBottom: 6, backgroundColor: isHero ? 'rgba(255,255,255,0.12)' : (C.dark ? C.card2 : '#F5F7FB') }}>
       <Icon name="back" size={20} color={isHero ? '#FFFFFF' : C.ink} duo={false} />
     </Pressable>
   ) : null;
@@ -84,8 +85,8 @@ export function Screen({ title, eyebrow, subtitle, right, children, refreshing, 
       <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: S.md }}>
         <View style={{ flex: 1 }}>
           {eyebrow ? <Text style={[st.eyebrow, isHero ? { color: '#B9C4FF' } : null]}>{eyebrow}</Text> : null}
-          <Text style={[st.h1, isHero ? { color: '#FFFFFF', fontSize: 28 } : null]} accessibilityRole="header">{title}</Text>
-          {subtitle ? <Text style={[st.headSub, isHero ? { color: '#9AA5C8' } : null]}>{subtitle}</Text> : null}
+          <Text style={[st.h1, isHero ? { color: '#FFFFFF', fontSize: 34, fontWeight: '800', letterSpacing: -0.9 } : null]} accessibilityRole="header" numberOfLines={2} adjustsFontSizeToFit>{title}</Text>
+          {subtitle ? <Text style={[st.headSub, isHero ? { color: '#AEB8F0' } : null]}>{subtitle}</Text> : null}
         </View>
         {right}
       </View>
@@ -103,15 +104,15 @@ export function Screen({ title, eyebrow, subtitle, right, children, refreshing, 
       {below}
     </View>
   ) : (
+    // 4.1 Meet look: navy band, big white title, then the page rises over it on a white sheet.
     <View onLayout={(e) => setHh(e.nativeEvent.layout.height)}>
-    <View style={[st.panel, { paddingTop: insets.top + (top ? S.sm : S.lg), paddingHorizontal: padH }, hero ? null : { paddingBottom: 20 }]}>
-      <HeroGradient width={width} height={hh} id="sp" fade={false} />
-      <DotGrid width={width} height={Math.min(hh, 260)} />
-      <Bands size={Math.min(width, 520) * 0.62} style={{ position: 'absolute', right: -Math.min(width, 520) * 0.2, top: -Math.min(width, 520) * 0.18 }} />
-      {top}
-      {titleRow}
-      {hero}
-    </View>
+    <Band pad={hero ? 22 : below ? 18 : 52} style={{ paddingTop: insets.top + (top ? S.sm : 12), paddingHorizontal: padH }}>
+      <View style={{ gap: 14 }}>
+        {top}
+        {titleRow}
+        {hero}
+      </View>
+    </Band>
     {below}
     </View>
   )) : title ? (
@@ -147,9 +148,11 @@ export function Screen({ title, eyebrow, subtitle, right, children, refreshing, 
         refreshControl={onRefresh ? <RefreshControl refreshing={!!refreshing} onRefresh={onRefresh} tintColor={hero ? '#FFFFFF' : C.link} progressViewOffset={insets.top} /> : undefined}
       >
         {head}
-        <View style={{ width: '100%', maxWidth: 760, alignSelf: 'center', paddingHorizontal: S.lg, paddingTop: 16, gap: C.dark ? 16 : 14 }}>
+        <View style={isHero && !C.dark && !hero && !below ? { marginTop: -28, borderTopLeftRadius: 28, borderTopRightRadius: 28, backgroundColor: C.bg } : null}>
+        <View style={{ width: '100%', maxWidth: 760, alignSelf: 'center', paddingHorizontal: S.lg, paddingTop: isHero && !C.dark && !hero && !below ? 20 : 16, gap: C.dark ? 16 : 14 }}>
           {children}
           <PoweredBy />
+        </View>
         </View>
       </Animated.ScrollView>
       {slim}

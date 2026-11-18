@@ -1,46 +1,77 @@
 // T1: building blocks for the built-in tool screens (Invoices, Customers, Expenses, Time clock, Inventory, ...).
 // Same Midnight v6 look as Home and Meet: black page, navy hero card, white pills, dark list cards, bottom sheets.
 import React, { useState } from 'react';
-import { ActivityIndicator, Alert, KeyboardAvoidingView, Modal, Platform, Pressable, RefreshControl, ScrollView, Text, TextInput, View, type TextInputProps, type ViewStyle } from 'react-native';
+import { ActivityIndicator, Alert, KeyboardAvoidingView, Modal, Platform, Pressable, RefreshControl, ScrollView, Text, TextInput, View, useWindowDimensions, type TextInputProps, type ViewStyle } from 'react-native';
+import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon, type IconName } from './Icon';
-import { FH, NavyFill, SubTop, V, lift } from './M6';
+import { FH, V, lift } from './M6';
+import { Band, Grad, H } from './H';
 import { Pressy } from './Motion';
 import { PoweredBy } from './Brand';
 import { t } from '../lib/i18n';
 
-/** Whole tool page: black background, header with back + optional right button, pull to refresh. */
-export function ToolPage({ title, right, rightLabel, onRight, refreshing, onRefresh, children, foot = true }: {
-  title: string; right?: IconName; rightLabel?: string; onRight?: () => void; refreshing?: boolean; onRefresh?: () => void; children: React.ReactNode; foot?: boolean;
+/** Whole tool page (4.1 Meet look): navy band with back + big white title, then the page on a white sheet that
+ *  rises over the band with rounded corners. Pull to refresh. */
+export function ToolPage({ title, sub, right, rightLabel, onRight, refreshing, onRefresh, children, foot = true }: {
+  title: string; sub?: string; right?: IconName; rightLabel?: string; onRight?: () => void; refreshing?: boolean; onRefresh?: () => void; children: React.ReactNode; foot?: boolean;
 }) {
   const insets = useSafeAreaInsets();
+  const { height } = useWindowDimensions();
   return (
     <View style={{ flex: 1, backgroundColor: V.bg }}>
-      <ScrollView keyboardShouldPersistTaps="handled"
-        refreshControl={onRefresh ? <RefreshControl refreshing={!!refreshing} onRefresh={onRefresh} tintColor={V.ink} /> : undefined}
-        contentContainerStyle={{ paddingTop: insets.top + 8, paddingHorizontal: 16, paddingBottom: insets.bottom + 48, gap: 16, width: '100%', maxWidth: 760, alignSelf: 'center' }}>
-        <SubTop title={title} right={right} rightLabel={rightLabel} onRight={onRight} />
-        {children}
-        {foot ? <PoweredBy /> : null}
+      <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, top: 0, height: Math.round(height * 0.5), backgroundColor: H.navy }} />
+      <ScrollView keyboardShouldPersistTaps="handled" style={{ backgroundColor: 'transparent' }}
+        refreshControl={onRefresh ? <RefreshControl refreshing={!!refreshing} onRefresh={onRefresh} tintColor="#FFFFFF" colors={[H.navy]} /> : undefined}
+        contentContainerStyle={{ paddingBottom: 0 }}>
+        <Band pad={52} style={{ paddingTop: insets.top + 8 }}>
+          <View style={{ width: '100%', maxWidth: 760, alignSelf: 'center' }}>
+            <BandTop right={right} rightLabel={rightLabel || title} onRight={onRight} />
+            <Text style={{ color: '#FFFFFF', fontSize: 34, fontWeight: '800', letterSpacing: -0.8, marginTop: 18 }} numberOfLines={2} adjustsFontSizeToFit accessibilityRole="header">{title}</Text>
+            {sub ? <Text style={{ color: H.soft, fontSize: 14.5, marginTop: 4, lineHeight: 20 }} numberOfLines={2}>{sub}</Text> : null}
+          </View>
+        </Band>
+        <View style={{ marginTop: -28, minHeight: height, borderTopLeftRadius: 28, borderTopRightRadius: 28, backgroundColor: V.bg }}>
+          <View style={{ paddingTop: 20, paddingHorizontal: 16, paddingBottom: insets.bottom + 48, gap: 16, width: '100%', maxWidth: 760, alignSelf: 'center' }}>
+            {children}
+            {foot ? <PoweredBy /> : null}
+          </View>
+        </View>
       </ScrollView>
     </View>
   );
 }
 
-/** Navy hero card: small label, big number, a line under it, and up to 3 small stats. */
+/** Top row inside a navy band: glass back button left, optional glass button right. */
+export function BandTop({ right, rightLabel, onRight, onBack }: { right?: IconName; rightLabel?: string; onRight?: () => void; onBack?: () => void }) {
+  const back = onBack || (() => (router.canGoBack() ? router.back() : router.replace('/')));
+  const glass = { width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.12)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.16)' } as ViewStyle;
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 44 }}>
+      <Pressable onPress={back} style={glass} accessibilityRole="button" accessibilityLabel={t('Back')} hitSlop={6}><Icon name="back" size={18} color="#FFFFFF" duo={false} /></Pressable>
+      {right ? <Pressable onPress={onRight} style={glass} accessibilityRole="button" accessibilityLabel={rightLabel} hitSlop={6}><Icon name={right} size={18} color="#FFFFFF" duo={false} /></Pressable> : null}
+    </View>
+  );
+}
+
+/** The black "now" card (4.1 Meet look): green live chip with the label, big number, a line under it, up to 3 small stats. */
 export function Hero({ label, value, note, noteGood, stats, id = 'hero' }: { label: string; value: string; note?: string; noteGood?: boolean; stats?: [string, string][]; id?: string }) {
   return (
-    <View style={{ borderRadius: V.rL, padding: 20, overflow: 'hidden', backgroundColor: '#2238D8', shadowColor: '#2B44E8', shadowOpacity: 0.55, shadowRadius: 20, shadowOffset: { width: 0, height: 14 }, elevation: 8 }}>
-      <NavyFill id={id} hero />
-      <Text style={{ color: '#FFFFFF', opacity: 0.85, fontSize: 13.5, fontWeight: '600' }}>{label}</Text>
-      <Text style={[FH, { color: '#FFFFFF', fontSize: 36, marginTop: 6 }]} numberOfLines={1} adjustsFontSizeToFit>{value}</Text>
-      {note ? <Text style={{ color: noteGood === false ? '#FFC2C8' : V.mint, fontSize: 12.5, marginTop: 2 }} numberOfLines={2}>{note}</Text> : null}
+    <View style={{ borderRadius: 24, padding: 18, overflow: 'hidden', backgroundColor: '#0A0B10', shadowColor: '#1A2FCF', shadowOpacity: 0.35, shadowRadius: 22, shadowOffset: { width: 0, height: 14 }, elevation: 8 }}>
+      <Grad id={id} x1={0.2} y1={0} x2={0.8} y2={1} stops={[[0, '#16182A'], [1, '#0A0B10']]} />
+      <View pointerEvents="none" style={{ position: 'absolute', right: -60, top: -70, width: 200, height: 200, borderRadius: 100, backgroundColor: 'rgba(74,99,255,0.12)' }} />
+      <View style={{ alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 4, paddingHorizontal: 10, borderRadius: 99, backgroundColor: 'rgba(124,240,176,0.14)' }}>
+        <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: '#7CF0B0' }} />
+        <Text style={{ color: '#7CF0B0', fontSize: 12, fontWeight: '700' }} numberOfLines={1}>{label}</Text>
+      </View>
+      <Text style={{ color: '#FFFFFF', fontSize: 32, fontWeight: '800', letterSpacing: -0.6, marginTop: 12 }} numberOfLines={1} adjustsFontSizeToFit>{value}</Text>
+      {note ? <Text style={{ color: noteGood === false ? '#FFB4BC' : 'rgba(255,255,255,0.72)', fontSize: 13, marginTop: 4 }} numberOfLines={2}>{note}</Text> : null}
       {stats && stats.length ? (
-        <View style={{ flexDirection: 'row', gap: 8, marginTop: 16 }}>
-          {stats.map(([k, v]) => (
-            <View key={k} style={{ flex: 1, borderRadius: 16, paddingVertical: 10, paddingHorizontal: 10, backgroundColor: 'rgba(255,255,255,0.12)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.16)' }}>
-              <Text style={{ color: '#FFFFFF', opacity: 0.8, fontSize: 11 }} numberOfLines={1}>{k}</Text>
-              <Text style={[FH, { color: '#FFFFFF', fontSize: 16, marginTop: 2 }]} numberOfLines={1} adjustsFontSizeToFit>{v}</Text>
+        <View style={{ flexDirection: 'row', marginTop: 16, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.06)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)' }}>
+          {stats.map(([k, v], i) => (
+            <View key={k} style={{ flex: 1, paddingVertical: 11, paddingHorizontal: 12, borderLeftWidth: i ? 1 : 0, borderLeftColor: 'rgba(255,255,255,0.08)' }}>
+              <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: '800' }} numberOfLines={1} adjustsFontSizeToFit>{v}</Text>
+              <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 11.5, marginTop: 1 }} numberOfLines={1}>{k}</Text>
             </View>
           ))}
         </View>
@@ -112,10 +143,10 @@ export function Item({ left, title, sub, right, rightSub, tag, onPress }: { left
 export function Card({ children, style, title, right, onRight }: { children: React.ReactNode; style?: ViewStyle; title?: string; right?: string; onRight?: () => void }) {
   const kids = React.Children.toArray(children).filter(Boolean);
   return (
-    <View style={[{ borderRadius: V.rM, backgroundColor: V.surf, borderWidth: 1, borderColor: V.line, paddingHorizontal: 16, paddingVertical: title ? 12 : 4 }, lift(), style]}>
+    <View style={[{ borderRadius: 24, backgroundColor: V.surf, borderWidth: 1, borderColor: V.line, paddingHorizontal: 16, paddingVertical: title ? 14 : 4 }, lift(), style]}>
       {title ? (
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 4 }}>
-          <Text style={[FH, { color: V.ink, fontSize: 15.5 }]} accessibilityRole="header">{title}</Text>
+          <Text style={{ color: V.ink, fontSize: 17, fontWeight: '800', letterSpacing: -0.2 }} accessibilityRole="header">{title}</Text>
           {right ? <Pressable onPress={onRight} hitSlop={8} disabled={!onRight} accessibilityRole={onRight ? 'button' : undefined} accessibilityLabel={right}><Text style={{ color: V.link, fontSize: 13, fontWeight: '600' }}>{right}</Text></Pressable> : null}
         </View>
       ) : null}
@@ -136,12 +167,13 @@ export const Dot = ({ icon, tone = 'dk' }: { icon: IconName; tone?: 'dk' | 'nv' 
 /** Big white button (or blue / dark / red). */
 export function Btn({ text, icon, onPress, busy, kind = 'white', style, disabled }: { text: string; icon?: IconName; onPress?: () => void; busy?: boolean; kind?: 'white' | 'blue' | 'dark' | 'red'; style?: ViewStyle; disabled?: boolean }) {
   const bg = { white: V.pill, blue: V.blue, dark: V.surf2, red: '#E5484D' }[kind];
-  const fg = kind === 'white' ? V.pillInk : kind === 'dark' ? V.ink : '#FFFFFF';
+  const fg = kind === 'dark' ? V.ink : '#FFFFFF';
   return (
     <Pressy onPress={busy || disabled ? undefined : onPress} accessibilityRole="button" accessibilityLabel={text} accessibilityState={{ disabled: !!(busy || disabled), busy: !!busy }}
-      style={[{ height: 52, borderRadius: 99, backgroundColor: bg, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingHorizontal: 18, opacity: disabled ? 0.45 : 1, borderWidth: kind === 'dark' ? 1 : 0, borderColor: V.line }, style]}>
+      style={[{ height: 52, borderRadius: 99, overflow: 'hidden', backgroundColor: bg, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingHorizontal: 18, opacity: disabled ? 0.45 : 1, borderWidth: kind === 'dark' ? 1 : 0, borderColor: V.line }, style]}>
+      {kind === 'white' || kind === 'blue' ? <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, borderRadius: 99, overflow: 'hidden' }}><Grad id={'btn' + kind} x1={0} y1={0} x2={1} y2={1} stops={kind === 'white' ? [[0, '#1A2FCF'], [1, '#000C58']] : [[0, '#4A63FF'], [1, '#1A2FCF']]} /></View> : null}
       {busy ? <ActivityIndicator color={fg} /> : icon ? <Icon name={icon} size={18} color={fg} duo={false} /> : null}
-      <Text style={[FH, { color: fg, fontSize: 15.5 }]} numberOfLines={1}>{text}</Text>
+      <Text style={{ color: fg, fontSize: 15.5, fontWeight: '700' }} numberOfLines={1}>{text}</Text>
     </Pressy>
   );
 }
@@ -202,7 +234,7 @@ export function Sheet({ open, title, onClose, children }: { open: boolean; title
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: V.dark ? 'rgba(0,0,0,0.6)' : 'rgba(0,7,47,0.45)' }}>
         <Pressable style={{ flex: 1 }} onPress={onClose} accessibilityLabel={t('Close')} />
-        <View style={{ maxHeight: '90%', borderTopLeftRadius: 30, borderTopRightRadius: 30, backgroundColor: V.sheet, borderWidth: 1, borderColor: V.line, paddingBottom: insets.bottom + 12 }}>
+        <View style={{ maxHeight: '90%', borderTopLeftRadius: 28, borderTopRightRadius: 28, backgroundColor: V.sheet, borderWidth: 1, borderColor: V.line, paddingBottom: insets.bottom + 12 }}>
           <View style={{ alignItems: 'center', paddingTop: 8 }}><View style={{ width: 40, height: 5, borderRadius: 3, backgroundColor: V.ring }} /></View>
           <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: 10, paddingBottom: 6 }}>
             <Text style={[FH, { flex: 1, color: V.ink, fontSize: 19 }]} accessibilityRole="header">{title}</Text>
