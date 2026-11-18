@@ -90,8 +90,8 @@ export async function myRoom(name: string, fresh = false): Promise<Room> {
       if (r && live) { const code = await codeFor(r.token); if (code) return { ...r, code }; }
     } catch { /* make a new one */ }
   }
-  const first = String(name || '').trim().split(/\s+/)[0] || t('My');
-  const m = await makeMeeting({ title: t("{name}'s room", { name: first }), instant: true, duration_min: 600 });
+  const first = String(name || '').trim().split(/\s+/)[0];
+  const m = await makeMeeting({ title: first ? t("{name}'s room", { name: first }) : t('Your room'), instant: true, duration_min: 600 });
   const code = await codeFor(m.token);
   const room: Room = { token: m.token, url: m.url, code, title: m.title, starts_at: m.starts_at, duration_min: 600 };
   await secure.set(ROOM, JSON.stringify(room)).catch(() => {});
