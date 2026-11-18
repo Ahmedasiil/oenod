@@ -1,5 +1,5 @@
-OENOD 4.1: a brand new look, and everything inside the app.
-- A fresh, modern design on every screen: a navy top, quick action cards and a live card that shows what is happening right now.
-- Every tool now works right inside the app, with nothing opening the website: Payroll, Accounting, Banking, Marketing, Projects, Academy, Documents, Storm Center, Cameras, Settings, Security, Loyalty, Reservations and Suppliers.
-- A new Meet: start a call, join with a code, or plan one for later.
-- Faster screens and many small fixes.
+OENOD 4.2: your card, your résumé and new jobs, right in the app.
+- My card: show your business card with a big QR code, share it with anyone, send your contact, or add it to Apple or Google Wallet.
+- Find a job: search jobs near you, see the pay and how well you match, apply with your résumé and a cover letter Ava writes, and get job alerts.
+- Résumé: Ava's tips to make it stronger, jobs that match it, and Save as PDF to send it anywhere.
+- Plus everything from 4.1: the new look and every tool inside the app.

@@ -1,5 +1,5 @@
-OENOD 4.1 : un tout nouveau look, et tout dans l’app.
-- Un design moderne sur chaque écran : un haut marine, des cartes d’actions rapides et une carte en direct qui montre ce qui se passe maintenant.
-- Chaque outil fonctionne maintenant dans l’app, sans ouvrir le site Web : Paie, Comptabilité, Banque, Marketing, Projets, Académie, Documents, Centre météo, Caméras, Paramètres, Sécurité, Fidélité, Réservations et Fournisseurs.
-- Un nouveau Meet : lancez un appel, rejoignez avec un code ou planifiez-en un pour plus tard.
-- Des écrans plus rapides et de nombreuses petites corrections.
+OENOD 4.2 : votre carte, votre CV et de nouveaux emplois, directement dans l’appli.
+- Ma carte : montrez votre carte professionnelle avec un grand code QR, partagez-la avec n’importe qui, envoyez votre fiche contact ou ajoutez-la à Apple ou Google Wallet.
+- Trouver un emploi : cherchez des emplois près de vous, voyez le salaire et votre correspondance, postulez avec votre CV et une lettre qu’Ava écrit, et recevez des alertes d’emploi.
+- CV : les conseils d’Ava pour le renforcer, les emplois qui y correspondent, et Enregistrer en PDF pour l’envoyer partout.
+- Et tout ce qu’apporte la 4.1 : le nouveau look et chaque outil dans l’appli.
