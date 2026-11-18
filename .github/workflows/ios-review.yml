@@ -5,7 +5,7 @@ on:
     branches: [ios-review, ios-submit]
   workflow_dispatch:
     inputs:
-      build_number: { description: 'Build number to attach', default: '410', required: true }
+      build_number: { description: 'Build number to attach', default: '431', required: true }
       submit: { description: 'Send for review (true/false)', default: 'false', required: true }
 permissions:
   contents: read
@@ -16,7 +16,8 @@ jobs:
       APPLE_KEY_ID: ${{ secrets.APPLE_KEY_ID }}
       APPLE_ISSUER_ID: ${{ secrets.APPLE_ISSUER_ID }}
       APPLE_KEY_P8: ${{ secrets.APPLE_KEY_P8 }}
-      BUILD_NUMBER: ${{ inputs.build_number || '410' }}
+      BUILD_NUMBER: ${{ inputs.build_number || '431' }}
+      WHATS_NEW: 'Meetings fully inside the app: join by code, waiting room, chat, and pick a talking character when your camera is off. Business calls are more reliable on every phone, plus new screens and fixes.'
       SUBMIT: ${{ inputs.submit || (github.ref_name == 'ios-submit' && 'true') || 'false' }}
     steps:
       - uses: actions/checkout@v4

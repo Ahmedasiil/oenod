@@ -1,5 +1,6 @@
-OENOD 4.3 : les réunions se font maintenant directement dans l’appli.
-- OENOD Meet : rejoignez avec le code à 10 chiffres ou un lien, avec ou sans compte. Vidéo, micro, caméra, changement de caméra, haut-parleur, clavardage, main levée, et faites entrer les gens de la salle d’attente.
-- Téléphone d’affaires : appels plus sûrs sur Android, avec des messages clairs si le micro ou les notifications sont désactivés.
-- Mot de passe oublié, Conditions et Confidentialité s’ouvrent maintenant dans l’appli.
-- Boutons d’accueil plus nets sur Android, et plusieurs petites corrections.
+OENOD 4.3 : les réunions se font dans l’app.
+- OENOD Meet : rejoignez avec le code à 10 chiffres ou un lien. Vidéo, clavardage, main levée, salle d’attente.
+- Personnages : un personnage qui parle quand votre caméra est éteinte.
+- Téléphone d’affaires : appels plus fiables sur Android.
+- Mot de passe oublié, conditions et confidentialité dans l’app.
+- Plusieurs petites corrections.

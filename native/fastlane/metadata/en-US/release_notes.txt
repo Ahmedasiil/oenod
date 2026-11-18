@@ -1,5 +1,6 @@
 OENOD 4.3: meetings now run right inside the app.
-- OENOD Meet: join with the 10-number code or a link, with or without an account. Video, mute, camera, flip, speaker, chat, raise your hand, and let people in from the waiting room.
-- Business Phone: safer calls on Android, with clear messages if the microphone or notifications are off.
-- Forgot password, Terms and Privacy now open inside the app.
-- Sharper home buttons on Android, and many small fixes.
+- OENOD Meet: join with the 10-number code or a link. Video, chat, raise your hand, waiting room.
+- Characters: pick a talking character (89 posters, or people from every country) when your camera is off.
+- Business Phone: more reliable calls on Android.
+- Forgot password, Terms and Privacy open inside the app.
+- Many small fixes.
