@@ -253,7 +253,7 @@ export default function Welcome() {
               <Icon name="face" size={24} color="#0A0B10" duo={false} />
             </Pressable>
           </View>
-          <Ghost text={t('Join a meeting with a code')} icon="video-camera" onPress={() => router.push('/guest')} style={{ flex: 0, height: 54, borderRadius: 18 }} />
+          <Ghost text={t('Join a meeting with a code')} icon="video-camera" onPress={() => router.push('/guest')} style={{ flexGrow: 0, flexShrink: 0, flexBasis: 'auto', height: 54, borderRadius: 18 }} />
           {IOS_STORE ? (
             <Text style={{ textAlign: 'center', color: '#5B6079', fontSize: 13, marginTop: 4 }}>{t('For teams that already use OENOD. Ask your manager for an invite.')}</Text>
           ) : (

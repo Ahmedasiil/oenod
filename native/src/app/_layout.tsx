@@ -62,7 +62,8 @@ function Gate() {
   if (!ready) return <Splash />;
   return (
     <Stack screenOptions={{ headerShown: false, animation: 'slide_from_right', contentStyle: { backgroundColor: C.bg }, headerBackButtonDisplayMode: 'minimal', headerTitleStyle: { fontWeight: '800', fontSize: 17 } }}>
-      <Stack.Protected guard={signedIn}>
+      {/* 4.3: signed out, any app screen goes to the welcome screen (not the first page in the folder). */}
+      <Stack.Protected guard={signedIn} redirectTo="/welcome">
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="employee/[id]" options={{ headerShown: true, title: t('Team member'), headerTintColor: C.ink, headerStyle: { backgroundColor: C.dark ? C.bg : '#FFFFFF' }, headerShadowVisible: false }} />
         <Stack.Screen name="notifications" options={{ headerShown: true, title: t('Notifications'), headerTintColor: C.ink, headerStyle: { backgroundColor: C.dark ? C.bg : '#FFFFFF' }, headerShadowVisible: false }} />
@@ -135,7 +136,7 @@ function Gate() {
         <Stack.Screen name="kiosk" options={{ animation: 'fade', gestureEnabled: false, contentStyle: { backgroundColor: '#000C58' } }} />
         <Stack.Screen name="call" options={{ presentation: 'fullScreenModal', gestureEnabled: false, contentStyle: { backgroundColor: '#000C58' } }} />
       </Stack.Protected>
-      <Stack.Protected guard={!signedIn}>
+      <Stack.Protected guard={!signedIn} redirectTo="/">
         <Stack.Screen name="welcome" options={{ contentStyle: { backgroundColor: '#050B24' } }} />
         <Stack.Screen name="login" options={{ animation: 'fade_from_bottom', contentStyle: { backgroundColor: '#050B24' } }} />
         <Stack.Screen name="signup" options={{ contentStyle: { backgroundColor: '#050B24' } }} />
