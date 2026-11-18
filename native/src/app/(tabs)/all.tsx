@@ -9,8 +9,10 @@ import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 import { useAuth } from '../../lib/auth';
 import { t } from '../../lib/i18n';
 import { Icon, type IconName } from '../../ui/Icon';
-import { FH, SubTop, V } from '../../ui/M6';
-import { TileIcon, type Tone } from '../../ui/H';
+import { V } from '../../ui/M6';
+import { PageBody, PageTop } from '../../ui/PageTop';
+import { Pressy } from '../../ui/Motion';
+import { card, H, Ph, TileIcon, type Tone } from '../../ui/H';
 import type { PhName } from '../../ui/phPaths';
 import { PoweredBy } from '../../ui/Brand';
 import { openTool } from '../web';
@@ -112,64 +114,43 @@ export default function AllTools() {
   const cols = width >= 900 ? 6 : width >= 600 ? 4 : 3;
   const maxW = 760;
   const tileW = (Math.min(width, maxW) - 32 - (cols - 1) * 8) / cols;
+  const cols4 = width >= 900 ? 6 : 4;
+  const cellW = `${100 / cols4}%` as const;
   return (
     <View style={{ flex: 1, backgroundColor: V.bg }}>
-      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingTop: insets.top + 8, paddingHorizontal: 16, paddingBottom: insets.bottom + 130, gap: 16, width: '100%', maxWidth: maxW, alignSelf: 'center' }}>
-        <SubTop title={t('All tools')} onBack={() => router.navigate('/')} />
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, height: 48, borderRadius: V.rM, backgroundColor: V.surf, borderWidth: 1, borderColor: V.line, paddingHorizontal: 16 }}>
-          <Icon name="scan" size={18} color={V.mute} duo={false} />
-          <TextInput value={q} onChangeText={setQ} placeholder={t('Search tools, people, invoices')} placeholderTextColor={V.mute} autoCorrect={false} accessibilityLabel={t('Search tools')}
-            style={{ flex: 1, minWidth: 0, color: V.ink, fontSize: 14, paddingVertical: 10 }} />
-          {q ? <Pressable onPress={() => setQ('')} hitSlop={8} accessibilityLabel={t('Clear')}><Icon name="x" size={18} color={V.mute} duo={false} /></Pressable> : null}
-        </View>
-        {!s ? (
-          <View style={{ flexDirection: 'row', justifyContent: 'space-around', paddingVertical: 16, paddingHorizontal: 10, borderRadius: V.rL, overflow: 'hidden', backgroundColor: '#000C58' }}>
-            <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }}>
-              <FavBg />
-            </View>
-            {favs.map((f) => (
-              <Pressable key={f.name} onPress={() => go(f)} accessibilityRole="button" accessibilityLabel={t(f.name)}
-                style={({ pressed }) => ({ alignItems: 'center', gap: 8, width: 72, transform: [{ scale: pressed ? 0.92 : 1 }] })}>
-                <TileIcon icon={PHI[f.icon] || 'squares-four'} tone="light" size={58} />
-                <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '600' }} numberOfLines={1}>{t(f.name)}</Text>
-              </Pressable>
-            ))}
-          </View>
-        ) : null}
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginVertical: -4, marginHorizontal: 2 }}>
-          <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: V.good, shadowColor: V.good, shadowOpacity: 1, shadowRadius: 5, shadowOffset: { width: 0, height: 0 } }} />
-          <Text style={{ color: V.mute, fontSize: 12, flex: 1 }}>{t('Every tool opens inside the app · one sign-in')}</Text>
-        </View>
-        {groups.map((g) => (
-          <View key={g.name} style={{ gap: 10 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <Text style={[FH, { color: V.ink, fontSize: 15 }]} accessibilityRole="header">{t(g.name)}</Text>
-              <View style={{ paddingVertical: 2, paddingHorizontal: 8, borderRadius: 99, backgroundColor: V.surf2 }}><Text style={{ color: V.mute, fontSize: 11, fontWeight: '700' }}>{g.tools.length}</Text></View>
-            </View>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-              {g.tools.map((x, i) => {
-                const offNow = isOff(x);
-                return (
-                  <Pressable key={x.name} onPress={() => go(x)} accessibilityRole="button" accessibilityLabel={offNow ? `${t(x.name)}, ${t('Turn on')}` : t(x.name)}
-                    style={() => ({ width: tileW, borderRadius: V.rM, backgroundColor: V.surf, borderWidth: 1, borderColor: V.line, paddingTop: 14, paddingBottom: 12, paddingHorizontal: 6, alignItems: 'center', gap: 4 })}>
-                    {({ pressed }) => (
-                      <>
-                        <View style={{ marginBottom: 6, opacity: offNow ? 0.55 : 1, transform: [{ scale: pressed ? 0.9 : 1 }, { rotate: pressed ? '-4deg' : '0deg' }] }}>
-                          <TileIcon icon={PHI[x.icon] || 'squares-four'} tone={GTONE[g.name] || 'navy'} size={52} />
-                        </View>
-                        <Text style={{ color: V.ink, fontSize: 12.5, fontWeight: '700', textAlign: 'center', lineHeight: 15 }} numberOfLines={2}>{t(x.name)}</Text>
-                        <Text style={{ color: offNow ? V.link : V.mute, fontSize: 11, fontWeight: offNow ? '600' : '400' }} numberOfLines={1}>{offNow ? t('Turn on') : t(x.hint)}</Text>
-                        {offNow ? <View style={{ position: 'absolute', top: 8, right: 8, width: 20, height: 20, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFFFF' }}><Text style={{ color: V.navy, fontSize: 14, fontWeight: '700', lineHeight: 18 }}>+</Text></View> : null}
-                      </>
-                    )}
-                  </Pressable>
-                );
-              })}
+      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: insets.bottom + 130 }}>
+        <PageTop title={t('Everything')} sub={t('Every part of OENOD, right inside the app. One sign-in.')} back={() => router.navigate('/')} search={false} />
+        <PageBody lift>
+          <View style={[card, { padding: 10 }]}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, height: 50, borderRadius: 16, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: H.line, paddingHorizontal: 14 }}>
+              <Ph name="magnifying-glass" size={18} color={H.muted} duo={0} />
+              <TextInput value={q} onChangeText={setQ} placeholder={t('Search tools, people, invoices')} placeholderTextColor={H.muted} autoCorrect={false} accessibilityLabel={t('Search tools')}
+                style={{ flex: 1, minWidth: 0, color: H.ink, fontSize: 15, paddingVertical: 10 }} />
+              {q ? <Pressable onPress={() => setQ('')} hitSlop={8} accessibilityLabel={t('Clear')}><Icon name="x" size={18} color={H.muted} duo={false} /></Pressable> : null}
             </View>
           </View>
-        ))}
-        {!groups.length ? <Text style={{ color: V.mute, textAlign: 'center', padding: 24 }}>{t('No tools match “{q}”.', { q })}</Text> : null}
-        <PoweredBy />
+          {groups.map((g) => (
+            <View key={g.name} style={{ gap: 10 }}>
+              <Text style={{ color: H.muted, fontSize: 12, fontWeight: '800', letterSpacing: 1.2, marginLeft: 4 }} accessibilityRole="header">{t(g.name).toUpperCase()}</Text>
+              <View style={[card, { paddingVertical: 14, paddingHorizontal: 4, flexDirection: 'row', flexWrap: 'wrap', rowGap: 14 }]}>
+                {g.tools.map((x) => {
+                  const offNow = isOff(x);
+                  return (
+                    <View key={x.name} style={{ width: cellW, alignItems: 'center' }}>
+                      <Pressy onPress={() => go(x)} accessibilityRole="button" accessibilityLabel={offNow ? `${t(x.name)}, ${t('Turn on')}` : t(x.name)} style={{ alignItems: 'center', gap: 6, paddingHorizontal: 2 }}>
+                        <View style={{ opacity: offNow ? 0.55 : 1 }}><TileIcon icon={PHI[x.icon] || 'squares-four'} tone={GTONE[g.name] || 'navy'} size={54} /></View>
+                        <Text style={{ color: H.ink, fontSize: 12, fontWeight: '700', textAlign: 'center', lineHeight: 15 }} numberOfLines={2}>{t(x.name)}</Text>
+                        {offNow ? <Text style={{ color: H.blue, fontSize: 11, fontWeight: '700' }} numberOfLines={1}>{t('Turn on')}</Text> : null}
+                      </Pressy>
+                    </View>
+                  );
+                })}
+              </View>
+            </View>
+          ))}
+          {!groups.length ? <Text style={{ color: V.mute, textAlign: 'center', padding: 24 }}>{t('No tools match “{q}”.', { q })}</Text> : null}
+          <PoweredBy />
+        </PageBody>
       </ScrollView>
     </View>
   );

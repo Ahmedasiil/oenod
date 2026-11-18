@@ -12,7 +12,9 @@ import { t } from '../../lib/i18n';
 import { dialOut } from '../../lib/phone';
 import { openTool } from '../web';
 import { Icon } from '../../ui/Icon';
-import { FH, IB, Li, List, SBtn, Sec, SubTop, V } from '../../ui/M6';
+import { FH, IB, Li, List, SBtn, Sec, V } from '../../ui/M6';
+import { PageBody, PageTop } from '../../ui/PageTop';
+import { card, GlassBtn } from '../../ui/H';
 import { PoweredBy } from '../../ui/Brand';
 
 type Me = { on?: boolean; ready?: boolean; allowed?: boolean; seat?: boolean; line?: string | null; can_manage?: boolean; status?: string };
@@ -43,10 +45,12 @@ export default function PhoneTab() {
   const rows = hist.data?.calls || [];
   return (
     <View style={{ flex: 1, backgroundColor: V.bg }}>
-      <ScrollView contentContainerStyle={{ paddingTop: insets.top + 8, paddingHorizontal: 16, paddingBottom: insets.bottom + 130, gap: 16, width: '100%', maxWidth: 520, alignSelf: 'center' }}>
-        <SubTop title={t('Business Phone')} onBack={() => router.navigate('/')} right="dots" rightLabel={t('Who rings and opening hours')} onRight={calls} />
+      <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 130 }}>
+        <PageTop title={t('Business Phone')} sub={me.data?.line ? t('Your line {n}', { n: pretty(me.data.line) }) : t('Calls go out with your company number')}
+          extra={<GlassBtn icon="gear-six" label={t('Who rings and opening hours')} onPress={calls} />} search={false} />
+        <PageBody style={{ maxWidth: 520 }}>
         {me.loading && !me.data ? null : !on ? (
-          <View style={{ borderRadius: V.rL, padding: 18, gap: 10, backgroundColor: '#FFFFFF' }}>
+          <View style={[card, { padding: 18, gap: 10 }]}>
             <Text style={[FH, { color: V.navy, fontSize: 18 }]}>{t('Turn on Business Phone')}</Text>
             <Text style={{ color: '#4B5070', fontSize: 13.5, lineHeight: 19 }}>{t('Get a company number that rings on your team’s phones, with Ava answering when nobody can.')}</Text>
             <Pressable onPress={calls} accessibilityRole="button" style={{ alignSelf: 'flex-start', paddingVertical: 10, paddingHorizontal: 16, borderRadius: 99, backgroundColor: V.navy }}>
@@ -54,7 +58,6 @@ export default function PhoneTab() {
             </Pressable>
           </View>
         ) : null}
-        <Text style={{ textAlign: 'center', color: V.mute, fontSize: 13 }}>{me.data?.line ? t('Your line {n}', { n: pretty(me.data.line) }) : t('Calls go out with your company number')}</Text>
         <Text style={[FH, { textAlign: 'center', color: V.ink, fontSize: 30, minHeight: 40 }]} accessibilityLiveRegion="polite" numberOfLines={1} adjustsFontSizeToFit>{num ? pretty(num) || num : ' '}</Text>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'space-between' }}>
           {keys.map((k) => (
@@ -66,8 +69,8 @@ export default function PhoneTab() {
           ))}
         </View>
         <Pressable onPress={() => call(num)} accessibilityRole="button" accessibilityLabel={t('Call')}
-          style={({ pressed }) => ({ width: 70, height: 70, borderRadius: 35, alignSelf: 'center', alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFFFF', transform: [{ scale: pressed ? 0.94 : 1 }] })}>
-          <Icon name="phone" size={28} color={V.navy} stroke={2} duo={false} />
+          style={({ pressed }) => ({ width: 70, height: 70, borderRadius: 35, alignSelf: 'center', alignItems: 'center', justifyContent: 'center', backgroundColor: '#12A25B', shadowColor: '#12A25B', shadowOpacity: 0.4, shadowRadius: 12, shadowOffset: { width: 0, height: 8 }, transform: [{ scale: pressed ? 0.94 : 1 }] })}>
+          <Icon name="phone" size={28} color="#FFFFFF" stroke={2} duo={false} />
         </Pressable>
         <Sec title={t('Recent calls')} right={t('See all')} onRight={calls} />
         <List>
@@ -82,6 +85,7 @@ export default function PhoneTab() {
           }) : <Li title={hist.loading ? t('Loading…') : t('No calls yet')} sub={t('Calls to your company number show up here')} left={<IB icon="phone" />} />}
         </List>
         <PoweredBy />
+        </PageBody>
       </ScrollView>
     </View>
   );

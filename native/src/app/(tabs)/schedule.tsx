@@ -260,7 +260,7 @@ export default function Schedule() {
   ) : undefined;
   return (
     <Screen eyebrow={eyebrow} title={t('Schedule')} below={below} fab={fab} refreshing={false} onRefresh={() => setK((x) => x + 1)}
-      right={<Pressable onPress={() => openTool('/schedule', t('Schedule'))} accessibilityLabel={t('Search')} style={{ width: 40, height: 40, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: C.dark ? C.card2 : '#F5F7FB' }}><Icon name="search" size={19} color={C.ink} duo={false} /></Pressable>}>
+      >
       {view === 'mine' ? <Mine key={k} /> : <Everyone key={`${k}-${days[0]}`} sel={sel} from={days[0]} onLoaded={setHas} />}
       {isManager && view === 'all' ? <View style={{ height: 60 }} /> : null}
     </Screen>

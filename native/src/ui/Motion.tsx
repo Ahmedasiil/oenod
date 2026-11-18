@@ -1,6 +1,6 @@
 // Motion: cards rise in one after another, buttons press in with a spring, numbers count up.
 import React, { useEffect, useRef, useState } from 'react';
-import { AccessibilityInfo, Animated, Easing, Platform, Pressable, PressableProps, StyleProp, ViewStyle } from 'react-native';
+import { AccessibilityInfo, Animated, Easing, Platform, Pressable, PressableProps, StyleProp, StyleSheet, ViewStyle } from 'react-native';
 import * as Haptics from 'expo-haptics';
 
 const native = Platform.OS !== 'web';
@@ -19,13 +19,18 @@ export function Rise({ children, delay = 0, style }: { children: React.ReactNode
 }
 
 /** A pressable that sinks slightly with a spring and gives a light tap on the phone. */
+const OUTER = ['flex', 'flexGrow', 'flexShrink', 'flexBasis', 'width', 'minWidth', 'maxWidth', 'alignSelf', 'margin', 'marginTop', 'marginBottom', 'marginLeft', 'marginRight', 'marginHorizontal', 'marginVertical', 'position', 'top', 'left', 'right', 'bottom', 'zIndex'] as const;
 export function Pressy({ children, style, onPress, haptic = true, ...rest }: Omit<PressableProps, 'style'> & { style?: StyleProp<ViewStyle>; haptic?: boolean; children: React.ReactNode }) {
   const s = useRef(new Animated.Value(1)).current;
   const to = (x: number) => Animated.spring(s, { toValue: x, speed: 40, bounciness: x === 1 ? 8 : 0, useNativeDriver: native }).start();
+  // Layout keys (flex, width, alignSelf, margins) belong on the outer Pressable so the button sizes like a normal box.
+  const flat = (StyleSheet.flatten(style) || {}) as ViewStyle;
+  const outer: ViewStyle = {}; const inner: ViewStyle = {};
+  for (const [k, v] of Object.entries(flat)) ((OUTER as readonly string[]).includes(k) ? (outer as any) : (inner as any))[k] = v;
   return (
-    <Pressable {...rest} onPressIn={() => to(0.96)} onPressOut={() => to(1)}
+    <Pressable {...rest} style={outer} onPressIn={() => to(0.96)} onPressOut={() => to(1)}
       onPress={(e) => { if (haptic && native) Haptics.selectionAsync().catch(() => {}); onPress?.(e); }}>
-      <Animated.View style={[style, { transform: [{ scale: s }] }]}>{children}</Animated.View>
+      <Animated.View style={[inner, { transform: [{ scale: s }] }]}>{children}</Animated.View>
     </Pressable>
   );
 }

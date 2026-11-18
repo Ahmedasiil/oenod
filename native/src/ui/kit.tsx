@@ -1,4 +1,4 @@
-import { Band } from './H';
+import { Band, card as hcard } from './H';
 import React from 'react';
 import { ActivityIndicator, Animated, Platform, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, TextInputProps, View, ViewStyle, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -106,14 +106,14 @@ export function Screen({ title, eyebrow, subtitle, right, children, refreshing, 
   ) : (
     // 4.1 Meet look: navy band, big white title, then the page rises over it on a white sheet.
     <View onLayout={(e) => setHh(e.nativeEvent.layout.height)}>
-    <Band pad={hero ? 22 : below ? 18 : 52} style={{ paddingTop: insets.top + (top ? S.sm : 12), paddingHorizontal: padH }}>
+    <Band pad={hero ? 22 : below ? 64 : 52} style={{ paddingTop: insets.top + (top ? S.sm : 12), paddingHorizontal: padH }}>
       <View style={{ gap: 14 }}>
         {top}
         {titleRow}
         {hero}
       </View>
     </Band>
-    {below}
+    {below ? <View style={{ marginTop: -48, paddingHorizontal: padH - 4 }}><View style={[hcard, { padding: 12 }]}>{below}</View></View> : null}
     </View>
   )) : title ? (
     <View onLayout={(e) => setHh(e.nativeEvent.layout.height)}>

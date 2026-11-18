@@ -12,7 +12,7 @@ import { C } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { Card, Divider, ErrorBox, H2, ListRow, Loading, Muted, Pill, Row, Screen } from '../../ui/kit';
 import { IconTile } from '../../ui/Summary';
-import { NavyFill } from '../../ui/Brand';
+import { Grad } from '../../ui/H';
 import { Rise, useCountUp } from '../../ui/Motion';
 import { Icon, IconName } from '../../ui/Icon';
 import { openTool } from '../web';
@@ -34,11 +34,12 @@ function WalletCard({ base }: { base: '/api/wallet' | '/api/me/wallet' }) {
     </Pressable>
   );
   return (
-    <View style={{ borderRadius: 27, padding: 5, backgroundColor: C.dark ? 'rgba(142,160,255,0.08)' : 'rgba(0,12,88,0.07)' }}>
+    <View>
     <Pressable onPress={() => router.push('/wallet')} accessibilityRole="button" accessibilityLabel={t('Wallet')}
       onLayout={(e) => setSz({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}
-      style={{ borderRadius: 22, padding: 18, overflow: 'hidden', backgroundColor: '#000C58', borderWidth: 1, borderColor: 'rgba(185,196,255,0.22)' }}>
-      <NavyFill w={sz.w} h={sz.h} />
+      style={{ borderRadius: 24, padding: 18, overflow: 'hidden', backgroundColor: '#0A0B10', shadowColor: '#1A2FCF', shadowOpacity: 0.35, shadowRadius: 22, shadowOffset: { width: 0, height: 14 }, elevation: 8 }}>
+      <Grad id="wal" x1={0.2} y1={0} x2={0.8} y2={1} stops={[[0, '#16182A'], [1, '#0A0B10']]} />
+      <View pointerEvents="none" style={{ position: 'absolute', right: -60, top: -70, width: 200, height: 200, borderRadius: 100, backgroundColor: 'rgba(74,99,255,0.12)' }} />
       <Row style={{ gap: 8 }}>
         <Logo width={44} color="#FFFFFF" />
         <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '600' }}>{t('Wallet')}</Text>
@@ -64,9 +65,9 @@ function Bars({ series }: { series: { day: string; total: number }[] }) {
         const h = Math.max(4, (n(s.total) / max) * 96);
         const hi = i === series.length - 1;
         return (
-          <View key={s.day} style={{ flex: 1, alignItems: 'center', justifyContent: 'flex-end', gap: 6 }}>
+          <View key={s.day || i} style={{ flex: 1, alignItems: 'center', justifyContent: 'flex-end', gap: 6 }}>
             <View style={{ width: '100%', height: h, borderTopLeftRadius: 8, borderTopRightRadius: 8, borderBottomLeftRadius: 4, borderBottomRightRadius: 4, backgroundColor: hi ? '#2A3BC4' : (C.dark ? 'rgba(175,195,255,0.22)' : '#DCE3FF') }} />
-            <Text style={{ color: C.faint, fontSize: 10.5, fontWeight: '600' }}>{new Date(s.day + 'T12:00:00').toLocaleDateString(undefined, { weekday: 'narrow' })}</Text>
+            <Text style={{ color: C.faint, fontSize: 10.5, fontWeight: '600' }}>{(() => { const d = s.day ? new Date(String(s.day).slice(0, 10) + 'T12:00:00') : new Date(Date.now() - (series.length - 1 - i) * 86400000); return isNaN(d.getTime()) ? '' : d.toLocaleDateString(undefined, { weekday: 'narrow' }); })()}</Text>
           </View>
         );
       })}
