@@ -41,6 +41,8 @@ export default function Room() {
   const [speaker, setSpeaker] = useState(true);
   const [hand, setHand] = useState(false);
   const [peers, setPeers] = useState<Peer[]>([]);
+  // People in the waiting room. oenod.com sends this list only to the company's own people, who can let them in.
+  const [waiting, setWaiting] = useState<{ id: number; name: string }[]>([]);
   const [streams, setStreams] = useState<Record<number, string>>({});
   const [localUrl, setLocalUrl] = useState<string | null>(null);
   const [chat, setChat] = useState<Chat[]>([]);
@@ -57,7 +59,7 @@ export default function Room() {
     pcs: new Map<number, Conn>(), outbox: [] as any[], evQ: [] as any[], chatQ: [] as string[], cmd: null as any,
     after: 0, chatAfter: 0, evAfter: 0, evInit: true, peers: [] as Peer[], syncing: false, timer: null as any,
     fastUntil: 0, fails: 0, dead: false, left: false, stage: 'load' as Stage, mic: null as any, cam: null as any, local: null as any,
-    st: { a: true, v: true, h: false }, sheet: '' as string,
+    st: { a: true, v: true, h: false }, sheet: '' as string, wait: [] as { id: number; name: string }[],
   }).current;
   R.sheet = sheet;
 
@@ -186,6 +188,7 @@ export default function Room() {
       R.syncing = false;
       R.outbox.unshift(...out); R.evQ.unshift(...ev); if (m) R.chatQ.unshift(m); if (cmd) R.cmd = Object.assign(cmd, R.cmd || {});
       const st = e?.status || 0;
+      if (st === 429) return schedule(500); // asked too quickly: try again in a moment, nothing is lost
       if ((st === 403 || st === 404 || st === 410) && e?.data?.error) return end(st === 410 ? 'ended' : 'gone');
       R.fails++; if (R.fails === 2) say(t('Reconnecting…'));
       return schedule(Math.min(8000, 1500 * R.fails));
@@ -217,6 +220,12 @@ export default function Room() {
     for (const id of [...R.pcs.keys()]) if (!ids.has(id)) drop(id);
     for (const p of prev) if (!ids.has(p.id) && p.id !== R.me!.peer) say(`${p.name} ${t('left')}`);
     setPeers(R.peers);
+    if (Array.isArray(r.lobby)) {
+      const had = new Set(R.wait.map((x: any) => x.id));
+      const fresh = r.lobby.filter((x: any) => !had.has(x.id));
+      if (fresh.length) { say(t('{name} is waiting to join', { name: fresh[0].name })); R.fastUntil = Date.now() + 4000; }
+      R.wait = r.lobby; setWaiting(r.lobby);
+    }
     for (const s of r.signals || []) { await onSignal(s); R.after = Math.max(R.after, s.id); }
     if ((r.signals || []).length) R.fastUntil = Date.now() + 6000;
     if (R.evInit) { R.evInit = false; R.evAfter = Math.max(R.evAfter, r.ev_max || 0); }
@@ -288,6 +297,12 @@ export default function Room() {
   };
   const toggleSpeaker = () => { const s = !speaker; setSpeaker(s); RTC.speaker(s); };
   const toggleHand = () => { const h = !R.st.h; R.st.h = h; setHand(h); kick(); };
+  const decide = (id: number, ok: boolean) => {
+    const c = R.cmd || {}; const k = ok ? 'admit' : 'deny';
+    c[k] = [...(c[k] || []), id]; R.cmd = c;
+    R.wait = R.wait.filter((x) => x.id !== id); setWaiting(R.wait);
+    R.fastUntil = Date.now() + 6000; kick();
+  };
   const sendChat = () => { const b = msg.trim(); if (!b) return; R.chatQ.push(b.slice(0, 1000)); setMsg(''); R.fastUntil = Date.now() + 4000; kick(); };
 
   // ---------- screens ----------
@@ -435,6 +450,19 @@ export default function Room() {
         )}
         {solo ? <View style={{ position: 'absolute', right: 20, top: 10 }}>{tile(meTile, 104, 146, true)}</View> : null}
       </View>
+      {waiting.length && sheet !== 'people' ? (
+        <Pressable onPress={() => setSheet('people')} accessibilityRole="button" accessibilityLabel={t('{n} waiting to join. Tap to let them in.', { n: waiting.length })}
+          style={{ position: 'absolute', left: 16, right: 16, top: top + 60, flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, borderRadius: 16, backgroundColor: '#FFFFFF' }}>
+          <Ph name="user-plus" size={20} color={MK.navy} />
+          <Text style={{ flex: 1, color: MK.ink, fontSize: 14, fontWeight: '700' }} numberOfLines={1}>{waiting.length === 1 ? t('{name} is waiting to join', { name: waiting[0].name }) : t('{n} people are waiting to join', { n: waiting.length })}</Text>
+          {waiting.length === 1 ? (
+            <Pressable onPress={() => decide(waiting[0].id, true)} accessibilityRole="button" accessibilityLabel={t('Let in')} hitSlop={6}
+              style={{ paddingHorizontal: 14, height: 36, borderRadius: 12, backgroundColor: MK.navy, justifyContent: 'center' }}>
+              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 13.5 }}>{t('Let in')}</Text>
+            </Pressable>
+          ) : <Text style={{ color: MK.navy, fontWeight: '800', fontSize: 13.5 }}>{t('See')}</Text>}
+        </Pressable>
+      ) : null}
       {toast ? (
         <View pointerEvents="none" style={{ position: 'absolute', left: 16, right: 16, bottom: barH + 10, alignItems: 'center' }}>
           <View style={{ paddingHorizontal: 14, paddingVertical: 9, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.95)' }}><Text style={{ color: MK.ink, fontSize: 13.5, fontWeight: '700' }} numberOfLines={2}>{toast}</Text></View>
@@ -454,6 +482,22 @@ export default function Room() {
         {R.me?.host || info?.me?.admin ? <Opt ph="phone-disconnect" title={t('End the meeting for everyone')} sub={t('Everyone is disconnected.')} onPress={endForAll} /> : null}
       </MSheet>
       <MSheet open={sheet === 'people'} title={t('People in the call')} sub={t('{n} in the call', { n: others.length + 1 })} onClose={() => setSheet('')}>
+        {waiting.length ? <Text style={{ color: MK.muted, fontSize: 12.5, fontWeight: '800', letterSpacing: 0.6, marginTop: 2 }}>{t('WAITING TO JOIN')}</Text> : null}
+        {waiting.map((w) => (
+          <View key={'w' + w.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 6 }}>
+            <Face name={w.name} size={40} light />
+            <Text style={{ flex: 1, color: MK.ink, fontSize: 15, fontWeight: '700' }} numberOfLines={1}>{w.name}</Text>
+            <Pressable onPress={() => decide(w.id, false)} accessibilityRole="button" accessibilityLabel={t('Turn away {name}', { name: w.name })} hitSlop={4}
+              style={{ width: 40, height: 40, borderRadius: 12, borderWidth: 1.5, borderColor: MK.line, alignItems: 'center', justifyContent: 'center' }}>
+              <Ph name="x" size={18} color={MK.bad} />
+            </Pressable>
+            <Pressable onPress={() => decide(w.id, true)} accessibilityRole="button" accessibilityLabel={t('Let in {name}', { name: w.name })} hitSlop={4}
+              style={{ paddingHorizontal: 14, height: 40, borderRadius: 12, backgroundColor: MK.navy, justifyContent: 'center' }}>
+              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 14 }}>{t('Let in')}</Text>
+            </Pressable>
+          </View>
+        ))}
+        {waiting.length ? <Text style={{ color: MK.muted, fontSize: 12.5, fontWeight: '800', letterSpacing: 0.6, marginTop: 8 }}>{t('IN THE CALL')}</Text> : null}
         {[meTile, ...others].map((p) => (
           <View key={p.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 6 }}>
             <Face name={p.name} size={40} light />

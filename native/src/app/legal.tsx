@@ -19,7 +19,11 @@ export default function Legal() {
   const [err, setErr] = useState('');
   const [key, setKey] = useState(String(doc));
   const [eff, setEff] = useState('');
-  useEffect(() => { get<{ docs: Doc[]; effective?: string }>('/api/legal/docs').then((r) => { setDocs(r.docs || []); setEff(r.effective || ''); }).catch((e) => setErr(e?.message || t('Could not load. Check your internet and try again.'))); }, []);
+  useEffect(() => { get<{ docs: Doc[] | Record<string, Doc>; platform?: string[]; effective?: string }>('/api/legal/docs').then((r) => {
+    // oenod.com sends the documents keyed by name, in the order of 'platform'.
+    const all = Array.isArray(r.docs) ? r.docs : Object.values(r.docs || {});
+    const order = r.platform || [];
+    setDocs(all.filter((x) => x && x.html).sort((a, b) => (order.indexOf(a.key) + 1 || 99) - (order.indexOf(b.key) + 1 || 99))); setEff(r.effective || ''); }).catch((e) => setErr(e?.message || t('Could not load. Check your internet and try again.'))); }, []);
   const d = docs?.find((x) => x.key === key) || docs?.[0];
   const html = useMemo(() => d ? `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>
     body{font:16px/1.6 -apple-system,Roboto,system-ui,sans-serif;color:#0A0B10;margin:0;padding:4px 20px 40px;background:#fff}

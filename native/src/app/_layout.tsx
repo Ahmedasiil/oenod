@@ -43,7 +43,7 @@ function Gate() {
   useEffect(() => {
     if (!ready || !signedIn) return;
     const c = lastCrash(); if (!c) return;
-    post('/api/support', { subject: `App closed by itself (Android ${Constants.expoConfig?.version || ''})`, body: c, priority: 'normal' }).catch(() => {});
+    post('/api/support', { subject: `App closed by itself (Android ${Constants.expoConfig?.version || ''})`, body: c.slice(0, 9500), priority: 'normal' }).catch(() => {});
   }, [ready, signedIn]);
   // Apple Watch asks to connect (3.7): open "Connect a watch" with its code filled in, ready for Allow.
   useEffect(() => {

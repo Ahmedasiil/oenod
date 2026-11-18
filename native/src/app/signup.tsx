@@ -121,7 +121,7 @@ function Signup() {
                 {agree ? <Icon name="check" size={16} color="#FFFFFF" duo={false} /> : null}
               </View>
               <Text style={{ flex: 1, color: A.sub, fontSize: 13.5, lineHeight: 20 }}>
-                {t('I agree to the')} <Text style={{ color: A.sky, fontWeight: '700' }} onPress={() => openTool('/terms', t('OENOD'))}>{t('Terms of Service')}</Text>, {t('the')} <Text style={{ color: A.sky, fontWeight: '700' }} onPress={() => openTool('/legal', t('OENOD'))}>{t('Acceptable Use Policy')}</Text> {t('and the')} <Text style={{ color: A.sky, fontWeight: '700' }} onPress={() => openTool('/privacy', t('OENOD'))}>{t('Privacy Policy')}</Text>.
+                {t('I agree to the')} <Text style={{ color: A.sky, fontWeight: '700' }} onPress={() => openTool('/terms', t('OENOD'))}>{t('Terms of Service')}</Text>, {t('the')} <Text style={{ color: A.sky, fontWeight: '700' }} onPress={() => openTool('/aup', t('OENOD'))}>{t('Acceptable Use Policy')}</Text> {t('and the')} <Text style={{ color: A.sky, fontWeight: '700' }} onPress={() => openTool('/privacy', t('OENOD'))}>{t('Privacy Policy')}</Text>.
               </Text>
             </Pressable>
           </In>
