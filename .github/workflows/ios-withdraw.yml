@@ -11,8 +11,8 @@ jobs:
       APPLE_KEY_ID: ${{ secrets.APPLE_KEY_ID }}
       APPLE_ISSUER_ID: ${{ secrets.APPLE_ISSUER_ID }}
       APPLE_KEY_P8: ${{ secrets.APPLE_KEY_P8 }}
-      NEW_VERSION: '4.0.0'
-      WHATS_NEW: 'A brand-new light look: clock in from your home screen, see what needs you, join meetings in the new Meet room, and every tool in one simple grid. Plus speed and reliability fixes.'
+      NEW_VERSION: '4.1.0'
+      WHATS_NEW: 'A brand new look, and everything inside the app: a fresh modern design on every screen, every tool working right inside the app, a new Meet with join by code, and French, Spanish and Arabic on all new screens.'
     steps:
       - uses: actions/checkout@v4
       - name: Withdraw and rename
