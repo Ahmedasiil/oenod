@@ -50,7 +50,8 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
-    "web:export": "expo export --platform web"
+    "web:export": "expo export --platform web",
+    "postinstall": "node scripts/patch-twilio.js"
   },
   "private": true
 }
