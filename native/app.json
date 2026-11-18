@@ -119,6 +119,7 @@
       "@bacons/apple-targets",
       "./plugins/withWear",
       "./plugins/withPhoneCalls",
+      "./plugins/withWebRtcProguard",
       [
         "expo-alternate-app-icons",
         [
