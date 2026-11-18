@@ -140,7 +140,7 @@ export default function Login() {
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                   {IOS_STORE ? <View /> : <Pressable onPress={() => router.push('/signup')} accessibilityRole="link" hitSlop={6}><Text style={{ color: '#C9D2FF', fontWeight: '600', fontSize: 13.5 }}>{t('Create a free account')}</Text></Pressable>}
-                  <Pressable onPress={() => open('/#/forgot')} accessibilityRole="link" hitSlop={6}><Text style={{ color: '#C9D2FF', fontWeight: '600', fontSize: 13.5 }}>{t('Forgot password?')}</Text></Pressable>
+                  <Pressable onPress={() => router.push('/forgot')} accessibilityRole="link" hitSlop={6}><Text style={{ color: '#C9D2FF', fontWeight: '600', fontSize: 13.5 }}>{t('Forgot password?')}</Text></Pressable>
                 </View>
               </In>
             </>

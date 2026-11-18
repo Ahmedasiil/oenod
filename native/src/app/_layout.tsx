@@ -141,6 +141,8 @@ function Gate() {
         <Stack.Screen name="signup" options={{ contentStyle: { backgroundColor: '#050B24' } }} />
       </Stack.Protected>
       {/* Guests can join a meeting whether or not they have an account. */}
+      <Stack.Screen name="forgot" options={{ contentStyle: { backgroundColor: '#050B24' } }} />
+      <Stack.Screen name="legal" />
       <Stack.Screen name="room/[token]" options={{ animation: 'slide_from_bottom', gestureEnabled: false, contentStyle: { backgroundColor: '#000C58' } }} />
       <Stack.Screen name="guest" options={{ contentStyle: { backgroundColor: '#050B24' } }} />
       <Stack.Screen name="m/[code]" options={{ contentStyle: { backgroundColor: '#050B24' } }} />
