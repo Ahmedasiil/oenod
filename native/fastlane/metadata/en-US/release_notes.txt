@@ -1,4 +1,5 @@
-OENOD 4.0.1
-- Join a meeting with its 10-number meeting code right inside the app, from the Meet tab or as a guest.
-- Meeting links now open straight into the right meeting.
-- Small fixes and speed improvements.
+OENOD 4.1: a brand new look, and everything inside the app.
+- A fresh, modern design on every screen: a navy top, quick action cards and a live card that shows what is happening right now.
+- Every tool now works right inside the app, with nothing opening the website: Payroll, Accounting, Banking, Marketing, Projects, Academy, Documents, Storm Center, Cameras, Settings, Security, Loyalty, Reservations and Suppliers.
+- A new Meet: start a call, join with a code, or plan one for later.
+- Faster screens and many small fixes.

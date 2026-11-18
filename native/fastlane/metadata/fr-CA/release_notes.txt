@@ -1,4 +1,5 @@
-OENOD 4.0.1
-- Rejoignez une réunion avec son code à 10 chiffres directement dans l’app, depuis l’onglet Meet ou en tant qu’invité.
-- Les liens de réunion ouvrent maintenant directement la bonne réunion.
-- Petites corrections et plus de rapidité.
+OENOD 4.1 : un tout nouveau look, et tout dans l’app.
+- Un design moderne sur chaque écran : un haut marine, des cartes d’actions rapides et une carte en direct qui montre ce qui se passe maintenant.
+- Chaque outil fonctionne maintenant dans l’app, sans ouvrir le site Web : Paie, Comptabilité, Banque, Marketing, Projets, Académie, Documents, Centre météo, Caméras, Paramètres, Sécurité, Fidélité, Réservations et Fournisseurs.
+- Un nouveau Meet : lancez un appel, rejoignez avec un code ou planifiez-en un pour plus tard.
+- Des écrans plus rapides et de nombreuses petites corrections.
