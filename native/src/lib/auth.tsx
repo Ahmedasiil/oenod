@@ -2,11 +2,12 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 import { setSeasonContext } from './season';
 import { Alert, Platform } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
-import { flushCookies } from '../../modules/oenod-tap/src';
+import { flushCookies, restoreSession, sessionCookie } from '../../modules/oenod-tap/src';
 import { api, ApiError, BASE, clearCred, loadCred, post, refreshSession, saveCred, setAltSignIn, setSignedOutHandler } from './api';
 import { quickEnroll, quickLogin, quickName, quickOn } from './quick';
 import { t } from './i18n';
 import { setLocale } from './format';
+import { secure } from './secure';
 
 export type Session = {
   user: { id: number; name: string; email: string; role: string; totp_enabled?: boolean; pro?: boolean; lang?: string | null } | null;
@@ -37,6 +38,13 @@ type Ctx = {
 const AuthCtx = createContext<Ctx | null>(null);
 export const MANAGER_ROLES = ['owner', 'admin', 'manager'];
 
+const SID_KEY = 'oenod.sid';
+/** Android forgets the sign-in cookie when the app process ends (crash or the phone closing it): keep a copy. */
+export async function keepSession() {
+  if (Platform.OS !== 'android') return;
+  flushCookies();
+  const sid = sessionCookie(); if (sid) await secure.set(SID_KEY, sid).catch(() => {});
+}
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
@@ -50,7 +58,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const sp = (s as any)?.signin_providers;
     if (Array.isArray(sp)) setProviders(sp.filter((p: string) => ['google', 'apple', 'microsoft'].includes(p)));
     setSession(s && s.user ? s : null);
-    if (s?.user) setTimeout(flushCookies, 300); // keep the sign-in even if the app closes suddenly
+    if (s?.user) setTimeout(keepSession, 300); // keep the sign-in even if the app closes suddenly
     if (s?.company) setLocale(s.company.timezone, s.company.currency);
     setSeasonContext(s?.company?.timezone || null); // seasonal logo follows the company's country
   }, []);
@@ -65,6 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setAltSignIn(async () => !!(await quickLogin())?.user);
     (async () => {
       try {
+        if (Platform.OS === 'android') { const sid = await secure.get(SID_KEY).catch(() => null); if (sid) restoreSession(sid); }
         let s: Session = await refreshSession();
         await refreshQuick();
         if (!s.user && (await quickOn())) {
@@ -151,6 +160,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = useCallback(async () => {
     try { await post('/api/auth/logout'); } catch (e) { if (!(e instanceof ApiError)) throw e; }
     await clearCred();
+    await secure.del(SID_KEY).catch(() => {});
     await import('./geo').then((g) => g.stopTracking()).catch(() => {});
     setPending2fa(false);
     setSession(null);
