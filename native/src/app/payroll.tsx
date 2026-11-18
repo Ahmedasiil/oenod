@@ -8,7 +8,6 @@ import { get } from '../lib/api';
 import { useLoad } from '../lib/useLoad';
 import { date, money } from '../lib/format';
 import { t } from '../lib/i18n';
-import { openTool } from './web';
 import { Icon } from '../ui/Icon';
 import { FH, NavyFill, Sec, SubTop, TeamStrip, V } from '../ui/M6';
 import { Pressy } from '../ui/Motion';
@@ -17,7 +16,7 @@ import { PoweredBy } from '../ui/Brand';
 type Run = { id: number; period_start: string; period_end: string; pay_date: string | null; people: number; hours?: number; gross: number; net: number; status: string };
 type Emp = { id: number; name: string; color: string | null; status: string };
 const soft = <T,>(p: Promise<T>) => p.catch(() => null);
-const full = () => openTool('/payroll', t('Payroll'));
+const full = () => router.push('/payrun' as any);
 
 export default function RunPayroll() {
   const insets = useSafeAreaInsets();
