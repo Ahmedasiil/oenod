@@ -20,6 +20,10 @@ import { Logo } from '../ui/Logo';
 /** Open an oenod.com page (hash route like "/invoices") in the in-app web view. */
 // Sections rebuilt as real app screens (wave 1): any link to them, from anywhere, opens the app screen, not a web page.
 const NATIVE: [RegExp, (m: RegExpMatchArray) => string][] = [
+  // 4.3: meetings run in the app's own meeting room.
+  [/^\/m\/([A-Za-z0-9_-]{6,128})$/, (m) => `/room/${m[1]}`],
+  [/^\/(meet|meetings|video)$/, () => '/meet'],
+  [/^\/(meet-join)$/, () => '/meet/join'],
   // 4.0: the app's own tabs and screens, so a notification or card link never opens the website for them.
   [/^\/(schedule|shifts|my-schedule)$/, () => '/schedule'],
   [/^\/(timeoff|time-off|leave)$/, () => '/timeoff'],

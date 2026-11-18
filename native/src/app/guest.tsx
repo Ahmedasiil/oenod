@@ -40,8 +40,8 @@ export async function resolveMeeting(v: string): Promise<string> {
   return id;
 }
 
-/** Meetings open inside the app (3.9): same sign-in, camera and microphone in the app's own web view. */
-export const openMeeting = (id: string, replace = false) => (replace ? router.replace : router.push)({ pathname: '/web', params: { path: `/m/${id}`, title: 'OENOD Meet' } });
+/** Meetings open in the app's own meeting room (4.3), signed in or as a guest. */
+export const openMeeting = (id: string, replace = false) => (replace ? router.replace : router.push)({ pathname: '/room/[token]', params: { token: id } });
 
 export default function Guest() {
   const [v, setV] = useState('');
@@ -58,7 +58,7 @@ export default function Guest() {
     <AuthPage>
       <In><View style={{ width: 56, height: 56, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(42,59,196,0.18)', borderWidth: 1, borderColor: 'rgba(175,195,255,0.22)' }}><Icon name="video" size={28} color="#FFFFFF" /></View></In>
       <In delay={60}><Heading eyebrow={t('OENOD Meet')} title={t('Join a meeting')} sub={t('No account needed. Type the meeting code or paste the link you were sent. You will add your name on the next screen.')} /></In>
-      <In delay={120}><GField label={t('Meeting link or code')} icon="link" value={v} onChangeText={setV} autoCapitalize="none" autoCorrect={false} keyboardType="default" placeholder="482 913 5067" returnKeyType="go" onSubmitEditing={go} /></In>
+      <In delay={120}><GField label={t('Meeting link or code')} icon="link" value={v} onChangeText={setV} autoCapitalize="none" autoCorrect={false} keyboardType="default" placeholder={t('10-number code or link')} returnKeyType="go" onSubmitEditing={go} /></In>
       <ErrorLine text={err} />
       <In delay={180}><GradientButton light busy={busy} title={busy ? t('Finding the meeting…') : t('Continue')} iconRight="arrow" onPress={go} /></In>
       <In delay={240} style={{ gap: 12 }}>

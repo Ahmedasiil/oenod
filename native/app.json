@@ -2,14 +2,14 @@
   "expo": {
     "name": "OENOD",
     "slug": "oenod",
-    "version": "4.2.0",
+    "version": "4.3.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.oenod.app",
-      "buildNumber": "420",
+      "buildNumber": "430",
       "associatedDomains": [
         "applinks:oenod.com",
         "webcredentials:oenod.com"
@@ -37,7 +37,7 @@
     },
     "android": {
       "package": "com.oenod.app",
-      "versionCode": 420,
+      "versionCode": 430,
       "adaptiveIcon": {
         "backgroundColor": "#000C58",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -227,6 +227,13 @@
             }
           }
         ]
+      ],
+      [
+        "@config-plugins/react-native-webrtc",
+        {
+          "cameraPermission": "OENOD uses the camera to scan QR badges and for video meetings.",
+          "microphonePermission": "OENOD uses the microphone for video meetings in OENOD Meet and for Business Phone calls."
+        }
       ],
       [
         "@twilio/voice-react-native-sdk",
