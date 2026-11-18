@@ -94,10 +94,8 @@ export default function MyCard() {
               {!pub ? <Tag text={t('Private: only people at your company can open it')} tone="warn" /> : <Tag text={t('Public: anyone with the link can open it')} tone="good" />}
               <TapShare url={pub ? x.card_url : undefined} />
               <Btn text={t('Share my card')} icon="send" kind="blue" onPress={shareLink} />
-              <View style={{ flexDirection: 'row', gap: 10 }}>
-                <View style={{ flex: 1 }}><Btn text={t('Copy link')} icon="link" onPress={copyLink} /></View>
-                <View style={{ flex: 1 }}><Btn text={t('Send my contact')} icon="user" onPress={shareContact} /></View>
-              </View>
+              <Btn text={t('Copy link')} icon="link" onPress={copyLink} />
+              <Btn text={t('Send my contact')} icon="user" onPress={shareContact} />
               {Platform.OS !== 'android' && ps.data?.apple ? <Btn text={t('Add to Apple Wallet')} icon="wallet" kind="dark" onPress={apple} busy={busy === 'ap'} /> : null}
               {Platform.OS !== 'ios' && ps.data?.google ? <Btn text={t('Add to Google Wallet')} icon="wallet" kind="dark" onPress={google} busy={busy === 'gw'} /> : null}
               <Card title={t('My card')}>
