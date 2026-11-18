@@ -15,7 +15,7 @@
         "webcredentials:oenod.com"
       ],
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "OENOD uses your location to confirm you are at your workplace when you clock in. If your workplace uses site attendance, it also shares your location with your managers while you are clocked in and OENOD is open on your screen. Never on breaks, after you clock out, or while the app is closed.",
+        "NSLocationWhenInUseUsageDescription": "OENOD uses your location to confirm you are at your workplace when you clock in, and to show jobs near you when you tap Near me in Find a job. If your workplace uses site attendance, it also shares your location with your managers while you are clocked in and OENOD is open on your screen. Never on breaks, after you clock out, or while the app is closed.",
         "NSCameraUsageDescription": "OENOD uses the camera to scan QR badges and for video meetings.",
         "NSFaceIDUsageDescription": "OENOD uses Face ID to unlock the app quickly.",
         "ITSAppUsesNonExemptEncryption": false,
@@ -89,7 +89,7 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "OENOD uses your location to confirm you are at your workplace when you clock in. If your workplace uses site attendance, it also shares your location with your managers while you are clocked in and OENOD is open on your screen. Never on breaks, after you clock out, or while the app is closed.",
+          "locationWhenInUsePermission": "OENOD uses your location to confirm you are at your workplace when you clock in, and to show jobs near you when you tap Near me in Find a job. If your workplace uses site attendance, it also shares your location with your managers while you are clocked in and OENOD is open on your screen. Never on breaks, after you clock out, or while the app is closed.",
           "locationAlwaysAndWhenInUsePermission": "OENOD uses your location to confirm you are at your workplace when you clock in. If your workplace uses site attendance, it also shares your location with your managers while you are clocked in and OENOD is open on your screen. Never on breaks, after you clock out, or while the app is closed.",
           "isAndroidBackgroundLocationEnabled": false,
           "isAndroidForegroundServiceEnabled": false,

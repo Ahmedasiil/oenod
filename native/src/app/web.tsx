@@ -37,6 +37,11 @@ const NATIVE: [RegExp, (m: RegExpMatchArray) => string][] = [
   [/^\/(wallet|card)$/, () => '/wallet'],
   [/^\/(me|account)$/, () => '/me'],
   [/^\/(profile|my-profile)$/, () => '/profile-edit'],
+  [/^\/(my-card|business-card|cd6)$/, () => '/card'],
+  [/^\/(find-jobs|job-market|jobs-market|market\/jobs)$/, () => '/jobs'],
+  [/^\/(find-jobs|market\/jobs|job)\/(\d+)$/, (m) => `/jobs/${m[2]}`],
+  [/^\/(my-jobs|my-applications)$/, () => '/jobs?tab=mine'],
+  [/^\/(job-alerts|job-radar)$/, () => '/jobs?tab=alerts'],
   [/^\/invoices\/new$/, () => '/invoices/new'],
   [/^\/invoices\/(\d+)$/, (m) => `/invoices/${m[1]}`],
   [/^\/(invoices|quotes)$/, () => '/invoices'],
@@ -84,6 +89,10 @@ const NATIVE: [RegExp, (m: RegExpMatchArray) => string][] = [
 ];
 export const nativeFor = (path: string): string | null => {
   const p = ('/' + String(path || '').replace(/^#?\/*/, '')).split(/[?#]/)[0].replace(/\/+$/, '') || '/';
+  const qs = String(path || '').split('?')[1] || '';
+  const job = qs.match(/(?:^|&)job=(\d+)/);
+  if (job && /^\/(find-jobs|my-jobs)$/.test(p)) return `/jobs/${job[1]}`;
+  if (p === '/my-jobs' && /(?:^|&)tab=alerts/.test(qs)) return '/jobs?tab=alerts';
   for (const [re, to] of NATIVE) { const m = p.match(re); if (m) return to(m); }
   return null;
 };

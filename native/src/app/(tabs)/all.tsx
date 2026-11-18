@@ -61,7 +61,11 @@ const GROUPS: Group[] = [
     { name: 'Mail', icon: 'mail', hint: 'Inbox', app: '/mail', who: 'mgr' },
     { name: 'Academy', icon: 'cap', hint: 'Courses', app: '/academy', who: 'team', mod: 'academy' },
     { name: 'Docs', icon: 'doc', hint: 'Sign and share', app: '/docs', who: 'mgr', mod: 'docs' },
-    { name: 'Résumé', icon: 'doc', hint: 'Ava writes it', app: '/resume', who: 'staff' },
+  ] },
+  { name: 'Career', tools: [
+    { name: 'Business card', icon: 'qr', hint: 'Share with anyone', app: '/card', who: 'all' },
+    { name: 'Résumé', icon: 'doc', hint: 'Ava writes it', app: '/resume', who: 'all' },
+    { name: 'Find a job', icon: 'briefcase', hint: 'Jobs near you', app: '/jobs', who: 'all' },
   ] },
   { name: 'Operations', tools: [
     { name: 'Inventory', icon: 'box', hint: 'Stock', app: '/inventory', who: 'mgr' },

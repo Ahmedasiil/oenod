@@ -1,4 +1,5 @@
-// One résumé: edit your details, jobs and skills; Ava writes it from notes; check its score; share a link.
+// One résumé: edit your details, jobs, school and skills; pick a look; Ava writes it from notes; check its score with
+// Ava's tips; find jobs that match it; share a link.
 import React, { useState } from 'react';
 import { Share, Text, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -6,10 +7,12 @@ import { get, post, put, del } from '../../lib/api';
 import { useLoad } from '../../lib/useLoad';
 import { t } from '../../lib/i18n';
 import { V } from '../../ui/M6';
-import { Btn, Card, Dot, Hero, In, Item, None, Sheet, State, Tag, ToolPage, oops, sure, useBusy } from '../../ui/T1';
+import { Btn, Card, Dot, Hero, In, Item, None, Pick, Sheet, State, Tag, ToolPage, oops, sure, useBusy } from '../../ui/T1';
+import { plain } from '../../lib/jobs';
 
 type Job = { title: string; company: string; location: string; start: string; end: string; current: boolean; bullets: string[] };
-type Data = { name: string; headline: string; email: string; phone: string; location: string; website: string; summary: string; experience: Job[]; education: { school: string; degree: string; end: string }[]; skills: string[]; [k: string]: any };
+type Edu = { school: string; degree: string; field?: string; start?: string; end: string; details?: string };
+type Data = { name: string; headline: string; email: string; phone: string; location: string; website: string; summary: string; experience: Job[]; education: Edu[]; skills: string[]; languages?: string[]; [k: string]: any };
 type R = { id: number; title: string; template: string; data: Data; share_url: string | null };
 type Rev = { score: number; grade: string; checks: { label: string; ok: boolean; tip: string | null }[]; tips?: string[] };
 
@@ -21,6 +24,10 @@ export default function Resume() {
   const [sk, setSk] = useState<string | null>(null);
   const [ai, setAi] = useState<{ target: string; experience: string; education: string; skills: string } | null>(null);
   const [rev, setRev] = useState<Rev | null>(null);
+  const [edu, setEdu] = useState<{ i: number; e: Edu } | null>(null);
+  const [lk, setLk] = useState<string | null>(null);
+  const [lang, setLang] = useState<string | null>(null);
+  const tl = useLoad(() => get<{ templates: string[]; limits: { templates: string[] } }>('/api/me/resumes').catch(() => null));
   const { busy, run } = useBusy();
   const r = d.data;
   const data = r?.data;
@@ -36,6 +43,20 @@ export default function Resume() {
     save({ ...data, experience: list }).then((ok) => ok && setJob(null));
   };
   const dropJob = () => job && data && job.i >= 0 && save({ ...data, experience: data.experience.filter((_, i) => i !== job.i) }).then((ok) => ok && setJob(null));
+  const saveEdu = () => {
+    if (!edu || !data) return;
+    if (!edu.e.school.trim()) return oops(t('Type the school name.'));
+    const list = [...(data.education || [])];
+    if (edu.i < 0) list.unshift(edu.e); else list[edu.i] = edu.e;
+    save({ ...data, education: list }).then((ok) => ok && setEdu(null));
+  };
+  const dropEdu = () => edu && data && edu.i >= 0 && save({ ...data, education: data.education.filter((_, i) => i !== edu.i) }).then((ok) => ok && setEdu(null));
+  const saveLang = () => lang != null && data && save({ ...data, languages: lang.split(',').map((s) => s.trim()).filter(Boolean) }).then((ok) => ok && setLang(null));
+  const saveLook = () => lk && r && run('save', async () => {
+    try { d.setData(await put<R>(`/api/me/resumes/${id}`, { title: r.title, template: lk, data })); } catch (e: any) { throw e?.status === 402 ? new Error(t('This look is not on your account yet. Pick another one.')) : e; }
+    setLk(null);
+  });
+  const looks = (tl.data?.limits?.templates || ['classic', 'modern', 'minimal', 'clean', 'simple', 'student', 'timeline', 'fresh']);
   const saveSkills = () => sk != null && data && save({ ...data, skills: sk.split(',').map((s) => s.trim()).filter(Boolean) }).then((ok) => ok && setSk(null));
   const build = () => {
     if (!ai) return;
@@ -44,7 +65,8 @@ export default function Resume() {
   };
   const check = () => run('rev', async () => setRev(await post<Rev>(`/api/me/resumes/${id}/review`)));
   const share = () => run('sh', async () => {
-    const out = r?.share_url ? r : await post<R>(`/api/me/resumes/${id}/share`, { on: true });
+    let out: R;
+    try { out = r?.share_url ? r : await post<R>(`/api/me/resumes/${id}/share`, { on: true }); } catch (e) { throw plain(e, 'share'); }
     d.setData(out);
     if (out.share_url) await Share.share({ message: out.share_url }).catch(() => oops(t('Your link: {u}', { u: out.share_url || '' })));
   });
@@ -61,6 +83,10 @@ export default function Resume() {
             <View style={{ flex: 1 }}><Btn text={t('Check score')} icon="check" kind="dark" onPress={check} busy={busy === 'rev'} /></View>
             <View style={{ flex: 1 }}><Btn text={t('Share link')} icon="send" kind="dark" onPress={share} busy={busy === 'sh'} /></View>
           </View>
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            <View style={{ flex: 1 }}><Btn text={t('Jobs that match')} icon="briefcase" onPress={() => router.push({ pathname: '/jobs', params: { sort: 'match' } } as any)} /></View>
+            <View style={{ flex: 1 }}><Btn text={t('Change look')} icon="grid" onPress={() => setLk(r.template || 'classic')} /></View>
+          </View>
           <Card title={t('About you')} right={t('Edit')} onRight={() => setMe({ ...data })}>
             <Item title={t('Summary')} sub={data.summary || t('Not written yet')} />
             <Item title={t('Location')} sub={data.location || '—'} />
@@ -68,6 +94,13 @@ export default function Resume() {
           <Card title={t('Work')} right={t('Add job')} onRight={() => setJob({ i: -1, j: { title: '', company: '', location: '', start: '', end: '', current: false, bullets: [] }, b: '' })}>
             {(data.experience || []).length ? data.experience.map((j, i) => <Item key={i} onPress={() => setJob({ i, j: { ...j }, b: (j.bullets || []).join('\n') })} left={<Dot icon="briefcase" />} title={j.title || t('Job')} sub={[j.company, [j.start, j.current ? t('now') : j.end].filter(Boolean).join(' – ')].filter(Boolean).join(' · ')} />)
               : <None icon="briefcase" title={t('No jobs yet')} />}
+          </Card>
+          <Card title={t('School')} right={t('Add school')} onRight={() => setEdu({ i: -1, e: { school: '', degree: '', field: '', start: '', end: '', details: '' } })}>
+            {(data.education || []).length ? data.education.map((e, i) => <Item key={i} onPress={() => setEdu({ i, e: { ...e } })} left={<Dot icon="cap" />} title={e.school || t('School')} sub={[e.degree, e.field, [e.start, e.end].filter(Boolean).join(' – ')].filter(Boolean).join(' · ')} />)
+              : <None icon="cap" title={t('No school yet')} sub={t('Add your school, program or diploma, even if you did not finish.')} />}
+          </Card>
+          <Card title={t('Languages')} right={t('Edit')} onRight={() => setLang((data.languages || []).join(', '))}>
+            <View style={{ paddingVertical: 10 }}><Text style={{ color: (data.languages || []).length ? V.ink : V.mute, fontSize: 14 }}>{(data.languages || []).join(' · ') || t('No languages yet')}</Text></View>
           </Card>
           <Card title={t('Skills')} right={t('Edit')} onRight={() => setSk((data.skills || []).join(', '))}>
             <View style={{ paddingVertical: 10 }}><Text style={{ color: (data.skills || []).length ? V.ink : V.mute, fontSize: 14 }}>{(data.skills || []).join(' · ') || t('No skills yet')}</Text></View>
@@ -120,7 +153,41 @@ export default function Resume() {
         ) : null}
       </Sheet>
       <Sheet open={!!rev} title={rev ? t('Score {s} / 100 · {g}', { s: rev.score, g: rev.grade }) : ''} onClose={() => setRev(null)}>
-        {rev ? <Card>{rev.checks.map((c, i) => <Item key={i} left={<Dot icon={c.ok ? 'check' : 'spark'} tone={c.ok ? 'good' : 'warn'} />} title={c.label} sub={c.tip || undefined} rightSub={<Tag text={c.ok ? t('Good') : t('Fix')} tone={c.ok ? 'good' : 'warn'} />} />)}</Card> : null}
+        {rev ? (
+          <>
+            {rev.tips?.length ? <Card title={t('Ava’s tips')}>{rev.tips.map((x, i) => <Item key={i} left={<Dot icon="spark" tone="nv" />} title={x} />)}</Card> : null}
+            <Card title={t('What we checked')}>{rev.checks.map((c, i) => <Item key={i} left={<Dot icon={c.ok ? 'check' : 'spark'} tone={c.ok ? 'good' : 'warn'} />} title={c.label} sub={c.tip || undefined} rightSub={<Tag text={c.ok ? t('Good') : t('Fix')} tone={c.ok ? 'good' : 'warn'} />} />)}</Card>
+            {rev.score < 85 && data ? <Btn text={t('Ava improves it for me')} icon="spark" kind="blue" onPress={() => { setRev(null); setAi({ target: data.headline || '', experience: (data.experience || []).map((j) => [j.title, j.company, [j.start, j.current ? 'now' : j.end].filter(Boolean).join(' - ')].filter(Boolean).join(', ')).join('\n'), education: (data.education || []).map((e) => [e.degree, e.school].filter(Boolean).join(', ')).join('\n'), skills: (data.skills || []).join(', ') }); }} /> : null}
+            <Btn text={t('Jobs that match')} icon="briefcase" onPress={() => { setRev(null); router.push({ pathname: '/jobs', params: { sort: 'match' } } as any); }} />
+          </>
+        ) : null}
+      </Sheet>
+      <Sheet open={!!edu} title={edu && edu.i >= 0 ? t('Edit school') : t('Add school')} onClose={() => setEdu(null)}>
+        {edu ? (
+          <>
+            <In label={t('School')} value={edu.e.school} onChangeText={(v) => setEdu({ ...edu, e: { ...edu.e, school: v } })} />
+            <In label={t('Diploma or degree')} value={edu.e.degree} onChangeText={(v) => setEdu({ ...edu, e: { ...edu.e, degree: v } })} placeholder={t('High school diploma')} />
+            <In label={t('Program (optional)')} value={edu.e.field || ''} onChangeText={(v) => setEdu({ ...edu, e: { ...edu.e, field: v } })} />
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <In style={{ flex: 1 }} label={t('Start')} value={edu.e.start || ''} onChangeText={(v) => setEdu({ ...edu, e: { ...edu.e, start: v } })} placeholder="2019" />
+              <In style={{ flex: 1 }} label={t('End')} value={edu.e.end || ''} onChangeText={(v) => setEdu({ ...edu, e: { ...edu.e, end: v } })} placeholder="2023" />
+            </View>
+            <Btn text={t('Save school')} icon="check" onPress={saveEdu} busy={busy === 'save'} />
+            {edu.i >= 0 ? <Btn text={t('Remove school')} icon="x" kind="dark" onPress={dropEdu} /> : null}
+          </>
+        ) : null}
+      </Sheet>
+      <Sheet open={lang != null} title={t('Languages')} onClose={() => setLang(null)}>
+        <In label={t('Languages, separated by commas')} value={lang || ''} onChangeText={setLang} placeholder={t('English, French')} />
+        <Btn text={t('Save')} icon="check" onPress={saveLang} busy={busy === 'save'} />
+      </Sheet>
+      <Sheet open={lk != null} title={t('Change look')} onClose={() => setLk(null)}>
+        {lk != null ? (
+          <>
+            <Pick<string> label={t('Résumé look')} value={lk} onChange={setLk} items={looks.map((k) => [k, t(k.charAt(0).toUpperCase() + k.slice(1))] as [string, string])} />
+            <Btn text={t('Use this look')} icon="check" kind="blue" onPress={saveLook} busy={busy === 'save'} />
+          </>
+        ) : null}
       </Sheet>
     </ToolPage>
   );

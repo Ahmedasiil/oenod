@@ -116,6 +116,9 @@ function Gate() {
         <Stack.Screen name="calls" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
         <Stack.Screen name="shiftplan" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
         <Stack.Screen name="profile-edit" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="card" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="jobs/index" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="jobs/[id]" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
         <Stack.Screen name="mail/index" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
         <Stack.Screen name="mail/[id]" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
         <Stack.Screen name="mail/new" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />

@@ -98,6 +98,10 @@ export default function Me() {
             <Button title={t('Share my card')} icon="globe" kind="secondary" onPress={() => Share.share({ message: cardUrl, url: cardUrl })} style={{ flex: 1 }} />
           </Row>
         ) : null}
+        <Row>
+          <Button title={t('Open my card')} icon="qr" kind="primary" onPress={() => router.push('/card' as any)} style={{ flex: 1 }} />
+          <Button title={t('Find a job')} icon="briefcase" kind="secondary" onPress={() => router.push('/jobs' as any)} style={{ flex: 1 }} />
+        </Row>
       </Card>
       </Section>
 
