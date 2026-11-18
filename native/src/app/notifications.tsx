@@ -28,10 +28,10 @@ export default function Notifications() {
         <>
         <Summary seed={17} label={t('Unread')} value={String(d.data?.unread ?? 0)}
           badge={d.data?.unread ? <Pill text={t('New')} kind="info" /> : <Pill text={t('All caught up')} kind="good" />}
-          minis={[[t('Today'), String((d.data?.items || []).filter((n) => n.created_at.slice(0, 10) === new Date().toISOString().slice(0, 10)).length)], [t('Total'), String(d.data?.items.length ?? 0)]]} />
+          minis={[[t('Today'), String((d.data?.items || []).filter((n) => n.created_at.slice(0, 10) === new Date().toISOString().slice(0, 10)).length)], [t('Total'), String(d.data?.items?.length ?? 0)]]} />
         <H2>{t('Latest')}</H2>
         <Card style={{ paddingVertical: S.xs }}>
-          {d.data?.items.length ? d.data.items.map((n, i) => (
+          {d.data?.items?.length ? d.data.items.map((n, i) => (
             <View key={n.id}>
               {i ? <Divider /> : null}
               <ListRow

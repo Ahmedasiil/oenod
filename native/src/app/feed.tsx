@@ -165,7 +165,7 @@ export default function FeedScreen() {
         </Card>
         {celebrate.length ? <Card style={{ gap: 6 }}>{celebrate.map((c, i) => <Text key={i} style={{ color: C.ink, fontWeight: '600' }}>{c}</Text>)}</Card> : null}
         {d.loading && !x ? <Loading /> : d.error && !x ? <ErrorBox text={d.error} onRetry={d.reload} /> :
-          x?.posts.length ? x.posts.map((p) => <PostCard key={`${p.id}-${p.comments.length}-${p.poll?.total ?? 0}-${p.read.me ?? ''}-${p.rsvp?.mine ?? ''}`} p={p} badges={x.badges} onChange={d.reload} />) :
+          x?.posts?.length ? x.posts.map((p) => <PostCard key={`${p.id}-${p.comments.length}-${p.poll?.total ?? 0}-${p.read.me ?? ''}-${p.rsvp?.mine ?? ''}`} p={p} badges={x.badges} onChange={d.reload} />) :
           <Card><Empty icon="users" title={t('No posts yet')} sub={t('Share the first update with your team.')} /></Card>}
         <PoweredBy />
       </ScrollView>

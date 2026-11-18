@@ -25,7 +25,7 @@ export default function Availability() {
     if (!d.data) return;
     const next: Record<number, DayRow> = {};
     for (let wd = 0; wd < 7; wd++) next[wd] = { mode: 'any', start: '09:00', end: '17:00' };
-    for (const a of d.data.availability) {
+    for (const a of (d.data?.availability || [])) {
       if (a.kind === 'unavailable' && !a.start_time) next[a.weekday] = { mode: 'off', start: '09:00', end: '17:00' };
       else if (a.kind === 'available' && a.start_time && a.end_time) next[a.weekday] = { mode: 'hours', start: a.start_time.slice(0, 5), end: a.end_time.slice(0, 5) };
     }
