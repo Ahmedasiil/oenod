@@ -69,7 +69,7 @@ export default function Me() {
         </Row>
       </HeroCard></Rise>
       <PillRow items={[
-        { label: t('Edit my profile'), icon: 'user', primary: true, go: () => open('/#/profile', t('Edit my profile')) },
+        { label: t('Edit my profile'), icon: 'user', primary: true, go: () => router.push('/profile-edit' as any) },
         { label: t('Wallet'), icon: 'wallet', go: () => router.push('/wallet') },
         { label: t('My pay'), icon: 'cash', go: () => router.push('/pay') },
         { label: t('Notifications'), icon: 'bell', go: () => router.push('/notifications') },
@@ -155,9 +155,9 @@ export default function Me() {
         <Divider />
         <ListRow title={t('Every OENOD tool')} sub={t('Payroll, POS, invoices, reports and everything else, right here in the app')} left={<IconTile name="globe" color={tint(1)} />} onPress={() => router.navigate('/all')} />
         <Divider />
-        <ListRow title={t('Edit my profile, card and resume')} left={<IconTile name="user" color={tint(2)} />} onPress={() => open('/#/profile', t('Edit my card and resume'))} />
+        <ListRow title={t('Edit my profile, card and resume')} left={<IconTile name="user" color={tint(2)} />} onPress={() => router.push('/profile-edit' as any)} />
         <Divider />
-        <ListRow title={t('Help and support')} left={<IconTile name="mail" color={tint(3)} />} onPress={() => open('/#/help', t('Help and support'))} />
+        <ListRow title={t('Help and support')} left={<IconTile name="mail" color={tint(3)} />} onPress={() => router.push('/support' as any)} />
         <Divider />
         <ListRow title={t('Privacy policy')} left={<IconTile name="check" color={tint(4)} />} onPress={() => open('/#/privacy', t('Privacy policy'))} />
         <Divider />

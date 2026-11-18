@@ -16,6 +16,8 @@ import { card, H, Ph, TileIcon, type Tone } from '../../ui/H';
 import type { PhName } from '../../ui/phPaths';
 import { PoweredBy } from '../../ui/Brand';
 import { openTool } from '../web';
+import { post } from '../../lib/api';
+import { oops, sure } from '../../ui/T1';
 import { IOS_STORE } from '../../lib/store';
 
 type Who = 'all' | 'staff' | 'mgr' | 'team';
@@ -89,7 +91,7 @@ const PHI: Partial<Record<IconName, PhName>> = { calendar: 'calendar-dots', cloc
   heart: 'star', spark: 'sparkle', send: 'megaphone', mail: 'envelope-simple', cap: 'graduation-cap', box: 'package', cloud: 'warning', grid: 'squares-four', user: 'user', bell: 'bell', link: 'arrow-up-right', globe: 'gear-six' };
 
 export default function AllTools() {
-  const { session, isManager } = useAuth();
+  const { session, isManager, reload } = useAuth();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const [q, setQ] = useState('');
@@ -105,7 +107,17 @@ export default function AllTools() {
   const groups = useMemo(() => GROUPS.map((g) => ({ ...g, tools: g.tools.filter((x) => shown(x) && (!s || t(x.name).toLowerCase().includes(s) || t(x.hint).toLowerCase().includes(s))) })).filter((g) => g.tools.length),
     [s, isManager, staff, admin, off.join(',')]); // eslint-disable-line react-hooks/exhaustive-deps
   const go = (x: Tool) => {
-    if (isOff(x)) { openTool('/billing', t('Plan & billing')); return; }
+    if (isOff(x)) {
+      sure(t('Turn on {n}?', { n: t(x.name) }), t('It shows up for your team right away.'), t('Turn on'), async () => {
+        try {
+          const r = await post<{ modules: { code: string; on: boolean }[] }>('/api/modules', { off: off.filter((m: string) => m !== x.mod) });
+          await reload();
+          if (r.modules?.find((m) => m.code === x.mod)?.on) { if (x.app) router.navigate(x.app as any); return; }
+          sure(t('Not in your plan yet'), t('The OENOD team can add {n} for you.', { n: t(x.name) }), t('Ask the OENOD team'), () => router.push('/support' as any));
+        } catch (e) { oops(e); }
+      });
+      return;
+    }
     if (x.app) { router.navigate(x.app as any); return; }
     if (x.web) openTool(x.web, t(x.name));
   };
