@@ -100,6 +100,19 @@ function Gate() {
         <Stack.Screen name="marketing" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
         <Stack.Screen name="projects/index" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
         <Stack.Screen name="projects/[id]" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="payrun/index" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="payrun/[id]" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="academy/index" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="academy/[id]" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="docs/index" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="docs/[id]" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="storm" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="cameras" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="settings" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="security" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="loyalty" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="reservations" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="suppliers" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
         <Stack.Screen name="mail/index" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
         <Stack.Screen name="mail/[id]" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
         <Stack.Screen name="mail/new" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
