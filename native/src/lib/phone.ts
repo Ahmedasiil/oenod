@@ -7,6 +7,7 @@ import { useSyncExternalStore } from 'react';
 import { PermissionsAndroid, Platform } from 'react-native';
 import { router } from 'expo-router';
 import { get, post } from './api';
+import { flushCookies } from '../../modules/oenod-tap/src';
 import { t } from './i18n';
 
 type PbxMe = { allowed: boolean; ready: boolean; on: boolean; seat: boolean; status: 'available' | 'busy' | 'off' };
@@ -129,6 +130,7 @@ export async function dialOut(num: string): Promise<true | string> {
     } catch { return t('Allow the microphone for OENOD in your phone Settings, then call again.'); }
   }
   await syncPhone();
+  flushCookies(); // the sign-in is saved before the call engine starts
   if (!voice || !token) return t('Business Phone is not set up for you yet. Ask your manager to give you a phone seat at Calls.');
   try {
     // Android: give the call service a moment to be ready the first time.

@@ -2,6 +2,7 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 import { setSeasonContext } from './season';
 import { Alert, Platform } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
+import { flushCookies } from '../../modules/oenod-tap/src';
 import { api, ApiError, BASE, clearCred, loadCred, post, refreshSession, saveCred, setAltSignIn, setSignedOutHandler } from './api';
 import { quickEnroll, quickLogin, quickName, quickOn } from './quick';
 import { t } from './i18n';
@@ -49,6 +50,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const sp = (s as any)?.signin_providers;
     if (Array.isArray(sp)) setProviders(sp.filter((p: string) => ['google', 'apple', 'microsoft'].includes(p)));
     setSession(s && s.user ? s : null);
+    if (s?.user) setTimeout(flushCookies, 300); // keep the sign-in even if the app closes suddenly
     if (s?.company) setLocale(s.company.timezone, s.company.currency);
     setSeasonContext(s?.company?.timezone || null); // seasonal logo follows the company's country
   }, []);

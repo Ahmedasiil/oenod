@@ -103,7 +103,19 @@
   "Face ID": "Face ID",
   "Continue with {p}": "Continuer avec {p}",
   "or": "ou",
-  "Your sign-in is encrypted and kept in your phone’s secure keychain.": "Votre connexion est chiffrée et gardée dans le trousseau sécurisé de votre téléphone."
+  "Your sign-in is encrypted and kept in your phone’s secure keychain.": "Votre connexion est chiffrée et gardée dans le trousseau sécurisé de votre téléphone.",
+  "Characters": "Personnages",
+  "Pick your character. When your camera is off, people see it and its mouth moves when you talk.": "Choisissez votre personnage. Quand votre caméra est éteinte, les autres le voient et sa bouche bouge quand vous parlez.",
+  "Poster characters": "Personnages affiche",
+  "World": "Monde",
+  "Search a country": "Chercher un pays",
+  "Could not load. Tap to try again.": "Chargement impossible. Touchez pour réessayer.",
+  "A woman and a man from every country": "Une femme et un homme de chaque pays",
+  "Show all": "Tout afficher",
+  "No character": "Aucun personnage",
+  "Now: {n}": "Actuel : {n}",
+  "Your character shows when your camera is off. Its mouth moves when you talk.": "Votre personnage s’affiche quand votre caméra est éteinte. Sa bouche bouge quand vous parlez.",
+  "Character is off.": "Personnage désactivé."
  },
  "es": {
   "OENOD could not use your camera or microphone. You can still join, or allow them in your phone Settings.": "OENOD no pudo usar tu cámara o micrófono. Puedes unirte igual, o permitirlos en los Ajustes del teléfono.",
@@ -209,7 +221,19 @@
   "Face ID": "Face ID",
   "Continue with {p}": "Continuar con {p}",
   "or": "o",
-  "Your sign-in is encrypted and kept in your phone’s secure keychain.": "Tu inicio de sesión está cifrado y guardado en el llavero seguro de tu teléfono."
+  "Your sign-in is encrypted and kept in your phone’s secure keychain.": "Tu inicio de sesión está cifrado y guardado en el llavero seguro de tu teléfono.",
+  "Characters": "Personajes",
+  "Pick your character. When your camera is off, people see it and its mouth moves when you talk.": "Elige tu personaje. Cuando tu cámara está apagada, los demás lo ven y su boca se mueve cuando hablas.",
+  "Poster characters": "Personajes póster",
+  "World": "Mundo",
+  "Search a country": "Buscar un país",
+  "Could not load. Tap to try again.": "No se pudo cargar. Toca para reintentar.",
+  "A woman and a man from every country": "Una mujer y un hombre de cada país",
+  "Show all": "Ver todo",
+  "No character": "Sin personaje",
+  "Now: {n}": "Ahora: {n}",
+  "Your character shows when your camera is off. Its mouth moves when you talk.": "Tu personaje se muestra cuando tu cámara está apagada. Su boca se mueve cuando hablas.",
+  "Character is off.": "Personaje desactivado."
  },
  "ar": {
   "OENOD could not use your camera or microphone. You can still join, or allow them in your phone Settings.": "لم يتمكن OENOD من استخدام الكاميرا أو الميكروفون. يمكنك الانضمام على أي حال، أو السماح بهما في إعدادات الهاتف.",
@@ -315,6 +339,18 @@
   "Face ID": "Face ID",
   "Continue with {p}": "المتابعة باستخدام {p}",
   "or": "أو",
-  "Your sign-in is encrypted and kept in your phone’s secure keychain.": "تسجيل دخولك مشفّر ومحفوظ في سلسلة المفاتيح الآمنة بهاتفك."
+  "Your sign-in is encrypted and kept in your phone’s secure keychain.": "تسجيل دخولك مشفّر ومحفوظ في سلسلة المفاتيح الآمنة بهاتفك.",
+  "Characters": "الشخصيات",
+  "Pick your character. When your camera is off, people see it and its mouth moves when you talk.": "اختر شخصيتك. عندما تكون الكاميرا مغلقة يراها الآخرون ويتحرك فمها عندما تتحدث.",
+  "Poster characters": "شخصيات الملصقات",
+  "World": "العالم",
+  "Search a country": "ابحث عن دولة",
+  "Could not load. Tap to try again.": "تعذّر التحميل. اضغط للمحاولة مرة أخرى.",
+  "A woman and a man from every country": "امرأة ورجل من كل دولة",
+  "Show all": "عرض الكل",
+  "No character": "بدون شخصية",
+  "Now: {n}": "الحالية: {n}",
+  "Your character shows when your camera is off. Its mouth moves when you talk.": "تظهر شخصيتك عندما تكون الكاميرا مغلقة. ويتحرك فمها عندما تتحدث.",
+  "Character is off.": "تم إيقاف الشخصية."
  }
 }

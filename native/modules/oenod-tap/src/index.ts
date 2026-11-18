@@ -3,7 +3,7 @@
 import { Platform } from 'react-native';
 import { requireOptionalNativeModule } from 'expo-modules-core';
 
-type Native = { status(): 'none' | 'off' | 'ready'; start(url: string): boolean; stop(): void; lastCrash?(): string | null };
+type Native = { status(): 'none' | 'off' | 'ready'; start(url: string): boolean; stop(): void; lastCrash?(): string | null; flushCookies?(): void };
 const N: Native | null = Platform.OS === 'android' ? requireOptionalNativeModule<Native>('OenodTap') : null;
 
 export const tapStatus = (): 'none' | 'off' | 'ready' => { try { return N ? N.status() : 'none'; } catch { return 'none'; } };
@@ -11,3 +11,6 @@ export const tapStart = (url: string) => { try { return N ? N.start(url) : false
 export const tapStop = () => { try { N?.stop(); } catch { /* ignore */ } };
 /** Why the app last closed on its own (Android), read once; null when it did not. */
 export const lastCrash = (): string | null => { try { return N?.lastCrash ? N.lastCrash() : null; } catch { return null; } };
+
+/** Saves the sign-in cookies now (Android), so a sudden close never signs the person out. */
+export const flushCookies = () => { try { N?.flushCookies?.(); } catch { /* ignore */ } };

@@ -16,6 +16,9 @@ import { BigBtn, ErrText, FieldLabel, MInput, MK, MSheet, Opt } from '../../ui/M
 import { Grad } from '../../ui/H';
 import { Logo } from '../../ui/Logo';
 import * as RTC from '../../lib/rtc';
+import { POSTERS, WORLD, artName, isArt, loadWorld, onWorld } from '../../lib/chars';
+import { secure } from '../../lib/secure';
+import { CharArt } from '../../ui/CharArt';
 
 type Info = { title: string; status: string; in_call: number; host_here: boolean; brand: { company: string; lobby?: boolean }; me: { name: string; admin?: boolean } | null; max?: number };
 type Peer = { id: number; name: string; a?: number; v?: number; h?: number; host?: number };
@@ -47,7 +50,14 @@ export default function Room() {
   const [localUrl, setLocalUrl] = useState<string | null>(null);
   const [chat, setChat] = useState<Chat[]>([]);
   const [unread, setUnread] = useState(0);
-  const [sheet, setSheet] = useState<'' | 'chat' | 'leave' | 'people'>('');
+  const [sheet, setSheet] = useState<'' | 'chat' | 'leave' | 'people' | 'chars'>('');
+  const [art, setArt] = useState(''); // my meeting character (a poster or World code), shown when my camera is off
+  const [arts, setArts] = useState<Record<number, string>>({}); // the others' characters, from their "av" events
+  const [lv, setLv] = useState<Record<number, number>>({}); // voice levels that move the characters' mouths (-1 = me)
+  const [chTab, setChTab] = useState<'p' | 'w'>('p');
+  const [chQ, setChQ] = useState('');
+  const [chAll, setChAll] = useState(false);
+  const [, bumpW] = useState(0);
   const [msg, setMsg] = useState('');
   const [toast, setToast] = useState('');
   const [since, setSince] = useState(0);
@@ -59,7 +69,7 @@ export default function Room() {
     pcs: new Map<number, Conn>(), outbox: [] as any[], evQ: [] as any[], chatQ: [] as string[], cmd: null as any,
     after: 0, chatAfter: 0, evAfter: 0, evInit: true, peers: [] as Peer[], syncing: false, timer: null as any,
     fastUntil: 0, fails: 0, dead: false, left: false, stage: 'load' as Stage, mic: null as any, cam: null as any, local: null as any,
-    st: { a: true, v: true, h: false }, sheet: '' as string, wait: [] as { id: number; name: string }[],
+    st: { a: true, v: true, h: false }, sheet: '' as string, art: '' as string, arts: {} as Record<number, string>, lv: {} as Record<number, number>, wait: [] as { id: number; name: string }[],
   }).current;
   R.sheet = sheet;
 
@@ -229,7 +239,16 @@ export default function Room() {
     for (const s of r.signals || []) { await onSignal(s); R.after = Math.max(R.after, s.id); }
     if ((r.signals || []).length) R.fastUntil = Date.now() + 6000;
     if (R.evInit) { R.evInit = false; R.evAfter = Math.max(R.evAfter, r.ev_max || 0); }
-    for (const e of r.events || []) if (e.id > R.evAfter) R.evAfter = e.id;
+    let artsNew = false;
+    for (const e of r.events || []) {
+      if (e.id > R.evAfter) R.evAfter = e.id;
+      if (e.k === 'av' && e.peer !== R.me!.peer) { // someone picked (or dropped) a character on the website or in the app
+        const c = String(e.d?.r || '');
+        if (isArt(c)) R.arts[e.peer] = c; else delete R.arts[e.peer];
+        artsNew = true;
+      }
+    }
+    if (artsNew) setArts({ ...R.arts });
     const fresh: Chat[] = [];
     for (const c of r.chat || []) { if (c.id <= R.chatAfter) continue; R.chatAfter = c.id; fresh.push(c); }
     if (fresh.length) {
@@ -254,7 +273,7 @@ export default function Room() {
     } catch (e: any) { setErr(e?.message || t('Could not join. Check your internet and try again.')); }
     finally { setBusy(false); }
   };
-  const enterCall = () => { go('call'); setSince(Date.now()); schedule(0); };
+  const enterCall = () => { go('call'); setSince(Date.now()); if (R.art) R.evQ.push({ k: 'av', d: { r: R.art } }); schedule(0); };
   const stopAll = () => {
     for (const id of [...R.pcs.keys()]) drop(id);
     RTC.stop(R.mic); RTC.stop(R.cam); R.mic = R.cam = null;
@@ -297,6 +316,46 @@ export default function Room() {
   };
   const toggleSpeaker = () => { const s = !speaker; setSpeaker(s); RTC.speaker(s); };
   const toggleHand = () => { const h = !R.st.h; R.st.h = h; setHand(h); kick(); };
+  // ---------- characters (same as the website): only the short code is shared, never your face ----------
+  useEffect(() => { secure.get('oenod.meet.art').then((c) => { if (isArt(c) && !R.art) { R.art = c; setArt(c); } }).catch(() => {}); }, []);
+  useEffect(() => onWorld(() => bumpW((n) => n + 1)), []);
+  const pickArt = async (c: string) => {
+    setSheet('');
+    R.art = c; setArt(c); secure.set('oenod.meet.art', c).catch(() => {});
+    if (R.stage === 'call') { R.evQ.push({ k: 'av', d: c ? { r: c } : { a: '' } }); R.fastUntil = Date.now() + 3000; kick(); }
+    if (c && R.cam) await toggleCam(); // like the website: picking a character turns the camera off, so it shows
+    say(c ? '🎭 ' + t('Your character shows when your camera is off. Its mouth moves when you talk.') : t('Character is off.'));
+  };
+  // Voice levels from the call's own numbers, a few times a second, only while a character is on screen.
+  useEffect(() => {
+    if (stage !== 'call') return;
+    let busy = false;
+    const iv = setInterval(async () => {
+      if (busy) return;
+      const need = (R.art && !R.cam) || Object.keys(R.arts).length; if (!need) return;
+      busy = true;
+      const raw: Record<number, number> = { [-1]: 0 };
+      for (const c of R.pcs.values()) {
+        try {
+          const rep: any = await c.pc.getStats();
+          rep.forEach((x: any) => {
+            if (x?.kind !== 'audio' || typeof x.audioLevel !== 'number') return;
+            if (x.type === 'media-source') raw[-1] = Math.max(raw[-1], x.audioLevel);
+            else if (x.type === 'inbound-rtp') raw[c.id] = Math.max(raw[c.id] || 0, x.audioLevel);
+          });
+        } catch { /* closed */ }
+      }
+      if (!R.st.a) raw[-1] = 0;
+      const next: Record<number, number> = {};
+      for (const k of new Set([...Object.keys(raw), ...Object.keys(R.lv)])) {
+        const id = Number(k); const v = Math.min(1, (raw[id] || 0) * 3.2);
+        next[id] = Math.max(v, (R.lv[id] || 0) * 0.6);
+        if (next[id] < 0.02) next[id] = 0;
+      }
+      R.lv = next; setLv(next); busy = false;
+    }, 160);
+    return () => clearInterval(iv);
+  }, [stage]);
   const decide = (id: number, ok: boolean) => {
     const c = R.cmd || {}; const k = ok ? 'admit' : 'deny';
     c[k] = [...(c[k] || []), id]; R.cmd = c;
@@ -309,6 +368,46 @@ export default function Room() {
   const title = info?.title || t('OENOD Meet');
   const company = info?.brand?.company || '';
   const mmss = (ms: number) => { const s = Math.max(0, Math.floor(ms / 1000)); const h = Math.floor(s / 3600); const m = Math.floor((s % 3600) / 60); return `${h ? h + ':' + String(m).padStart(2, '0') : m}:${String(s % 60).padStart(2, '0')}`; };
+
+  // ---------- character picker (same characters as the website) ----------
+  const chW = Math.min(width, 640) - 40; const chCols = chW > 460 ? 4 : 3; const chSz = (chW - (chCols - 1) * 10) / chCols;
+  const chQl = chQ.trim().toLowerCase();
+  const chRows: { c: string; n: string; s?: string }[] = chTab === 'p'
+    ? POSTERS.map(([k, n]) => ({ c: 'pc' + k, n }))
+    : WORLD.meta.filter((m) => !chQl || (m[1] + ' ' + m[2]).toLowerCase().includes(chQl)).map((m) => ({ c: 'pc' + m[0], n: m[1], s: m[2] }));
+  const chShown = chAll || chQl ? chRows : chRows.slice(0, 24);
+  const charSheet = (
+    <MSheet open={sheet === 'chars'} title={'🎭 ' + t('Characters')} sub={t('Pick your character. When your camera is off, people see it and its mouth moves when you talk.')} onClose={() => setSheet('')}>
+      <View style={{ flexDirection: 'row', gap: 8 }}>
+        {([['p', t('Poster characters')], ['w', '🌍 ' + t('World')]] as const).map(([k, l]) => (
+          <Pressable key={k} onPress={() => { setChTab(k); setChAll(false); if (k === 'w') loadWorld(); }} accessibilityRole="tab" accessibilityState={{ selected: chTab === k }}
+            style={{ flex: 1, height: 42, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: chTab === k ? MK.navy : MK.mist }}>
+            <Text style={{ color: chTab === k ? '#FFFFFF' : MK.navy, fontWeight: '800', fontSize: 14 }}>{l}</Text>
+          </Pressable>
+        ))}
+      </View>
+      {chTab === 'w' ? <MInput value={chQ} onChangeText={setChQ} placeholder={t('Search a country')} accessibilityLabel={t('Search a country')} /> : null}
+      {chTab === 'w' && WORLD.st !== 2 ? (
+        <View style={{ paddingVertical: 24, alignItems: 'center', gap: 10 }}>
+          {WORLD.st === 1 ? <ActivityIndicator color={MK.navy} /> : <Pressable onPress={() => loadWorld()} accessibilityRole="button"><Text style={{ color: MK.navy, fontWeight: '800' }}>{t('Could not load. Tap to try again.')}</Text></Pressable>}
+          <Text style={{ color: MK.muted, fontSize: 13 }}>{t('A woman and a man from every country')}</Text>
+        </View>
+      ) : (
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+          {chShown.map((o) => (
+            <Pressable key={o.c} onPress={() => pickArt(o.c)} accessibilityRole="button" accessibilityLabel={o.s ? `${o.n}, ${o.s}` : o.n} accessibilityState={{ selected: art === o.c }}
+              style={{ width: chSz, gap: 4 }}>
+              <CharArt code={o.c} style={{ width: chSz, height: chSz * 1.2, borderRadius: 14, borderWidth: 3, borderColor: art === o.c ? MK.navy : 'transparent' }} />
+              <Text style={{ color: MK.ink, fontSize: 12.5, fontWeight: '700' }} numberOfLines={1}>{o.n}</Text>
+              {o.s ? <Text style={{ color: MK.muted, fontSize: 11, marginTop: -3 }} numberOfLines={1}>{o.s}</Text> : null}
+            </Pressable>
+          ))}
+        </View>
+      )}
+      {!chAll && !chQl && chRows.length > 24 && (chTab === 'p' || WORLD.st === 2) ? <GlassBtnLight text={t('Show all') + ` (${chRows.length})`} onPress={() => setChAll(true)} /> : null}
+      {art ? <Opt ph="x" title={t('No character')} sub={artName(art) ? t('Now: {n}', { n: artName(art) }) : undefined} onPress={() => pickArt('')} /> : null}
+    </MSheet>
+  );
 
   if (stage === 'load' || stage === 'bad' || stage === 'end') {
     const txt: Record<string, [string, string]> = {
@@ -356,11 +455,13 @@ export default function Room() {
           </View>
           <View style={{ width: vw, height: vw * 0.75, borderRadius: 26, overflow: 'hidden', backgroundColor: '#0A0B10', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' }}>
             {cam && localUrl ? <RTC.View streamURL={localUrl} style={{ flex: 1 }} objectFit="cover" mirror={front} />
+              : art ? <CharArt code={art} fit="meet" style={{ flex: 1 }} />
               : <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}><Face name={info?.me?.name || name || t('Guest')} size={86} /></View>}
             <View style={{ position: 'absolute', bottom: 14, left: 0, right: 0, flexDirection: 'row', justifyContent: 'center', gap: 14 }}>
               <CtlBtn ph={mic ? 'microphone' : 'microphone-slash'} off={!mic} label={mic ? t('Turn microphone off') : t('Turn microphone on')} onPress={toggleMic} />
               <CtlBtn ph={cam ? 'video-camera' : 'video-camera-slash'} off={!cam} label={cam ? t('Turn camera off') : t('Turn camera on')} onPress={toggleCam} />
               {cam ? <CtlBtn ph="camera-rotate" label={t('Flip camera')} onPress={flip} /> : null}
+              <CtlBtn ph="smiley" on={!!art} label={t('Characters')} onPress={() => setSheet('chars')} />
             </View>
           </View>
           <View style={{ alignSelf: 'stretch', backgroundColor: '#FFFFFF', borderRadius: 24, padding: 16, gap: 10 }}>
@@ -378,6 +479,7 @@ export default function Room() {
             </View>
           </View>
         </ScrollView>
+        {charSheet}
       </Dark>
     );
   }
@@ -408,9 +510,11 @@ export default function Room() {
   const tw = (areaW - (cols - 1) * 8) / cols; const th = Math.min((areaH - (rows - 1) * 8) / rows, list.length === 1 ? areaH : tw * 1.35);
   const tile = (p: Peer, w: number, h: number, self?: boolean) => {
     const url = self ? (cam ? localUrl : null) : (p.v ? (streams[p.id] || '').split('#')[0] || null : null);
+    const ch = self ? art : arts[p.id] || '';
     return (
       <View key={p.id} style={{ width: w, height: h, borderRadius: 20, overflow: 'hidden', backgroundColor: '#11131F', borderWidth: 1, borderColor: p.h ? '#F5C451' : 'rgba(255,255,255,0.08)' }}>
         {url ? <RTC.View streamURL={url} style={{ flex: 1 }} objectFit="cover" mirror={self && front} zOrder={self ? 1 : 0} />
+          : ch ? <CharArt code={ch} fit="meet" level={lv[self ? -1 : p.id] || 0} style={{ flex: 1 }} />
           : <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}><Face name={p.name} size={Math.min(84, w * 0.42)} /></View>}
         <View style={{ position: 'absolute', left: 8, bottom: 8, right: 8, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
           <View style={{ flexShrink: 1, flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 9, paddingVertical: 4, borderRadius: 99, backgroundColor: 'rgba(5,6,13,0.6)' }}>
@@ -432,6 +536,7 @@ export default function Room() {
             <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12.5, fontVariant: ['tabular-nums'] }}>{mmss(now - since)} · {t('{n} in the call', { n: others.length + 1 })}</Text>
           </View>
         </View>
+        <RoundGlass ph="smiley" label={t('Characters')} onPress={() => setSheet('chars')} />
         <RoundGlass ph="users" label={t('People')} onPress={() => setSheet('people')} />
         <RoundGlass ph={speaker ? 'speaker-high' : 'speaker-slash'} label={speaker ? t('Speaker on') : t('Speaker off')} onPress={toggleSpeaker} />
       </View>
@@ -477,6 +582,7 @@ export default function Room() {
         <CtlBtn ph="phone-disconnect" red label={t('Leave')} onPress={() => setSheet('leave')} caption />
       </View>
 
+      {charSheet}
       <MSheet open={sheet === 'leave'} title={t('Leave the meeting?')} onClose={() => setSheet('')}>
         <Opt ph="sign-out" title={t('Leave the meeting')} sub={t('The others can keep talking.')} onPress={leave} main />
         {R.me?.host || info?.me?.admin ? <Opt ph="phone-disconnect" title={t('End the meeting for everyone')} sub={t('Everyone is disconnected.')} onPress={endForAll} /> : null}
@@ -586,6 +692,13 @@ function GlassBtn({ text, onPress }: { text: string; onPress: () => void }) {
   return (
     <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={text} style={({ pressed }) => ({ height: 56, borderRadius: 18, backgroundColor: pressed ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.1)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.16)', alignItems: 'center', justifyContent: 'center' })}>
       <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '800' }}>{text}</Text>
+    </Pressable>
+  );
+}
+function GlassBtnLight({ text, onPress }: { text: string; onPress: () => void }) {
+  return (
+    <Pressable onPress={onPress} accessibilityRole="button" style={{ height: 48, borderRadius: 14, borderWidth: 1.5, borderColor: MK.line, alignItems: 'center', justifyContent: 'center' }}>
+      <Text style={{ color: MK.navy, fontWeight: '800', fontSize: 14.5 }}>{text}</Text>
     </Pressable>
   );
 }
