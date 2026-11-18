@@ -1,7 +1,9 @@
-// One résumé: edit your details, jobs, school and skills; pick a look; Ava writes it from notes; check its score with
+// One résumé (Save as PDF builds the file on the phone and opens the share sheet): edit your details, jobs, school and skills; pick a look; Ava writes it from notes; check its score with
 // Ava's tips; find jobs that match it; share a link.
 import React, { useState } from 'react';
-import { Share, Text, View } from 'react-native';
+import { Platform, Share, Text, View } from 'react-native';
+import * as Print from 'expo-print';
+import * as Sharing from 'expo-sharing';
 import { router, useLocalSearchParams } from 'expo-router';
 import { get, post, put, del } from '../../lib/api';
 import { useLoad } from '../../lib/useLoad';
@@ -14,6 +16,26 @@ type Job = { title: string; company: string; location: string; start: string; en
 type Edu = { school: string; degree: string; field?: string; start?: string; end: string; details?: string };
 type Data = { name: string; headline: string; email: string; phone: string; location: string; website: string; summary: string; experience: Job[]; education: Edu[]; skills: string[]; languages?: string[]; [k: string]: any };
 type R = { id: number; title: string; template: string; data: Data; share_url: string | null };
+const esc = (x: unknown) => String(x ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] as string));
+/** The résumé as a clean one-column page for the PDF, in its accent colour. */
+function pdfHtml(d: Data, accent: string) {
+  const a = /^#[0-9a-fA-F]{6}$/.test(accent) ? accent : '#2252D1';
+  const sec = (title: string, body: string) => (body ? `<h2>${esc(title)}</h2>${body}` : '');
+  const jobs = (d.experience || []).map((j) => `<div class="it"><div class="row"><b>${esc(j.title)}</b><span>${esc([j.start, j.current || !j.end ? t('now') : j.end].filter(Boolean).join(' – '))}</span></div>`
+    + `<div class="sub">${esc([j.company, j.location].filter(Boolean).join(' · '))}</div>${(j.bullets || []).length ? `<ul>${j.bullets.map((b) => `<li>${esc(b)}</li>`).join('')}</ul>` : ''}</div>`).join('');
+  const school = (d.education || []).map((e) => `<div class="it"><div class="row"><b>${esc(e.school)}</b><span>${esc([e.start, e.end].filter(Boolean).join(' – '))}</span></div><div class="sub">${esc([e.degree, e.field].filter(Boolean).join(' · '))}</div></div>`).join('');
+  const contact = [d.email, d.phone, d.location, d.website].filter(Boolean).map(esc).join(' &nbsp;·&nbsp; ');
+  return `<!doctype html><html><head><meta charset="utf-8"><style>
+    @page{margin:42px 46px}body{font-family:-apple-system,Helvetica,Arial,sans-serif;color:#14161F;font-size:11.5pt;line-height:1.45;margin:0}
+    h1{font-size:25pt;margin:0;color:${a};letter-spacing:-.3px}.hl{font-size:13pt;margin:2px 0 6px;color:#333}.ct{font-size:10pt;color:#555;padding-bottom:12px;border-bottom:2px solid ${a}}
+    h2{font-size:10.5pt;text-transform:uppercase;letter-spacing:1.4px;color:${a};margin:18px 0 6px}.it{margin:0 0 10px;page-break-inside:avoid}.row{display:flex;justify-content:space-between;gap:12px}
+    .row span{color:#666;font-size:10pt;white-space:nowrap}.sub{color:#555;font-size:10.5pt}ul{margin:4px 0 0 18px;padding:0}li{margin:2px 0}.tags{color:#333}
+  </style></head><body><h1>${esc(d.name)}</h1>${d.headline ? `<div class="hl">${esc(d.headline)}</div>` : ''}<div class="ct">${contact}</div>
+  ${sec(t('Summary'), d.summary ? `<p>${esc(d.summary)}</p>` : '')}${sec(t('Work'), jobs)}${sec(t('School'), school)}
+  ${sec(t('Skills'), (d.skills || []).length ? `<div class="tags">${d.skills.map(esc).join(' · ')}</div>` : '')}${sec(t('Languages'), (d.languages || []).length ? `<div class="tags">${(d.languages || []).map(esc).join(' · ')}</div>` : '')}
+  </body></html>`;
+}
+
 type Rev = { score: number; grade: string; checks: { label: string; ok: boolean; tip: string | null }[]; tips?: string[] };
 
 export default function Resume() {
@@ -70,6 +92,13 @@ export default function Resume() {
     d.setData(out);
     if (out.share_url) await Share.share({ message: out.share_url }).catch(() => oops(t('Your link: {u}', { u: out.share_url || '' })));
   });
+  const pdf = () => data && run('pdf', async () => {
+    const html = pdfHtml(data, String(data.accent || ''));
+    if (Platform.OS === 'web') { await Print.printAsync({ html }); return; }
+    const { uri } = await Print.printToFileAsync({ html });
+    if (await Sharing.isAvailableAsync()) await Sharing.shareAsync(uri, { mimeType: 'application/pdf', UTI: 'com.adobe.pdf', dialogTitle: r?.title || t('Résumé') });
+    else oops(t('Your PDF is ready: {u}', { u: uri }));
+  });
   const remove = () => sure(t('Delete this résumé?'), t('This cannot be undone.'), t('Delete'), () => run('del', async () => { await del(`/api/me/resumes/${id}`); router.back(); }), true);
   return (
     <ToolPage title={r?.title || t('Résumé')} refreshing={d.refreshing} onRefresh={d.refresh}>
@@ -87,6 +116,7 @@ export default function Resume() {
             <View style={{ flex: 1 }}><Btn text={t('Jobs that match')} icon="briefcase" onPress={() => router.push({ pathname: '/jobs', params: { sort: 'match' } } as any)} /></View>
             <View style={{ flex: 1 }}><Btn text={t('Change look')} icon="grid" onPress={() => setLk(r.template || 'classic')} /></View>
           </View>
+          <Btn text={t('Save as PDF')} icon="doc" kind="blue" onPress={pdf} busy={busy === 'pdf'} />
           <Card title={t('About you')} right={t('Edit')} onRight={() => setMe({ ...data })}>
             <Item title={t('Summary')} sub={data.summary || t('Not written yet')} />
             <Item title={t('Location')} sub={data.location || '—'} />

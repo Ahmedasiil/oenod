@@ -223,7 +223,9 @@
   "Phone call": "Appel téléphonique",
   "Share links are not on your account yet.": "Les liens de partage ne sont pas encore inclus dans votre compte.",
   "Video call": "Appel vidéo",
-  "You have the most job alerts your account can keep. Remove one to add another.": "Vous avez le nombre maximum d’alertes pour votre compte. Supprimez-en une pour en ajouter une autre."
+  "You have the most job alerts your account can keep. Remove one to add another.": "Vous avez le nombre maximum d’alertes pour votre compte. Supprimez-en une pour en ajouter une autre.",
+  "Save as PDF": "Enregistrer en PDF",
+  "Your PDF is ready: {u}": "Votre PDF est prêt : {u}"
  },
  "es": {
   "A few lines about why you want this job": "Unas líneas sobre por qué quieres este empleo",
@@ -449,7 +451,9 @@
   "Phone call": "Llamada telefónica",
   "Share links are not on your account yet.": "Los enlaces para compartir aún no están en tu cuenta.",
   "Video call": "Videollamada",
-  "You have the most job alerts your account can keep. Remove one to add another.": "Tienes el máximo de alertas que permite tu cuenta. Elimina una para añadir otra."
+  "You have the most job alerts your account can keep. Remove one to add another.": "Tienes el máximo de alertas que permite tu cuenta. Elimina una para añadir otra.",
+  "Save as PDF": "Guardar como PDF",
+  "Your PDF is ready: {u}": "Tu PDF está listo: {u}"
  },
  "ar": {
   "A few lines about why you want this job": "بضعة أسطر عن سبب رغبتك في هذه الوظيفة",
@@ -675,6 +679,8 @@
   "Phone call": "مكالمة هاتفية",
   "Share links are not on your account yet.": "روابط المشاركة غير متاحة في حسابك بعد.",
   "Video call": "مكالمة فيديو",
-  "You have the most job alerts your account can keep. Remove one to add another.": "لديك الحد الأقصى من تنبيهات الوظائف لحسابك. احذف واحدًا لإضافة آخر."
+  "You have the most job alerts your account can keep. Remove one to add another.": "لديك الحد الأقصى من تنبيهات الوظائف لحسابك. احذف واحدًا لإضافة آخر.",
+  "Save as PDF": "حفظ بصيغة PDF",
+  "Your PDF is ready: {u}": "ملف PDF جاهز: {u}"
  }
 }
