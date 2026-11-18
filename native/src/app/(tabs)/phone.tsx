@@ -39,7 +39,7 @@ export default function PhoneTab() {
   };
   const call = async (to: string) => {
     if (to.replace(/\D/g, '').length < 10) { oops(t('Type a 10-digit phone number.')); return; }
-    if (!(await dialOut(to))) oops(t('Calling works in the OENOD app on your phone. Number: {n}', { n: pretty(to) }));
+    const r = await dialOut(to); if (r !== true) oops(r);
   };
   const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '⌫'];
   const rows = hist.data?.calls || [];

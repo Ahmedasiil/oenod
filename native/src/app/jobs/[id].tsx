@@ -54,7 +54,7 @@ export default function JobScreen() {
       return r;
     });
   };
-  const call = async (n: string) => { if (!(await dialOut(n))) oops(t('Number: {n}', { n })); };
+  const call = async (n: string) => { const r = await dialOut(n); if (r !== true) oops(r + ' ' + t('Number: {n}', { n })); };
 
   return (
     <ToolPage title={j?.title || t('Job')} right={me ? 'heart' : undefined} rightLabel={j?.saved ? t('Saved') : t('Save job')} onRight={save} refreshing={d.refreshing} onRefresh={d.refresh}>

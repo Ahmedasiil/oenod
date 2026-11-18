@@ -7,6 +7,7 @@ import { useSyncExternalStore } from 'react';
 import { PermissionsAndroid, Platform } from 'react-native';
 import { router } from 'expo-router';
 import { get, post } from './api';
+import { t } from './i18n';
 
 type PbxMe = { allowed: boolean; ready: boolean; on: boolean; seat: boolean; status: 'available' | 'busy' | 'off' };
 export type CallView = { from: string; state: 'connecting' | 'ringing' | 'live' | 'reconnecting' | 'ended'; muted: boolean; held: boolean; since: number | null };
@@ -29,6 +30,7 @@ const set = (v: CallView | null) => { view = v; emit(); };
 const who = (s?: string) => (s || '').replace(/^client:/, '') || 'OENOD';
 
 function track(c: any, from: string) {
+  if (!c) return;
   call = c;
   set({ from, state: 'connecting', muted: false, held: false, since: null });
   const E = Voice.Call.Event;
@@ -110,16 +112,29 @@ export async function speakerPicker() {
 }
 export async function keypad(d: string) { try { await call?.sendDigits(d); } catch { /* ignore */ } }
 
-/** Call out with the company number (iPhone or Android, phone seat). Returns false when this phone can't place the call itself;
-    the caller then opens the Calls screen, whose dial pad calls from the browser phone. */
-export async function dialOut(num: string): Promise<boolean> {
+/** Call out with the company number (iPhone or Android, phone seat). Returns true when the call started, or a short
+    message saying why this phone can't place it (4.3: Android checks the microphone and notification permissions
+    first and waits for the call service, instead of letting the call engine stop the app). */
+export async function dialOut(num: string): Promise<true | string> {
   const to = num.replace(/[^\d+]/g, '');
-  if (!Voice || to.replace(/\D/g, '').length < 10) return false;
+  if (to.replace(/\D/g, '').length < 10) return t('Type the full number with the area code.');
+  if (!Voice) return t('Calling works in the OENOD app on your phone. Number: {n}', { n: num });
+  if (call) return t('You are already on a call.');
+  if (Platform.OS === 'android') {
+    try {
+      const P = PermissionsAndroid.PERMISSIONS;
+      if (!(await PermissionsAndroid.check(P.RECORD_AUDIO))) await androidAsk();
+      if (!(await PermissionsAndroid.check(P.RECORD_AUDIO))) return t('Allow the microphone for OENOD in your phone Settings, then call again.');
+      if (Number(Platform.Version) >= 33 && !(await PermissionsAndroid.check(P.POST_NOTIFICATIONS))) return t('Allow notifications for OENOD in your phone Settings, so the call can keep going. Then call again.');
+    } catch { return t('Allow the microphone for OENOD in your phone Settings, then call again.'); }
+  }
   await syncPhone();
-  if (!voice || !token || call) return false;
+  if (!voice || !token) return t('Business Phone is not set up for you yet. Ask your manager to give you a phone seat at Calls.');
   try {
+    // Android: give the call service a moment to be ready the first time.
+    if (Platform.OS === 'android') await new Promise((r) => setTimeout(r, 400));
     const c = await voice.connect(token, { params: { To: to.length === 10 ? '+1' + to : to } });
     track(c, to);
     return true;
-  } catch { return false; }
+  } catch { return t('The call could not start. Check your internet and try again.'); }
 }

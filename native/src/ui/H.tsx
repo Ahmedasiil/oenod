@@ -27,15 +27,26 @@ export function Ph({ name, size = 22, color = H.navy, duo = 0.22 }: { name: PhNa
 
 /** Fills its parent with a gradient (angle given as start/end points). */
 export function Grad({ id, stops, x1 = 0.2, y1 = 0, x2 = 0.8, y2 = 1, r = 0 }: { id: string; stops: [number, string, number?][]; x1?: number; y1?: number; x2?: number; y2?: number; r?: number }) {
+  // 4.3: every gradient gets its own id (Android mixed up gradients that shared one, so tiles showed a shifted
+  // block of colour), offsets stay between 0 and 1, and the Svg is sized from the real layout in pixels.
+  const uid = id + '_' + React.useId().replace(/[^A-Za-z0-9_]/g, '');
+  const [box, setBox] = React.useState<{ w: number; h: number } | null>(null);
+  const last = stops[stops.length - 1];
+  const top = Math.max(1, ...stops.map((x) => x[0]));
   return (
-    <Svg pointerEvents="none" style={[StyleSheet.absoluteFill, r ? { borderRadius: r } : null]} width="100%" height="100%" preserveAspectRatio="none" viewBox="0 0 100 100">
-      <Defs>
-        <LinearGradient id={id} x1={x1} y1={y1} x2={x2} y2={y2}>
-          {stops.map(([o, c, a], i) => <Stop key={i} offset={o} stopColor={c} stopOpacity={a ?? 1} />)}
-        </LinearGradient>
-      </Defs>
-      <Rect x={0} y={0} width={100} height={100} fill={`url(#${id})`} />
-    </Svg>
+    <View pointerEvents="none" style={[StyleSheet.absoluteFill, r ? { borderRadius: r, overflow: 'hidden' } : null]}
+      onLayout={(e) => { const { width: w, height: h } = e.nativeEvent.layout; if (!box || Math.abs(box.w - w) > 0.5 || Math.abs(box.h - h) > 0.5) setBox({ w, h }); }}>
+      {box && box.w > 0 && box.h > 0 ? (
+        <Svg width={box.w} height={box.h}>
+          <Defs>
+            <LinearGradient id={uid} x1={x1 * box.w} y1={y1 * box.h} x2={x2 * box.w} y2={y2 * box.h} gradientUnits="userSpaceOnUse">
+              {stops.map(([o, c, a], i) => <Stop key={i} offset={Math.min(1, Math.max(0, o / top))} stopColor={c} stopOpacity={a ?? 1} />)}
+            </LinearGradient>
+          </Defs>
+          <Rect x={0} y={0} width={box.w} height={box.h} fill={`url(#${uid})`} />
+        </Svg>
+      ) : <View style={{ flex: 1, backgroundColor: last ? last[1] : 'transparent', opacity: last && last[2] != null ? last[2] : 1 }} />}
+    </View>
   );
 }
 
@@ -295,7 +306,8 @@ export function ActCard({ items }: { items: Act[] }) {
         return (
           <Pressy key={a.title} onPress={a.busy ? undefined : a.go} accessibilityRole="button" accessibilityLabel={`${a.title}${a.sub ? ', ' + a.sub : ''}`}
             style={{ flex: 1, height: 108, borderRadius: 20, padding: 14, overflow: 'hidden', justifyContent: 'space-between', opacity: a.busy ? 0.7 : 1,
-              shadowColor: main ? '#1A2FCF' : 'transparent', shadowOpacity: main ? 0.35 : 0, shadowRadius: 12, shadowOffset: { width: 0, height: 8 }, elevation: main ? 5 : 0 }}>
+              backgroundColor: main ? '#0E1FA8' : '#F1F3FB',
+              ...(Platform.OS === 'ios' ? { shadowColor: main ? '#1A2FCF' : 'transparent', shadowOpacity: main ? 0.35 : 0, shadowRadius: 12, shadowOffset: { width: 0, height: 8 } } : {}) }}>
             <Grad id={main ? 'actm' : 'actl'} x1={0.15} y1={0} x2={0.85} y2={1} stops={main ? [[0, '#2B44E8'], [1, '#000C58']] : [[0, '#F6F7FD'], [1, '#EBEEFA']]} />
             <View style={{ width: 40, height: 40, borderRadius: 13, alignItems: 'center', justifyContent: 'center', backgroundColor: main ? 'rgba(255,255,255,0.16)' : '#FFFFFF',
               shadowColor: H.navy, shadowOpacity: main ? 0 : 0.08, shadowRadius: 6, shadowOffset: { width: 0, height: 3 } }}>

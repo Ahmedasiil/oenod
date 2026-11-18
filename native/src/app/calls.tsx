@@ -36,7 +36,7 @@ export default function CallsScreen() {
   const s = st.data;
 
   const setStatus = (v: string) => run('me' + v, async () => { await put('/api/pbx/me', { status: v }); me.reload(); });
-  const callBack = async (n: string) => { if (!(await dialOut(n))) oops(t('Calling works in the OENOD app on your phone. Number: {n}', { n: pretty(n) })); };
+  const callBack = async (n: string) => { const r = await dialOut(n); if (r !== true) oops(r); };
   const openCall = (c: Call) => { setSel(c); setNote(c.note || ''); };
   const saveNote = () => sel && run('nt', async () => { await put(`/api/pbx/calls/${sel.id}/note`, { note }); setSel(null); cl.reload(); });
   const openSet = () => s && (setErr(''), setEd({ on: yn(s.cfg.on), ring: String(s.cfg.ring), shift: yn(s.cfg.shift_only), after: s.cfg.after, cell: s.cfg.cell ? pretty(s.cfg.cell) : '', textback: yn(s.cfg.textback), notes: yn(s.cfg.notes), hours: yn(s.cfg.hours), seats: s.people.filter((p) => p.seat).map((p) => p.id) }));
