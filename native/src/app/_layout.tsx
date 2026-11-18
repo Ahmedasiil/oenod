@@ -95,6 +95,11 @@ function Gate() {
         <Stack.Screen name="performance/[id]" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
         <Stack.Screen name="resume/index" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
         <Stack.Screen name="resume/[id]" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="accounting" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="banking" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="marketing" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="projects/index" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="projects/[id]" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
         <Stack.Screen name="mail/index" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
         <Stack.Screen name="mail/[id]" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
         <Stack.Screen name="mail/new" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
