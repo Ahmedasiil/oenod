@@ -87,6 +87,17 @@ function Gate() {
         <Stack.Screen name="reviews" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
         <Stack.Screen name="support/index" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
         <Stack.Screen name="support/[id]" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="hiring/index" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="hiring/[id]" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="onboarding/index" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="onboarding/[id]" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="performance/index" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="performance/[id]" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="resume/index" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="resume/[id]" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="mail/index" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="mail/[id]" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
+        <Stack.Screen name="mail/new" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />
         <Stack.Screen name="web" options={{ animation: 'slide_from_bottom' }} />
         <Stack.Screen name="kiosk" options={{ animation: 'fade', gestureEnabled: false, contentStyle: { backgroundColor: '#000C58' } }} />
         <Stack.Screen name="call" options={{ presentation: 'fullScreenModal', gestureEnabled: false, contentStyle: { backgroundColor: '#000C58' } }} />
