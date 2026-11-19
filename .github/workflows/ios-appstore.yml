@@ -10,6 +10,7 @@ permissions:
   contents: read
 jobs:
   ios-appstore:
+    if: false   # build 442 already uploaded; listing only for 4.4.0
     runs-on: macos-latest
     env:
       APPLE_KEY_ID: ${{ secrets.APPLE_KEY_ID }}
