@@ -18,6 +18,16 @@ const fmt = (d: Date | null, o: Intl.DateTimeFormatOptions) => {
   try { return d.toLocaleString(locale(), { ...o, timeZone: tz }); } catch { return d.toLocaleString(locale(), o); }
 };
 
+/** "HH:MM" (24 h) of a UTC server time in the company's time zone, for filling time inputs. */
+export const hhmmTz = (s?: string | null): string => {
+  const d = utc(s); if (!d) return '';
+  try {
+    const p = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: tz }).formatToParts(d);
+    const h = p.find((x) => x.type === 'hour')?.value, m = p.find((x) => x.type === 'minute')?.value;
+    if (h && m) return `${h.padStart(2, '0').replace('24', '00')}:${m}`;
+  } catch { /* falls back to the phone's clock */ }
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+};
 export const time = (s?: string | null) => fmt(utc(s), { hour: 'numeric', minute: '2-digit' });
 export const day = (s?: string | null) => fmt(utc(s), { weekday: 'short', month: 'short', day: 'numeric' });
 export const longDay = (s?: string | null) => fmt(utc(s), { weekday: 'long', month: 'long', day: 'numeric' });

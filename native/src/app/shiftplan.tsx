@@ -4,7 +4,7 @@ import React, { useMemo, useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import { del, get, post, put } from '../lib/api';
 import { useLoad } from '../lib/useLoad';
-import { date, time, utc } from '../lib/format';
+import { date, hhmmTz, time, utc } from '../lib/format';
 import { t } from '../lib/i18n';
 import { Btn, Card, Chips, Dot, Hero, In, Item, None, Pick, Search, Sheet, State, Tag, ToolPage, isYmd, sure, useBusy } from '../ui/T1';
 
@@ -16,7 +16,9 @@ type Ed = { id?: number; who: string; days: string[]; start: string; end: string
 const addDays = (ymd: string, n: number) => { const d = new Date(ymd + 'T12:00:00'); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
 const monday = (ymd: string) => { const d = new Date(ymd + 'T12:00:00'); const k = (d.getDay() + 6) % 7; return addDays(ymd, -k); };
 const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
-const hhmm = (s: string) => { const d = utc(s); return d ? `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}` : ''; };
+// 4.4: company time zone, not the phone's (phones with old rules were one hour off after Alberta/BC/Manitoba stopped changing clocks).
+// When the server sends the local "HH:MM" (start_hm / end_hm) that wins, since the phone's own time zone rules can be out of date.
+const hhmm = (s: string, local?: string | null) => (local && /^\d{2}:\d{2}$/.test(local) ? local : hhmmTz(s));
 const okTime = (s: string) => /^([01]\d|2[0-3]):[0-5]\d$/.test(s);
 const fixTime = (s: string) => { const m = s.trim().match(/^(\d{1,2})(?::?(\d{2}))?$/); return m ? `${m[1].padStart(2, '0')}:${m[2] || '00'}` : s.trim(); };
 const hrs = (m: number) => `${Math.round(m / 6) / 10} h`;
@@ -43,7 +45,7 @@ export default function ShiftPlan() {
     .sort((a, b) => a.starts_at.localeCompare(b.starts_at));
   const mins = all.reduce((a, y) => a + (y.minutes || 0) - (y.break_minutes || 0), 0);
 
-  const edit = (y: Shift) => { setErr(''); setEd({ id: y.id, who: y.employee_id ? String(y.employee_id) : '', days: [y.date], start: hhmm(y.starts_at), end: hhmm(y.ends_at), brk: String(y.break_minutes || 0), role: y.role || '', notes: y.notes || '', publish: y.published ? 'yes' : 'no' }); };
+  const edit = (y: Shift) => { setErr(''); setEd({ id: y.id, who: y.employee_id ? String(y.employee_id) : '', days: [y.date], start: hhmm(y.starts_at, (y as any).start_hm), end: hhmm(y.ends_at, (y as any).end_hm), brk: String(y.break_minutes || 0), role: y.role || '', notes: y.notes || '', publish: y.published ? 'yes' : 'no' }); };
   const toggleDay = (k: string) => ed && setEd({ ...ed, days: ed.id ? [k] : ed.days.includes(k) ? ed.days.filter((z) => z !== k) : [...ed.days, k] });
   const save = () => {
     if (!ed) return;
