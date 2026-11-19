@@ -76,6 +76,7 @@ const GROUPS: Group[] = [
     { name: 'Loyalty', icon: 'heart', hint: 'Rewards', app: '/loyalty', who: 'mgr', mod: 'loyalty' },
     { name: 'Projects', icon: 'check', hint: 'Tasks', app: '/projects', who: 'mgr', mod: 'projects' },
     { name: 'Cameras', icon: 'video', hint: 'Live view', app: '/cameras', who: 'mgr' },
+    { name: 'Cars', icon: 'pin', hint: 'GPS & car controls', app: '/cars', who: 'mgr' },
     { name: 'Reports', icon: 'chart', hint: 'Numbers', app: '/reports', who: 'mgr' },
   ] },
   { name: 'You & settings', tools: [
