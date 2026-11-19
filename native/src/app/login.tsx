@@ -9,7 +9,7 @@ import { BASE } from '../lib/api';
 import { t } from '../lib/i18n';
 import { router } from 'expo-router';
 import { openTool } from './web';
-import { ErrorLine, GField, In } from '../ui/AuthKit';
+import { In } from '../ui/AuthKit';
 import { Icon, type IconName } from '../ui/Icon';
 import { secure } from '../lib/secure';
 import { SEEN } from './welcome';
@@ -23,6 +23,8 @@ export default function Login() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [showPw, setShowPw] = useState(false);
+  const [focus, setFocus] = useState<'' | 'e' | 'p' | 'c'>('');
+  const pwRef = useRef<React.ElementRef<typeof TextInput>>(null);
   const insets = useSafeAreaInsets();
 
   const go = async () => {
@@ -73,7 +75,8 @@ export default function Login() {
     google: <Text style={[FH7, { color: '#FFFFFF', fontSize: 16 }]}>G</Text>,
     microsoft: <Svg width={15} height={15} viewBox="0 0 20 20"><Path fill="#FFFFFF" d="M0 0h9.5v9.5H0zM10.5 0H20v9.5h-9.5zM0 10.5h9.5V20H0zM10.5 10.5H20V20h-9.5z" /></Svg>,
   };
-  const field = { height: 56, borderRadius: V.rM, backgroundColor: V.surf, borderWidth: 1, borderColor: V.line, paddingHorizontal: 18, flexDirection: 'row' as const, alignItems: 'center' as const, gap: 10 };
+  // 4.4: the typed email and password were a light grey on a white field (hard to read). Now dark ink, full width, label above.
+  const input = { flex: 1, minWidth: 0, color: V.ink, fontSize: 16, fontWeight: '500' as const, paddingVertical: 0, height: 44, ...(Platform.OS === 'web' ? ({ outlineStyle: 'none' } as object) : {}) };
   const chip = (label: string, icon: IconName, onPress: () => void) => (
     <Pressable key={label} onPress={onPress} accessibilityRole="button" style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 10, paddingHorizontal: 14, borderRadius: 99, borderWidth: 1, borderColor: V.line, backgroundColor: V.surf, opacity: pressed ? 0.75 : 1 })}>
       <Icon name={icon} size={16} color={V.ink} duo={false} />
@@ -94,7 +97,13 @@ export default function Login() {
             </View>
           </In>
           {pending2fa ? (
-            <In delay={60}><GField label={t('Code')} icon="shield" value={code} onChangeText={setCode} keyboardType="number-pad" autoFocus maxLength={8} textContentType="oneTimeCode" autoComplete="one-time-code" onSubmitEditing={go} /></In>
+            <In delay={60}>
+              <Field label={t('Code')} icon="shield" focus={focus === 'c'}>
+                <TextInput value={code} onChangeText={setCode} keyboardType="number-pad" autoFocus maxLength={8} textContentType="oneTimeCode" autoComplete="one-time-code" onSubmitEditing={go}
+                  onFocus={() => setFocus('c')} onBlur={() => setFocus('')} selectionColor={V.blue} accessibilityLabel={t('Code')} placeholder="123456" placeholderTextColor={V.faint}
+                  style={[input, { fontSize: 20, letterSpacing: 4, fontWeight: '700' }]} />
+              </Field>
+            </In>
           ) : (
             <>
               <In delay={40}>
@@ -124,29 +133,30 @@ export default function Login() {
                 <Text style={{ color: V.faint, fontSize: 12 }}>{t('or')}</Text>
                 <View style={{ flex: 1, height: 1, backgroundColor: V.line }} />
               </View>
-              <In delay={120} style={{ gap: 12 }}>
-                <View style={field}>
-                  <Text style={{ color: V.faint, fontSize: 12 }}>{t('Email')}</Text>
+              <In delay={120} style={{ gap: 14 }}>
+                <Field label={t('Email')} icon="mail" focus={focus === 'e'}>
                   <TextInput value={email} onChangeText={setEmail} autoCapitalize="none" autoCorrect={false} keyboardType="email-address" textContentType="username" autoComplete="email" returnKeyType="next"
-                    accessibilityLabel={t('Email')} placeholder="name@company.com" placeholderTextColor={V.faint} style={{ flex: 1, minWidth: 0, textAlign: 'right', color: '#D7DBEA', fontSize: 15, paddingVertical: 12 }} />
-                </View>
-                <View style={field}>
-                  <Text style={{ color: V.faint, fontSize: 12 }}>{t('Password')}</Text>
-                  <TextInput value={password} onChangeText={setPassword} secureTextEntry={!showPw} textContentType="password" autoComplete="password" returnKeyType="go" onSubmitEditing={go}
-                    accessibilityLabel={t('Password')} style={{ flex: 1, minWidth: 0, textAlign: 'right', color: '#D7DBEA', fontSize: 15, paddingVertical: 12 }} />
-                  <Pressable onPress={() => setShowPw(!showPw)} hitSlop={8} accessibilityRole="button" accessibilityLabel={showPw ? t('Hide password') : t('Show password')}>
-                    <Text style={{ color: '#C9D2FF', fontSize: 12.5, fontWeight: '600' }}>{showPw ? t('Hide') : t('Show')}</Text>
-                  </Pressable>
-                </View>
+                    onFocus={() => setFocus('e')} onBlur={() => setFocus('')} onSubmitEditing={() => pwRef.current?.focus()} blurOnSubmit={false} selectionColor={V.blue}
+                    accessibilityLabel={t('Email')} placeholder="name@company.com" placeholderTextColor={V.faint} style={input} />
+                </Field>
+                <Field label={t('Password')} icon="shield" focus={focus === 'p'}
+                  right={<Pressable onPress={() => setShowPw(!showPw)} hitSlop={10} accessibilityRole="button" accessibilityLabel={showPw ? t('Hide password') : t('Show password')}
+                    style={{ paddingHorizontal: 10, paddingVertical: 6, borderRadius: 99, backgroundColor: V.surf2 }}>
+                    <Text style={{ color: V.link, fontSize: 12.5, fontWeight: '700' }}>{showPw ? t('Hide') : t('Show')}</Text>
+                  </Pressable>}>
+                  <TextInput ref={pwRef} value={password} onChangeText={setPassword} secureTextEntry={!showPw} textContentType="password" autoComplete="password" returnKeyType="go" onSubmitEditing={go}
+                    onFocus={() => setFocus('p')} onBlur={() => setFocus('')} selectionColor={V.blue} autoCapitalize="none" autoCorrect={false}
+                    accessibilityLabel={t('Password')} placeholder={t('Your password')} placeholderTextColor={V.faint} style={input} />
+                </Field>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                  {IOS_STORE ? <View /> : <Pressable onPress={() => router.push('/signup')} accessibilityRole="link" hitSlop={6}><Text style={{ color: '#C9D2FF', fontWeight: '600', fontSize: 13.5 }}>{t('Create a free account')}</Text></Pressable>}
-                  <Pressable onPress={() => router.push('/forgot')} accessibilityRole="link" hitSlop={6}><Text style={{ color: '#C9D2FF', fontWeight: '600', fontSize: 13.5 }}>{t('Forgot password?')}</Text></Pressable>
+                  {IOS_STORE ? <View /> : <Pressable onPress={() => router.push('/signup')} accessibilityRole="link" hitSlop={6}><Text style={{ color: V.link, fontWeight: '600', fontSize: 13.5 }}>{t('Create a free account')}</Text></Pressable>}
+                  <Pressable onPress={() => router.push('/forgot')} accessibilityRole="link" hitSlop={6}><Text style={{ color: V.link, fontWeight: '600', fontSize: 13.5 }}>{t('Forgot password?')}</Text></Pressable>
                 </View>
               </In>
             </>
           )}
           <ErrorLine text={error} />
-          {note && !error ? <Text style={{ color: '#C9D2FF', fontSize: 13, lineHeight: 18, textAlign: 'center' }}>{note}</Text> : null}
+          {note && !error ? <Text style={{ color: V.mute, fontSize: 13, lineHeight: 18, textAlign: 'center' }}>{note}</Text> : null}
           <In delay={160}>
             <Pressable onPress={go} disabled={busy} accessibilityRole="button" accessibilityLabel={t(pending2fa ? 'Verify' : 'Sign in')}
               style={({ pressed }) => ({ height: 54, borderRadius: 99, alignItems: 'center', justifyContent: 'center', backgroundColor: V.pill, opacity: busy ? 0.7 : 1, transform: [{ scale: pressed ? 0.98 : 1 }] })}>
@@ -190,5 +200,31 @@ function Scan() {
         <Rect width={10} height={2} fill="url(#scan)" />
       </Svg>
     </Animated.View>
+  );
+}
+
+/** 4.4: one clear sign-in field: label above, icon, dark text, blue ring while typing. */
+function Field({ label, icon, focus, right, children }: { label: string; icon: IconName; focus: boolean; right?: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <View style={{ gap: 6 }}>
+      <Text style={{ color: V.ink, fontSize: 13, fontWeight: '600', marginLeft: 4 }}>{label}</Text>
+      <View style={{ height: 56, borderRadius: V.rS, backgroundColor: V.surf, borderWidth: focus ? 2 : 1, borderColor: focus ? V.blue : V.ring, paddingHorizontal: focus ? 13 : 14,
+        flexDirection: 'row', alignItems: 'center', gap: 10, shadowColor: '#000C58', shadowOpacity: focus ? 0.12 : 0.04, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: focus ? 3 : 1 }}>
+        <Icon name={icon} size={20} color={focus ? V.blue : V.mute} duo={false} />
+        {children}
+        {right || null}
+      </View>
+    </View>
+  );
+}
+
+/** 4.4: the error box in this page's light/dark colours (the shared one is made for the dark sign-up pages). */
+function ErrorLine({ text }: { text: string }) {
+  if (!text) return null;
+  return (
+    <View accessibilityLiveRegion="polite" style={{ flexDirection: 'row', gap: 8, alignItems: 'flex-start', padding: 12, borderRadius: 14, backgroundColor: V.dark ? 'rgba(255,138,138,0.12)' : '#FDECEC', borderWidth: 1, borderColor: V.dark ? 'rgba(255,138,138,0.35)' : '#F5B5B5' }}>
+      <Icon name="shield" size={16} color={V.dark ? '#FF8A8A' : '#C62828'} />
+      <Text style={{ flex: 1, color: V.dark ? '#FFD0D0' : '#8E1B1B', fontSize: 14, lineHeight: 19 }}>{text}</Text>
+    </View>
   );
 }
