@@ -1,6 +1,5 @@
-OENOD 4.3: meetings now run right inside the app.
-- OENOD Meet: join with the 10-number code or a link. Video, chat, raise your hand, waiting room.
-- Characters: pick a talking character (89 posters, or people from every country) when your camera is off.
-- Business Phone: more reliable calls on Android.
-- Forgot password, Terms and Privacy open inside the app.
-- Many small fixes.
+OENOD 4.4
+- A clearer sign-in page that's easier to fill in.
+- Inventory now works fully inside the app: items, stock counts, low-stock alerts and orders.
+- Cars: see your connected cars on a map and control them from the app: lock, unlock, charging, charge port, car health, send a destination and set a charging schedule.
+- Many small fixes and speed improvements.

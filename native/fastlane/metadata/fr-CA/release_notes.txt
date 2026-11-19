@@ -1,6 +1,5 @@
-OENOD 4.3 : les réunions se font dans l’app.
-- OENOD Meet : rejoignez avec le code à 10 chiffres ou un lien. Vidéo, clavardage, main levée, salle d’attente.
-- Personnages : un personnage qui parle quand votre caméra est éteinte.
-- Téléphone d’affaires : appels plus fiables sur Android.
-- Mot de passe oublié, conditions et confidentialité dans l’app.
-- Plusieurs petites corrections.
+OENOD 4.4
+- Une page de connexion plus claire et plus simple à remplir.
+- L’inventaire fonctionne entièrement dans l’app : articles, comptes de stock, alertes de stock bas et commandes.
+- Voitures : voyez vos voitures connectées sur une carte et contrôlez-les depuis l’app : verrouiller, déverrouiller, recharge, trappe de recharge, état de la voiture, envoi d’une destination et horaire de recharge.
+- Plusieurs petites corrections et plus de rapidité.
