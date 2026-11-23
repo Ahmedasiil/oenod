@@ -21,7 +21,7 @@ import { oops, sure } from '../../ui/T1';
 import { IOS_STORE } from '../../lib/store';
 
 type Who = 'all' | 'staff' | 'mgr' | 'team';
-type Tool = { name: string; icon: IconName; hint: string; app?: string; web?: string; who: Who; mod?: string; admin?: boolean };
+type Tool = { name: string; icon: IconName; hint: string; app?: string; web?: string; who: Who; mod?: string; admin?: boolean; ph?: PhName };
 type Group = { name: string; tools: Tool[] };
 
 const GROUPS: Group[] = [
@@ -34,6 +34,7 @@ const GROUPS: Group[] = [
     { name: 'My availability', icon: 'check', hint: 'When you can work', app: '/availability', who: 'staff' },
     { name: 'Kiosk', icon: 'device', hint: 'Staff clock in', app: '/kiosk', who: 'mgr' },
     { name: 'Hiring', icon: 'briefcase', hint: 'Jobs', app: '/hiring', who: 'mgr', mod: 'hiring' },
+    { name: 'Paperwork', icon: 'doc', ph: 'file-text', hint: 'Forms & policies', web: '/paperwork', who: 'mgr' },
     { name: 'Onboarding', icon: 'check', hint: 'New people', app: '/onboarding', who: 'mgr', mod: 'onboarding' },
     { name: 'Performance', icon: 'chart', hint: 'Goals', app: '/performance', who: 'mgr', mod: 'performance' },
   ] },
@@ -46,6 +47,8 @@ const GROUPS: Group[] = [
     { name: 'Accounting', icon: 'chart', hint: 'Books', app: '/accounting', who: 'mgr', mod: 'accounting', admin: true },
     { name: 'Expenses', icon: 'briefcase', hint: 'Receipts', app: '/expenses', who: 'mgr', mod: 'expenses' },
     { name: 'Banking', icon: 'shield', hint: 'Accounts', app: '/banking', who: 'mgr', mod: 'accounting', admin: true },
+    { name: 'Profit & labor', icon: 'chart', ph: 'trend-up', hint: 'Profit health', web: '/profit', who: 'mgr' },
+    { name: 'Business value', icon: 'chart', ph: 'chart-bar', hint: 'Valuation Pro', web: '/value-report', who: 'mgr', admin: true },
   ] },
   { name: 'Talk', tools: [
     { name: 'Meet', icon: 'video', hint: 'Video meetings', app: '/meet', who: 'team', mod: 'meet' },
@@ -69,6 +72,7 @@ const GROUPS: Group[] = [
   ] },
   { name: 'Operations', tools: [
     { name: 'Inventory', icon: 'box', hint: 'Stock', app: '/inventory', who: 'mgr' },
+    { name: 'OENOD Scan', icon: 'scan', ph: 'scan', hint: 'Scan to PDF', web: '/scan', who: 'team' },
     { name: 'Storm Center', icon: 'cloud', hint: 'Weather', app: '/storm', who: 'mgr' },
     { name: 'Products', icon: 'grid', hint: 'Menu & items', app: '/products', who: 'mgr' },
     { name: 'Suppliers', icon: 'send', hint: 'Orders', app: '/suppliers', who: 'mgr', mod: 'suppliers' },
@@ -76,7 +80,8 @@ const GROUPS: Group[] = [
     { name: 'Loyalty', icon: 'heart', hint: 'Rewards', app: '/loyalty', who: 'mgr', mod: 'loyalty' },
     { name: 'Projects', icon: 'check', hint: 'Tasks', app: '/projects', who: 'mgr', mod: 'projects' },
     { name: 'Cameras', icon: 'video', hint: 'Live view', app: '/cameras', who: 'mgr' },
-    { name: 'Cars', icon: 'pin', hint: 'GPS & car controls', app: '/cars', who: 'mgr' },
+    { name: 'Cars', icon: 'pin', ph: 'map-pin', hint: 'GPS & car controls', app: '/cars', who: 'mgr' },
+    { name: 'Live map', icon: 'pin', ph: 'map-pin', hint: 'Who is where', web: '/live-map', who: 'mgr' },
     { name: 'Reports', icon: 'chart', hint: 'Numbers', app: '/reports', who: 'mgr' },
   ] },
   { name: 'You & settings', tools: [
@@ -155,7 +160,7 @@ export default function AllTools() {
                   return (
                     <View key={x.name} style={{ width: cellW, alignItems: 'center' }}>
                       <Pressy onPress={() => go(x)} accessibilityRole="button" accessibilityLabel={offNow ? `${t(x.name)}, ${t('Turn on')}` : t(x.name)} style={{ alignItems: 'center', gap: 6, paddingHorizontal: 2 }}>
-                        <View style={{ opacity: offNow ? 0.55 : 1 }}><TileIcon icon={PHI[x.icon] || 'squares-four'} tone={GTONE[g.name] || 'navy'} size={54} /></View>
+                        <View style={{ opacity: offNow ? 0.55 : 1 }}><TileIcon icon={x.ph || PHI[x.icon] || 'squares-four'} tone={GTONE[g.name] || 'navy'} size={54} /></View>
                         <Text style={{ color: H.ink, fontSize: 12, fontWeight: '700', textAlign: 'center', lineHeight: 15 }} numberOfLines={2}>{t(x.name)}</Text>
                         {offNow ? <Text style={{ color: H.blue, fontSize: 11, fontWeight: '700' }} numberOfLines={1}>{t('Turn on')}</Text> : null}
                       </Pressy>

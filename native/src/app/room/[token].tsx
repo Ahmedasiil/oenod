@@ -4,7 +4,7 @@
 // Before joining: camera preview, mic and camera switches, your name. Then the waiting room if the host lets people
 // in, then the call: video tiles, mute, camera, flip, speaker, chat, raise hand, leave or end for everyone.
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, AppState, BackHandler, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, AppState, BackHandler, Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BASE, post, get } from '../../lib/api';
@@ -19,9 +19,13 @@ import * as RTC from '../../lib/rtc';
 import { POSTERS, WORLD, artName, isArt, loadWorld, onWorld } from '../../lib/chars';
 import { secure } from '../../lib/secure';
 import { CharArt } from '../../ui/CharArt';
+import { createAudioPlayer, setAudioModeAsync, type AudioPlayer } from 'expo-audio';
 
 type Info = { title: string; status: string; in_call: number; host_here: boolean; brand: { company: string; lobby?: boolean }; me: { name: string; admin?: boolean } | null; max?: number };
-type Peer = { id: number; name: string; a?: number; v?: number; h?: number; host?: number };
+type Peer = { id: number; name: string; a?: number; v?: number; h?: number; host?: number; ai?: { k: string; title: string } };
+// 4.5: the AI Team (Ava and specialists) a company member brings into the call from the website. They are not real
+// connections: the app shows them as tiles with an "AI · Not a person" badge and plays what they say.
+type AiMember = { k: string; name: string; title?: string };
 type Chat = { id: number; peer: number; name: string; body: string; to?: number };
 type Stage = 'load' | 'pre' | 'lobby' | 'call' | 'end' | 'bad';
 type Conn = { pc: any; id: number; queue: any[]; stream: any | null; offerer: boolean; restarts: number };
@@ -50,7 +54,10 @@ export default function Room() {
   const [localUrl, setLocalUrl] = useState<string | null>(null);
   const [chat, setChat] = useState<Chat[]>([]);
   const [unread, setUnread] = useState(0);
-  const [sheet, setSheet] = useState<'' | 'chat' | 'leave' | 'people' | 'chars'>('');
+  const [sheet, setSheet] = useState<'' | 'chat' | 'leave' | 'people' | 'chars' | 'tools'>('');
+  const [aiTeam, setAiTeam] = useState<AiMember[]>([]);
+  const [aiTalk, setAiTalk] = useState<{ w: string; t: string } | null>(null);
+  const [note, setNote] = useState(''); // whiteboard, poll or question started on the website: offer the full meeting
   const [art, setArt] = useState(''); // my meeting character (a poster or World code), shown when my camera is off
   const [arts, setArts] = useState<Record<number, string>>({}); // the others' characters, from their "av" events
   const [lv, setLv] = useState<Record<number, number>>({}); // voice levels that move the characters' mouths (-1 = me)
@@ -69,7 +76,7 @@ export default function Room() {
     pcs: new Map<number, Conn>(), outbox: [] as any[], evQ: [] as any[], chatQ: [] as string[], cmd: null as any,
     after: 0, chatAfter: 0, evAfter: 0, evInit: true, peers: [] as Peer[], syncing: false, timer: null as any,
     fastUntil: 0, fails: 0, dead: false, left: false, stage: 'load' as Stage, mic: null as any, cam: null as any, local: null as any,
-    st: { a: true, v: true, h: false }, sheet: '' as string, art: '' as string, arts: {} as Record<number, string>, lv: {} as Record<number, number>, wait: [] as { id: number; name: string }[],
+    st: { a: true, v: true, h: false }, au: null as AudioPlayer | null, auT: null as any, auMode: false, sheet: '' as string, art: '' as string, arts: {} as Record<number, string>, lv: {} as Record<number, number>, wait: [] as { id: number; name: string }[],
   }).current;
   R.sheet = sheet;
 
@@ -139,7 +146,9 @@ export default function Room() {
     });
     pc.addEventListener('connectionstatechange', () => {
       if (pc.connectionState === 'failed' && c.offerer && c.restarts < 3) { c.restarts++; offer(c, true); }
-      if (pc.connectionState === 'connected') c.restarts = 0;
+      if (pc.connectionState === 'connected') { c.restarts = 0; clearTimeout((c as any).dt); }
+      // 4.5: a dropped connection that doesn't come back in 5 seconds is restarted, like on the website.
+      if (pc.connectionState === 'disconnected' && c.offerer) { clearTimeout((c as any).dt); (c as any).dt = setTimeout(() => { if (pc.connectionState === 'disconnected' && c.restarts < 3) { c.restarts++; offer(c, true); } }, 5000); }
     });
     R.pcs.set(id, c);
     return c;
@@ -211,6 +220,39 @@ export default function Room() {
     const alone = R.stage === 'call' && R.peers.length <= 1;
     schedule(R.stage === 'lobby' || (alone && !fast) ? 3000 : fast ? 600 : 1500);
   };
+  // ---------- 4.5: AI Team, whiteboard, polls and Q&A from the website ----------
+  const aiQuiet = () => { clearTimeout(R.auT); try { R.au?.pause(); R.au?.remove(); } catch { /* gone */ } R.au = null; setAiTalk(null); };
+  const aiSay = async (d: any) => {
+    aiQuiet();
+    setAiTalk({ w: String(d.w || ''), t: String(d.t || '') });
+    R.auT = setTimeout(() => setAiTalk(null), Math.max(2500, (d.ms || 4000) + 1200));
+    if (!d.id || !R.me) return;
+    try {
+      if (!R.auMode) { R.auMode = true; await setAudioModeAsync({ playsInSilentMode: true, allowsRecording: true, interruptionMode: 'mixWithOthers', shouldRouteThroughEarpiece: false }).catch(() => {}); }
+      const u = `${BASE}/api/public/aim1/${encodeURIComponent(String(token))}/a/${encodeURIComponent(String(d.id))}?peer=${R.me.peer}&key=${encodeURIComponent(R.me.key)}`;
+      const pl = createAudioPlayer({ uri: u }); R.au = pl; pl.play();
+    } catch { /* the words still show on the tile */ }
+  };
+  const onTool = (e: any, quiet: boolean) => {
+    const d = e.d || {}; const mine = e.peer === R.me?.peer;
+    if (e.k === 'tm') {
+      if (d.s === 'on') { const team = Array.isArray(d.team) ? d.team.filter((m: any) => m && m.k) : []; setAiTeam(team); if (!quiet && team.length) say(t('AI Team joined: {names}', { names: team.map((m: AiMember) => m.name).join(', ') })); }
+      else if (d.s === 'off') { setAiTeam([]); aiQuiet(); }
+      else if (d.s === 'say' && !quiet) aiSay(d);
+      else if (d.s === 'stop' && !quiet) aiQuiet();
+      return;
+    }
+    if (quiet || mine) return;
+    if (e.k === 'wb' && !d.clear) setNote(t('{name} is drawing on the whiteboard', { name: e.name }));
+    else if (e.k === 'poll' && d.q && !d.close) setNote(t('{name} started a poll: {q}', { name: e.name, q: String(d.q).slice(0, 80) }));
+    else if (e.k === 'qa' && d.q && !d.done && !d.del) setNote(t('{name} asked: {q}', { name: d.anon ? t('Someone') : e.name, q: String(d.q).slice(0, 80) }));
+  };
+  // The full meeting (whiteboard, polls, Q&A, AI Team controls, recording) runs the website's meeting inside the app.
+  const openFull = () => {
+    if (!R.dead) { R.dead = true; clearTimeout(R.timer); sendLeave(); stopAll(); }
+    aiQuiet(); setSheet('');
+    router.replace({ pathname: '/web', params: { path: `/m/${String(token)}`, title: info?.title || t('OENOD Meet') } });
+  };
   const handle = async (r: any) => {
     if (r.ended) return end(r.limit ? 'limit' : 'ended');
     if (r.ice && r.ice.length) { R.ice = r.ice; R.iceAt = Date.now(); }
@@ -240,8 +282,11 @@ export default function Room() {
     if ((r.signals || []).length) R.fastUntil = Date.now() + 6000;
     if (R.evInit) { R.evInit = false; R.evAfter = Math.max(R.evAfter, r.ev_max || 0); }
     let artsNew = false;
+    const cut = R.evAfter; // events up to here happened before this sync: rebuild state quietly, don't replay them
     for (const e of r.events || []) {
+      const quiet = e.id <= cut;
       if (e.id > R.evAfter) R.evAfter = e.id;
+      try { onTool(e, quiet); } catch { /* 4.5: an unknown event never breaks the call */ }
       if (e.k === 'av' && e.peer !== R.me!.peer) { // someone picked (or dropped) a character on the website or in the app
         const c = String(e.d?.r || '');
         if (isArt(c)) R.arts[e.peer] = c; else delete R.arts[e.peer];
@@ -284,12 +329,12 @@ export default function Room() {
     if (!R.me || R.left) return; R.left = true;
     fetch(`${BASE}/api/public/meet/${encodeURIComponent(String(token))}/leave`, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify({ peer: R.me.peer, key: R.me.key }), credentials: 'include' }).catch(() => {});
   };
-  const end = (w: string) => { if (R.dead) return; R.dead = true; clearTimeout(R.timer); sendLeave(); stopAll(); setWhy(w); setSheet(''); go('end'); };
+  const end = (w: string) => { if (R.dead) return; aiQuiet(); R.dead = true; clearTimeout(R.timer); sendLeave(); stopAll(); setWhy(w); setSheet(''); go('end'); };
   const leave = () => end('left');
   const endForAll = async () => { R.cmd = { end: true }; R.syncing = false; await sync(); end('ended'); };
   const close = () => (router.canGoBack() ? router.back() : router.replace('/'));
 
-  useEffect(() => () => { if (!R.dead) { R.dead = true; clearTimeout(R.timer); sendLeave(); stopAll(); } }, []);
+  useEffect(() => () => { aiQuiet(); if (!R.dead) { R.dead = true; clearTimeout(R.timer); sendLeave(); stopAll(); } }, []);
   useEffect(() => { const i = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(i); }, []);
   useEffect(() => {
     const s = BackHandler.addEventListener('hardwareBackPress', () => { if (R.stage === 'call' || R.stage === 'lobby') { setSheet('leave'); return true; } return false; });
@@ -499,7 +544,8 @@ export default function Room() {
   }
 
   // ---------- the call ----------
-  const others = peers.filter((p) => p.id !== R.me?.peer);
+  const humans = peers.filter((p) => p.id !== R.me?.peer);
+  const others = [...humans, ...aiTeam.map((m, i) => ({ id: -100 - i, name: m.name, a: 1, v: 0, ai: { k: m.k, title: m.title || '' } } as Peer))];
   const meTile = { id: -1, name: info?.me?.name || name || t('You'), a: mic ? 1 : 0, v: cam ? 1 : 0, h: hand ? 1 : 0 } as Peer;
   const top = insets.top + 8; const barH = 92 + insets.bottom;
   const areaH = height - top - 52 - barH; const areaW = width - 20;
@@ -509,6 +555,29 @@ export default function Room() {
   const rows = Math.ceil(list.length / cols);
   const tw = (areaW - (cols - 1) * 8) / cols; const th = Math.min((areaH - (rows - 1) * 8) / rows, list.length === 1 ? areaH : tw * 1.35);
   const tile = (p: Peer, w: number, h: number, self?: boolean) => {
+    if (p.ai) {
+      const talking = aiTalk?.w === p.ai.k;
+      return (
+        <View key={'ai' + p.ai.k} style={{ width: w, height: h, borderRadius: 20, overflow: 'hidden', backgroundColor: '#11131F', borderWidth: talking ? 2 : 1, borderColor: talking ? '#5B8CFF' : 'rgba(255,255,255,0.08)' }}>
+          <Image source={{ uri: `${BASE}/assets/aim1/${p.ai.k}.jpg?v=6` }} style={{ flex: 1 }} resizeMode="cover" accessibilityIgnoresInvertColors />
+          <View style={{ position: 'absolute', top: 8, left: 8, flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 99, backgroundColor: 'rgba(5,6,13,0.72)' }}>
+            <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: '900', backgroundColor: '#3D5BF5', paddingHorizontal: 5, borderRadius: 5, overflow: 'hidden' }}>AI</Text>
+            <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: '700' }}>{t('Not a person')}</Text>
+          </View>
+          {talking && aiTalk?.t ? (
+            <View style={{ position: 'absolute', left: 8, right: 8, bottom: 40, padding: 8, borderRadius: 12, backgroundColor: 'rgba(5,6,13,0.72)' }}>
+              <Text style={{ color: '#FFFFFF', fontSize: 12.5, lineHeight: 17 }} numberOfLines={4}>{aiTalk.t}</Text>
+            </View>
+          ) : null}
+          <View style={{ position: 'absolute', left: 8, bottom: 8, right: 8, flexDirection: 'row' }}>
+            <View style={{ flexShrink: 1, flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 9, paddingVertical: 4, borderRadius: 99, backgroundColor: 'rgba(5,6,13,0.6)' }}>
+              {talking ? <Ph name="speaker-high" size={13} color="#8FB0FF" /> : null}
+              <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '700', flexShrink: 1 }} numberOfLines={1}>{p.name}{p.ai.title ? ' · ' + t(p.ai.title) : ''}</Text>
+            </View>
+          </View>
+        </View>
+      );
+    }
     const url = self ? (cam ? localUrl : null) : (p.v ? (streams[p.id] || '').split('#')[0] || null : null);
     const ch = self ? art : arts[p.id] || '';
     return (
@@ -533,9 +602,10 @@ export default function Room() {
           <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '800' }} numberOfLines={1}>{title}</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: MK.live }} />
-            <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12.5, fontVariant: ['tabular-nums'] }}>{mmss(now - since)} · {t('{n} in the call', { n: others.length + 1 })}</Text>
+            <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12.5, fontVariant: ['tabular-nums'] }}>{mmss(now - since)} · {t('{n} in the call', { n: humans.length + 1 })}</Text>
           </View>
         </View>
+        <RoundGlass ph="squares-four" label={t('Meeting tools')} onPress={() => setSheet('tools')} />
         <RoundGlass ph="smiley" label={t('Characters')} onPress={() => setSheet('chars')} />
         <RoundGlass ph="users" label={t('People')} onPress={() => setSheet('people')} />
         <RoundGlass ph={speaker ? 'speaker-high' : 'speaker-slash'} label={speaker ? t('Speaker on') : t('Speaker off')} onPress={toggleSpeaker} />
@@ -568,6 +638,17 @@ export default function Room() {
           ) : <Text style={{ color: MK.navy, fontWeight: '800', fontSize: 13.5 }}>{t('See')}</Text>}
         </Pressable>
       ) : null}
+      {note && !(waiting.length && sheet !== 'people') ? (
+        <View style={{ position: 'absolute', left: 16, right: 16, top: top + 60, flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, borderRadius: 16, backgroundColor: '#FFFFFF' }}>
+          <Ph name="squares-four" size={20} color={MK.navy} />
+          <Text style={{ flex: 1, color: MK.ink, fontSize: 14, fontWeight: '700' }} numberOfLines={2}>{note}</Text>
+          <Pressable onPress={openFull} accessibilityRole="button" accessibilityLabel={t('Open the full meeting')} hitSlop={6}
+            style={{ paddingHorizontal: 14, height: 36, borderRadius: 12, backgroundColor: MK.navy, justifyContent: 'center' }}>
+            <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 13.5 }}>{t('Open')}</Text>
+          </Pressable>
+          <Pressable onPress={() => setNote('')} accessibilityRole="button" accessibilityLabel={t('Close')} hitSlop={8}><Ph name="x" size={18} color={MK.muted} /></Pressable>
+        </View>
+      ) : null}
       {toast ? (
         <View pointerEvents="none" style={{ position: 'absolute', left: 16, right: 16, bottom: barH + 10, alignItems: 'center' }}>
           <View style={{ paddingHorizontal: 14, paddingVertical: 9, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.95)' }}><Text style={{ color: MK.ink, fontSize: 13.5, fontWeight: '700' }} numberOfLines={2}>{toast}</Text></View>
@@ -583,11 +664,16 @@ export default function Room() {
       </View>
 
       {charSheet}
+      <MSheet open={sheet === 'tools'} title={t('Meeting tools')} sub={t('Opens the full meeting inside the app. You stay in the same call.')} onClose={() => setSheet('')}>
+        <Opt ph="pencil-simple-line" title={t('Whiteboard')} sub={t('Draw together, shapes, sticky notes and templates')} onPress={openFull} main />
+        <Opt ph="chart-bar" title={t('Polls and Q&A')} sub={t('Vote, ask questions and see the answers')} onPress={openFull} />
+        <Opt ph="sparkle" title={t('AI Team and AI notes')} sub={t('Ava, specialists, captions and the meeting summary')} onPress={openFull} />
+      </MSheet>
       <MSheet open={sheet === 'leave'} title={t('Leave the meeting?')} onClose={() => setSheet('')}>
         <Opt ph="sign-out" title={t('Leave the meeting')} sub={t('The others can keep talking.')} onPress={leave} main />
         {R.me?.host || info?.me?.admin ? <Opt ph="phone-disconnect" title={t('End the meeting for everyone')} sub={t('Everyone is disconnected.')} onPress={endForAll} /> : null}
       </MSheet>
-      <MSheet open={sheet === 'people'} title={t('People in the call')} sub={t('{n} in the call', { n: others.length + 1 })} onClose={() => setSheet('')}>
+      <MSheet open={sheet === 'people'} title={t('People in the call')} sub={t('{n} in the call', { n: humans.length + 1 })} onClose={() => setSheet('')}>
         {waiting.length ? <Text style={{ color: MK.muted, fontSize: 12.5, fontWeight: '800', letterSpacing: 0.6, marginTop: 2 }}>{t('WAITING TO JOIN')}</Text> : null}
         {waiting.map((w) => (
           <View key={'w' + w.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 6 }}>
@@ -604,7 +690,7 @@ export default function Room() {
           </View>
         ))}
         {waiting.length ? <Text style={{ color: MK.muted, fontSize: 12.5, fontWeight: '800', letterSpacing: 0.6, marginTop: 8 }}>{t('IN THE CALL')}</Text> : null}
-        {[meTile, ...others].map((p) => (
+        {[meTile, ...humans].map((p) => (
           <View key={p.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 6 }}>
             <Face name={p.name} size={40} light />
             <Text style={{ flex: 1, color: MK.ink, fontSize: 15, fontWeight: '700' }} numberOfLines={1}>{p.id === -1 ? t('You') : p.name}{p.host ? ' · ' + t('Host') : ''}</Text>

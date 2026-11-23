@@ -1,6 +1,7 @@
 import React from 'react';
 import { Linking, ScrollView, Text, View } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useAuth } from '../../lib/auth';
 import { get } from '../../lib/api';
 import { useLoad } from '../../lib/useLoad';
 import { day, hm, label, minutesBetween, time } from '../../lib/format';
@@ -13,6 +14,7 @@ import { Rise } from '../../ui/Motion';
 
 export default function Employee() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { isManager } = useAuth();
   const d = useLoad(() => get(`/api/employees/${Number(id)}`), [id]);
   if (d.loading && !d.data) return <Loading />;
   if (!d.data) return <View style={{ padding: S.lg }}><ErrorBox text={d.error || t('Not found.')} onRetry={d.reload} /></View>;
@@ -35,6 +37,8 @@ export default function Employee() {
         {tel ? <Button title={t('Text')} icon="mail" kind="secondary" onPress={() => Linking.openURL(`sms:${tel}`)} style={{ flex: 1 }} /> : null}
         {e.email ? <Button title={t('Email')} icon="mail" kind="secondary" onPress={() => Linking.openURL(`mailto:${e.email}`)} style={{ flex: 1 }} /> : null}
       </Row>
+      {/* 4.5: managers edit the person with the website's full card-by-card form (legal name, address, job, pay, tax forms, deposit, contacts). */}
+      {isManager ? <Button title={t('Edit person')} icon="doc" kind="secondary" onPress={() => router.push({ pathname: '/web', params: { path: `/people/${Number(id)}`, title: e.name } })} /> : null}
       <H2>{t('Contact')}</H2>
       <Card style={{ paddingVertical: S.xs }}>
         {e.phone ? <><ListRow title={e.phone} sub={t('Phone')} left={<IconTile name="phone" color={tint(2)} size={36} />} /><Divider /></> : null}

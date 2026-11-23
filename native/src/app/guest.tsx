@@ -20,7 +20,7 @@ export function meetingId(v: string): string | null {
 /** The 10 numbers of a meeting code ("482 913 5067", "482-913-5067" or a #/meet-join/<code> link), else null. */
 export function meetingCode(v: string): string | null {
   const s = String(v || '').trim();
-  const j = s.match(/meet-join\/([\d\s-]{10,16})/);
+  const j = s.match(/(?:meet-join|\/j)\/([\d\s-]{10,16})/); // 4.5: oenod.com/j/<code> short links too
   const d = (j ? j[1] : s).replace(/[\s-]+/g, '');
   if (/^\d{10}$/.test(d)) return d;
   const m = meetingId(s);
