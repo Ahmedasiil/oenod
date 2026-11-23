@@ -1,5 +1,6 @@
-OENOD 4.4
-- Une page de connexion plus claire et plus simple à remplir.
-- L’inventaire fonctionne entièrement dans l’app : articles, comptes de stock, alertes de stock bas et commandes.
-- Voitures : voyez vos voitures connectées sur une carte et contrôlez-les depuis l’app : verrouiller, déverrouiller, recharge, trappe de recharge, état de la voiture, envoi d’une destination et horaire de recharge.
-- Plusieurs petites corrections et plus de rapidité.
+OENOD 4.5
+- Nouveau dans le menu Tout : OENOD Scan, Paperasse, Profit et main-d'œuvre, Valeur de l'entreprise et Carte en direct.
+- Les liens de réunion (oenod.com/j/...) s'ouvrent directement dans l'application.
+- Les appels vidéo affichent maintenant l'équipe IA avec sa voix, vous avertissent quand quelqu'un dessine sur le tableau blanc ou lance un sondage, et ont un bouton Outils de réunion.
+- Les gestionnaires peuvent modifier une personne avec le formulaire complet.
+- Les appels se reconnectent d'eux-mêmes.

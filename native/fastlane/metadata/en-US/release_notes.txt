@@ -1,5 +1,6 @@
-OENOD 4.4
-- A clearer sign-in page that's easier to fill in.
-- Inventory now works fully inside the app: items, stock counts, low-stock alerts and orders.
-- Cars: see your connected cars on a map and control them from the app: lock, unlock, charging, charge port, car health, send a destination and set a charging schedule.
-- Many small fixes and speed improvements.
+OENOD 4.5
+- New in the Everything menu: OENOD Scan, Paperwork, Profit & labor, Business value and Live map.
+- Meeting links (oenod.com/j/...) open straight in the app.
+- Video calls now show the AI Team with their voice, tell you when someone draws on the whiteboard or starts a poll, and have a Meeting tools button.
+- Managers can edit a person with the full form.
+- Calls reconnect by themselves.
