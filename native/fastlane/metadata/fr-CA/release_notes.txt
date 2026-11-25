@@ -1,5 +1,5 @@
 OENOD 4.6
-- Nouvelles alertes d'arrivée : les jours de quart, votre téléphone remarque quand vous arrivez au travail et affiche « Vous êtes à <commerce>. Touchez pour pointer. » Cela fonctionne même quand OENOD est fermé.
+- Nouvelles alertes d'arrivée : les jours de quart, votre téléphone remarque quand vous arrivez au travail et affiche « Vous êtes au travail. Touchez pour pointer. » Cela fonctionne même quand OENOD est fermé.
 - Une seule touche vous fait pointer, avec votre position vérifiée à ce moment-là.
 - Un rappel arrive si votre quart a commencé et que vous n'avez pas encore pointé.
 - Activez ou désactivez les alertes d'arrivée en tout temps dans Moi > Alertes d'arrivée.

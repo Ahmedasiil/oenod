@@ -1,5 +1,5 @@
 OENOD 4.6
-- New Arrival alerts: on a shift day, your phone notices when you get to work and shows "You're at <shop>. Tap to clock in." It works even when OENOD is closed.
+- New Arrival alerts: on a shift day, your phone notices when you get to work and shows "You're at work. Tap to clock in." It works even when OENOD is closed.
 - One tap clocks you in, with your location checked right then.
 - A reminder comes if your shift has started and you haven't clocked in.
 - Turn Arrival alerts on or off any time in Me > Arrival alerts.
