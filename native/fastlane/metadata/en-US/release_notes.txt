@@ -1,6 +1,5 @@
-OENOD 4.5
-- New in the Everything menu: OENOD Scan, Paperwork, Profit & labor, Business value and Live map.
-- Meeting links (oenod.com/j/...) open straight in the app.
-- Video calls now show the AI Team with their voice, tell you when someone draws on the whiteboard or starts a poll, and have a Meeting tools button.
-- Managers can edit a person with the full form.
-- Calls reconnect by themselves.
+OENOD 4.6
+- New Arrival alerts: on a shift day, your phone notices when you get to work and shows "You're at <shop>. Tap to clock in." It works even when OENOD is closed.
+- One tap clocks you in, with your location checked right then.
+- A reminder comes if your shift has started and you haven't clocked in.
+- Turn Arrival alerts on or off any time in Me > Arrival alerts.
