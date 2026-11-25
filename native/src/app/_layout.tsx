@@ -10,6 +10,9 @@ import { AuthProvider, useAuth } from '../lib/auth';
 import { C } from '../lib/theme';
 import { LangProvider, t } from '../lib/i18n';
 import { stopTracking, syncTracking } from '../lib/geo'; // also registers the location task (Android)
+import { clockLinkFor, syncArrival } from '../lib/arrival'; // 4.6: also registers the arrival task
+import * as Notifications from 'expo-notifications';
+import { Platform } from 'react-native';
 import { onWatchPair, watchPending } from '../../modules/oenod-watchlink/src';
 import { lastCrash } from '../../modules/oenod-tap/src';
 import { keepSession } from '../lib/auth';
@@ -31,6 +34,16 @@ function Gate() {
     syncTracking();
     const sub = AppState.addEventListener('change', (st) => { if (st === 'active') syncTracking(); });
     return () => sub.remove();
+  }, [ready, signedIn, hasEmployee]);
+  // 4.6 Arrival alerts: set up today's and tomorrow's workplaces, and open Clock in from a tapped alert or reminder.
+  useEffect(() => {
+    if (!ready || !signedIn || !hasEmployee || Platform.OS === 'web') return;
+    syncArrival(true);
+    const sub = AppState.addEventListener('change', (st) => { if (st === 'active') syncArrival(false); });
+    const go = (r: Notifications.NotificationResponse | null) => { const u = clockLinkFor(r?.notification?.request?.content); if (u) setTimeout(() => router.push(u as any), 0); };
+    Notifications.getLastNotificationResponseAsync().then((r) => { if (r && Date.now() - (r.notification?.date || 0) < 10 * 60000) go(r); }).catch(() => {});
+    const tap = Notifications.addNotificationResponseReceivedListener(go);
+    return () => { sub.remove(); tap.remove(); };
   }, [ready, signedIn, hasEmployee]);
   // Business Phone (3.8, iPhone): ring company calls on this phone when the person has a phone seat.
   useEffect(() => {
@@ -83,6 +96,7 @@ function Gate() {
         <Stack.Screen name="geo-consent" options={{ presentation: 'modal', headerShown: true, title: t('Site attendance'), headerTintColor: C.ink, headerStyle: { backgroundColor: C.dark ? C.bg : '#FFFFFF' }, headerShadowVisible: false }} />
         <Stack.Screen name="delete-account" options={{ presentation: 'modal', headerShown: true, title: t('Delete my account'), headerTintColor: C.ink, headerStyle: { backgroundColor: C.dark ? C.bg : '#FFFFFF' }, headerShadowVisible: false }} />
         <Stack.Screen name="watch" options={{ headerShown: true, title: t('Connect a watch'), headerTintColor: C.ink, headerStyle: { backgroundColor: C.dark ? C.bg : '#FFFFFF' }, headerShadowVisible: false }} />
+        <Stack.Screen name="clockin" options={{ presentation: 'modal' }} />
         <Stack.Screen name="timesheet" options={{ headerShown: true, title: t('My hours'), headerTintColor: C.ink, headerStyle: { backgroundColor: C.dark ? C.bg : '#FFFFFF' }, headerShadowVisible: false }} />
         <Stack.Screen name="setup" options={{ animation: 'fade', gestureEnabled: false, contentStyle: { backgroundColor: '#050B24' } }} />
         <Stack.Screen name="payroll" options={{ contentStyle: { backgroundColor: '#0A0B10' } }} />

@@ -11,6 +11,7 @@ import { t } from './i18n';
 export const GEO_TASK = 'oenod-site-attendance';
 const WARN_KEY = 'oenod.geo.warn';
 const native = Platform.OS !== 'web';
+const FOREGROUND_ONLY: boolean = true; // 4.6: every phone reports site attendance only while OENOD is open
 
 export type GeoSession = { time_entry_id: number; state: 'inside' | 'outside' | 'off' | 'lost' | 'break'; site: string; distance_m: number | null } | null;
 export type GeoMe = { enabled: boolean; track: boolean; strict: boolean; ping_sec: number; policy_version: number; consented: boolean; session: GeoSession };
@@ -118,7 +119,9 @@ export async function syncTracking(): Promise<GeoMe | null> {
   if (s !== 'ok') await ping({ status: s, background: false });
   else { const f = await currentFix(); await ping(f.lat != null ? { ...f, status: 'ok', background: false } : { status: f.location_status, background: false }); }
 
-  if (!native || Platform.OS === 'ios') {
+  // 4.6: Android too reports only while the app is open. "Always" location is now granted for Arrival alerts only
+  // (a circle around the workplace), never for following people around.
+  if (FOREGROUND_ONLY) {
     // Web, and iPhone (3.7, App Store rule 2.5.4: no location while the app is closed): report every
     // ping_sec seconds while the app is open. The server flags the gap when it is closed.
     if (native) await stopTracking(); // a phone that ran the old background reports turns them off

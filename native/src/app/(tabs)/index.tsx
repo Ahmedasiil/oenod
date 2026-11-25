@@ -18,6 +18,7 @@ import { Icon, IconName } from '../../ui/Icon';
 import { Pressy, Rise, useCountUp } from '../../ui/Motion';
 import { t } from '../../lib/i18n';
 import { currentFix, syncTracking, waitForConsent, type GeoMe } from '../../lib/geo';
+import { clockedIn } from '../../lib/arrival';
 import { syncLive } from '../../lib/live';
 import { BriefBar, HeroChip, StatTrio } from '../../ui/Mid';
 import { type Mini, type Tx } from '../../ui/M6';
@@ -65,6 +66,7 @@ function ClockCard({ clock, onChange }: { clock: Clock; onChange: (c: Clock) => 
       }
       const r = await post<Clock>('/api/me/clock', body);
       onChange(r);
+      if (action === 'in') clockedIn().catch(() => {}); // 4.6: no shift-start reminder after clocking in
       if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
       syncTracking().then(setGeo);
     } catch (e: any) {
@@ -445,6 +447,7 @@ function useClockAct(onChange: (c: Clock) => void) {
       if (action === 'in' || action === 'out') body = { ...body, ...(await currentFix()) };
       const r = await post<Clock>('/api/me/clock', body);
       onChange(r);
+      if (action === 'in') clockedIn().catch(() => {}); // 4.6: no shift-start reminder after clocking in
       if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
       syncTracking();
     } catch (e: any) {

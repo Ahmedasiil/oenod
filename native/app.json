@@ -2,14 +2,14 @@
   "expo": {
     "name": "OENOD",
     "slug": "oenod",
-    "version": "4.5.0",
+    "version": "4.6.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.oenod.app",
-      "buildNumber": "450",
+      "buildNumber": "460",
       "associatedDomains": [
         "applinks:oenod.com",
         "webcredentials:oenod.com"
@@ -19,7 +19,7 @@
         "NSCameraUsageDescription": "OENOD uses the camera to scan QR badges and for video meetings.",
         "NSFaceIDUsageDescription": "OENOD uses Face ID to unlock the app quickly.",
         "ITSAppUsesNonExemptEncryption": false,
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "OENOD uses your location to confirm you are at your workplace when you clock in. If your workplace uses site attendance, it also shares your location with your managers while you are clocked in and OENOD is open on your screen. Never on breaks, after you clock out, or while the app is closed.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "OENOD uses your location to confirm you are at your workplace when you clock in. With Arrival alerts on, your phone also notices when you arrive at your workplace on a shift day, even when OENOD is closed, and offers to clock you in. Your phone checks this by itself and sends nothing to OENOD until you tap to clock in. You can turn Arrival alerts off any time in Me. If your workplace uses site attendance, OENOD also shares your location with your managers while you are clocked in and OENOD is open on your screen.",
         "UIRequiresFullScreen": true,
         "NSMicrophoneUsageDescription": "OENOD uses the microphone for video meetings in OENOD Meet and for Business Phone calls.",
         "UISupportedInterfaceOrientations~ipad": [
@@ -37,7 +37,7 @@
     },
     "android": {
       "package": "com.oenod.app",
-      "versionCode": 450,
+      "versionCode": 460,
       "adaptiveIcon": {
         "backgroundColor": "#000C58",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -56,11 +56,11 @@
         "FOREGROUND_SERVICE",
         "FOREGROUND_SERVICE_MICROPHONE",
         "WAKE_LOCK",
-        "VIBRATE"
+        "VIBRATE",
+        "ACCESS_BACKGROUND_LOCATION"
       ],
       "predictiveBackGestureEnabled": false,
       "blockedPermissions": [
-        "android.permission.ACCESS_BACKGROUND_LOCATION",
         "android.permission.FOREGROUND_SERVICE_LOCATION",
         "android.permission.SYSTEM_ALERT_WINDOW",
         "android.permission.READ_EXTERNAL_STORAGE",
@@ -117,10 +117,11 @@
         "expo-location",
         {
           "locationWhenInUsePermission": "OENOD uses your location to confirm you are at your workplace when you clock in, and to show jobs near you when you tap Near me in Find a job. If your workplace uses site attendance, it also shares your location with your managers while you are clocked in and OENOD is open on your screen. Never on breaks, after you clock out, or while the app is closed.",
-          "locationAlwaysAndWhenInUsePermission": "OENOD uses your location to confirm you are at your workplace when you clock in. If your workplace uses site attendance, it also shares your location with your managers while you are clocked in and OENOD is open on your screen. Never on breaks, after you clock out, or while the app is closed.",
-          "isAndroidBackgroundLocationEnabled": false,
+          "locationAlwaysAndWhenInUsePermission": "OENOD uses your location to confirm you are at your workplace when you clock in. With Arrival alerts on, your phone also notices when you arrive at your workplace on a shift day, even when OENOD is closed, and offers to clock you in. Your phone checks this by itself and sends nothing to OENOD until you tap to clock in. You can turn Arrival alerts off any time in Me. If your workplace uses site attendance, OENOD also shares your location with your managers while you are clocked in and OENOD is open on your screen.",
+          "isAndroidBackgroundLocationEnabled": true,
           "isAndroidForegroundServiceEnabled": false,
-          "isIosBackgroundLocationEnabled": false
+          "isIosBackgroundLocationEnabled": false,
+          "locationAlwaysPermission": "OENOD uses your location to confirm you are at your workplace when you clock in. With Arrival alerts on, your phone also notices when you arrive at your workplace on a shift day, even when OENOD is closed, and offers to clock you in. Your phone checks this by itself and sends nothing to OENOD until you tap to clock in. You can turn Arrival alerts off any time in Me. If your workplace uses site attendance, OENOD also shares your location with your managers while you are clocked in and OENOD is open on your screen."
         }
       ],
       [
