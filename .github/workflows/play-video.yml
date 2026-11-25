@@ -29,7 +29,7 @@ jobs:
         working-directory: native
         run: |
           npm ci
-          node -e "const f='app.json',j=require('./'+f);j.expo.extra.apiUrl='http://localhost:8747';require('fs').writeFileSync(f,JSON.stringify(j,null,2))"
+          node -e "const f='app.json',j=require('./'+f);j.expo.extra.apiUrl='http://10.0.2.2:8747';require('fs').writeFileSync(f,JSON.stringify(j,null,2))"
           npx expo prebuild --platform android --no-install
           M=android/app/src/main/AndroidManifest.xml
           grep -q usesCleartextTraffic $M && sed -i 's/android:usesCleartextTraffic="false"/android:usesCleartextTraffic="true"/' $M || sed -i 's/<application /<application android:usesCleartextTraffic="true" /' $M
