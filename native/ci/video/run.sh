@@ -11,7 +11,7 @@ for p in ACCESS_FINE_LOCATION ACCESS_COARSE_LOCATION ACCESS_BACKGROUND_LOCATION 
 adb shell settings put secure location_mode 3
 adb emu geo fix -113.5300 53.5200   # about 3 km from the shop
 N=0; shot(){ N=$((N+1)); adb exec-out screencap -p > $OUT/s$(printf %02d $N)-$1.png; }
-dump(){ adb shell uiautomator dump /sdcard/u.xml >/dev/null 2>&1; adb pull /sdcard/u.xml u.xml >/dev/null 2>&1; }
+dump(){ rm -f u.xml; adb shell uiautomator dump /sdcard/u.xml 2>&1 | tail -1; adb pull /sdcard/u.xml u.xml >/dev/null 2>&1; cp u.xml $OUT/last.xml 2>/dev/null; }
 tap(){ for i in 1 2 3 4 5 6; do dump; P=$(python3 ui.py u.xml "$1" $2) && { adb shell input tap $P; return 0; }; sleep 2; done; echo "NOT FOUND: $1"; return 1; }
 has(){ dump; python3 ui.py u.xml "$1" >/dev/null; }
 
@@ -20,6 +20,7 @@ sleep 30; shot start
 # Any start-up prompt (e.g. notifications) before the demo begins
 for w in "Allow" "Not now"; do has "$w" && tap "$w"; sleep 2; done
 shot home
+dump; cp u.xml $OUT/home.xml; adb shell dumpsys activity activities | grep -E "mResumedActivity|topResumed" | head -3
 curl -s 'localhost:8747/__mode?m=shift'
 
 # Part 1: Me > Arrival alerts > switch on > disclosure > Allow all the time
@@ -49,4 +50,4 @@ adb shell cmd statusbar expand-notifications; sleep 4; shot shade
 tap "Tap to clock in."; sleep 10; shot clocked
 adb shell pkill -INT screenrecord; sleep 3; adb pull /sdcard/b.mp4 $OUT/b.mp4
 adb logcat -d | grep -iE "ReactNativeJS|oenod|geofenc" | tail -200 > $OUT/logcat.txt
-ls -la $OUT
+tail -40 $OUT/mock.log; ls -la $OUT

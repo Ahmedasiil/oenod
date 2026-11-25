@@ -2,6 +2,8 @@ name: Play location video
 on:
   push:
     branches: [play-video]
+permissions:
+  contents: write
 jobs:
   video:
     runs-on: ubuntu-latest
@@ -17,7 +19,13 @@ jobs:
         env: { GSJ: '${{ secrets.GOOGLE_SERVICES_JSON || secrets.GOOGLE_SERVICES_USON }}', GSJ64: '${{ secrets.GOOGLE_SERVICES_JSON_B64 }}' }
         run: |
           if [ -n "$GSJ" ]; then printf '%s' "$GSJ" > google-services.json; else echo "$GSJ64" | base64 -d > google-services.json; fi
+      - name: Reuse the demo app if already built
+        id: reuse
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: |
+          gh release download play-video-demo -p demo.apk -D . && echo "hit=1" >> $GITHUB_OUTPUT || true
       - name: Demo build pointed at the local demo server
+        if: steps.reuse.outputs.hit != '1'
         working-directory: native
         run: |
           npm ci
@@ -45,6 +53,11 @@ jobs:
           disable-animations: false
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
           script: bash native/ci/video/run.sh $GITHUB_WORKSPACE/demo.apk
-      - uses: actions/upload-artifact@v4
+      - name: Publish results to a draft release
         if: always()
-        with: { name: play-video, path: out/ }
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: |
+          gh release view play-video-demo >/dev/null 2>&1 || gh release create play-video-demo --draft --title "Play video demo (test only)" --notes "Emulator recording for the Play background-location form. Demo data only." --target ${{ github.sha }}
+          cp demo.apk out/ 2>/dev/null || true
+          (cd out && zip -q ../play-video-out.zip *)
+          gh release upload play-video-demo play-video-out.zip out/demo.apk --clobber
