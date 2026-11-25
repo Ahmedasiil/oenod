@@ -42,11 +42,16 @@ has "Allow" && { shot notif; tap "Allow"; sleep 2; }
 sleep 3; shot on
 adb shell pkill -INT screenrecord; sleep 3; adb pull /sdcard/a.mp4 $OUT/a.mp4
 
-# Part 2: app closed (home screen), phone arrives at the shop, alert appears, tap clocks in
+# Part 2: walk to the shop. Opening the app once re-registers the circle; then the app goes to the background.
+for k in 30 25 20 15 10 6 3 1 0; do
+  adb emu geo fix $(python3 -c "print(-113.4909-0.0005*$k, 53.5444-0.0004*$k)"); sleep 2
+done
+adb shell monkey -p com.oenod.app -c android.intent.category.LAUNCHER 1; sleep 12
 adb shell input keyevent HOME; sleep 2
-for i in $(seq 1 60); do
-  adb emu geo fix -113.4909 53.5444; sleep 4
-  adb shell dumpsys notification --noredact | grep -q "Tap to clock in" && break
+for i in $(seq 1 75); do
+  adb emu geo fix -113.4909 53.5444; sleep 3
+  adb shell dumpsys notification --noredact | grep -q "Tap to clock in" && { echo "ALERT after $i"; break; }
+  [ $i = 30 ] && { adb shell monkey -p com.oenod.app -c android.intent.category.LAUNCHER 1; sleep 10; adb shell input keyevent HOME; }
 done
 shot arrived
 adb shell screenrecord --bit-rate 8000000 /sdcard/b.mp4 & sleep 2
