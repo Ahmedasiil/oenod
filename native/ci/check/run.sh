@@ -28,6 +28,7 @@ shot 00-home-light
 for i in 1 2 3; do sleep 8; shot 00-home-light-$i; done
 dump; cp u.xml $OUT/home.xml
 
+if [ -z "$ONLY" ]; then
 # The market line's OENOD button opens Markets inside the app
 if tap "Open Markets by OENOD"; then sleep 18; shot 01-markets; alive && res home "Market line > Markets" ok 01-markets || res home "Market line > Markets" CRASH 01-markets; adb shell input keyevent BACK; sleep 3; else res home "Market line" "NOT FOUND" -; fi
 
@@ -43,18 +44,28 @@ for b in "Team" "Meet" "Calls" "Payroll" "Invoices" "Schedule" "Time clock"; do
   else res home "$b" "NOT FOUND" -; fi
 done
 
-# Everything: every tool
+fi
+
+# Everything: every tool. Stay on Everything between tools (Back), relaunch only if Back lost it.
+# Only tap a tile whose centre is clear of the header and the floating tab bar (YMIN/YMAX).
 n=100
+toevery(){ launch; for k in 1 2 3; do has "All tools" && break; up; done; tap "All tools"; sleep 4; }
+onevery(){ EXACT=1 has "Every part of OENOD, right inside the app. One sign-in."; }
+top(){ for k in 1 2 3 4 5 6; do adb shell input swipe 540 600 540 2000 150; done; sleep 1; }
+toevery
 exec 3< tools.tsv
 while IFS=$'\t' read -r -u 3 name kind path; do
   [ -z "$name" ] && continue
-  launch; for k in 1 2 3; do has "All tools" && break; up; done; tap "All tools"; sleep 4
-  found=0; for k in $(seq 1 14); do has "$name" && { found=1; break; }; up; done
+  [ -n "$ONLY" ] && ! grep -qxF "$name" only.txt && continue
+  onevery || { adb shell input keyevent BACK; sleep 3; onevery || toevery; }
+  top
+  found=0; for k in $(seq 1 16); do EXACT=1 YMIN=520 YMAX=1880 has "$name" && { found=1; break; }; adb shell input swipe 540 1700 540 1150 400; sleep 1; done
   n=$((n+1)); f=$n-${name//[^A-Za-z0-9]/_}
   if [ $found = 1 ]; then
-    c0=$(crashes); tap "$name"; [ "$kind" = web ] && sleep 16 || sleep 6
+    c0=$(crashes); EXACT=1 YMIN=520 YMAX=1880 tap "$name"; [ "$kind" = web ] && sleep 12 || sleep 6
     shot $f; dump; cp u.xml $OUT/shots/$f.xml
-    if alive && [ "$(crashes)" = "$c0" ]; then res everything "$name" ok $f; else res everything "$name" CRASH $f; fi
+    if alive && [ "$(crashes)" = "$c0" ]; then res everything "$name" ok $f; else res everything "$name" CRASH $f; launch; toevery; fi
+    adb shell input keyevent BACK; sleep 3
   else res everything "$name" "NOT FOUND" -; shot $f-missing; fi
 done
 exec 3<&-

@@ -46,7 +46,7 @@ jobs:
           profile: pixel_6
           disable-animations: false
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
-          script: bash native/ci/check/run.sh $GITHUB_WORKSPACE/check.apk
+          script: ONLY=1 bash native/ci/check/run.sh $GITHUB_WORKSPACE/check.apk
       - name: Publish results to a draft release
         if: always()
         env: { GH_TOKEN: '${{ github.token }}' }
