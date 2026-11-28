@@ -6,6 +6,7 @@ node mock.js > $OUT/mock.log 2>&1 &
 sleep 1
 adb install -r -g "$APK" >/dev/null 2>&1 || adb install -r "$APK"
 PKG=com.oenod.app
+exec </dev/null
 shot(){ adb exec-out screencap -p > $OUT/shots/$1.png; }
 dump(){ rm -f u.xml; adb shell uiautomator dump /sdcard/u.xml >/dev/null 2>&1; adb pull /sdcard/u.xml u.xml >/dev/null 2>&1; }
 find1(){ dump; python3 ui.py u.xml "$1" $2; }
@@ -15,8 +16,9 @@ up(){ adb shell input swipe 540 1800 540 900 350; sleep 1; }
 down(){ adb shell input swipe 540 700 540 1900 300; sleep 1; }
 alive(){ adb shell pidof $PKG >/dev/null && adb shell dumpsys activity activities | grep -m1 -E "topResumedActivity|mResumedActivity" | grep -q $PKG; }
 crashes(){ adb logcat -d | grep -cE "FATAL EXCEPTION|ReactNativeJS.*(TypeError|ReferenceError|Invariant)"; }
-clear_noise(){ for i in 1 2 3 4 5 6; do if has "Wait"; then tap "Wait"; elif has "Allow"; then tap "Allow"; elif has "Not now"; then tap "Not now"; else break; fi; sleep 3; done; }
-launch(){ adb shell am force-stop $PKG; adb shell monkey -p $PKG -c android.intent.category.LAUNCHER 1 >/dev/null; sleep 14; clear_noise; }
+clear_noise(){ export EXACT=1; for i in 1 2 3 4 5 6; do if has "Wait"; then tap "Wait"; elif has "Allow"; then tap "Allow"; elif has "Not now"; then tap "Not now"; else break; fi; sleep 3; done; unset EXACT; }
+gohome(){ EXACT=1 tap "Home" || adb shell input tap 125 2240; sleep 4; for k in 1 2 3; do down; done; }
+launch(){ adb shell am force-stop $PKG; adb shell monkey -p $PKG -c android.intent.category.LAUNCHER 1 >/dev/null; sleep 14; clear_noise; gohome; }
 echo -e "where\tbutton\tresult\tshot" > $OUT/results.tsv
 res(){ echo -e "$1\t$2\t$3\t$4" >> $OUT/results.tsv; }
 
@@ -43,7 +45,8 @@ done
 
 # Everything: every tool
 n=100
-while IFS=$'\t' read -r name kind path; do
+exec 3< tools.tsv
+while IFS=$'\t' read -r -u 3 name kind path; do
   [ -z "$name" ] && continue
   launch; for k in 1 2 3; do has "All tools" && break; up; done; tap "All tools"; sleep 4
   found=0; for k in $(seq 1 14); do has "$name" && { found=1; break; }; up; done
@@ -53,7 +56,8 @@ while IFS=$'\t' read -r name kind path; do
     shot $f; dump; cp u.xml $OUT/shots/$f.xml
     if alive && [ "$(crashes)" = "$c0" ]; then res everything "$name" ok $f; else res everything "$name" CRASH $f; fi
   else res everything "$name" "NOT FOUND" -; shot $f-missing; fi
-done < tools.tsv
+done
+exec 3<&-
 
 # Me > Stock market line switch hides the line on Home
 launch; tap "Me"; sleep 3; for k in $(seq 1 8); do has "Stock market line" && break; up; done; shot 03-me-switch

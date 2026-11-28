@@ -3,6 +3,8 @@ import re, sys, xml.etree.ElementTree as ET
 f, want = sys.argv[1], sys.argv[2].lower()
 cls = sys.argv[3] if len(sys.argv) > 3 else None
 best = None
+import os
+exact = os.environ.get('EXACT') == '1'
 for n in ET.parse(f).iter('node'):
     t = (n.get('text') or n.get('content-desc') or '').strip().lower()
     if cls and n.get('class') != cls: continue
@@ -15,5 +17,5 @@ for n in ET.parse(f).iter('node'):
         c = f"{(x1+x2)//2} {(y1+y2)//2}"
         if cls or t == want: print(c); sys.exit(0)
         best = c
-if best: print(best); sys.exit(0)
+if best and not exact: print(best); sys.exit(0)
 sys.exit(1)
