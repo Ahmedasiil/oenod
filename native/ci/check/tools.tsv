@@ -1,0 +1,77 @@
+Markets	web	/markets
+Bookkeeping	web	/bookkeeping
+Profit Pulse	web	/pulse
+Online booking	web	/booking
+Customer messages	web	/customer-messages
+Marketing Autopilot	web	/marketing-autopilot
+Warehouse	web	/warehouse
+AI Team	web	/ai-team
+App Marketplace	web	/marketplace
+OENOD Nearby	web	/nearby
+Tax & loans	web	/acct-tools
+Schedule	app	/schedule
+Time clock	app	/timeclock
+Team	app	/team
+Time off	app	/timeoff
+Kiosk	app	/kiosk
+Hiring	app	/hiring
+Paperwork	web	/paperwork
+Onboarding	app	/onboarding
+Performance	app	/performance
+Forms & surveys	web	/forms
+Benefits & perks	web	/perks
+Payroll	app	/payrun
+Invoices	app	/invoices
+Sales & POS	app	/sales
+Wallet	app	/wallet
+Accounting	app	/accounting
+Expenses	app	/expenses
+Banking	app	/banking
+Profit & labor	web	/profit
+Business value	web	/value-report
+Snap receipts	web	/receipts
+Meet	app	/meet
+Business Phone	app	/phone
+Team chat	app	/chat
+Team news	app	/feed
+Customers	app	/customers
+Reviews	app	/reviews
+Marketing	app	/marketing
+Social AI	web	/social
+AI website	web	/my-website
+Website orders	web	/web-orders
+Ava AI	app	/ai
+Mail	app	/mail
+Academy	app	/academy
+Docs	app	/docs
+Command wall	web	/wall
+Morning briefing	web	/briefing
+Business card	app	/card
+Résumé	app	/resume
+Find a job	app	/jobs
+Inventory	app	/inventory
+OENOD Scan	web	/scan
+Storm Center	app	/storm
+Products	app	/products
+Suppliers	app	/suppliers
+Reservations	app	/reservations
+Loyalty	app	/loyalty
+Projects	app	/projects
+Cameras	app	/cameras
+Cars	app	/cars
+Live map	web	/live-map
+Checklists	web	/checklists
+Maintenance	web	/assets
+CRM pipeline	web	/crm
+Safety	web	/safety
+Visitors	web	/visitors
+Smart pricing	web	/smart-pricing
+Locations	web	/locations
+Reports	app	/reports
+My profile	app	/me
+Notifications	app	/notifications
+Join a meeting	app	/guest
+Connect a watch	app	/watch
+Settings	app	/settings
+Security	app	/security
+Help	app	/support

@@ -1,0 +1,56 @@
+name: App button check
+on:
+  push:
+    branches: [app-check]
+permissions:
+  contents: write
+jobs:
+  video:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 21 }
+      - name: Firebase config (repository secret, never committed)
+        working-directory: native
+        env: { GSJ: '${{ secrets.GOOGLE_SERVICES_JSON || secrets.GOOGLE_SERVICES_USON }}', GSJ64: '${{ secrets.GOOGLE_SERVICES_JSON_B64 }}' }
+        run: |
+          if [ -n "$GSJ" ]; then printf '%s' "$GSJ" > google-services.json; else echo "$GSJ64" | base64 -d > google-services.json; fi
+      - name: Demo build pointed at the local demo server
+        working-directory: native
+        run: |
+          npm ci
+          node -e "const f='app.json',j=require('./'+f);j.expo.extra.apiUrl='http://10.0.2.2:8747';require('fs').writeFileSync(f,JSON.stringify(j,null,2))"
+          npx expo prebuild --platform android --no-install
+          M=android/app/src/main/AndroidManifest.xml
+          grep -q usesCleartextTraffic $M && sed -i 's/android:usesCleartextTraffic="false"/android:usesCleartextTraffic="true"/' $M || sed -i 's/<application /<application android:usesCleartextTraffic="true" /' $M
+          grep -o 'usesCleartextTraffic="[a-z]*"' $M
+          cd android && chmod +x gradlew
+          printf '\norg.gradle.jvmargs=-Xmx6g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8\n' >> gradle.properties
+          ./gradlew --no-daemon :app:assembleRelease -PreactNativeArchitectures=x86_64
+          cp app/build/outputs/apk/release/*.apk $GITHUB_WORKSPACE/check.apk
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Tap every button on the emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: false
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          script: bash native/ci/check/run.sh $GITHUB_WORKSPACE/check.apk
+      - name: Publish results to a draft release
+        if: always()
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: |
+          gh release view app-check-out >/dev/null 2>&1 || gh release create app-check-out --draft --title "App button check (test only)" --notes "Emulator screenshots, demo data only." --target ${{ github.sha }}
+          (cd out && zip -qr ../app-check-${{ github.run_number }}.zip .)
+          gh release upload app-check-out app-check-${{ github.run_number }}.zip --clobber
