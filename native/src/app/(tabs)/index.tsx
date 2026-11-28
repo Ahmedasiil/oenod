@@ -26,6 +26,7 @@ import { ActCard, Band, card, Ghost, H, HChip, HSec, MTop, NowCard, Legend, LEGE
 import type { PhName } from '../../ui/phPaths';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PoweredBy } from '../../ui/Brand';
+import { MarketLine } from '../../ui/MarketLine';
 
 type Clock = {
   employee: { id: number; name: string; job_title: string | null; location_id: number | null } | null;
@@ -817,6 +818,7 @@ export default function Home() {
         refreshControl={<RefreshControl refreshing={!!(c.refreshing || dash.refreshing)} onRefresh={refresh} tintColor="#FFFFFF" />}>
         {isManager || hasEmployee ? top : band}
         <View style={{ paddingHorizontal: 16, marginTop: -80, gap: 14, width: '100%', maxWidth: 760, alignSelf: 'center' }}>
+          <MarketLine />
           {isManager ? (
             <>
               <Rise>{ownerActs}</Rise>

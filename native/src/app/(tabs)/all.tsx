@@ -25,6 +25,20 @@ type Tool = { name: string; icon: IconName; hint: string; app?: string; web?: st
 type Group = { name: string; tools: Tool[] };
 
 const GROUPS: Group[] = [
+  // 4.7: the departments added on oenod.com in November 2026, opened inside the app (one sign-in).
+  { name: 'New on OENOD', tools: [
+    { name: 'Markets', icon: 'chart', ph: 'trend-up', hint: 'Live stocks', web: '/markets', who: 'mgr' },
+    { name: 'Bookkeeping', icon: 'chart', ph: 'receipt', hint: 'Books done for you', web: '/bookkeeping', who: 'mgr', admin: true },
+    { name: 'Profit Pulse', icon: 'chart', ph: 'chart-line-up', hint: 'Live profit', web: '/pulse', who: 'mgr' },
+    { name: 'Online booking', icon: 'calendar', ph: 'calendar-dots', hint: 'Customers book', web: '/booking', who: 'mgr' },
+    { name: 'Customer messages', icon: 'chat', ph: 'chat-text', hint: 'Ava follows up', web: '/customer-messages', who: 'mgr' },
+    { name: 'Marketing Autopilot', icon: 'send', ph: 'megaphone', hint: 'Ava plans it', web: '/marketing-autopilot', who: 'mgr' },
+    { name: 'Warehouse', icon: 'box', ph: 'package', hint: 'Bins & trucks', web: '/warehouse', who: 'mgr' },
+    { name: 'AI Team', icon: 'spark', ph: 'sparkle', hint: 'Agents per department', web: '/ai-team', who: 'mgr', admin: true },
+    { name: 'App Marketplace', icon: 'grid', ph: 'squares-four', hint: 'Connect apps', web: '/marketplace', who: 'mgr', admin: true },
+    { name: 'OENOD Nearby', icon: 'pin', ph: 'map-pin', hint: 'Show on the map', web: '/nearby', who: 'mgr' },
+    { name: 'Tax & loans', icon: 'cash', ph: 'bank', hint: 'Corporate tax', web: '/acct-tools', who: 'mgr', admin: true },
+  ] },
   { name: 'People', tools: [
     { name: 'Schedule', icon: 'calendar', hint: 'Shifts', app: '/schedule', who: 'team' },
     { name: 'Time clock', icon: 'clock', hint: "Who's in", app: '/timeclock', who: 'mgr' },
@@ -37,6 +51,8 @@ const GROUPS: Group[] = [
     { name: 'Paperwork', icon: 'doc', ph: 'file-text', hint: 'Forms & policies', web: '/paperwork', who: 'mgr' },
     { name: 'Onboarding', icon: 'check', hint: 'New people', app: '/onboarding', who: 'mgr', mod: 'onboarding' },
     { name: 'Performance', icon: 'chart', hint: 'Goals', app: '/performance', who: 'mgr', mod: 'performance' },
+    { name: 'Forms & surveys', icon: 'doc', ph: 'check-square', hint: 'Ask your team', web: '/forms', who: 'mgr' },
+    { name: 'Benefits & perks', icon: 'heart', ph: 'star', hint: 'For your team', web: '/perks', who: 'mgr' },
   ] },
   { name: 'Money', tools: [
     { name: 'Payroll', icon: 'cash', hint: 'Pay your team', app: '/payrun', who: 'mgr', mod: 'payroll' },
@@ -49,6 +65,7 @@ const GROUPS: Group[] = [
     { name: 'Banking', icon: 'shield', hint: 'Accounts', app: '/banking', who: 'mgr', mod: 'accounting', admin: true },
     { name: 'Profit & labor', icon: 'chart', ph: 'trend-up', hint: 'Profit health', web: '/profit', who: 'mgr' },
     { name: 'Business value', icon: 'chart', ph: 'chart-bar', hint: 'Valuation Pro', web: '/value-report', who: 'mgr', admin: true },
+    { name: 'Snap receipts', icon: 'scan', ph: 'scan', hint: 'Photo a receipt', web: '/receipts', who: 'mgr' },
   ] },
   { name: 'Talk', tools: [
     { name: 'Meet', icon: 'video', hint: 'Video meetings', app: '/meet', who: 'team', mod: 'meet' },
@@ -58,12 +75,17 @@ const GROUPS: Group[] = [
     { name: 'Customers', icon: 'heart', hint: 'People who buy', app: '/customers', who: 'mgr' },
     { name: 'Reviews', icon: 'spark', hint: 'Stars', app: '/reviews', who: 'mgr' },
     { name: 'Marketing', icon: 'send', hint: 'Campaigns', app: '/marketing', who: 'mgr', mod: 'marketing' },
+    { name: 'Social AI', icon: 'spark', ph: 'share-network', hint: 'Posts for you', web: '/social', who: 'mgr' },
+    { name: 'AI website', icon: 'globe', ph: 'globe', hint: 'Your site', web: '/my-website', who: 'mgr' },
+    { name: 'Website orders', icon: 'cart', ph: 'package', hint: 'Online orders', web: '/web-orders', who: 'mgr' },
   ] },
   { name: 'Ava, mail & learning', tools: [
     { name: 'Ava AI', icon: 'spark', hint: 'Ask', app: '/ai', who: 'all' },
     { name: 'Mail', icon: 'mail', hint: 'Inbox', app: '/mail', who: 'mgr' },
     { name: 'Academy', icon: 'cap', hint: 'Courses', app: '/academy', who: 'team', mod: 'academy' },
     { name: 'Docs', icon: 'doc', hint: 'Sign and share', app: '/docs', who: 'mgr', mod: 'docs' },
+    { name: 'Command wall', icon: 'device', ph: 'monitor', hint: 'Everything live', web: '/wall', who: 'mgr' },
+    { name: 'Morning briefing', icon: 'sun', ph: 'sun-horizon', hint: 'Your day', web: '/briefing', who: 'mgr' },
   ] },
   { name: 'Career', tools: [
     { name: 'Business card', icon: 'qr', hint: 'Share with anyone', app: '/card', who: 'all' },
@@ -82,6 +104,13 @@ const GROUPS: Group[] = [
     { name: 'Cameras', icon: 'video', hint: 'Live view', app: '/cameras', who: 'mgr' },
     { name: 'Cars', icon: 'pin', ph: 'map-pin', hint: 'GPS & car controls', app: '/cars', who: 'mgr' },
     { name: 'Live map', icon: 'pin', ph: 'map-pin', hint: 'Who is where', web: '/live-map', who: 'mgr' },
+    { name: 'Checklists', icon: 'check', ph: 'check-square', hint: 'Open & close', web: '/checklists', who: 'mgr' },
+    { name: 'Maintenance', icon: 'box', ph: 'sliders-horizontal', hint: 'Assets & repairs', web: '/assets', who: 'mgr' },
+    { name: 'CRM pipeline', icon: 'users', ph: 'kanban', hint: 'Deals', web: '/crm', who: 'mgr' },
+    { name: 'Safety', icon: 'shield', ph: 'warning', hint: 'Incidents', web: '/safety', who: 'mgr' },
+    { name: 'Visitors', icon: 'user', ph: 'door-open', hint: 'Sign-in', web: '/visitors', who: 'mgr' },
+    { name: 'Smart pricing', icon: 'chart', ph: 'trend-up', hint: 'Better prices', web: '/smart-pricing', who: 'mgr' },
+    { name: 'Locations', icon: 'pin', ph: 'buildings', hint: 'Shops & brands', web: '/locations', who: 'mgr' },
     { name: 'Reports', icon: 'chart', hint: 'Numbers', app: '/reports', who: 'mgr' },
   ] },
   { name: 'You & settings', tools: [
@@ -95,7 +124,7 @@ const GROUPS: Group[] = [
   ] },
 ];
 // 4.0: the same soft two-tone tiles as Home, coloured by meaning (People navy, Money sky blue, the rest grey).
-const GTONE: Record<string, Tone> = { 'People': 'navy', 'Money': 'blue', 'Talk': 'navy', 'Ava, mail & learning': 'navy', 'Operations': 'ink', 'You & settings': 'ink' };
+const GTONE: Record<string, Tone> = { 'New on OENOD': 'blue', 'People': 'navy', 'Money': 'blue', 'Talk': 'navy', 'Ava, mail & learning': 'navy', 'Operations': 'ink', 'You & settings': 'ink' };
 const PHI: Partial<Record<IconName, PhName>> = { calendar: 'calendar-dots', clock: 'clock', users: 'users-three', sun: 'sun-horizon', check: 'seal-check', device: 'monitor', briefcase: 'briefcase',
   chart: 'chart-line-up', cash: 'money', doc: 'receipt', cart: 'package', wallet: 'wallet', shield: 'shield-check', video: 'video-camera', phone: 'phone', chat: 'chat-circle-dots', news: 'megaphone',
   heart: 'star', spark: 'sparkle', send: 'megaphone', mail: 'envelope-simple', cap: 'graduation-cap', box: 'package', cloud: 'warning', grid: 'squares-four', user: 'user', bell: 'bell', link: 'arrow-up-right', globe: 'gear-six' };

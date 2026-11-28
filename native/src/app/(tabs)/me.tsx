@@ -26,6 +26,7 @@ import { Logo, useSeason } from '../../ui/Logo';
 import { lookName } from '../../lib/season';
 import { seasonIconOn, seasonIconSupported, setSeasonIconOn } from '../../lib/seasonIcon';
 import { Switch } from 'react-native';
+import { marketLineOn, setMarketLineOn } from '../../ui/MarketLine';
 
 export default function Me() {
   const { session, signOut } = useAuth();
@@ -40,6 +41,8 @@ export default function Me() {
   const p = useLoad(() => get('/api/me/profile'));
   const season = useSeason();
   const [iconOn, setIconOn] = useState(seasonIconOn());
+  const [mktOn, setMktOn] = useState(true);
+  React.useEffect(() => { marketLineOn().then(setMktOn); }, []);
   const [which, setWhich] = useState<'card' | 'badge'>(session?.employee ? 'badge' : 'card');
   const u = session?.user;
   const badgeUrl: string | undefined = p.data?.employee?.badge_url;
@@ -137,6 +140,13 @@ export default function Me() {
             <Switch value={iconOn} onValueChange={(v) => { setIconOn(v); setSeasonIconOn(v).catch(() => {}); }} accessibilityLabel={t('Seasonal app icon')} />
           </Row>
         ) : null}
+        <Row>
+          <View style={{ flex: 1 }}>
+            <Text style={{ color: C.ink, fontWeight: '700', fontSize: 15 }}>{t('Stock market line')}</Text>
+            <Muted style={{ fontSize: 13 }}>{t('The live market line on your home screen.')}</Muted>
+          </View>
+          <Switch value={mktOn} onValueChange={(v) => { setMktOn(v); setMarketLineOn(v).catch(() => {}); }} accessibilityLabel={t('Stock market line')} />
+        </Row>
       </Card>
       </Section>
 
